@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { MainLayout } from './main-layout/main-layout/main-layout';
+import { MainLayout } from './main-layout/main-layout';
 
 @NgModule({
   declarations: [MainLayout],
