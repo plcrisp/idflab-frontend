@@ -8,6 +8,7 @@ export const environment = {
   },
 
   storageKeys: {
-    token: 'access_token',
+    accessToken: 'access_token',
+    refreshToken: 'refresh_token',
   },
 };

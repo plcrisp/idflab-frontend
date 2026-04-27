@@ -1,3 +1,4 @@
+import { HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 
@@ -5,21 +6,36 @@ import { environment } from '../../../../environments/environment';
   providedIn: 'root',
 })
 export class TokenService {
-  private TOKEN_KEY = environment.storageKeys.token;
+  private ACCESS_TOKEN_KEY = environment.storageKeys.accessToken;
+  private REFRESH_TOKEN_KEY = environment.storageKeys.refreshToken;
 
-  saveToken(token: string): void {
-    localStorage.setItem(this.TOKEN_KEY, token);
+  saveTokens(accessToken: string, refreshToken: string): void {
+    localStorage.setItem(this.ACCESS_TOKEN_KEY, accessToken);
+    localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
   }
 
-  getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+  getAccessToken(): string | null {
+    return localStorage.getItem(this.ACCESS_TOKEN_KEY);
   }
 
-  removeToken(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
+  getRefreshToken(): string | null {
+    return localStorage.getItem(this.REFRESH_TOKEN_KEY);
   }
 
-  hasToken(): boolean {
-    return !!this.getToken();
+  addTokenHeader(req: HttpRequest<any>, token: string): HttpRequest<any> {
+    return req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  clearTokens(): void {
+    localStorage.removeItem(this.ACCESS_TOKEN_KEY);
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+  }
+
+  hasAccessToken(): boolean {
+    return !!this.getAccessToken();
   }
 }

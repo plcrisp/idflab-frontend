@@ -27,7 +27,7 @@ export class AuthService {
       })
       .pipe(
         tap((response) => {
-          this.tokenService.saveToken(response.access_token);
+          this.tokenService.saveTokens(response.access_token, response.refresh_token);
         }),
       );
   }
@@ -36,10 +36,20 @@ export class AuthService {
     return this.http.get<User>(`${this.baseUrl}/me`);
   }
 
+  refreshToken(refreshToken: string) {
+    return this.http.post(`${this.baseUrl}/refresh`, {
+      refresh_token: refreshToken,
+    });
+  }
+
   logout(): Observable<any> {
-    return this.http.post(`${this.baseUrl}/logout`, {}).pipe(
+    const refreshToken = this.tokenService.getRefreshToken();
+
+    const body = refreshToken ? { refresh_token: refreshToken } : {};
+
+    return this.http.post(`${this.baseUrl}/logout`, body).pipe(
       tap(() => {
-        this.tokenService.removeToken();
+        this.tokenService.clearTokens();
       }),
     );
   }
