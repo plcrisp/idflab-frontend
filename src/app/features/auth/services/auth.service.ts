@@ -61,4 +61,8 @@ export class AuthService {
   verifyEmail(token: string): Observable<any> {
     return this.http.get(`${this.baseUrl}/verify-email?token=${token}`);
   }
+
+  resendEmailVerification(user_email: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/resend-verification-email`, { email: user_email });
+  }
 }
