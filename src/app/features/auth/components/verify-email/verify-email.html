@@ -1,0 +1,41 @@
+<div class="verify-container">
+  <div class="state-card" *ngIf="status === 'loading'">
+    <div class="spinner-wrapper">
+      <div class="spinner-large"></div>
+    </div>
+    <h2>Verificando e-mail...</h2>
+    <p>Aguarde enquanto validamos suas credenciais e liberamos seu acesso ao IDFLab.</p>
+  </div>
+
+  <div class="state-card" *ngIf="status === 'success'">
+    <div class="icon-circle icon-success">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path
+          d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path d="M22 4L12 14.01l-3-3" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </div>
+    <h2>E-mail verificado!</h2>
+    <p>
+      Sua conta foi ativada com sucesso. Você já tem acesso total à plataforma de análise
+      hidrológica.
+    </p>
+    <button routerLink="/auth/login" class="btn-primary">Acessar o IDFLab</button>
+  </div>
+
+  <div class="state-card" *ngIf="status === 'error'">
+    <div class="icon-circle icon-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+    </div>
+    <h2>Ops, algo deu errado</h2>
+    <p>{{ errorMessage }}</p>
+    <button routerLink="/auth/login" class="btn-secondary">Voltar para o Login</button>
+  </div>
+</div>
