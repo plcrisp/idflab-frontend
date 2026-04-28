@@ -97,5 +97,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 48px;
+  background-color: var(--color-black-800);
+
+  router-outlet {
+    display: none;
+  }
+
+  > *:not(router-outlet) {
+    width: 100%;
+    display: block;
+  }
 }
