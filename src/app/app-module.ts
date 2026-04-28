@@ -6,16 +6,16 @@ import { LayoutModule } from './layout/layout-module';
 
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
-import { MainLayout } from './layout/main-layout/main-layout';
+import { AppComponent } from './app.component';
 
 @NgModule({
-  declarations: [],
+  declarations: [AppComponent],
   imports: [BrowserModule, AppRoutingModule, LayoutModule],
   providers: [
     provideBrowserGlobalErrorListeners(),
 
     provideHttpClient(withInterceptors([authInterceptor])),
   ],
-  bootstrap: [MainLayout],
+  bootstrap: [AppComponent],
 })
 export class AppModule {}
