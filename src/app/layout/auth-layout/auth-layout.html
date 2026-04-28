@@ -1,5 +1,41 @@
-<div class="auth-container">
-  <div class="left-panel"></div>
+<div class="auth-layout">
+  <div class="left-panel">
+    <div class="accent-line"></div>
+
+    <svg class="bg-pattern" preserveAspectRatio="none">
+      <defs>
+        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" />
+        </pattern>
+      </defs>
+
+      <rect width="100%" height="100%" fill="url(#grid)" />
+
+      <path
+        d="M 0 200 Q 200 180 400 200 T 800 200 T 1200 200 T 1600 200 T 2000 200 T 2400 200 T 2800 200"
+      />
+      <path
+        d="M 0 280 Q 200 260 400 280 T 800 280 T 1200 280 T 1600 280 T 2000 280 T 2400 280 T 2800 280"
+      />
+      <path
+        d="M 0 360 Q 200 340 400 360 T 800 360 T 1200 360 T 1600 360 T 2000 360 T 2400 360 T 2800 360"
+      />
+      <path
+        d="M 0 440 Q 200 420 400 440 T 800 440 T 1200 440 T 1600 440 T 2000 440 T 2400 440 T 2800 440"
+      />
+      <path
+        d="M 0 520 Q 200 500 400 520 T 800 520 T 1200 520 T 1600 520 T 2000 520 T 2400 520 T 2800 520"
+      />
+    </svg>
+
+    <div class="logo">
+      <img src="assets/images/logos/IDFLab_white.png" alt="IDFLab" />
+    </div>
+
+    <div class="content">
+      <p>Análise avançada de precipitação e curvas IDF para decisões hidrológicas precisas.</p>
+    </div>
+  </div>
   <div class="right-panel">
     <router-outlet></router-outlet>
   </div>
