@@ -4,7 +4,7 @@ import { Observable, tap } from 'rxjs';
 
 import { TokenService } from './token.service';
 import { TokenResponse } from '../models/token.model';
-import { User } from '../models/user.model';
+import { User, UserRegistration } from '../models/user.model';
 
 import { environment } from '../../../../environments/environment';
 
@@ -32,6 +32,10 @@ export class AuthService {
       );
   }
 
+  register(user: UserRegistration): Observable<User> {
+    return this.http.post<User>(`${this.baseUrl}/register`, user);
+  }
+
   getMe(): Observable<User> {
     return this.http.get<User>(`${this.baseUrl}/me`);
   }
@@ -52,5 +56,9 @@ export class AuthService {
         this.tokenService.clearTokens();
       }),
     );
+  }
+
+  verifyEmail(token: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/verify-email?token=${token}`);
   }
 }
