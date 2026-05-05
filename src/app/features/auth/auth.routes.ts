@@ -4,6 +4,7 @@ import { Login } from './components/login/login';
 import { Register } from './components/register/register';
 import { VerifyEmail } from './components/verify-email/verify-email';
 import { ForgotPassword } from './components/forgot-password/forgot-password';
+import { ResetPassword } from './components/reset-password/reset-password';
 
 export const AUTH_ROUTES: Routes = [
   {
@@ -25,6 +26,11 @@ export const AUTH_ROUTES: Routes = [
     path: 'forgot-password',
     component: ForgotPassword,
     title: 'Recuperar Senha | IDFLab',
+  },
+  {
+    path: 'reset-password',
+    component: ResetPassword,
+    title: 'Alterar Senha | IDFLab',
   },
   {
     path: '',
