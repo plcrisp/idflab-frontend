@@ -12,6 +12,7 @@ import {
 } from '../models/user.model';
 
 import { environment } from '../../../../environments/environment';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +23,7 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private tokenService: TokenService,
+    private router: Router,
   ) {}
 
   login(email: string, password: string): Observable<TokenResponse> {
@@ -33,6 +35,7 @@ export class AuthService {
       .pipe(
         tap((response) => {
           this.tokenService.saveTokens(response.access_token, response.refresh_token);
+          this.router.navigate(['/app']);
         }),
       );
   }
@@ -67,6 +70,7 @@ export class AuthService {
     return this.http.post(`${this.baseUrl}/logout`, body).pipe(
       tap(() => {
         this.tokenService.clearTokens();
+        this.router.navigate(['/auth/login']);
       }),
     );
   }

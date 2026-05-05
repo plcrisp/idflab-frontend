@@ -8,4 +8,17 @@ import { UserRegistration } from '../../features/auth/models/user.model';
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.scss',
 })
-export class MainLayout {}
+export class MainLayout {
+  constructor(private auth: AuthService) {}
+
+  logout() {
+    this.auth.logout().subscribe({
+      next: (response) => {
+        console.log('Logout realizado com sucesso!', response);
+      },
+      error: (error) => {
+        console.error('Erro no logout:', error);
+      },
+    });
+  }
+}

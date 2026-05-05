@@ -10,6 +10,7 @@ import {
 import { AuthService } from '../../services/auth.service';
 import { TimerService } from '../../../../core/services/timer.service';
 import { TokenService } from '../../../../core/services/token.service';
+import { Router } from '@angular/router';
 
 export const passwordMatchValidator: ValidatorFn = (
   control: AbstractControl,
@@ -46,6 +47,7 @@ export class Register implements OnInit {
     private tokenService: TokenService,
     private cdr: ChangeDetectorRef,
     public timerService: TimerService,
+    private router: Router,
   ) {
     this.registerForm = this.fb.group(
       {
@@ -106,6 +108,7 @@ export class Register implements OnInit {
         next: (response) => {
           this.tokenService.saveTokens(response.access_token, response.refresh_token);
           console.log('Criação de conta realizada com sucesso!');
+          this.router.navigate(['/app']);
         },
         error: (error) => {
           this.errorMessage = error?.error?.message || 'Erro ao criar conta';
