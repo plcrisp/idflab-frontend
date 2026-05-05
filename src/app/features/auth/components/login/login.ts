@@ -1,6 +1,7 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, NgZone, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { GoogleAuthService } from '../../services/google-auth.service';
 
 @Component({
   selector: 'app-login',
@@ -8,7 +9,7 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
-export class Login {
+export class Login implements OnInit {
   loginForm: FormGroup;
   errorMessage: string = '';
 
@@ -16,11 +17,16 @@ export class Login {
     private fb: FormBuilder,
     private auth: AuthService,
     private cdr: ChangeDetectorRef,
+    private googleAuth: GoogleAuthService,
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
     });
+  }
+
+  ngOnInit(): void {
+    this.googleAuth.initializeGoogleAuth();
   }
 
   onSubmit() {
@@ -43,5 +49,9 @@ export class Login {
         console.error('Erro no login:', error);
       },
     });
+  }
+
+  loginWithGoogle(): void {
+    this.googleAuth.openPopup();
   }
 }

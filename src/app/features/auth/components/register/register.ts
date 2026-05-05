@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { TimerService } from '../../../../core/services/timer.service';
+import { TokenService } from '../../../../core/services/token.service';
 
 export const passwordMatchValidator: ValidatorFn = (
   control: AbstractControl,
@@ -29,9 +30,11 @@ export const passwordMatchValidator: ValidatorFn = (
   styleUrl: './register.scss',
   providers: [TimerService],
 })
-export class Register {
+export class Register implements OnInit {
   registerForm: FormGroup;
   errorMessage: string = '';
+
+  isGoogleAuth: boolean = false;
 
   isLoading: boolean = false;
   isRegistered: boolean = false;
@@ -40,6 +43,7 @@ export class Register {
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
+    private tokenService: TokenService,
     private cdr: ChangeDetectorRef,
     public timerService: TimerService,
   ) {
@@ -50,11 +54,36 @@ export class Register {
         password: ['', [Validators.required, Validators.minLength(8)]],
         confirm_password: ['', Validators.required],
         user_type: ['STUDENT', Validators.required],
+        auth_provider: ['LOCAL', Validators.required],
       },
       {
         validators: passwordMatchValidator,
       },
     );
+  }
+
+  ngOnInit() {
+    const state = history.state;
+
+    if (state && state.isGoogleAuth) {
+      this.isGoogleAuth = true;
+
+      this.registerForm.patchValue({
+        name: state.name,
+        email: state.email,
+        auth_provider: 'GOOGLE',
+      });
+
+      this.registerForm.get('email')?.disable();
+
+      this.registerForm.get('password')?.clearValidators();
+      this.registerForm.get('confirm_password')?.clearValidators();
+
+      this.registerForm.get('password')?.updateValueAndValidity();
+      this.registerForm.get('confirm_password')?.updateValueAndValidity();
+
+      this.cdr.detectChanges();
+    }
   }
 
   onSubmit() {
@@ -66,20 +95,38 @@ export class Register {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.auth.register(this.registerForm.value).subscribe({
-      next: (response) => {
-        console.log('Conta criada com sucesso!', response);
-        this.isLoading = false;
-        this.isRegistered = true;
-        this.timerService.startResendTimer(30, () => this.cdr.detectChanges());
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.errorMessage = error?.error?.message || 'Erro ao criar conta';
-        this.cdr.detectChanges();
-      },
-    });
+    if (this.isGoogleAuth) {
+      const payloadGoogle = {
+        name: this.registerForm.value.name,
+        email: history.state.email,
+        user_type: this.registerForm.value.user_type,
+      };
+
+      this.auth.registerWithGoogle(payloadGoogle).subscribe({
+        next: (response) => {
+          this.tokenService.saveTokens(response.access_token, response.refresh_token);
+          console.log('Criação de conta realizada com sucesso!');
+        },
+        error: (error) => {
+          this.errorMessage = error?.error?.message || 'Erro ao criar conta';
+        },
+      });
+    } else {
+      this.auth.register(this.registerForm.value).subscribe({
+        next: (response) => {
+          console.log('Conta criada com sucesso!', response);
+          this.isLoading = false;
+          this.isRegistered = true;
+          this.timerService.startResendTimer(30, () => this.cdr.detectChanges());
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.errorMessage = error?.error?.message || 'Erro ao criar conta';
+          this.cdr.detectChanges();
+        },
+      });
+    }
   }
 
   onResendEmail() {

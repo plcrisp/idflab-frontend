@@ -1,6 +1,11 @@
 <div class="form-wrapper">
   <form *ngIf="!isRegistered" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-    <h1>Criar conta</h1>
+    <div class="form-header">
+      <h1 [class.google-auth]="isGoogleAuth">Criar conta</h1>
+      <p *ngIf="isGoogleAuth" class="subtitle">
+        Quase lá! Complete seu perfil para finalizar o cadastro com o Google.
+      </p>
+    </div>
     <div class="role-selector">
       <label class="role-option">
         <input type="radio" formControlName="user_type" value="STUDENT" />
@@ -45,7 +50,7 @@
       </p>
     </div>
 
-    <div class="input-group">
+    <div class="input-group" *ngIf="!isGoogleAuth">
       <label for="password">Senha</label>
       <input
         type="password"
@@ -62,7 +67,7 @@
       </p>
     </div>
 
-    <div class="input-group">
+    <div class="input-group" *ngIf="!isGoogleAuth">
       <label for="confirm_password">Confirmar senha</label>
       <input
         type="password"

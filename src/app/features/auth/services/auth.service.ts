@@ -4,7 +4,12 @@ import { Observable, tap } from 'rxjs';
 
 import { TokenService } from '../../../core/services/token.service';
 import { TokenResponse } from '../../../core/models/token.model';
-import { ResetPasswordPayload, User, UserRegistration } from '../models/user.model';
+import {
+  GoogleRegisterRequest,
+  ResetPasswordPayload,
+  User,
+  UserRegistration,
+} from '../models/user.model';
 
 import { environment } from '../../../../environments/environment';
 
@@ -34,6 +39,14 @@ export class AuthService {
 
   register(user: UserRegistration): Observable<User> {
     return this.http.post<User>(`${this.baseUrl}/register`, user);
+  }
+
+  loginWithGoogle(googleToken: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/google`, { token: googleToken });
+  }
+
+  registerWithGoogle(data: GoogleRegisterRequest): Observable<any> {
+    return this.http.post(`${this.baseUrl}/google/register`, data);
   }
 
   getMe(): Observable<User> {
