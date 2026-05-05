@@ -48,7 +48,7 @@
   margin: 0 auto 2rem;
   border: 1px solid;
 
-  svg {
+  .icon {
     width: 28px;
     height: 28px;
   }
@@ -99,7 +99,7 @@ button {
 .btn-secondary {
   background-color: transparent;
   border: 1px solid var(--border);
-  color: var(--white);
+  color: var(--text);
 
   &:hover {
     background-color: rgba(42, 60, 88, 0.1);

@@ -10,9 +10,19 @@ import { VerifyEmail } from './components/verify-email/verify-email';
 import { ForgotPassword } from './components/forgot-password/forgot-password';
 import { ResetPassword } from './components/reset-password/reset-password';
 import { SharedModule } from '../../shared/shared-module';
+import { lucideBan } from '@ng-icons/lucide';
+import { NgIconsModule } from '@ng-icons/core';
 
 @NgModule({
   declarations: [Login, Register, VerifyEmail, ForgotPassword, ResetPassword],
-  imports: [CommonModule, ReactiveFormsModule, RouterModule.forChild(AUTH_ROUTES), SharedModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule.forChild(AUTH_ROUTES),
+    SharedModule,
+    NgIconsModule.withIcons({
+      lucideBan,
+    }),
+  ],
 })
 export class AuthModule {}
