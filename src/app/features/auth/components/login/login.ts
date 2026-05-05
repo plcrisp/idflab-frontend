@@ -13,6 +13,8 @@ export class Login implements OnInit {
   loginForm: FormGroup;
   errorMessage: string = '';
 
+  isLoading: boolean = false;
+
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
@@ -35,6 +37,8 @@ export class Login implements OnInit {
       return;
     }
 
+    this.isLoading = true;
+
     const { email, password } = this.loginForm.value;
 
     this.errorMessage = '';
@@ -42,22 +46,36 @@ export class Login implements OnInit {
     this.auth.login(email, password).subscribe({
       next: (response) => {
         console.log('Login realizado com sucesso!', response);
+        this.isLoading = false;
       },
       error: (error) => {
         const message =
           error?.error?.detail?.message || error?.error?.message || 'Erro ao fazer login';
+
         this.errorMessage = message;
 
         if (message === 'E-mail não verificado. Verifique sua caixa de entrada.') {
           if (email) {
             this.auth.resendEmailVerification(email).subscribe({
-              next: () => console.log('E-mail de verificação reenviado.'),
-              error: (err) => console.error('Erro ao reenviar e-mail:', err),
+              next: () => {
+                console.log('E-mail de verificação reenviado.');
+                this.isLoading = false;
+                this.cdr.detectChanges();
+              },
+              error: (err) => {
+                console.error('Erro ao reenviar e-mail:', err);
+                this.isLoading = false;
+                this.cdr.detectChanges();
+              },
             });
+
+            return;
           }
         }
 
+        this.isLoading = false;
         this.cdr.detectChanges();
+
         console.error('Erro no login:', error);
       },
     });

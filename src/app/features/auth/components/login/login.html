@@ -38,8 +38,13 @@
     </div>
 
     <div class="actions">
-      <button type="submit" class="btn-primary" [disabled]="loginForm.invalid && loginForm.touched">
-        Entrar
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="isLoading || (loginForm.invalid && loginForm.touched)"
+      >
+        <span *ngIf="!isLoading">Entrar</span>
+        <div class="spinner" *ngIf="isLoading"></div>
       </button>
 
       <button type="button" class="btn-google" (click)="loginWithGoogle()">
