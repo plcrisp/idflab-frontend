@@ -1,0 +1,56 @@
+.theme-toggle {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+
+  .toggle-btn {
+    position: relative;
+    width: 64px;
+    height: 32px;
+    border-radius: 999px;
+    border: 1px solid var(--surface);
+    background: var(--surface);
+    cursor: pointer;
+
+    .icon {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: all 0.3s ease;
+      opacity: 0.4;
+      color: var(--icon);
+
+      &.active {
+        opacity: 1;
+        color: var(--primary);
+      }
+    }
+
+    .sun {
+      left: 8px;
+    }
+
+    .moon {
+      right: 8px;
+    }
+
+    .slider {
+      position: absolute;
+      top: 3px;
+      left: 4px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--primary);
+      transition: all 0.3s ease;
+
+      &.dark {
+        left: calc(100% - 28px);
+      }
+
+      &.no-transition {
+        transition: none;
+      }
+    }
+  }
+}

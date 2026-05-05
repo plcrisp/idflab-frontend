@@ -1,0 +1,9 @@
+<div class="theme-toggle">
+  <button (click)="toggle()" class="toggle-btn">
+    <ng-icon name="lucideSun" class="icon sun" [class.active]="!(isDark$ | async)"> </ng-icon>
+
+    <ng-icon name="lucideMoon" class="icon moon" [class.active]="(isDark$ | async)"> </ng-icon>
+
+    <div class="slider" [class.dark]="(isDark$ | async)" [class.no-transition]="!isReady"></div>
+  </button>
+</div>

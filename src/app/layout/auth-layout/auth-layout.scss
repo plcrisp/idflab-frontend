@@ -97,7 +97,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-black-800);
+  background-color: var(--bg);
 
   router-outlet {
     display: none;

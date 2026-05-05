@@ -1,7 +1,9 @@
 <div class="form-wrapper">
+  <app-theme-toggle></app-theme-toggle>
   <form *ngIf="!isRegistered" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
     <div class="form-header">
       <h1 [class.google-auth]="isGoogleAuth">Criar conta</h1>
+
       <p *ngIf="isGoogleAuth" class="subtitle">
         Quase lá! Complete seu perfil para finalizar o cadastro com o Google.
       </p>

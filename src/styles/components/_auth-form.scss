@@ -14,7 +14,7 @@
 }
 
 h1 {
-  color: var(--color-white);
+  color: var(--text);
   font-size: 2rem;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -23,7 +23,7 @@ h1 {
 }
 
 .subtitle {
-  color: var(--color-grey);
+  color: var(--text-muted);
   font-size: 0.95rem;
   line-height: 1.5;
   margin-bottom: 3rem;
@@ -35,7 +35,7 @@ h1 {
   label {
     display: block;
     margin-bottom: 0.75rem;
-    color: var(--color-white);
+    color: var(--text);
     font-size: 0.875rem;
     font-weight: 500;
     letter-spacing: -0.01em;
@@ -44,17 +44,16 @@ h1 {
   input {
     width: 100%;
     padding: 0.875rem 1rem;
-    color: var(--color-white);
-    background-color: var(--color-black-700);
-    border: 1px solid rgba(42, 60, 88, 0.6);
+    color: var(--text);
+    background-color: var(--surface);
+    border: 1px solid var(--border-alt);
     border-radius: 10px;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
     outline: none;
     transition: all 0.2s ease;
     font-family: inherit;
 
     &:focus {
-      border-color: var(--color-primary-600);
+      border-color: var(--primary);
       box-shadow:
         inset 0 1px 2px rgba(0, 0, 0, 0.3),
         0 0 0 3px rgba(73, 98, 139, 0.15);
@@ -79,7 +78,7 @@ h1 {
   margin-bottom: 2.5rem;
 
   a {
-    color: var(--color-primary-600);
+    color: var(--primary);
     font-size: 0.8125rem;
     font-weight: 500;
     letter-spacing: -0.01em;
@@ -119,31 +118,34 @@ button {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #5874a0 0%, #49628b 100%);
+  background: var(--primary);
   color: var(--color-white);
   border: none;
+  transition: all 0.4s ease;
+
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.3),
     0 4px 12px rgba(73, 98, 139, 0.2);
 
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #6585b1 0%, #5874a0 100%);
+    background: #5874a0;
     box-shadow:
       0 1px 2px rgba(0, 0, 0, 0.3),
       0 6px 16px rgba(73, 98, 139, 0.3);
   }
+}
 
-  .btn-google {
-    background-color: transparent;
-    border: 1px solid rgba(42, 60, 88, 0.5);
-    color: rgba(242, 242, 242, 0.85);
-    font-weight: 500;
-    gap: 0.75rem;
+.btn-google {
+  background-color: transparent;
+  border: 1px solid var(--border-alt);
+  color: var(--text);
+  font-weight: 500;
+  gap: 0.75rem;
+  transition: all 0.3s ease;
 
-    &:hover {
-      border-color: rgba(42, 60, 88, 0.8);
-      background-color: rgba(42, 60, 88, 0.08);
-    }
+  &:hover {
+    border-color: var(--primary);
+    background-color: var(--hover-primary-soft);
   }
 }
 
@@ -152,13 +154,13 @@ button {
   margin-top: 2rem;
 
   p {
-    color: var(--color-grey);
+    color: var(--text-muted);
     font-size: 0.875rem;
     letter-spacing: -0.01em;
   }
 
   a {
-    color: var(--color-white);
+    color: var(--text);
     font-weight: 500;
     text-decoration: none;
     transition: opacity 0.2s;
@@ -175,7 +177,7 @@ button {
   height: 20px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  border-top-color: var(--color-white);
+  border-top-color: var(--text);
   animation: spin 0.8s linear infinite;
 }
 
@@ -187,13 +189,13 @@ button {
     width: 80px;
     height: 80px;
     background-color: rgba(73, 98, 139, 0.1);
-    border: 1px solid var(--color-primary-700);
+    border: 1px solid var(--border);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 2rem;
-    color: var(--color-primary-600);
+    color: var(--primary);
 
     svg {
       width: 32px;
@@ -204,18 +206,18 @@ button {
   }
 
   h2 {
-    color: var(--color-white);
+    color: var(--text);
     font-size: 1.75rem;
     margin-bottom: 1rem;
   }
 
   p {
-    color: var(--color-grey);
+    color: var(--text-muted);
     line-height: 1.6;
     margin-bottom: 2rem;
 
     strong {
-      color: var(--color-primary-600);
+      color: var(--primary);
     }
   }
 
@@ -223,15 +225,15 @@ button {
     .resend-text {
       margin-top: 1.5rem;
       font-size: 0.875rem;
-      color: var(--color-grey);
+      color: var(--text-muted);
 
       .countdown {
-        color: rgba(242, 242, 242, 0.5); // Cor mais apagada pro temporizador
+        color: var(--text-subtle);
         margin-left: 4px;
       }
 
       a {
-        color: var(--color-primary-600);
+        color: var(--primary);
         text-decoration: none;
         font-weight: 500;
         margin-left: 4px;

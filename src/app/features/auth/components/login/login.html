@@ -1,6 +1,8 @@
 <div class="form-wrapper">
   <h1>Entrar no IDFLab</h1>
 
+  <app-theme-toggle></app-theme-toggle>
+
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
     <div class="input-group">
       <label for="email">E-mail</label>

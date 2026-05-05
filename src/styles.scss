@@ -18,9 +18,37 @@ body {
   --color-error: #ef4444;
 
   --color-white: #f2f2f2;
-  --color-grey: rgba(242, 242, 242, 0.7);
+  --color-grey-light: rgba(242, 242, 242, 0.7);
+  --color-grey-dark: rgba(13, 13, 13, 0.6);
+
   --color-black-800: #0d0d0d;
   --color-black-700: #151515;
+
+  --bg: var(--color-black-800);
+  --surface: var(--color-black-700);
+  --border: var(--color-primary-700);
+  --border-alt: rgba(42, 60, 88, 0.6);
+  --primary: var(--color-primary-600);
+  --hover-primary-soft: rgba(73, 98, 139, 0.08);
+
+  --text: var(--color-white);
+  --text-muted: var(--color-grey-light);
+  --text-subtle: rgba(242, 242, 242, 0.5);
+  --icon: var(--color-grey-light);
+}
+
+[data-theme='light'] {
+  --bg: #f5f5f5;
+  --surface: #ffffff;
+  --border: #d1d5db;
+
+  --primary: var(--color-primary-600);
+  --hover-primary-soft: rgba(73, 98, 139, 0.08);
+
+  --text: #1f1f1f;
+  --text-muted: #1f1f1f;
+  --text-subtle: rgba(13, 13, 13, 0.4);
+  --icon: #9ca3af;
 }
 
 @keyframes spin {

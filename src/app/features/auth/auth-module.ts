@@ -9,9 +9,10 @@ import { Register } from './components/register/register';
 import { VerifyEmail } from './components/verify-email/verify-email';
 import { ForgotPassword } from './components/forgot-password/forgot-password';
 import { ResetPassword } from './components/reset-password/reset-password';
+import { SharedModule } from '../../shared/shared-module';
 
 @NgModule({
   declarations: [Login, Register, VerifyEmail, ForgotPassword, ResetPassword],
-  imports: [CommonModule, ReactiveFormsModule, RouterModule.forChild(AUTH_ROUTES)],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule.forChild(AUTH_ROUTES), SharedModule],
 })
 export class AuthModule {}
