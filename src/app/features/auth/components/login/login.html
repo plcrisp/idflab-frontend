@@ -27,7 +27,12 @@
     </div>
 
     <div class="forgot-password">
-      <a routerLink="/auth/forgot-password">Esqueci minha senha</a>
+      <a
+        [routerLink]="['/auth/forgot-password']"
+        [queryParams]="{ email: loginForm.get('email')?.value }"
+      >
+        Esqueci minha senha
+      </a>
     </div>
 
     <div class="actions">

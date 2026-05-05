@@ -1,7 +1,8 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { TimerService } from '../../../../core/services/timer.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-forgot-password',
@@ -10,7 +11,7 @@ import { TimerService } from '../../../../core/services/timer.service';
   styleUrl: './forgot-password.scss',
   providers: [TimerService],
 })
-export class ForgotPassword {
+export class ForgotPassword implements OnInit {
   forgotForm: FormGroup;
   errorMessage: string = '';
 
@@ -22,10 +23,23 @@ export class ForgotPassword {
     private fb: FormBuilder,
     private auth: AuthService,
     private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute,
     public timerService: TimerService,
   ) {
     this.forgotForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
+    });
+  }
+
+  ngOnInit() {
+    this.route.queryParams.subscribe((params) => {
+      if (params['email']) {
+        this.forgotForm.patchValue({
+          email: params['email'],
+        });
+
+        this.forgotForm.get('email')?.markAsTouched();
+      }
     });
   }
 
