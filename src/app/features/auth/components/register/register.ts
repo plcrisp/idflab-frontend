@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -8,7 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { UserRegistration } from '../../models/user.model';
+import { TimerService } from '../../../../core/services/timer.service';
 
 export const passwordMatchValidator: ValidatorFn = (
   control: AbstractControl,
@@ -27,23 +27,21 @@ export const passwordMatchValidator: ValidatorFn = (
   standalone: false,
   templateUrl: './register.html',
   styleUrl: './register.scss',
+  providers: [TimerService],
 })
-export class Register implements OnDestroy {
+export class Register {
   registerForm: FormGroup;
   errorMessage: string = '';
 
   isLoading: boolean = false;
   isRegistered: boolean = false;
-
-  resendCountdown: number = 30;
-  canResend: boolean = false;
   isResending: boolean = false;
-  private timerRef: any;
 
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
     private cdr: ChangeDetectorRef,
+    public timerService: TimerService,
   ) {
     this.registerForm = this.fb.group(
       {
@@ -57,10 +55,6 @@ export class Register implements OnDestroy {
         validators: passwordMatchValidator,
       },
     );
-  }
-
-  ngOnDestroy() {
-    this.clearTimer();
   }
 
   onSubmit() {
@@ -77,7 +71,7 @@ export class Register implements OnDestroy {
         console.log('Conta criada com sucesso!', response);
         this.isLoading = false;
         this.isRegistered = true;
-        this.startResendTimer();
+        this.timerService.startResendTimer(30, () => this.cdr.detectChanges());
         this.cdr.detectChanges();
       },
       error: (error) => {
@@ -89,7 +83,7 @@ export class Register implements OnDestroy {
   }
 
   onResendEmail() {
-    if (!this.canResend || this.isResending) return;
+    if (!this.timerService.canResend || this.isResending) return;
 
     this.isResending = true;
     const email: string = this.registerForm.get('email')?.value;
@@ -97,37 +91,15 @@ export class Register implements OnDestroy {
     this.auth.resendEmailVerification(email).subscribe({
       next: () => {
         this.isResending = false;
-        this.startResendTimer();
+        this.timerService.startResendTimer(30, () => this.cdr.detectChanges());
 
         this.cdr.detectChanges();
       },
       error: () => {
         this.isResending = false;
-        this.startResendTimer();
+        this.timerService.startResendTimer(30, () => this.cdr.detectChanges());
         this.cdr.detectChanges();
       },
     });
-  }
-
-  private clearTimer() {
-    if (this.timerRef) {
-      clearInterval(this.timerRef);
-    }
-  }
-
-  startResendTimer() {
-    this.canResend = false;
-    this.resendCountdown = 30;
-    this.clearTimer();
-
-    this.timerRef = setInterval(() => {
-      this.resendCountdown--;
-
-      if (this.resendCountdown <= 0) {
-        this.canResend = true;
-        this.clearTimer();
-      }
-      this.cdr.detectChanges();
-    }, 1000);
   }
 }

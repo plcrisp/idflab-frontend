@@ -5,7 +5,7 @@ import {
   HttpHandlerFn,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { TokenService } from '../../features/auth/services/token.service';
+import { TokenService } from '../services/token.service';
 import { AuthService } from '../../features/auth/services/auth.service';
 import { BehaviorSubject, throwError, catchError, switchMap, filter, take } from 'rxjs';
 

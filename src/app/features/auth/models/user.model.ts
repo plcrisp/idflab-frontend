@@ -15,3 +15,8 @@ export interface UserRegistration {
   user_type: UserType;
   profile_picture_url?: string | null;
 }
+
+export interface ResetPasswordPayload {
+  token: string;
+  new_password: string;
+}

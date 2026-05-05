@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
-import { TokenService } from './token.service';
-import { TokenResponse } from '../models/token.model';
-import { User, UserRegistration } from '../models/user.model';
+import { TokenService } from '../../../core/services/token.service';
+import { TokenResponse } from '../../../core/models/token.model';
+import { ResetPasswordPayload, User, UserRegistration } from '../models/user.model';
 
 import { environment } from '../../../../environments/environment';
 
@@ -64,5 +64,13 @@ export class AuthService {
 
   resendEmailVerification(user_email: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/resend-verification-email`, { email: user_email });
+  }
+
+  resetPassword(resetPasswordPayload: ResetPasswordPayload): Observable<any> {
+    return this.http.post(`${this.baseUrl}/reset-password`, resetPasswordPayload);
+  }
+
+  sendPasswordReset(user_email: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/send-password-reset-email`, { email: user_email });
   }
 }

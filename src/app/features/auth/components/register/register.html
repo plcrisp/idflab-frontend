@@ -122,12 +122,12 @@
       <p class="resend-text">
         Não recebeu?
 
-        <span *ngIf="!canResend" class="countdown">
-          Aguarde {{ resendCountdown }}s para reenviar
+        <span *ngIf="!timerService.canResend" class="countdown">
+          Aguarde {{ timerService.resendCountdown }}s para reenviar
         </span>
 
         <a
-          *ngIf="canResend"
+          *ngIf="timerService.canResend"
           href="javascript:void(0)"
           (click)="onResendEmail()"
           [class.disabled]="isResending"
