@@ -1,3 +1,5 @@
+@use '../../../../../styles/components/auth-form';
+
 .verify-container {
   width: 100%;
   max-width: 440px;
@@ -17,8 +19,14 @@
   p {
     color: var(--text-muted);
     line-height: 1.6;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.75rem;
     font-size: 0.9375rem;
+  }
+
+  label,
+  .error-text {
+    width: 100%;
+    text-align: left;
   }
 }
 
@@ -100,6 +108,7 @@ button {
   background-color: transparent;
   border: 1px solid var(--border);
   color: var(--text);
+  margin-top: 0.75rem;
 
   &:hover {
     background-color: rgba(42, 60, 88, 0.1);

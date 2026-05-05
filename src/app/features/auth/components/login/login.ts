@@ -44,7 +44,19 @@ export class Login implements OnInit {
         console.log('Login realizado com sucesso!', response);
       },
       error: (error) => {
-        this.errorMessage = error?.error?.message || 'Erro ao fazer login';
+        const message =
+          error?.error?.detail?.message || error?.error?.message || 'Erro ao fazer login';
+        this.errorMessage = message;
+
+        if (message === 'E-mail não verificado. Verifique sua caixa de entrada.') {
+          if (email) {
+            this.auth.resendEmailVerification(email).subscribe({
+              next: () => console.log('E-mail de verificação reenviado.'),
+              error: (err) => console.error('Erro ao reenviar e-mail:', err),
+            });
+          }
+        }
+
         this.cdr.detectChanges();
         console.error('Erro no login:', error);
       },

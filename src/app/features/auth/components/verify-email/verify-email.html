@@ -32,7 +32,73 @@
       <ng-icon name="lucideBan" class="icon"></ng-icon>
     </div>
     <h2>Ops, algo deu errado</h2>
-    <p>{{ errorMessage }}</p>
+    <p>
+      {{ errorMessage }} Digite o e-mail cadastrado e enviaremos um novo link para completar sua
+      verificação.
+    </p>
+    <form [formGroup]="resendForm" (submit)="onSubmit()">
+      <div class="input-group">
+        <label for="email">E-mail</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          autocomplete="email"
+          [class.invalid]="resendForm.get('email')?.invalid && resendForm.get('email')?.touched"
+        />
+        <div
+          class="error-text"
+          *ngIf="resendForm.get('email')?.invalid && resendForm.get('email')?.touched"
+        >
+          Informe um e-mail válido
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn-primary" [disabled]="resendForm.invalid">
+          Enviar link de recuperação
+        </button>
+      </div>
+    </form>
     <button routerLink="/auth/login" class="btn-secondary">Voltar para a tela de acesso</button>
+  </div>
+
+  <div *ngIf="status === 'resent'" class="success-state">
+    <div class="icon-circle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path
+          d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </div>
+
+    <h2>E-mail enviado com sucesso!</h2>
+    <p>
+      Enviamos um link de verificação para <strong>{{ resendForm.value.email }}</strong>. Acesse sua
+      caixa de entrada para prosseguir com sua ação.
+    </p>
+
+    <div class="success-actions">
+      <button routerLink="/auth/login" class="btn-primary">Entrar</button>
+
+      <p class="resend-text">
+        Não recebeu?
+
+        <span *ngIf="!timerService.canResend" class="countdown">
+          Aguarde {{ timerService.resendCountdown }}s para reenviar
+        </span>
+
+        <a
+          *ngIf="timerService.canResend"
+          href="javascript:void(0)"
+          (click)="onResendEmail()"
+          [class.disabled]="isResending"
+        >
+          {{ isResending ? 'Enviando...' : 'Reenviar e-mail' }}
+        </a>
+      </p>
+    </div>
   </div>
 </div>
