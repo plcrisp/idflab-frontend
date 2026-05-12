@@ -1,0 +1,15 @@
+<div class="loading-overlay" [class.fade-out]="!visible">
+  <div class="loading-card">
+    <svg class="spin-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle
+        class="spin-arc"
+        cx="16"
+        cy="16"
+        r="12"
+        stroke-width="2.5"
+        transform="rotate(-90 16 16)"
+      />
+    </svg>
+    <p class="loading-label">{{ message }}</p>
+  </div>
+</div>
