@@ -1,8 +1,10 @@
 <div class="layout-wrapper">
-  <app-sidebar></app-sidebar>
+  <app-sidebar [workflowSteps]="workflowSteps()" [isAnalysisActive]="isAnalysisActive()"
+    >></app-sidebar
+  >
 
   <div class="content-area">
-    <app-navbar></app-navbar>
+    <app-navbar [breadcrumbs]="breadcrumbs()"></app-navbar>
 
     <main class="page-container">
       <router-outlet></router-outlet>

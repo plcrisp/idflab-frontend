@@ -67,20 +67,20 @@
   }
 }
 
+.section-title {
+  padding: 0 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(242, 242, 242, 0.5);
+  font-weight: 600;
+}
+
 .workflow-section {
   flex: 1;
   overflow-y: auto;
   padding: 1.25rem 0.75rem;
-
-  .workflow-title {
-    padding: 0 0.75rem;
-    margin-bottom: 1rem;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: rgba(242, 242, 242, 0.5);
-    font-weight: 600;
-  }
 
   .workflow-list {
     display: flex;
@@ -187,12 +187,51 @@
   }
 }
 
+.projects-section {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 0.75rem;
+}
+
+.empty-projects-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  margin: 0 0.75rem;
+  border-radius: 0.5rem;
+  text-align: center;
+
+  .empty-icon-wrapper {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: rgba(73, 98, 139, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+
+    .empty-icon {
+      font-size: 1.25rem;
+      color: rgba(242, 242, 242, 0.3);
+    }
+  }
+
+  .empty-text {
+    font-size: 13px;
+    color: var(--color-grey-light);
+    margin-bottom: 1.25rem;
+  }
+}
+
 .sidebar-footer {
   padding: 1rem 1.5rem;
   border-top: 1px solid var(--border-alt);
 
   p {
     font-size: 0.75rem;
-    color: rgba(242, 242, 242, 0.5);
+    color: var(--color-grey-light);
   }
 }

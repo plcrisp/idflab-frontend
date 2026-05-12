@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { MainLayoutService } from '../../core/services/main-layout.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -6,4 +7,12 @@ import { Component } from '@angular/core';
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class Dashboard {}
+export class Dashboard implements OnInit {
+  private MainLayoutService = inject(MainLayoutService);
+
+  ngOnInit() {
+    this.MainLayoutService.setBreadcrumbs([{ label: 'Dashboard', active: true }]);
+
+    this.MainLayoutService.clearWorkflow();
+  }
+}

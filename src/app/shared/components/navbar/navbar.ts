@@ -12,10 +12,7 @@ export class Navbar {
   private auth = inject(AuthService);
   private eRef = inject(ElementRef);
 
-  @Input() breadcrumbs: Breadcrumb[] = [
-    { label: 'Nova Análise' },
-    { label: 'Mapa Interativo', active: true },
-  ];
+  @Input() breadcrumbs: Breadcrumb[] = [];
   @Input() isProcessing: boolean = false;
   @Input() hasNotifications: boolean = false;
 

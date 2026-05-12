@@ -17,8 +17,8 @@
     </a>
   </nav>
 
-  <div class="workflow-section">
-    <h3 class="workflow-title">ANÁLISE ATUAL</h3>
+  <div class="workflow-section" *ngIf="isAnalysisActive">
+    <h3 class="section-title">ANÁLISE ATUAL</h3>
 
     <div class="workflow-list">
       <div *ngFor="let step of workflowSteps; let i = index" class="step-container">
@@ -41,6 +41,17 @@
           <span class="step-label">{{ step.label }}</span>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="projects-section" *ngIf="!isAnalysisActive">
+    <h3 class="section-title">PROJETOS RECENTES</h3>
+
+    <div class="empty-projects-state">
+      <div class="empty-icon-wrapper">
+        <ng-icon name="lucideFolder" class="empty-icon"></ng-icon>
+      </div>
+      <span class="empty-text">Nenhum projeto salvo</span>
     </div>
   </div>
 
