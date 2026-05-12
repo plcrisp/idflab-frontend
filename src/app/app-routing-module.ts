@@ -16,8 +16,21 @@ const routes: Routes = [
     path: 'app',
     component: MainLayout,
     canActivate: [authGuard],
-    title: 'IDFLab',
-    children: [],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+
+      {
+        path: 'dashboard',
+        loadChildren: () =>
+          import('./features/dashboard/dashboard-module').then((m) => m.DashboardModule),
+      },
+
+      {
+        path: 'analysis',
+        loadChildren: () =>
+          import('./features/analysis/analysis-module').then((m) => m.AnalysisModule),
+      },
+    ],
   },
   {
     path: '',
