@@ -51,3 +51,7 @@ build/
 .firebase/
 .sass-cache/
 .eslintcache
+
+# Environment
+
+src/environments/environment*.ts
