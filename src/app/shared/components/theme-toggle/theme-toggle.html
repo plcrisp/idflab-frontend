@@ -1,4 +1,4 @@
-<div class="theme-toggle">
+<div class="theme-toggle" [class.fixed]="isFixed">
   <button (click)="toggle()" class="toggle-btn">
     <ng-icon name="lucideSun" class="icon sun" [class.active]="!(isDark$ | async)"> </ng-icon>
 

@@ -1,15 +1,11 @@
 .theme-toggle {
-  position: absolute;
-  top: 24px;
-  right: 24px;
-
   .toggle-btn {
     position: relative;
     width: 64px;
     height: 32px;
     border-radius: 999px;
-    border: 1px solid var(--surface);
-    background: var(--surface);
+    border: 1px solid var(--border-alt);
+    background: var(--color-primary-800);
     cursor: pointer;
 
     .icon {
@@ -17,21 +13,22 @@
       top: 50%;
       transform: translateY(-50%);
       transition: all 0.3s ease;
-      opacity: 0.4;
-      color: var(--icon);
+      opacity: 0.5;
+      color: var(--color-grey-light);
+      z-index: 1;
 
       &.active {
         opacity: 1;
-        color: var(--primary);
+        color: var(--color-white);
       }
     }
 
     .sun {
-      left: 8px;
+      left: 9px;
     }
 
     .moon {
-      right: 8px;
+      right: 9px;
     }
 
     .slider {
@@ -41,8 +38,9 @@
       width: 24px;
       height: 24px;
       border-radius: 50%;
-      background: var(--primary);
+      background: var(--color-primary-600);
       transition: all 0.3s ease;
+      z-index: 0;
 
       &.dark {
         left: calc(100% - 28px);
@@ -50,6 +48,29 @@
 
       &.no-transition {
         transition: none;
+      }
+    }
+  }
+
+  &.fixed {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+
+    .toggle-btn {
+      border: 1px solid var(--surface);
+      background: var(--surface);
+
+      .icon {
+        color: var(--icon);
+
+        &.active {
+          color: var(--primary);
+        }
+      }
+
+      .slider {
+        background: var(--primary);
       }
     }
   }

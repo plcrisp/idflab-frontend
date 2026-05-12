@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ThemeService } from '../../../core/services/theme.service';
 import { map } from 'rxjs';
 
@@ -9,6 +9,8 @@ import { map } from 'rxjs';
   styleUrl: './theme-toggle.scss',
 })
 export class ThemeToggle implements OnInit {
+  @Input() isFixed: boolean = true;
+
   isDark$;
   isReady = false;
 
