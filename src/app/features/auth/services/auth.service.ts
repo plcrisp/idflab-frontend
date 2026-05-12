@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
@@ -19,6 +19,19 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
   private baseUrl = `${environment.apiUrl}${environment.endpoints.auth}`;
+
+  private userSignal = signal<User | null>(null);
+
+  user = computed(() => this.userSignal());
+
+  userInitials = computed(() => {
+    const name = this.userSignal()?.name;
+    if (!name) return '??';
+    const names = name.split(' ');
+    return names.length >= 2
+      ? `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
+      : name.substring(0, 2).toUpperCase();
+  });
 
   constructor(
     private http: HttpClient,
@@ -53,7 +66,9 @@ export class AuthService {
   }
 
   getMe(): Observable<User> {
-    return this.http.get<User>(`${this.baseUrl}/me`);
+    return this.http
+      .get<User>(`${this.baseUrl}/me`)
+      .pipe(tap((userData) => this.userSignal.set(userData)));
   }
 
   refreshToken(refreshToken: string) {
@@ -63,6 +78,8 @@ export class AuthService {
   }
 
   logout(): Observable<any> {
+    this.userSignal.set(null);
+
     const refreshToken = this.tokenService.getRefreshToken();
 
     const body = refreshToken ? { refresh_token: refreshToken } : {};
