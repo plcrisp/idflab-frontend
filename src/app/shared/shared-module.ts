@@ -6,16 +6,23 @@ import { ThemeToggle } from './components/theme-toggle/theme-toggle';
 import { NgIconsModule } from '@ng-icons/core';
 import {
   lucideBell,
+  lucideCheck,
   lucideChevronDown,
+  lucideCircle,
+  lucideDroplet,
+  lucideFolderOpen,
   lucideGlobe,
+  lucideHome,
   lucideLoader2,
   lucideMoon,
+  lucideSettings,
   lucideSun,
 } from '@ng-icons/lucide';
 import { Navbar } from './components/navbar/navbar';
+import { Sidebar } from './components/sidebar/sidebar';
 
 @NgModule({
-  declarations: [ThemeToggle, Navbar],
+  declarations: [ThemeToggle, Navbar, Sidebar],
   imports: [
     CommonModule,
     RouterModule,
@@ -27,9 +34,15 @@ import { Navbar } from './components/navbar/navbar';
       lucideGlobe,
       lucideChevronDown,
       lucideBell,
+      lucideHome,
+      lucideFolderOpen,
+      lucideCheck,
+      lucideCircle,
+      lucideSettings,
+      lucideDroplet,
     }),
   ],
-  exports: [ThemeToggle, Navbar],
+  exports: [ThemeToggle, Navbar, Sidebar],
   providers: [provideBrowserGlobalErrorListeners()],
   bootstrap: [],
 })

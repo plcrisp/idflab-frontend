@@ -1,0 +1,50 @@
+<aside class="sidebar">
+  <div class="logo-area">
+    <div class="logo-wrapper">
+      <img src="assets/images/logos/IDFLab_white.png" alt="IDFLab" />
+      <span class="logo-text">IDFLab</span>
+    </div>
+  </div>
+
+  <nav class="main-nav">
+    <a href="#" class="nav-item">
+      <ng-icon name="lucideHome" class="nav-icon"></ng-icon>
+      <span>Dashboard</span>
+    </a>
+    <a href="#" class="nav-item">
+      <ng-icon name="lucideFolderOpen" class="nav-icon"></ng-icon>
+      <span>Central de Projetos</span>
+    </a>
+  </nav>
+
+  <div class="workflow-section">
+    <h3 class="workflow-title">ANÁLISE ATUAL</h3>
+
+    <div class="workflow-list">
+      <div *ngFor="let step of workflowSteps; let i = index" class="step-container">
+        <div
+          *ngIf="i < workflowSteps.length - 1"
+          class="step-line"
+          [ngClass]="{'line-completed': step.status === 'completed'}"
+        ></div>
+
+        <div class="step-item" [ngClass]="step.status">
+          <div class="step-icon-wrapper">
+            <div *ngIf="step.status === 'completed'" class="status-circle completed">
+              <ng-icon name="lucideCheck" class="status-icon"></ng-icon>
+            </div>
+
+            <div *ngIf="step.status === 'active'" class="status-circle active"></div>
+
+            <div *ngIf="step.status === 'pending'" class="status-circle pending"></div>
+          </div>
+          <span class="step-label">{{ step.label }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <p>IDFLab v1.0.0 &copy; 2026</p>
+  </div>
+</aside>

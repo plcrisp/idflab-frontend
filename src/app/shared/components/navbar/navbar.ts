@@ -13,8 +13,8 @@ export class Navbar {
   private eRef = inject(ElementRef);
 
   @Input() breadcrumbs: Breadcrumb[] = [
-    { label: 'Dashboard' },
-    { label: 'Interactive Map', active: true },
+    { label: 'Nova Análise' },
+    { label: 'Mapa Interativo', active: true },
   ];
   @Input() isProcessing: boolean = false;
   @Input() hasNotifications: boolean = false;

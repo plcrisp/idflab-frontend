@@ -3,13 +3,12 @@
   top: 0;
   right: 0;
   height: 4rem;
-  left: 0;
+  left: 16rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem;
   background-color: var(--color-primary-800);
-  border-bottom: 1px solid var(--border-alt);
   z-index: 10;
 }
 
@@ -43,8 +42,8 @@
 
 .vertical-divider {
   width: 1px;
-  background-color: var(--color-primary-700);
-  height: 2rem;
+  background-color: var(--border-alt);
+  height: 2.5rem;
 }
 
 .processing-status {

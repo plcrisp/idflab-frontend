@@ -16,6 +16,7 @@ const routes: Routes = [
     path: 'app',
     component: MainLayout,
     canActivate: [authGuard],
+    title: 'IDFLab',
     children: [],
   },
   {

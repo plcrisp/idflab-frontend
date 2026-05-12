@@ -1,3 +1,11 @@
-<div class="container">
-  <app-navbar></app-navbar>
+<div class="layout-wrapper">
+  <app-sidebar></app-sidebar>
+
+  <div class="content-area">
+    <app-navbar></app-navbar>
+
+    <main class="page-container">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
 </div>
