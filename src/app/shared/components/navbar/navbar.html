@@ -1,0 +1,52 @@
+<header class="navbar">
+  <div class="breadcrumb">
+    <ng-container *ngFor="let crumb of breadcrumbs; let last = last">
+      <span class="crumb-text" [class.active]="crumb.active"> {{ crumb.label }} </span>
+
+      <span class="crumb-separator" *ngIf="!last">/</span>
+    </ng-container>
+  </div>
+
+  <div class="utilities">
+    <div class="dropdown-container">
+      <button class="dropdown-trigger" (click)="toggleLangMenu()">
+        <ng-icon name="lucideGlobe" class="icon"></ng-icon>
+        <span class="lang-text">{{ language }}</span>
+        <ng-icon name="lucideChevronDown" class="icon-sm"></ng-icon>
+      </button>
+
+      <div class="dropdown-menu min-w-32" *ngIf="showLangMenu">
+        <button (click)="setLanguage('EN')" [class.active]="language === 'EN'">English</button>
+        <button (click)="setLanguage('PT-BR')" [class.active]="language === 'PT-BR'">
+          Português (BR)
+        </button>
+      </div>
+    </div>
+
+    <div class="vertical-divider"></div>
+
+    <app-theme-toggle [isFixed]="false"></app-theme-toggle>
+
+    <button class="icon-btn" aria-label="Notifications">
+      <ng-icon name="lucideBell" class="icon-md"></ng-icon>
+      <span class="badge" *ngIf="hasNotifications"></span>
+    </button>
+
+    <div class="vertical-divider"></div>
+
+    <div class="dropdown-container">
+      <button class="dropdown-trigger user-trigger" (click)="toggleUserMenu()">
+        <div class="avatar">{{ userInitials() }}</div>
+        <span class="user-name" *ngIf="user()?.name">{{ user()?.name }}</span>
+        <div class="spinner" *ngIf="!user()?.name"></div>
+        <ng-icon name="lucideChevronDown" class="icon-sm"></ng-icon>
+      </button>
+
+      <div class="dropdown-menu menu-right min-w-40" *ngIf="showUserMenu">
+        <button>Perfil</button>
+        <div class="divider"></div>
+        <button (click)="logout()">Sair</button>
+      </div>
+    </div>
+  </div>
+</header>

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../features/auth/services/auth.service';
 import { UserRegistration } from '../../features/auth/models/user.model';
 
@@ -8,17 +8,10 @@ import { UserRegistration } from '../../features/auth/models/user.model';
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.scss',
 })
-export class MainLayout {
+export class MainLayout implements OnInit {
   constructor(private auth: AuthService) {}
 
-  logout() {
-    this.auth.logout().subscribe({
-      next: (response) => {
-        console.log('Logout realizado com sucesso!', response);
-      },
-      error: (error) => {
-        console.error('Erro no logout:', error);
-      },
-    });
+  ngOnInit() {
+    this.auth.getMe().subscribe();
   }
 }

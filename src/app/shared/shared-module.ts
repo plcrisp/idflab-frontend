@@ -4,10 +4,18 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ThemeToggle } from './components/theme-toggle/theme-toggle';
 import { NgIconsModule } from '@ng-icons/core';
-import { lucideMoon, lucideSun } from '@ng-icons/lucide';
+import {
+  lucideBell,
+  lucideChevronDown,
+  lucideGlobe,
+  lucideLoader2,
+  lucideMoon,
+  lucideSun,
+} from '@ng-icons/lucide';
+import { Navbar } from './components/navbar/navbar';
 
 @NgModule({
-  declarations: [ThemeToggle],
+  declarations: [ThemeToggle, Navbar],
   imports: [
     CommonModule,
     RouterModule,
@@ -15,9 +23,13 @@ import { lucideMoon, lucideSun } from '@ng-icons/lucide';
     NgIconsModule.withIcons({
       lucideSun,
       lucideMoon,
+      lucideLoader2,
+      lucideGlobe,
+      lucideChevronDown,
+      lucideBell,
     }),
   ],
-  exports: [ThemeToggle],
+  exports: [ThemeToggle, Navbar],
   providers: [provideBrowserGlobalErrorListeners()],
   bootstrap: [],
 })
