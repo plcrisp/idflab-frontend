@@ -20,6 +20,8 @@
     "@fontsource/inter": "^5.2.8",
     "@ng-icons/core": "^33.2.2",
     "@ng-icons/lucide": "^33.2.2",
+    "mapbox-gl": "^3.23.1",
+    "ngx-mapbox-gl": "^14.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
@@ -27,6 +29,7 @@
     "@angular/build": "^21.2.6",
     "@angular/cli": "^21.2.6",
     "@angular/compiler-cli": "^21.2.0",
+    "@types/mapbox-gl": "^3.4.1",
     "jsdom": "^28.0.0",
     "prettier": "^3.8.1",
     "typescript": "~5.9.2",

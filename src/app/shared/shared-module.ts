@@ -21,9 +21,10 @@ import {
 } from '@ng-icons/lucide';
 import { Navbar } from './components/navbar/navbar';
 import { Sidebar } from './components/sidebar/sidebar';
+import { LoadingOverlay } from './components/loading-overlay/loading-overlay';
 
 @NgModule({
-  declarations: [ThemeToggle, Navbar, Sidebar],
+  declarations: [ThemeToggle, Navbar, Sidebar, LoadingOverlay],
   imports: [
     CommonModule,
     RouterModule,
@@ -44,7 +45,7 @@ import { Sidebar } from './components/sidebar/sidebar';
       lucideDroplet,
     }),
   ],
-  exports: [ThemeToggle, Navbar, Sidebar],
+  exports: [ThemeToggle, Navbar, Sidebar, LoadingOverlay],
   providers: [provideBrowserGlobalErrorListeners()],
   bootstrap: [],
 })
