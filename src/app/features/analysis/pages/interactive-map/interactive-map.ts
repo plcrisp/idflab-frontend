@@ -1,17 +1,14 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   inject,
   OnDestroy,
   OnInit,
-  ChangeDetectorRef,
 } from '@angular/core';
 import { MainLayoutService } from '../../../../core/services/main-layout.service';
-import { environment } from '../../../../../environments/environment';
 import { Station } from '../../models/stations.model';
-import * as mapboxgl from 'mapbox-gl';
-import { ThemeService } from '../../../../core/services/theme.service';
-import { Subscription } from 'rxjs';
+import { MapService } from '../../../../core/services/map.service';
 
 @Component({
   selector: 'app-interactive-map',
@@ -19,28 +16,14 @@ import { Subscription } from 'rxjs';
   templateUrl: './interactive-map.html',
   styleUrl: './interactive-map.scss',
 })
-export class InteractiveMap implements OnInit, OnDestroy, AfterViewInit {
-  private MainLayoutService = inject(MainLayoutService);
-  private themeService = inject(ThemeService);
+export class InteractiveMap implements OnInit, AfterViewInit, OnDestroy {
+  private mainLayoutService = inject(MainLayoutService);
+  private mapService = inject(MapService);
   private cdr = inject(ChangeDetectorRef);
 
-  map: mapboxgl.Map | undefined;
   readonly math = Math;
-  mapboxToken = environment.mapboxToken;
 
-  currentTheme: 'light' | 'dark' = 'light';
-  private themeSubscription!: Subscription;
-  private readonly mapStyles = {
-    light: 'mapbox://styles/plcrisp/cmp2yjqcu002301s67iowechc',
-    dark: 'mapbox://styles/mapbox/dark-v11',
-  };
-
-  center: [number, number] = [-46.63, -23.54];
-  zoom: number = 9;
-
-  isLoadingMap: boolean = true;
-
-  private resizeObserver: ResizeObserver | undefined;
+  isLoadingMap = true;
 
   stations: Station[] = [
     {
@@ -72,94 +55,39 @@ export class InteractiveMap implements OnInit, OnDestroy, AfterViewInit {
     },
   ];
 
-  ngOnInit() {
-    this.MainLayoutService.setBreadcrumbs([
+  ngOnInit(): void {
+    this.mainLayoutService.setBreadcrumbs([
       { label: 'Nova Análise' },
       { label: 'Mapa Interativo', active: true },
     ]);
 
-    this.MainLayoutService.setWorkflowStatus('1');
+    this.mainLayoutService.setWorkflowStatus('1');
 
-    this.themeSubscription = this.themeService.currentTheme$.subscribe((theme) => {
-      this.currentTheme = theme;
-
-      if (this.map) {
-        this.map.setStyle(this.mapStyles[theme]);
-      }
-    });
+    if (!this.mainLayoutService.isSidebarCollapsed()) {
+      this.mainLayoutService.toggleSidebar();
+    }
   }
 
-  ngAfterViewInit() {
-    this.map = new mapboxgl.Map({
-      accessToken: this.mapboxToken,
-      container: 'map',
-      style: this.mapStyles[this.currentTheme],
-      zoom: this.zoom,
-      center: this.center,
-    });
+  ngAfterViewInit(): void {
+    this.mapService.init('map');
 
-    this.map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+    this.mapService.mapReady$.subscribe((ready) => {
+      if (!ready) return;
 
-    this.map.on('load', () => {
+      this.mapService.addStationMarkers(this.stations);
+
       setTimeout(() => {
         this.isLoadingMap = false;
         this.cdr.detectChanges();
       }, 300);
     });
-
-    this.addMarkersToMap();
-
-    this.setupResizeObserver();
   }
 
-  private setupResizeObserver() {
-    const mapContainer = document.getElementById('map');
-
-    if (!mapContainer) return;
-
-    this.resizeObserver = new ResizeObserver(() => {
-      if (this.map) {
-        this.map.resize();
-      }
-    });
-
-    this.resizeObserver.observe(mapContainer);
+  onStationClick(station: Station): void {
+    this.mapService.flyToStation(station);
   }
 
-  private addMarkersToMap() {
-    if (!this.map) return;
-
-    this.stations.forEach((station) => {
-      const el = document.createElement('div');
-      el.className = 'custom-map-pin';
-
-      const pinColor = station.status === 'Active' ? '#49628b' : '#f59e0b';
-
-      el.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" 
-             fill="${pinColor}" stroke="${pinColor}" stroke-width="1.5" stroke-linecap="round" 
-             stroke-linejoin="round" style="opacity: 0.95; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3));">
-          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
-        </svg>
-      `;
-
-      new mapboxgl.Marker(el, { anchor: 'bottom' })
-        .setLngLat([station.longitude, station.latitude])
-        .addTo(this.map!);
-    });
-  }
-
-  ngOnDestroy() {
-    if (this.themeSubscription) {
-      this.themeSubscription.unsubscribe();
-    }
-
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-    }
-
-    if (this.map) {
-      this.map.remove();
-    }
+  ngOnDestroy(): void {
+    this.mapService.destroy();
   }
 }
