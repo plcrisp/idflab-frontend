@@ -1,7 +1,5 @@
-<div class="layout-wrapper">
-  <app-sidebar [workflowSteps]="workflowSteps()" [isAnalysisActive]="isAnalysisActive()"
-    >></app-sidebar
-  >
+<div class="layout-wrapper" [class.sidebar-collapsed]="mainLayoutService.isSidebarCollapsed()">
+  <app-sidebar [workflowSteps]="workflowSteps()">></app-sidebar>
 
   <div class="content-area">
     <app-navbar [breadcrumbs]="breadcrumbs()"></app-navbar>

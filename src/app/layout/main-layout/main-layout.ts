@@ -10,11 +10,10 @@ import { MainLayoutService } from '../../core/services/main-layout.service';
   styleUrl: './main-layout.scss',
 })
 export class MainLayout implements OnInit {
-  private MainLayoutService = inject(MainLayoutService);
+  mainLayoutService = inject(MainLayoutService);
 
-  breadcrumbs = this.MainLayoutService.breadcrumbs;
-  workflowSteps = this.MainLayoutService.workflowSteps;
-  isAnalysisActive = this.MainLayoutService.isAnalysisActive;
+  breadcrumbs = this.mainLayoutService.breadcrumbs;
+  workflowSteps = this.mainLayoutService.workflowSteps;
 
   constructor(private auth: AuthService) {}
 

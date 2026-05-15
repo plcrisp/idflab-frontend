@@ -1,6 +1,7 @@
 import { Component, ElementRef, HostListener, inject, Input } from '@angular/core';
 import { AuthService } from '../../../features/auth/services/auth.service';
 import { Breadcrumb } from '../../models/shared.model';
+import { MainLayoutService } from '../../../core/services/main-layout.service';
 
 @Component({
   selector: 'app-navbar',
@@ -11,6 +12,7 @@ import { Breadcrumb } from '../../models/shared.model';
 export class Navbar {
   private auth = inject(AuthService);
   private eRef = inject(ElementRef);
+  mainLayoutService = inject(MainLayoutService);
 
   @Input() breadcrumbs: Breadcrumb[] = [];
   @Input() isProcessing: boolean = false;
@@ -49,14 +51,6 @@ export class Navbar {
         console.error('Erro no logout:', error);
       },
     });
-  }
-
-  private getInitials(name: string): string {
-    const names = name.split(' ');
-    if (names.length >= 2) {
-      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
   }
 
   @HostListener('document:click', ['$event'])

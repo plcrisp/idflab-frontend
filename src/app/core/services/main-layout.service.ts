@@ -1,14 +1,19 @@
 import { Injectable, signal } from '@angular/core';
 import { Breadcrumb, WorkflowStep } from '../models/main-layout.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MainLayoutService {
+  private SIDEBAR_STATE = environment.storageKeys.sidebarState;
+
   breadcrumbs = signal<Breadcrumb[]>([]);
   workflowSteps = signal<WorkflowStep[]>([]);
 
-  isAnalysisActive = signal<boolean>(false);
+  isSidebarCollapsed = signal<boolean>(
+    JSON.parse(localStorage.getItem(this.SIDEBAR_STATE) || 'false'),
+  );
 
   setBreadcrumbs(crumbs: Breadcrumb[]) {
     this.breadcrumbs.set(crumbs);
@@ -40,11 +45,18 @@ export class MainLayoutService {
     });
 
     this.workflowSteps.set(updatedSteps);
-    this.isAnalysisActive.set(true);
   }
 
   clearWorkflow() {
     this.workflowSteps.set([]);
-    this.isAnalysisActive.set(false);
+  }
+
+  toggleSidebar() {
+    this.isSidebarCollapsed.update((currentState) => {
+      const newState = !currentState;
+
+      localStorage.setItem(this.SIDEBAR_STATE, JSON.stringify(newState));
+      return newState;
+    });
   }
 }

@@ -40,6 +40,8 @@ export class InteractiveMap implements OnInit, OnDestroy, AfterViewInit {
 
   isLoadingMap: boolean = true;
 
+  private resizeObserver: ResizeObserver | undefined;
+
   stations: Station[] = [
     {
       id: '1',
@@ -106,6 +108,22 @@ export class InteractiveMap implements OnInit, OnDestroy, AfterViewInit {
     });
 
     this.addMarkersToMap();
+
+    this.setupResizeObserver();
+  }
+
+  private setupResizeObserver() {
+    const mapContainer = document.getElementById('map');
+
+    if (!mapContainer) return;
+
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.map) {
+        this.map.resize();
+      }
+    });
+
+    this.resizeObserver.observe(mapContainer);
   }
 
   private addMarkersToMap() {
@@ -132,6 +150,14 @@ export class InteractiveMap implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy() {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
+
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+
     if (this.map) {
       this.map.remove();
     }

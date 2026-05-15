@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Theme } from '../models/theme.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ThemeService {
-  private storageKey = 'theme';
+  private storageKey = environment.storageKeys.theme;
 
   private theme$ = new BehaviorSubject<Theme>(this.getInitialTheme());
 

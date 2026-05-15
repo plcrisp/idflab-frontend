@@ -2,6 +2,12 @@
   display: flex;
   min-height: 100vh;
   background-color: var(--bg);
+
+  &.sidebar-collapsed {
+    .content-area {
+      margin-left: 5rem;
+    }
+  }
 }
 
 .content-area {
@@ -10,6 +16,8 @@
   flex-direction: column;
 
   margin-left: 16rem;
+
+  transition: margin-left 0.3s ease;
 }
 
 .page-container {

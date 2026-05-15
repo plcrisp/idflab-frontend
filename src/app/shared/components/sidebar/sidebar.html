@@ -1,9 +1,15 @@
-<aside class="sidebar">
+<aside class="sidebar" [class.collapsed]="mainLayoutService.isSidebarCollapsed()">
   <div class="logo-area">
-    <div class="logo-wrapper">
+    <a class="logo-wrapper" routerLink="/app/dashboard">
       <img src="assets/images/logos/IDFLab_white.png" alt="IDFLab" />
       <span class="logo-text">IDFLab</span>
-    </div>
+    </a>
+
+    <button class="toggle-btn" (click)="mainLayoutService.toggleSidebar()">
+      <ng-icon
+        [name]="mainLayoutService.isSidebarCollapsed() ? 'lucideChevronRight' : 'lucideChevronLeft'"
+      ></ng-icon>
+    </button>
   </div>
 
   <nav class="main-nav">
@@ -17,34 +23,10 @@
     </a>
   </nav>
 
-  <div class="workflow-section" *ngIf="isAnalysisActive">
-    <h3 class="section-title">ANÁLISE ATUAL</h3>
-
-    <div class="workflow-list">
-      <div *ngFor="let step of workflowSteps; let i = index" class="step-container">
-        <div
-          *ngIf="i < workflowSteps.length - 1"
-          class="step-line"
-          [ngClass]="{'line-completed': step.status === 'completed'}"
-        ></div>
-
-        <div class="step-item" [ngClass]="step.status">
-          <div class="step-icon-wrapper">
-            <div *ngIf="step.status === 'completed'" class="status-circle completed">
-              <ng-icon name="lucideCheck" class="status-icon"></ng-icon>
-            </div>
-
-            <div *ngIf="step.status === 'active'" class="status-circle active"></div>
-
-            <div *ngIf="step.status === 'pending'" class="status-circle pending"></div>
-          </div>
-          <span class="step-label">{{ step.label }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="projects-section" *ngIf="!isAnalysisActive">
+  <div
+    class="projects-section"
+    [style.display]="mainLayoutService.isSidebarCollapsed() ? 'none' : 'block'"
+  >
     <h3 class="section-title">PROJETOS RECENTES</h3>
 
     <div class="empty-projects-state">
@@ -55,7 +37,7 @@
     </div>
   </div>
 
-  <div class="sidebar-footer">
+  <div class="sidebar-footer" *ngIf="!mainLayoutService.isSidebarCollapsed()">
     <p>IDFLab v1.0.0 &copy; 2026</p>
   </div>
 </aside>

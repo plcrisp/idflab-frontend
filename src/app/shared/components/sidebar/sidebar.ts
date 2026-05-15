@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
+import { MainLayoutService } from '../../../core/services/main-layout.service';
 
 export interface WorkflowStep {
   id: string;
@@ -13,6 +14,7 @@ export interface WorkflowStep {
   styleUrl: './sidebar.scss',
 })
 export class Sidebar {
+  mainLayoutService = inject(MainLayoutService);
+
   @Input() workflowSteps: WorkflowStep[] = [];
-  @Input() isAnalysisActive: boolean = false;
 }
