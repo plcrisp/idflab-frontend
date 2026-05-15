@@ -31,7 +31,7 @@ export class InteractiveMap implements OnInit, OnDestroy, AfterViewInit {
   currentTheme: 'light' | 'dark' = 'light';
   private themeSubscription!: Subscription;
   private readonly mapStyles = {
-    light: 'mapbox://styles/mapbox/streets-v12',
+    light: 'mapbox://styles/plcrisp/cmp2yjqcu002301s67iowechc',
     dark: 'mapbox://styles/mapbox/dark-v11',
   };
 
@@ -76,15 +76,7 @@ export class InteractiveMap implements OnInit, OnDestroy, AfterViewInit {
       { label: 'Mapa Interativo', active: true },
     ]);
 
-    this.MainLayoutService.setWorkflowStatus([
-      { id: '1', label: 'Mapa Interativo', status: 'active' },
-      { id: '2', label: 'Inspecionar Série', status: 'pending' },
-      { id: '3', label: 'Tratamento de Falhas', status: 'pending' },
-      { id: '4', label: 'Análise de Consistência', status: 'pending' },
-      { id: '5', label: 'Desagregação Temporal', status: 'pending' },
-      { id: '6', label: 'Modelagem Estatística', status: 'pending' },
-      { id: '7', label: 'IDF Histórica', status: 'pending' },
-    ]);
+    this.MainLayoutService.setWorkflowStatus('1');
 
     this.themeSubscription = this.themeService.currentTheme$.subscribe((theme) => {
       this.currentTheme = theme;
@@ -121,9 +113,21 @@ export class InteractiveMap implements OnInit, OnDestroy, AfterViewInit {
 
     this.stations.forEach((station) => {
       const el = document.createElement('div');
-      el.className = `custom-marker ${station.status.toLowerCase()}`;
+      el.className = 'custom-map-pin';
 
-      new mapboxgl.Marker(el).setLngLat([station.longitude, station.latitude]).addTo(this.map!);
+      const pinColor = station.status === 'Active' ? '#49628b' : '#f59e0b';
+
+      el.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" 
+             fill="${pinColor}" stroke="${pinColor}" stroke-width="1.5" stroke-linecap="round" 
+             stroke-linejoin="round" style="opacity: 0.95; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3));">
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+        </svg>
+      `;
+
+      new mapboxgl.Marker(el, { anchor: 'bottom' })
+        .setLngLat([station.longitude, station.latitude])
+        .addTo(this.map!);
     });
   }
 

@@ -14,8 +14,32 @@ export class MainLayoutService {
     this.breadcrumbs.set(crumbs);
   }
 
-  setWorkflowStatus(steps: WorkflowStep[]) {
-    this.workflowSteps.set(steps);
+  setWorkflowStatus(activeStepId: string) {
+    const steps: WorkflowStep[] = [
+      { id: '1', label: 'Mapa Interativo', status: 'pending' },
+      { id: '2', label: 'Inspecionar Série', status: 'pending' },
+      { id: '3', label: 'Tratamento de Falhas', status: 'pending' },
+      { id: '4', label: 'Análise de Consistência', status: 'pending' },
+      { id: '5', label: 'Desagregação Temporal', status: 'pending' },
+      { id: '6', label: 'Modelagem Estatística', status: 'pending' },
+      { id: '7', label: 'IDF Histórica', status: 'pending' },
+    ];
+
+    const activeIndex = steps.findIndex((step) => step.id === activeStepId);
+
+    const updatedSteps: WorkflowStep[] = steps.map((step, index) => {
+      if (index < activeIndex) {
+        return { ...step, status: 'completed' };
+      }
+
+      if (index === activeIndex) {
+        return { ...step, status: 'active' };
+      }
+
+      return { ...step, status: 'pending' };
+    });
+
+    this.workflowSteps.set(updatedSteps);
     this.isAnalysisActive.set(true);
   }
 

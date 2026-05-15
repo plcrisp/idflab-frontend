@@ -13,24 +13,24 @@
   height: 100%;
 }
 
-::ng-deep .custom-marker {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 2px solid var(--bg);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+::ng-deep .custom-map-pin {
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  transform-origin: bottom center;
+
+  margin-bottom: 2px;
+
+  svg {
+    transition: filter 0.2s ease;
+  }
 
   &:hover {
-    transform: scale(1.2);
-  }
+    transform: scale(1.15) translateY(-4px);
 
-  &.active {
-    background-color: var(--primary);
-  }
-  &.fault {
-    background-color: #f59e0b;
+    svg {
+      filter: drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.4)) !important;
+    }
   }
 }
 

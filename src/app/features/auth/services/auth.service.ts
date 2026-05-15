@@ -26,7 +26,7 @@ export class AuthService {
 
   userInitials = computed(() => {
     const name = this.userSignal()?.name;
-    if (!name) return '??';
+    if (!name) return 'U';
     const names = name.split(' ');
     return names.length >= 2
       ? `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
