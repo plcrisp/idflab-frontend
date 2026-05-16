@@ -1,7 +1,7 @@
 import { Component, ElementRef, HostListener, inject, Input } from '@angular/core';
 import { AuthService } from '../../../features/auth/services/auth.service';
 import { Breadcrumb } from '../../models/shared.model';
-import { MainLayoutService } from '../../../core/services/main-layout.service';
+import { MainLayoutService } from '../../../core/services/state/main-layout.service';
 
 @Component({
   selector: 'app-navbar',

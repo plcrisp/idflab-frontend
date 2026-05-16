@@ -2,7 +2,7 @@ import { Injectable, NgZone } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from './auth.service';
 import { Router } from '@angular/router';
-import { TokenService } from '../../../core/services/token.service';
+import { TokenService } from '../../../core/services/utils/token.service';
 
 declare const google: any;
 

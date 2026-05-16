@@ -2,8 +2,8 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import * as mapboxgl from 'mapbox-gl';
 import { ThemeService } from './theme.service';
-import { environment } from '../../../environments/environment';
-import { Station } from '../../features/analysis/models/stations.model';
+import { environment } from '../../../../environments/environment';
+import { Station } from '../../../features/analysis/models/stations.model';
 
 export interface MarkerOptions {
   color?: string;

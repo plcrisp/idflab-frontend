@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { TimerService } from '../../../../core/services/timer.service';
+import { TimerService } from '../../../../core/services/utils/timer.service';
 
 @Component({
   selector: 'app-verify-email',

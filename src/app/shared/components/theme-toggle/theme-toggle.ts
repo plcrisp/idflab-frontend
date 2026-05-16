@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ThemeService } from '../../../core/services/theme.service';
+import { ThemeService } from '../../../core/services/utils/theme.service';
 import { map } from 'rxjs';
 
 @Component({

@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { TimerService } from '../../../../core/services/timer.service';
+import { TimerService } from '../../../../core/services/utils/timer.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({

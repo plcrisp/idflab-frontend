@@ -1,5 +1,5 @@
 import { Component, inject, Input } from '@angular/core';
-import { MainLayoutService } from '../../../core/services/main-layout.service';
+import { MainLayoutService } from '../../../core/services/state/main-layout.service';
 
 export interface WorkflowStep {
   id: string;

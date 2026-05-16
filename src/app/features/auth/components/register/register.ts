@@ -8,8 +8,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { TimerService } from '../../../../core/services/timer.service';
-import { TokenService } from '../../../../core/services/token.service';
+import { TimerService } from '../../../../core/services/utils/timer.service';
+import { TokenService } from '../../../../core/services/utils/token.service';
 import { Router } from '@angular/router';
 
 export const passwordMatchValidator: ValidatorFn = (
