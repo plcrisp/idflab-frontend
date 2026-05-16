@@ -27,8 +27,15 @@ const routes: Routes = [
 
       {
         path: 'analysis',
-        loadChildren: () =>
-          import('./features/analysis/analysis-module').then((m) => m.AnalysisModule),
+        children: [
+          {
+            path: 'interactive-map',
+            loadChildren: () =>
+              import('./features/interactive-map/interactive-map-module').then(
+                (m) => m.InteractiveMapModule,
+              ),
+          },
+        ],
       },
     ],
   },
