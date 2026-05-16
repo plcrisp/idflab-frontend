@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
 import { TokenService } from '../../../core/services/utils/token.service';
-import { TokenResponse } from '../../../core/models/token.model';
+import { TokenResponse } from '../../../core/models/utils/token.model';
 import {
   GoogleRegisterRequest,
   ResetPasswordPayload,

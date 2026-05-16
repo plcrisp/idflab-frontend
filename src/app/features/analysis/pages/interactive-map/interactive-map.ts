@@ -7,8 +7,8 @@ import {
   OnInit,
 } from '@angular/core';
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
-import { Station } from '../../models/stations.model';
 import { MapService } from '../../../../core/services/utils/map.service';
+import { Station } from '../../../../core/models/api/station.model';
 
 @Component({
   selector: 'app-interactive-map',

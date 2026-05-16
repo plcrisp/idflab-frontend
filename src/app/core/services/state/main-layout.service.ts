@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Breadcrumb, WorkflowStep } from '../../models/main-layout.model';
+import { Breadcrumb, WorkflowStep } from '../../models/utils/main-layout.model';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({
