@@ -1,15 +1,29 @@
 export type StationSource = 'INMET' | 'CEMADEN';
 
+export type StationTypeEnum =
+  | 'Acqua'
+  | 'Pluviométrica'
+  | 'Agrometeorológica'
+  | 'Geotécnica'
+  | 'Hidrológica'
+  | 'Automática'
+  | 'Convencional';
+
 export interface Station {
   id: string;
   code: string;
   source: StationSource;
   name: string;
-  city?: string | null;
-  state?: string | null;
+  city: string | null;
+  state: string | null;
   latitude: number;
   longitude: number;
-  status: string;
+  status: string | null;
+
+  operation_start_date: string | null;
+  last_data_date: string | null;
+
+  station_type: StationTypeEnum;
 }
 
 export interface StationBBoxRequest {
@@ -28,6 +42,7 @@ export interface Marker {
   status: string;
   state: string;
   name: string;
+  city: string | undefined;
 }
 
 export interface SidebarDashboardStats {
@@ -36,4 +51,10 @@ export interface SidebarDashboardStats {
   activePercentage: number;
   inmetCount: number;
   cemadenCount: number;
+}
+
+export interface SearchResult {
+  marker: Marker;
+  label: string;
+  sublabel: string;
 }

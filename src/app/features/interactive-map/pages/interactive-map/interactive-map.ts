@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
 import { MapService } from '../../../../core/services/utils/map.service';
-import { Station } from '../../../../core/models/api/station.model';
+import { Marker, Station } from '../../../../core/models/api/station.model';
 
 @Component({
   selector: 'app-interactive-map',
@@ -49,7 +49,7 @@ export class InteractiveMap implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  onStationClick(station: Station): void {
+  onStationClick(station: Marker): void {
     this.mapService.flyToStation(station);
   }
 

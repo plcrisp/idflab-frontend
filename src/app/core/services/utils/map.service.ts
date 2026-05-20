@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, signal } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import * as mapboxgl from 'mapbox-gl';
 import { ThemeService } from './theme.service';
@@ -36,6 +36,8 @@ export class MapService implements OnDestroy {
   readonly mapReady$ = this.isReady$.asObservable();
 
   private allMarkers: Marker[] = [];
+
+  readonly selectedCityStations = signal<Station[]>([]);
 
   constructor(
     private themeService: ThemeService,
@@ -91,7 +93,7 @@ export class MapService implements OnDestroy {
     this.destroy();
   }
 
-  flyToStation(station: Station, zoom = 13): void {
+  flyToStation(station: Marker, zoom = 13): void {
     this.map?.flyTo({
       center: [station.longitude, station.latitude],
       zoom,
@@ -106,6 +108,14 @@ export class MapService implements OnDestroy {
 
   getMap(): mapboxgl.Map | undefined {
     return this.map;
+  }
+
+  getMarkers(): Marker[] {
+    return this.allMarkers;
+  }
+
+  selectCity(stations: Station[]): void {
+    this.selectedCityStations.set(stations);
   }
 
   private loadInitialMarkers(): void {

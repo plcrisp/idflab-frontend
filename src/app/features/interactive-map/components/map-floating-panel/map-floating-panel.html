@@ -1,12 +1,5 @@
 <div class="floating-panel">
-  <div class="panel-header">
-    <h2 class="panel-title">Buscar Estações</h2>
-
-    <div class="search-box">
-      <ng-icon name="lucideSearch" class="search-icon"></ng-icon>
-      <input type="text" placeholder="São Paulo, SP..." class="search-input" />
-    </div>
-  </div>
+  <app-station-search></app-station-search>
 
   <app-station-analytics *ngIf="stations.length === 0; else listMode"> </app-station-analytics>
 

@@ -1,9 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Marker, StationBBoxRequest } from '../../models/api/station.model';
+import { Marker, Station, StationBBoxRequest } from '../../models/api/station.model';
 import { environment } from '../../../../environments/environment';
-import { StationSource } from '../../models/api/station.model';
 
 @Injectable({ providedIn: 'root' })
 export class StationService {
@@ -29,12 +28,17 @@ export class StationService {
     return this.http.get<Marker>(`${this.baseUrl}/${id}`);
   }
 
-  searchStations(query: string, sources: StationSource[]): Observable<Marker[]> {
-    const params = sources.reduce(
-      (acc, source) => acc.append('sources', source),
-      new HttpParams().set('query', query),
-    );
+  searchStations(state: string, city?: string, name?: string): Observable<Station[]> {
+    let params = new HttpParams();
 
-    return this.http.get<Marker[]>(`${this.baseUrl}/search`, { params });
+    if (city?.trim()) {
+      params = params.set('city', city.trim());
+    }
+
+    if (name?.trim()) {
+      params = params.set('name', name.trim());
+    }
+
+    return this.http.get<Station[]>(`${this.baseUrl}/search/${state}`, { params });
   }
 }

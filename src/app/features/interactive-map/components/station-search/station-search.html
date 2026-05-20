@@ -1,0 +1,48 @@
+<div class="panel-header">
+  <h2 class="panel-title">Buscar Região</h2>
+
+  <div class="search-box">
+    <ng-icon *ngIf="!isLoading()" name="lucideSearch" class="search-icon"></ng-icon>
+    <span *ngIf="isLoading()" class="search-spinner"></span>
+
+    <input
+      type="text"
+      placeholder="Pesquisar cidade..."
+      class="search-input"
+      [formControl]="searchControl"
+      (keydown)="onKeydown($event)"
+      (focus)="onFocus()"
+      autocomplete="off"
+      spellcheck="false"
+      [attr.aria-expanded]="isOpen()"
+    />
+
+    <button
+      *ngIf="searchControl.value"
+      class="search-clear"
+      (click)="clear()"
+      aria-label="Limpar busca"
+    >
+      <ng-icon name="lucideX" size="14"></ng-icon>
+    </button>
+
+    <ul *ngIf="isOpen()" class="search-dropdown" role="listbox">
+      <li
+        *ngFor="let item of results(); let i = index"
+        class="search-option"
+        [class.search-option--active]="activeIndex() === i"
+        role="option"
+        (mouseenter)="activeIndex.set(i)"
+        (click)="select(item)"
+      >
+        <div class="option-icon-wrapper">
+          <ng-icon name="lucideMapPin" size="16"></ng-icon>
+        </div>
+        <div class="option-content">
+          <span class="option-title">{{ item.title }}</span>
+          <span class="option-subtitle">{{ item.subtitle }}</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
