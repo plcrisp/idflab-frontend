@@ -27,4 +27,13 @@ export interface Marker {
   source: StationSource;
   status: string;
   state: string;
+  name: string;
+}
+
+export interface SidebarDashboardStats {
+  regionName: string;
+  totalStations: number;
+  activePercentage: number;
+  inmetCount: number;
+  cemadenCount: number;
 }

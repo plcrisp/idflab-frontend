@@ -9,9 +9,12 @@ import { InteractiveMap } from './pages/interactive-map/interactive-map';
 import { NgIconsModule } from '@ng-icons/core';
 import { lucideSearch } from '@ng-icons/lucide';
 import { MapFloatingPanel } from './components/map-floating-panel/map-floating-panel';
+import { StationAnalytics } from './components/station-analytics/station-analytics';
+import { StationList } from './components/station-list/station-list';
+import { SelectStation } from './components/select-station/select-station';
 
 @NgModule({
-  declarations: [InteractiveMap, MapFloatingPanel],
+  declarations: [InteractiveMap, MapFloatingPanel, StationAnalytics, StationList, SelectStation],
   imports: [
     CommonModule,
     ReactiveFormsModule,

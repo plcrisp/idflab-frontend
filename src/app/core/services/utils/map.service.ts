@@ -5,6 +5,7 @@ import { ThemeService } from './theme.service';
 import { environment } from '../../../../environments/environment';
 import { Marker, Station, StationBBoxRequest } from '../../models/api/station.model';
 import { StationService } from '../api/stations.service';
+import { StationAnalyticsService } from './station-analytics.service';
 
 const CLUSTER_SOURCE = 'stations';
 
@@ -34,9 +35,12 @@ export class MapService implements OnDestroy {
   private isReady$ = new BehaviorSubject<boolean>(false);
   readonly mapReady$ = this.isReady$.asObservable();
 
+  private allMarkers: Marker[] = [];
+
   constructor(
     private themeService: ThemeService,
     private stationService: StationService,
+    private analyticsService: StationAnalyticsService,
   ) {}
 
   init(containerId: string, options?: { center?: [number, number]; zoom?: number }): void {
@@ -54,6 +58,8 @@ export class MapService implements OnDestroy {
     });
 
     this.map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+
+    this.setupMovementTracking();
 
     this.map.on('load', () => {
       this.isReady$.next(true);
@@ -104,7 +110,25 @@ export class MapService implements OnDestroy {
 
   private loadInitialMarkers(): void {
     this.stationService.getMarkers(this.brazilBBox).subscribe({
-      next: (markers) => this.buildClusterLayers(markers),
+      next: (markers) => {
+        this.allMarkers = markers;
+        this.buildClusterLayers(markers);
+
+        if (this.map) {
+          const bounds = this.map.getBounds();
+          const currentZoom = this.map!.getZoom();
+          const center = this.map!.getCenter();
+          if (!bounds) return;
+          const initialVisible = this.allMarkers.filter(
+            (m) =>
+              m.longitude >= bounds.getWest() &&
+              m.longitude <= bounds.getEast() &&
+              m.latitude >= bounds.getSouth() &&
+              m.latitude <= bounds.getNorth(),
+          );
+          this.analyticsService.updateVisibleStations(initialVisible, currentZoom, center);
+        }
+      },
       error: (err) => console.error('Erro ao carregar estações:', err),
     });
   }
@@ -124,6 +148,7 @@ export class MapService implements OnDestroy {
           state: marker.state,
           source: marker.source,
           status: marker.status,
+          name: marker.name,
         },
       })),
     };
@@ -132,8 +157,8 @@ export class MapService implements OnDestroy {
       type: 'geojson',
       data: geojson,
       cluster: true,
-      clusterMaxZoom: 10,
-      clusterRadius: 50,
+      clusterMaxZoom: 9,
+      clusterRadius: 60,
     });
 
     // cluster
@@ -189,7 +214,7 @@ export class MapService implements OnDestroy {
     this.setupClusterInteractions();
   }
 
-  private registerStatusIcons(): Promise<void> {
+  private async registerStatusIcons(): Promise<void> {
     const icons: Record<string, string> = {
       'icon-operante-cemaden': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
     <circle cx="8" cy="8" r="6" fill="#49628b" stroke="#f2f2f2" stroke-width="1.5"/>
@@ -255,8 +280,10 @@ export class MapService implements OnDestroy {
         .setHTML(
           `
           <strong>${props?.['city']} / ${props?.['state']}</strong>
+          <br>Nome: ${props?.['name']}
           <br>Fonte: ${props?.['source']}
           <br>Status: ${props?.['status']}
+          
         `,
         )
         .addTo(this.map!);
@@ -278,6 +305,30 @@ export class MapService implements OnDestroy {
       if (this.map!.getLayer(layer)) this.map!.removeLayer(layer);
     });
     if (this.map.getSource(CLUSTER_SOURCE)) this.map.removeSource(CLUSTER_SOURCE);
+  }
+
+  private setupMovementTracking(): void {
+    if (!this.map) return;
+
+    this.map.on('moveend', () => {
+      if (this.allMarkers.length === 0) return;
+
+      const bounds = this.map!.getBounds();
+      const currentZoom = this.map!.getZoom();
+      const center = this.map!.getCenter();
+
+      if (!bounds) return;
+
+      const visibleStations = this.allMarkers.filter(
+        (m) =>
+          m.longitude >= bounds.getWest() &&
+          m.longitude <= bounds.getEast() &&
+          m.latitude >= bounds.getSouth() &&
+          m.latitude <= bounds.getNorth(),
+      );
+
+      this.analyticsService.updateVisibleStations(visibleStations, currentZoom, center);
+    });
   }
 
   private setupResizeObserver(containerId: string): void {

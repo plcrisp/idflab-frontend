@@ -8,7 +8,5 @@ import { Station } from '../../../../core/models/api/station.model';
   styleUrl: './map-floating-panel.scss',
 })
 export class MapFloatingPanel {
-  readonly math = Math;
-
   stations: Station[] = [];
 }
