@@ -76,10 +76,11 @@ export class StationSearch {
     const regionContext = feature.context.find((c) => c.id.startsWith('region'));
     const stateCode = regionContext ? regionContext.short_code.replace('BR-', '') : '';
 
-    this.stationService.searchStations(stateCode, feature.text, undefined).subscribe({
+    this.stationService.searchStations(stateCode, feature.text).subscribe({
       next: (stations) => {
         this.isLoading.set(false);
         this.mapService.selectedCityStations.set(stations);
+        console.log(stations);
       },
       error: () => this.isLoading.set(false),
     });

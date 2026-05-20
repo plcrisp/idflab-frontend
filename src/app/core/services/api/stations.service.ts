@@ -28,16 +28,10 @@ export class StationService {
     return this.http.get<Marker>(`${this.baseUrl}/${id}`);
   }
 
-  searchStations(state: string, city?: string, name?: string): Observable<Station[]> {
+  searchStations(state: string, search: string): Observable<Station[]> {
     let params = new HttpParams();
 
-    if (city?.trim()) {
-      params = params.set('city', city.trim());
-    }
-
-    if (name?.trim()) {
-      params = params.set('name', name.trim());
-    }
+    params = params.set('search', search.trim());
 
     return this.http.get<Station[]>(`${this.baseUrl}/search/${state}`, { params });
   }
