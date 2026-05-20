@@ -24,9 +24,10 @@ import {
 import { Navbar } from './components/navbar/navbar';
 import { Sidebar } from './components/sidebar/sidebar';
 import { LoadingOverlay } from './components/loading-overlay/loading-overlay';
+import { NotFound } from './components/not-found/not-found';
 
 @NgModule({
-  declarations: [ThemeToggle, Navbar, Sidebar, LoadingOverlay],
+  declarations: [ThemeToggle, Navbar, Sidebar, LoadingOverlay, NotFound],
   imports: [
     CommonModule,
     RouterModule,

@@ -29,19 +29,19 @@ export class GoogleAuthService {
     });
   }
 
-  openPopup(): void {
+  openPopup(route: string = '/app/dashboard'): void {
     google.accounts.oauth2
       .initTokenClient({
         client_id: environment.googleClientId,
         scope: 'openid email profile',
         callback: (tokenResponse: any) => {
-          this.ngZone.run(() => this.onGoogleLoginSuccess(tokenResponse));
+          this.ngZone.run(() => this.onGoogleLoginSuccess(tokenResponse, route));
         },
       })
       .requestAccessToken({ prompt: 'select_account' });
   }
 
-  private onGoogleLoginSuccess(googleToken: any) {
+  private onGoogleLoginSuccess(googleToken: any, route: string = '/app/dashboard') {
     this.auth.loginWithGoogle(googleToken.access_token).subscribe({
       next: (response) => {
         if (response.needs_registration) {
@@ -50,7 +50,7 @@ export class GoogleAuthService {
           });
         } else {
           this.tokenService.saveTokens(response.access_token, response.refresh_token);
-          this.router.navigate(['/app']);
+          this.router.navigateByUrl(route);
           console.log('Login com Google realizado com sucesso!');
         }
       },

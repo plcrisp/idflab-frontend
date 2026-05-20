@@ -5,6 +5,7 @@ import { Register } from './components/register/register';
 import { VerifyEmail } from './components/verify-email/verify-email';
 import { ForgotPassword } from './components/forgot-password/forgot-password';
 import { ResetPassword } from './components/reset-password/reset-password';
+import { NotFound } from '../../shared/components/not-found/not-found';
 
 export const AUTH_ROUTES: Routes = [
   {
@@ -36,5 +37,10 @@ export const AUTH_ROUTES: Routes = [
     path: '',
     redirectTo: 'login',
     pathMatch: 'full',
+  },
+  {
+    path: '**',
+    component: NotFound,
+    title: 'Página Não Encontrada | IDFLab',
   },
 ];

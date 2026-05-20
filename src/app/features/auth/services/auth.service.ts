@@ -39,7 +39,11 @@ export class AuthService {
     private router: Router,
   ) {}
 
-  login(email: string, password: string): Observable<TokenResponse> {
+  login(
+    email: string,
+    password: string,
+    route: string = '/app/dashboard',
+  ): Observable<TokenResponse> {
     return this.http
       .post<TokenResponse>(`${this.baseUrl}/login`, {
         email,
@@ -48,7 +52,7 @@ export class AuthService {
       .pipe(
         tap((response) => {
           this.tokenService.saveTokens(response.access_token, response.refresh_token);
-          this.router.navigate(['/app']);
+          this.router.navigateByUrl(route);
         }),
       );
   }

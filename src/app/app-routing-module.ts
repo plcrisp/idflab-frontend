@@ -4,6 +4,7 @@ import { AuthLayout } from './layout/auth-layout/auth-layout';
 import { MainLayout } from './layout/main-layout/main-layout';
 import { guestGuard } from './core/guards/guest.guard';
 import { authGuard } from './core/guards/auth.guard';
+import { NotFound } from './shared/components/not-found/not-found';
 
 const routes: Routes = [
   {
@@ -37,6 +38,7 @@ const routes: Routes = [
           },
         ],
       },
+      { path: '**', component: NotFound, title: 'Página Não Encontrada | IDFLab' },
     ],
   },
   {
@@ -44,6 +46,8 @@ const routes: Routes = [
     redirectTo: 'app',
     pathMatch: 'full',
   },
+
+  { path: '**', redirectTo: 'auth/login' },
 ];
 
 @NgModule({

@@ -2,6 +2,7 @@ import { Component, ChangeDetectorRef, NgZone, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { GoogleAuthService } from '../../services/google-auth.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -20,6 +21,7 @@ export class Login implements OnInit {
     private auth: AuthService,
     private cdr: ChangeDetectorRef,
     private googleAuth: GoogleAuthService,
+    private route: ActivatedRoute,
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -43,7 +45,9 @@ export class Login implements OnInit {
 
     this.errorMessage = '';
 
-    this.auth.login(email, password).subscribe({
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/app/dashboard';
+
+    this.auth.login(email, password, returnUrl).subscribe({
       next: (response) => {
         console.log('Login realizado com sucesso!', response);
         this.isLoading = false;
@@ -82,6 +86,8 @@ export class Login implements OnInit {
   }
 
   loginWithGoogle(): void {
-    this.googleAuth.openPopup();
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/app/dashboard';
+
+    this.googleAuth.openPopup(returnUrl);
   }
 }
