@@ -8,9 +8,10 @@ import { INTERACTIVE_MAP_ROUTES } from './interactive-map.routes';
 import { InteractiveMap } from './pages/interactive-map/interactive-map';
 import { NgIconsModule } from '@ng-icons/core';
 import { lucideSearch } from '@ng-icons/lucide';
+import { MapFloatingPanel } from './components/map-floating-panel/map-floating-panel';
 
 @NgModule({
-  declarations: [InteractiveMap],
+  declarations: [InteractiveMap, MapFloatingPanel],
   imports: [
     CommonModule,
     ReactiveFormsModule,

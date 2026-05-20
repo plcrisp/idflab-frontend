@@ -21,39 +21,7 @@ export class InteractiveMap implements OnInit, AfterViewInit, OnDestroy {
   private mapService = inject(MapService);
   private cdr = inject(ChangeDetectorRef);
 
-  readonly math = Math;
-
   isLoadingMap = true;
-
-  stations: Station[] = [
-    {
-      id: '1',
-      name: 'Mirante de Santana',
-      source: 'INMET',
-      code: 'A701',
-      latitude: -23.496,
-      longitude: -46.62,
-      status: 'Active',
-    },
-    {
-      id: '2',
-      name: 'Parque Ibirapuera',
-      source: 'CEMADEN',
-      code: 'SP001',
-      latitude: -23.586,
-      longitude: -46.656,
-      status: 'Active',
-    },
-    {
-      id: '3',
-      name: 'Vila Mariana',
-      source: 'CEMADEN',
-      code: 'SP002',
-      latitude: -23.584,
-      longitude: -46.638,
-      status: 'Active',
-    },
-  ];
 
   ngOnInit(): void {
     this.mainLayoutService.setBreadcrumbs([
@@ -73,8 +41,6 @@ export class InteractiveMap implements OnInit, AfterViewInit, OnDestroy {
 
     this.mapService.mapReady$.subscribe((ready) => {
       if (!ready) return;
-
-      this.mapService.addStationMarkers(this.stations);
 
       setTimeout(() => {
         this.isLoadingMap = false;

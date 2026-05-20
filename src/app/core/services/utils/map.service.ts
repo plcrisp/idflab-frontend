@@ -3,43 +3,46 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 import * as mapboxgl from 'mapbox-gl';
 import { ThemeService } from './theme.service';
 import { environment } from '../../../../environments/environment';
-import { Station } from '../../models/api/station.model';
+import { Marker, Station, StationBBoxRequest } from '../../models/api/station.model';
+import { StationService } from '../api/stations.service';
 
-export interface MarkerOptions {
-  color?: string;
-  anchor?: mapboxgl.Anchor;
-}
+const CLUSTER_SOURCE = 'stations';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class MapService implements OnDestroy {
   private map: mapboxgl.Map | undefined;
-  private markers: Map<string, mapboxgl.Marker> = new Map();
   private resizeObserver: ResizeObserver | undefined;
   private themeSubscription!: Subscription;
   currentTheme: 'light' | 'dark' = 'light';
 
-  private readonly mapStyles = {
+  private readonly mapStyles: Record<'light' | 'dark', string> = {
     light: 'mapbox://styles/plcrisp/cmp2yjqcu002301s67iowechc',
     dark: 'mapbox://styles/mapbox/dark-v11',
   };
 
-  private readonly defaultCenter: [number, number] = [-46.63, -23.54];
-  private readonly defaultZoom = 9;
+  private readonly defaultCenter: [number, number] = [-51.9253, -14.235];
+  private readonly defaultZoom = 3.5;
+
+  private readonly brazilBBox: StationBBoxRequest = {
+    min_lat: -33.75,
+    max_lat: 5.27,
+    min_lon: -73.99,
+    max_lon: -28.85,
+    sources: ['INMET', 'CEMADEN'],
+  };
 
   private isReady$ = new BehaviorSubject<boolean>(false);
   readonly mapReady$ = this.isReady$.asObservable();
 
-  constructor(private themeService: ThemeService) {}
+  constructor(
+    private themeService: ThemeService,
+    private stationService: StationService,
+  ) {}
 
   init(containerId: string, options?: { center?: [number, number]; zoom?: number }): void {
     this.themeSubscription = this.themeService.currentTheme$.subscribe((theme) => {
       this.currentTheme = theme;
-
-      if (this.map) {
-        this.map.setStyle(this.mapStyles[theme]);
-      }
+      this.map?.setStyle(this.mapStyles[theme]);
     });
 
     this.map = new mapboxgl.Map({
@@ -54,16 +57,21 @@ export class MapService implements OnDestroy {
 
     this.map.on('load', () => {
       this.isReady$.next(true);
+      this.loadInitialMarkers();
     });
 
-    this.listenToThemeChanges();
+    this.map.on('style.load', () => {
+      if (this.isReady$.value) {
+        this.loadInitialMarkers();
+      }
+    });
+
     this.setupResizeObserver(containerId);
   }
 
   destroy(): void {
     this.themeSubscription?.unsubscribe();
     this.resizeObserver?.disconnect();
-    this.clearMarkers();
 
     if (this.map) {
       this.map.remove();
@@ -77,38 +85,6 @@ export class MapService implements OnDestroy {
     this.destroy();
   }
 
-  addStationMarker(station: Station, options?: MarkerOptions): mapboxgl.Marker {
-    this.removeMarker(station.id);
-
-    const el = this.createPinElement(options?.color ?? this.resolveStatusColor(station.status));
-
-    const marker = new mapboxgl.Marker(el, {
-      anchor: options?.anchor ?? 'bottom',
-    })
-      .setLngLat([station.longitude, station.latitude])
-      .addTo(this.map!);
-
-    this.markers.set(station.id, marker);
-    return marker;
-  }
-
-  addStationMarkers(stations: Station[], options?: MarkerOptions): void {
-    stations.forEach((station) => this.addStationMarker(station, options));
-  }
-
-  removeMarker(stationId: string): void {
-    const existing = this.markers.get(stationId);
-    if (existing) {
-      existing.remove();
-      this.markers.delete(stationId);
-    }
-  }
-
-  clearMarkers(): void {
-    this.markers.forEach((marker) => marker.remove());
-    this.markers.clear();
-  }
-
   flyToStation(station: Station, zoom = 13): void {
     this.map?.flyTo({
       center: [station.longitude, station.latitude],
@@ -116,14 +92,6 @@ export class MapService implements OnDestroy {
       speed: 1.4,
       curve: 1.2,
     });
-  }
-
-  fitToMarkers(padding = 60): void {
-    if (this.markers.size === 0) return;
-
-    const bounds = new mapboxgl.LngLatBounds();
-    this.markers.forEach((marker) => bounds.extend(marker.getLngLat()));
-    this.map?.fitBounds(bounds, { padding, maxZoom: 14 });
   }
 
   resetCamera(): void {
@@ -134,40 +102,188 @@ export class MapService implements OnDestroy {
     return this.map;
   }
 
-  private listenToThemeChanges(): void {
-    this.themeSubscription = this.themeService.currentTheme$.subscribe((theme) => {
-      if (this.map) {
-        this.map.setStyle(this.mapStyles[theme]);
-      }
+  private loadInitialMarkers(): void {
+    this.stationService.getMarkers(this.brazilBBox).subscribe({
+      next: (markers) => this.buildClusterLayers(markers),
+      error: (err) => console.error('Erro ao carregar estações:', err),
     });
+  }
+
+  private async buildClusterLayers(markers: Marker[]): Promise<void> {
+    if (!this.map) return;
+
+    this.removeClusterLayers();
+
+    const geojson: GeoJSON.FeatureCollection = {
+      type: 'FeatureCollection',
+      features: markers.map((marker) => ({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [marker.longitude, marker.latitude] },
+        properties: {
+          id: marker.id,
+          state: marker.state,
+          source: marker.source,
+          status: marker.status,
+        },
+      })),
+    };
+
+    this.map.addSource(CLUSTER_SOURCE, {
+      type: 'geojson',
+      data: geojson,
+      cluster: true,
+      clusterMaxZoom: 10,
+      clusterRadius: 50,
+    });
+
+    // cluster
+    this.map.addLayer({
+      id: 'clusters',
+      type: 'circle',
+      source: CLUSTER_SOURCE,
+      filter: ['has', 'point_count'],
+      paint: {
+        'circle-color': ['step', ['get', 'point_count'], '#49628b', 50, '#2a3c58', 500, '#1e2a3f'],
+        'circle-radius': ['step', ['get', 'point_count'], 14, 50, 18, 500, 24],
+        'circle-opacity': 0.9,
+        'circle-stroke-width': 1.5,
+        'circle-stroke-color': 'rgba(242, 242, 242, 0.4)',
+      },
+    });
+
+    // cluster number
+    this.map.addLayer({
+      id: 'cluster-count',
+      type: 'symbol',
+      source: CLUSTER_SOURCE,
+      filter: ['has', 'point_count'],
+      layout: {
+        'text-field': '{point_count_abbreviated}',
+        'text-size': 12,
+        'text-font': ['Inter Regular', 'Open Sans Regular', 'Arial Unicode MS Regular'],
+      },
+      paint: {
+        'text-color': '#f2f2f2',
+      },
+    });
+
+    await this.registerStatusIcons();
+
+    // station
+    this.map.addLayer({
+      id: 'unclustered-point',
+      type: 'symbol',
+      source: CLUSTER_SOURCE,
+      filter: ['!', ['has', 'point_count']],
+      layout: {
+        'icon-image': [
+          'concat',
+          ['match', ['get', 'status'], 'Pane', 'icon-pane-', 'icon-operante-'],
+          ['match', ['get', 'source'], 'INMET', 'inmet', 'cemaden'],
+        ],
+        'icon-size': 1,
+        'icon-allow-overlap': true,
+      },
+    });
+
+    this.setupClusterInteractions();
+  }
+
+  private registerStatusIcons(): Promise<void> {
+    const icons: Record<string, string> = {
+      'icon-operante-cemaden': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <circle cx="8" cy="8" r="6" fill="#49628b" stroke="#f2f2f2" stroke-width="1.5"/>
+  </svg>`,
+
+      'icon-operante-inmet': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <circle cx="8" cy="8" r="6" fill="#1e2a3f" stroke="#f2f2f2" stroke-width="1.5"/>
+    <circle cx="8" cy="8" r="2" fill="#f2f2f2"/>
+  </svg>`,
+
+      'icon-pane-cemaden': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <polygon points="8,2 14.5,13.5 1.5,13.5" fill="#f2f2f2" stroke="#49628b" stroke-width="2" stroke-linejoin="round"/>
+  </svg>`,
+
+      'icon-pane-inmet': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <polygon points="8,2 14.5,13.5 1.5,13.5" fill="#f2f2f2" stroke="#1e2a3f" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="8" cy="9.5" r="1.5" fill="#1e2a3f"/>
+  </svg>`,
+    };
+
+    const loads = Object.entries(icons).map(([name, svg]) => {
+      if (this.map!.hasImage(name)) return Promise.resolve();
+      return new Promise<void>((resolve) => {
+        const img = new Image(16, 16);
+        img.onload = () => {
+          this.map!.addImage(name, img);
+          resolve();
+        };
+        img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      });
+    });
+
+    return Promise.all(loads).then(() => {});
+  }
+
+  private setupClusterInteractions(): void {
+    if (!this.map) return;
+
+    // zoom in
+    this.map.on('click', 'clusters', (e) => {
+      const features = this.map!.queryRenderedFeatures(e.point, { layers: ['clusters'] });
+      const clusterId = features[0].properties?.['cluster_id'];
+
+      (this.map!.getSource(CLUSTER_SOURCE) as mapboxgl.GeoJSONSource).getClusterExpansionZoom(
+        clusterId,
+        (err, zoom) => {
+          if (err || !zoom) return;
+          this.map!.easeTo({
+            center: (features[0].geometry as GeoJSON.Point).coordinates as [number, number],
+            zoom,
+          });
+        },
+      );
+    });
+
+    // popup
+    this.map.on('click', 'unclustered-point', (e) => {
+      const props = e.features?.[0].properties;
+      const coords = (e.features?.[0].geometry as GeoJSON.Point).coordinates as [number, number];
+
+      new mapboxgl.Popup({ offset: 10 })
+        .setLngLat(coords)
+        .setHTML(
+          `
+          <strong>${props?.['city']} / ${props?.['state']}</strong>
+          <br>Fonte: ${props?.['source']}
+          <br>Status: ${props?.['status']}
+        `,
+        )
+        .addTo(this.map!);
+    });
+
+    // Cursors
+    const setCursor = (layer: string, cursor: string) => {
+      this.map!.on('mouseenter', layer, () => (this.map!.getCanvas().style.cursor = cursor));
+      this.map!.on('mouseleave', layer, () => (this.map!.getCanvas().style.cursor = ''));
+    };
+
+    setCursor('clusters', 'pointer');
+    setCursor('unclustered-point', 'pointer');
+  }
+
+  private removeClusterLayers(): void {
+    if (!this.map) return;
+    ['unclustered-point', 'cluster-count', 'clusters'].forEach((layer) => {
+      if (this.map!.getLayer(layer)) this.map!.removeLayer(layer);
+    });
+    if (this.map.getSource(CLUSTER_SOURCE)) this.map.removeSource(CLUSTER_SOURCE);
   }
 
   private setupResizeObserver(containerId: string): void {
     const container = document.getElementById(containerId);
     if (!container) return;
-
     this.resizeObserver = new ResizeObserver(() => this.map?.resize());
     this.resizeObserver.observe(container);
-  }
-
-  private createPinElement(color: string): HTMLElement {
-    const el = document.createElement('div');
-    el.className = 'custom-map-pin';
-    el.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-           fill="${color}" stroke="${color}" stroke-width="1.5" stroke-linecap="round"
-           stroke-linejoin="round" style="opacity: 0.95; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3));">
-        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
-      </svg>
-    `;
-    return el;
-  }
-
-  private resolveStatusColor(status: Station['status']): string {
-    const colors: Record<string, string> = {
-      Active: '#49628b',
-      Fault: '#f59e0b',
-    };
-    return colors[status] ?? '#6b7280';
   }
 }
