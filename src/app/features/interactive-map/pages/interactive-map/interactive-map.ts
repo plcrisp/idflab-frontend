@@ -49,8 +49,8 @@ export class InteractiveMap implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  onStationClick(station: Marker): void {
-    this.mapService.flyToStation(station);
+  onStationClick(lat: number, long: number): void {
+    this.mapService.flyToStation(lat, long);
   }
 
   ngOnDestroy(): void {

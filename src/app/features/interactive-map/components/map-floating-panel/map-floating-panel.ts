@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Station } from '../../../../core/models/api/station.model';
+import { MapService } from '../../../../core/services/utils/map.service';
 
 @Component({
   selector: 'app-map-floating-panel',
@@ -8,5 +9,7 @@ import { Station } from '../../../../core/models/api/station.model';
   styleUrl: './map-floating-panel.scss',
 })
 export class MapFloatingPanel {
-  stations: Station[] = [];
+  private mapService = inject(MapService);
+
+  stations = this.mapService.selectedCityStations;
 }

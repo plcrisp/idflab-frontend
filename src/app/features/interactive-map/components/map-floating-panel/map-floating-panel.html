@@ -1,7 +1,7 @@
 <div class="floating-panel">
   <app-station-search></app-station-search>
 
-  <app-station-analytics *ngIf="stations.length === 0; else listMode"> </app-station-analytics>
+  <app-station-analytics *ngIf="stations().length === 0"> </app-station-analytics>
 
-  <ng-template #listMode> </ng-template>
+  <app-station-list *ngIf="stations().length !== 0"> </app-station-list>
 </div>

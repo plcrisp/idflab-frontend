@@ -93,9 +93,9 @@ export class MapService implements OnDestroy {
     this.destroy();
   }
 
-  flyToStation(station: Marker, zoom = 13): void {
+  flyToStation(lat: number, long: number, zoom = 13): void {
     this.map?.flyTo({
-      center: [station.longitude, station.latitude],
+      center: [long, lat],
       zoom,
       speed: 1.4,
       curve: 1.2,
@@ -112,10 +112,6 @@ export class MapService implements OnDestroy {
 
   getMarkers(): Marker[] {
     return this.allMarkers;
-  }
-
-  selectCity(stations: Station[]): void {
-    this.selectedCityStations.set(stations);
   }
 
   private loadInitialMarkers(): void {

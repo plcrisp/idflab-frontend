@@ -1,0 +1,23 @@
+<div class="station-list-container">
+  <div class="station-list">
+    <ng-container *ngFor="let station of stations()">
+      <div class="station-item" (click)="flyToStation(station.latitude,station.longitude)">
+        <div class="station-header">
+          <span class="station-name">{{ station.name }}</span>
+
+          <div class="station-status" [ngClass]="(station.status | lowercase) || 'desconhecido'">
+            <div class="status-dot"></div>
+            <span class="status-label">{{ station.status || 'ND' }}</span>
+          </div>
+        </div>
+
+        <div class="station-meta">
+          <span class="network-badge" [ngClass]="station.source.toLowerCase()">
+            {{ station.source }} {{ station.code }}
+          </span>
+          <span *ngIf="station.station_type" class="station-type">{{ station.station_type }}</span>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

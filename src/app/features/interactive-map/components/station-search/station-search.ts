@@ -80,7 +80,6 @@ export class StationSearch {
       next: (stations) => {
         this.isLoading.set(false);
         this.mapService.selectedCityStations.set(stations);
-        console.log(stations);
       },
       error: () => this.isLoading.set(false),
     });
@@ -97,11 +96,6 @@ export class StationSearch {
     this.activeIndex.set(-1);
     this.selected.set('__close__');
     this.results.set([]);
-
-    this.mapService.getMap()?.flyTo({
-      center: [-51.9253, -14.235],
-      zoom: 3.5,
-    });
 
     this.mapService.selectedCityStations.set([]);
   }
