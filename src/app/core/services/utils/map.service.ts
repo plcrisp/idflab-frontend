@@ -332,6 +332,7 @@ export class MapService implements OnDestroy {
       const statusClass = (props['status'] || 'desconhecido').toLowerCase();
 
       const nameLower = props['name'] ? props['name'].toLowerCase() : '';
+      const sourceClass = props['source'] ? props['source'].toLowerCase() : '';
 
       const html = `
       <div class="hover-content">
@@ -339,7 +340,16 @@ export class MapService implements OnDestroy {
           <span class="hover-region">${regionText}</span>
           <div class="hover-dot ${statusClass}"></div>
         </div>
+
         <div class="hover-name">${nameLower}</div>
+
+        <div class="hover-divider"></div>
+
+        <div class="hover-footer">
+          <div class="hover-badge ${sourceClass}">
+            ${props['source']}
+          </div>
+        </div>
       </div>
     `;
 
