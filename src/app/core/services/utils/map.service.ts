@@ -6,6 +6,7 @@ import { environment } from '../../../../environments/environment';
 import { Marker, Station, StationBBoxRequest } from '../../models/api/station.model';
 import { StationService } from '../api/stations.service';
 import { StationAnalyticsService } from './station-analytics.service';
+import { BRAZIL_STATES } from '../../../shared/utils/brazil-states.constants';
 
 const CLUSTER_SOURCE = 'stations';
 
@@ -20,6 +21,13 @@ export class MapService implements OnDestroy {
     light: 'mapbox://styles/plcrisp/cmp2yjqcu002301s67iowechc',
     dark: 'mapbox://styles/mapbox/dark-v11',
   };
+
+  private hoverPopup = new mapboxgl.Popup({
+    closeButton: false,
+    closeOnClick: false,
+    offset: 15,
+    className: 'minimal-hover-popup',
+  });
 
   private readonly defaultCenter: [number, number] = [-51.9253, -14.235];
   private readonly defaultZoom = 3.5;
@@ -172,6 +180,7 @@ export class MapService implements OnDestroy {
           source: marker.source,
           status: marker.status,
           name: marker.name,
+          city: marker.city,
         },
       })),
     };
@@ -301,13 +310,49 @@ export class MapService implements OnDestroy {
     });
 
     // Cursors
-    const setCursor = (layer: string, cursor: string) => {
-      this.map!.on('mouseenter', layer, () => (this.map!.getCanvas().style.cursor = cursor));
-      this.map!.on('mouseleave', layer, () => (this.map!.getCanvas().style.cursor = ''));
-    };
+    this.map.on('mouseenter', 'unclustered-point', (e) => {
+      this.map!.getCanvas().style.cursor = 'pointer';
 
-    setCursor('clusters', 'pointer');
-    setCursor('unclustered-point', 'pointer');
+      const feature = e.features?.[0];
+      if (!feature || !feature.properties || !feature.geometry) return;
+
+      const coordinates = (feature.geometry as GeoJSON.Point).coordinates.slice() as [
+        number,
+        number,
+      ];
+      const props = feature.properties;
+
+      while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      }
+
+      const regionText = props['city']
+        ? `${props['city']}, ${props['state']}`
+        : `${BRAZIL_STATES[props['state']]}`;
+      const statusClass = (props['status'] || 'desconhecido').toLowerCase();
+
+      const nameLower = props['name'] ? props['name'].toLowerCase() : '';
+
+      const html = `
+      <div class="hover-content">
+        <div class="hover-header">
+          <span class="hover-region">${regionText}</span>
+          <div class="hover-dot ${statusClass}"></div>
+        </div>
+        <div class="hover-name">${nameLower}</div>
+      </div>
+    `;
+
+      this.hoverPopup.setLngLat(coordinates).setHTML(html).addTo(this.map!);
+    });
+
+    this.map.on('mouseleave', 'unclustered-point', () => {
+      this.map!.getCanvas().style.cursor = '';
+      this.hoverPopup.remove();
+    });
+
+    this.map.on('mouseenter', 'clusters', () => (this.map!.getCanvas().style.cursor = 'pointer'));
+    this.map.on('mouseleave', 'clusters', () => (this.map!.getCanvas().style.cursor = ''));
   }
 
   private removeClusterLayers(): void {

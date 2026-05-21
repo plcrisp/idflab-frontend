@@ -80,6 +80,7 @@ export class StationSearch {
       next: (stations) => {
         this.isLoading.set(false);
         this.mapService.selectedCityStations.set(stations);
+        this.mapService.clearStation();
       },
       error: () => this.isLoading.set(false),
     });
