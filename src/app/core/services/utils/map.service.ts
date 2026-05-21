@@ -38,6 +38,7 @@ export class MapService implements OnDestroy {
   private allMarkers: Marker[] = [];
 
   readonly selectedCityStations = signal<Station[]>([]);
+  readonly selectedStation = signal<Station | null>(null);
 
   constructor(
     private themeService: ThemeService,
@@ -112,6 +113,19 @@ export class MapService implements OnDestroy {
 
   getMarkers(): Marker[] {
     return this.allMarkers;
+  }
+
+  selectStation(stationId: string): void {
+    this.stationService.getStationByIdFromProvider(stationId).subscribe({
+      next: (station: Station) => {
+        this.flyToStation(station.latitude, station.longitude);
+        console.log(station);
+        this.selectedStation.set(station);
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
   }
 
   private loadInitialMarkers(): void {
@@ -279,20 +293,8 @@ export class MapService implements OnDestroy {
     // popup
     this.map.on('click', 'unclustered-point', (e) => {
       const props = e.features?.[0].properties;
-      const coords = (e.features?.[0].geometry as GeoJSON.Point).coordinates as [number, number];
 
-      new mapboxgl.Popup({ offset: 10 })
-        .setLngLat(coords)
-        .setHTML(
-          `
-          <strong>${props?.['city']} / ${props?.['state']}</strong>
-          <br>Nome: ${props?.['name']}
-          <br>Fonte: ${props?.['source']}
-          <br>Status: ${props?.['status']}
-          
-        `,
-        )
-        .addTo(this.map!);
+      if (props) this.selectStation(props['id']);
     });
 
     // Cursors

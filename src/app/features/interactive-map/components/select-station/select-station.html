@@ -1,0 +1,72 @@
+<div class="station-details" *ngIf="station() as station">
+  <div class="details-header">
+    <div class="header-top">
+      <span class="region-label">
+        {{ station.city ? station.city + ', ' : '' }}{{ states[station.state ?? ''] || 'ND' }}
+      </span>
+
+      <div class="station-status" [ngClass]="(station.status | lowercase) || 'desconhecido'">
+        <div class="status-dot"></div>
+        <span class="status-label">{{ station.status || 'ND' }}</span>
+      </div>
+    </div>
+
+    <h3 class="station-name">{{ station.name | titlecase }}</h3>
+  </div>
+
+  <div class="tags-row">
+    <span class="network-badge" [ngClass]="station.source.toLowerCase()">
+      {{ station.source }}
+      <span class="badge-code">{{ station.code }}</span>
+    </span>
+    <span class="station-type" *ngIf="station.station_type">{{ station.station_type }}</span>
+  </div>
+
+  <div class="availability-section">
+    <div class="data-stat">
+      <span class="stat-label">Início de Operação</span>
+      <span class="stat-value">
+        {{ (station.operation_start_date | date:'dd/MM/yyyy') || '--' }}
+      </span>
+    </div>
+    <div class="data-stat">
+      <span class="stat-label">Último Dado</span>
+      <span class="stat-value"> {{ (displayLastDate | date:'dd/MM/yyyy') || '--' }} </span>
+    </div>
+  </div>
+
+  <div class="analysis-section">
+    <h4 class="section-title">Configurar Análise</h4>
+
+    <div class="date-pickers">
+      <div class="input-group">
+        <label for="startDate">Data Inicial</label>
+        <input
+          type="date"
+          id="startDate"
+          class="clean-input"
+          [min]="minDate"
+          [max]="maxDate"
+          [value]="station.operation_start_date || minDate"
+        />
+      </div>
+
+      <div class="input-group">
+        <label for="endDate">Data Final</label>
+        <input
+          type="date"
+          id="endDate"
+          class="clean-input"
+          [min]="minDate"
+          [max]="maxDate"
+          [value]="maxDate"
+        />
+      </div>
+    </div>
+
+    <button class="primary-btn" (click)="startAnalysis()">
+      <ng-icon name="lucideArrowRight" size="16" class="btn-icon"></ng-icon>
+      Iniciar Análise
+    </button>
+  </div>
+</div>

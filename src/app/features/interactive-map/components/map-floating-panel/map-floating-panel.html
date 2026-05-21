@@ -1,7 +1,9 @@
 <div class="floating-panel">
   <app-station-search></app-station-search>
 
-  <app-station-analytics *ngIf="stations().length === 0"> </app-station-analytics>
+  <app-station-analytics *ngIf="stations().length === 0 && !station()"> </app-station-analytics>
 
-  <app-station-list *ngIf="stations().length !== 0"> </app-station-list>
+  <app-station-list *ngIf="stations().length !== 0 && !station()"> </app-station-list>
+
+  <app-select-station *ngIf="station()"> </app-select-station>
 </div>

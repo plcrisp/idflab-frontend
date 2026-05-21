@@ -24,8 +24,8 @@ export class StationService {
     return this.http.get<Marker[]>(`${this.baseUrl}/markers`, { params: fullParams });
   }
 
-  getStationById(id: string): Observable<Marker> {
-    return this.http.get<Marker>(`${this.baseUrl}/${id}`);
+  getStationByIdFromProvider(id: string): Observable<Station> {
+    return this.http.get<Station>(`${this.baseUrl}/${id}/realtime`);
   }
 
   searchStations(state: string, search: string): Observable<Station[]> {

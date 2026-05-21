@@ -1,7 +1,7 @@
 <div class="station-list-container">
   <div class="station-list">
     <ng-container *ngFor="let station of stations()">
-      <div class="station-item" (click)="flyToStation(station.latitude,station.longitude)">
+      <div class="station-item" (click)="flyToStation(station.id)">
         <div class="station-header">
           <span class="station-name">{{ station.name }}</span>
 

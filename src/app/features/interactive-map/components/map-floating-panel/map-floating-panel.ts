@@ -12,4 +12,5 @@ export class MapFloatingPanel {
   private mapService = inject(MapService);
 
   stations = this.mapService.selectedCityStations;
+  station = this.mapService.selectedStation;
 }
