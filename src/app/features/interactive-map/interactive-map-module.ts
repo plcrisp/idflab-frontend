@@ -9,7 +9,9 @@ import { InteractiveMap } from './pages/interactive-map/interactive-map';
 import { NgIconsModule } from '@ng-icons/core';
 import {
   lucideActivity,
+  lucideArrowLeft,
   lucideArrowRight,
+  lucideLayoutDashboard,
   lucideMapPin,
   lucideSearch,
   lucideX,
@@ -40,6 +42,8 @@ import { StationSearch } from './components/station-search/station-search';
       lucideMapPin,
       lucideActivity,
       lucideArrowRight,
+      lucideArrowLeft,
+      lucideLayoutDashboard,
     }),
   ],
 })

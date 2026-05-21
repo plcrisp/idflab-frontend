@@ -119,13 +119,16 @@ export class MapService implements OnDestroy {
     this.stationService.getStationByIdFromProvider(stationId).subscribe({
       next: (station: Station) => {
         this.flyToStation(station.latitude, station.longitude);
-        console.log(station);
         this.selectedStation.set(station);
       },
       error: (err) => {
         console.error(err);
       },
     });
+  }
+
+  clearStation(): void {
+    this.selectedStation.set(null);
   }
 
   private loadInitialMarkers(): void {

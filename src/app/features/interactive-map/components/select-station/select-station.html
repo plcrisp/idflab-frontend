@@ -1,4 +1,16 @@
 <div class="station-details" *ngIf="station() as station">
+  <div class="action-bar">
+    <nav class="breadcrumb" aria-label="Navegação">
+      <button class="crumb-link" (click)="mapService.clearStation()">
+        <ng-icon name="lucideChevronLeft" size="14"></ng-icon>
+
+        {{ stations().length !== 0 ? 'Estações' : 'Visão Geral' }}
+      </button>
+
+      <span class="sep" aria-hidden="true">/</span>
+      <span class="current">{{ station.name | titlecase }}</span>
+    </nav>
+  </div>
   <div class="details-header">
     <div class="header-top">
       <span class="region-label">
@@ -65,8 +77,8 @@
     </div>
 
     <button class="primary-btn" (click)="startAnalysis()">
-      <ng-icon name="lucideArrowRight" size="16" class="btn-icon"></ng-icon>
       Iniciar Análise
+      <ng-icon name="lucideArrowRight" size="16" class="btn-icon"></ng-icon>
     </button>
   </div>
 </div>

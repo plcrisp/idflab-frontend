@@ -12,6 +12,7 @@ export class SelectStation {
   mapService = inject(MapService);
 
   station = this.mapService.selectedStation;
+  stations = this.mapService.selectedCityStations;
 
   readonly states = BRAZIL_STATES;
 
