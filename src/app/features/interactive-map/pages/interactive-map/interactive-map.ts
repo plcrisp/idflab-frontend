@@ -28,15 +28,15 @@ export class InteractiveMap implements OnInit, AfterViewInit, OnDestroy {
       { label: 'Nova Análise' },
       { label: 'Mapa Interativo', active: true },
     ]);
-
-    this.mainLayoutService.setWorkflowStatus('1');
-
-    if (!this.mainLayoutService.isSidebarCollapsed()) {
-      this.mainLayoutService.toggleSidebar();
-    }
   }
 
   ngAfterViewInit(): void {
+    setTimeout(() => {
+      if (!this.mainLayoutService.isSidebarCollapsed()) {
+        this.mainLayoutService.toggleSidebar();
+      }
+    }, 300);
+
     this.mapService.init('map');
 
     this.mapService.mapReady$.subscribe((ready) => {
@@ -44,6 +44,7 @@ export class InteractiveMap implements OnInit, AfterViewInit, OnDestroy {
 
       setTimeout(() => {
         this.isLoadingMap = false;
+
         this.cdr.detectChanges();
       }, 300);
     });

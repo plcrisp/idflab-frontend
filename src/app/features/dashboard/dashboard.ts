@@ -8,11 +8,13 @@ import { MainLayoutService } from '../../core/services/state/main-layout.service
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
-  private MainLayoutService = inject(MainLayoutService);
+  private mainLayoutService = inject(MainLayoutService);
 
   ngOnInit() {
-    this.MainLayoutService.setBreadcrumbs([{ label: 'Dashboard', active: true }]);
+    this.mainLayoutService.setBreadcrumbs([{ label: 'Dashboard', active: true }]);
 
-    this.MainLayoutService.clearWorkflow();
+    if (this.mainLayoutService.isSidebarCollapsed()) {
+      this.mainLayoutService.toggleSidebar();
+    }
   }
 }

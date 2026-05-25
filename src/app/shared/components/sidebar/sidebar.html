@@ -13,13 +13,24 @@
   </div>
 
   <nav class="main-nav">
-    <a routerLink="/app/dashboard" class="nav-item">
+    <a
+      routerLink="/app/dashboard"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{exact: true}"
+      class="nav-item"
+    >
       <ng-icon name="lucideHome" class="nav-icon"></ng-icon>
       <span>Dashboard</span>
     </a>
-    <a href="#" class="nav-item">
+
+    <a routerLink="/app/projetos" routerLinkActive="active" class="nav-item">
       <ng-icon name="lucideFolderOpen" class="nav-icon"></ng-icon>
       <span>Central de Projetos</span>
+    </a>
+
+    <a routerLink="/app/analysis/interactive-map" routerLinkActive="active" class="nav-item">
+      <ng-icon name="lucideMap" class="nav-icon"></ng-icon>
+      <span>Mapa Interativo</span>
     </a>
   </nav>
 

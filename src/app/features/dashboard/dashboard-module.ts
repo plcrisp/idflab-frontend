@@ -7,7 +7,7 @@ import { SharedModule } from '../../shared/shared-module';
 import { Dashboard } from './dashboard';
 import { DASHBOARD_ROUTES } from './dashboard.routes';
 import { NgIconsModule } from '@ng-icons/core';
-import { lucideFolderOpen } from '@ng-icons/lucide';
+import { lucideFolderOpen, lucideMap } from '@ng-icons/lucide';
 
 @NgModule({
   declarations: [Dashboard],
@@ -18,6 +18,7 @@ import { lucideFolderOpen } from '@ng-icons/lucide';
     SharedModule,
     NgIconsModule.withIcons({
       lucideFolderOpen,
+      lucideMap,
     }),
   ],
 })
