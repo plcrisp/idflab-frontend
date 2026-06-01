@@ -141,12 +141,12 @@
       }
 
       &.inmet {
-        background-color: color-mix(in srgb, var(--primary) 12%, transparent);
-        color: var(--primary);
+        background-color: color-mix(in srgb, var(--inmet) 12%, transparent);
+        color: var(--inmet);
       }
       &.cemaden {
-        background-color: rgba(16, 185, 129, 0.12);
-        color: #10b981;
+        background-color: color-mix(in srgb, var(--cemaden) 12%, transparent);
+        color: var(--cemaden);
       }
     }
 

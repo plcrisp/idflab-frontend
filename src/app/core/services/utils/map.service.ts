@@ -148,7 +148,6 @@ export class MapService implements OnDestroy {
         if (this.map) {
           const bounds = this.map.getBounds();
           const currentZoom = this.map!.getZoom();
-          const center = this.map!.getCenter();
           if (!bounds) return;
           const initialVisible = this.allMarkers.filter(
             (m) =>
@@ -157,7 +156,7 @@ export class MapService implements OnDestroy {
               m.latitude >= bounds.getSouth() &&
               m.latitude <= bounds.getNorth(),
           );
-          this.analyticsService.updateVisibleStations(initialVisible, currentZoom, center);
+          this.analyticsService.updateVisibleStations(initialVisible, currentZoom);
         }
       },
       error: (err) => console.error('Erro ao carregar estações:', err),
@@ -381,7 +380,6 @@ export class MapService implements OnDestroy {
 
       const bounds = this.map!.getBounds();
       const currentZoom = this.map!.getZoom();
-      const center = this.map!.getCenter();
 
       if (!bounds) return;
 
@@ -393,7 +391,7 @@ export class MapService implements OnDestroy {
           m.latitude <= bounds.getNorth(),
       );
 
-      this.analyticsService.updateVisibleStations(visibleStations, currentZoom, center);
+      this.analyticsService.updateVisibleStations(visibleStations, currentZoom);
     });
   }
 

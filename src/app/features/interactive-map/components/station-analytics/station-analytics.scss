@@ -65,6 +65,7 @@
     }
 
     .health-track {
+      display: flex;
       width: 100%;
       height: 0.3rem;
       background-color: var(--border-subtle);
@@ -73,9 +74,15 @@
 
       .health-fill {
         height: 100%;
-        background-color: #10b981;
-        border-radius: 1rem;
         transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &.inmet {
+          background-color: var(--inmet);
+        }
+
+        &.cemaden {
+          background-color: var(--cemaden);
+        }
       }
     }
   }
@@ -107,11 +114,11 @@
       }
 
       &.inmet .source-count {
-        color: var(--primary);
+        color: var(--inmet);
       }
 
       &.cemaden .source-count {
-        color: #059669;
+        color: var(--cemaden);
       }
     }
   }

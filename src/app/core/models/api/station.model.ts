@@ -46,11 +46,12 @@ export interface Marker {
 }
 
 export interface SidebarDashboardStats {
-  regionName: string;
   totalStations: number;
   activePercentage: number;
   inmetCount: number;
   cemadenCount: number;
+  inmetActivePercentage: number;
+  cemadenActivePercentage: number;
 }
 
 export interface SearchResult {

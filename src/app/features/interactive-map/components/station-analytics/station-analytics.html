@@ -1,9 +1,4 @@
 <div class="dashboard-stats">
-  <div class="stats-header">
-    <span class="region-label">Visão Geral</span>
-    <h3 class="region-name">{{ stats().regionName }}</h3>
-  </div>
-
   <div class="main-metric">
     <span class="metric-value">{{ stats().totalStations }}</span>
     <span class="metric-label">estações na área visível</span>
@@ -14,8 +9,11 @@
       <span class="health-label">Operabilidade da Rede</span>
       <span class="health-value">{{ stats().activePercentage }}%</span>
     </div>
+
     <div class="health-track">
-      <div class="health-fill" [style.width.%]="stats().activePercentage"></div>
+      <div class="health-fill inmet" [style.width.%]="stats().inmetActivePercentage"></div>
+
+      <div class="health-fill cemaden" [style.width.%]="stats().cemadenActivePercentage"></div>
     </div>
   </div>
 
