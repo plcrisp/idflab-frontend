@@ -80,7 +80,9 @@ export class StationSearch {
       next: (stations) => {
         this.isLoading.set(false);
         this.mapService.selectedCityStations.set(stations);
-        this.mapService.clearStation();
+        this.mapService.selectedCityCenter.set(feature.center);
+
+        this.mapService.clearStation(false);
       },
       error: () => this.isLoading.set(false),
     });
@@ -97,8 +99,19 @@ export class StationSearch {
     this.activeIndex.set(-1);
     this.selected.set('__close__');
     this.results.set([]);
-
     this.mapService.selectedCityStations.set([]);
+    this.mapService.selectedCityCenter.set(null);
+
+    const map = this.mapService.getMap();
+
+    if (map) {
+      const currentZoom = map.getZoom();
+
+      map.easeTo({
+        zoom: currentZoom - 1,
+        duration: 1000,
+      });
+    }
   }
 
   onFocus(): void {

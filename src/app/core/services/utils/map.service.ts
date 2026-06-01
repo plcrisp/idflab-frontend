@@ -54,6 +54,7 @@ export class MapService implements OnDestroy {
   private allMarkers: Marker[] = [];
 
   readonly selectedCityStations = signal<Station[]>([]);
+  readonly selectedCityCenter = signal<[number, number] | null>(null);
   readonly selectedStation = signal<Station | null>(null);
 
   constructor(
@@ -143,8 +144,31 @@ export class MapService implements OnDestroy {
     });
   }
 
-  clearStation(): void {
+  clearStation(moveCamera: boolean = true): void {
     this.selectedStation.set(null);
+
+    if (!moveCamera) return;
+
+    const map = this.getMap();
+
+    if (map) {
+      const center = this.selectedCityCenter();
+
+      if (center) {
+        map.easeTo({
+          center: center,
+          zoom: 12,
+          duration: 1000,
+        });
+      } else {
+        const currentZoom = map.getZoom();
+
+        map.easeTo({
+          zoom: currentZoom - 1,
+          duration: 1000,
+        });
+      }
+    }
   }
 
   private loadInitialMarkers(): void {
