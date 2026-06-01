@@ -21,7 +21,7 @@ export class InteractiveMap implements OnInit, AfterViewInit, OnDestroy {
   private mapService = inject(MapService);
   private cdr = inject(ChangeDetectorRef);
 
-  isLoadingMap = true;
+  isLoadingMap: boolean = true;
 
   ngOnInit(): void {
     this.mainLayoutService.setBreadcrumbs([

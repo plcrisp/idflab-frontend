@@ -13,4 +13,10 @@ export class MapFloatingPanel {
 
   stations = this.mapService.selectedCityStations;
   station = this.mapService.selectedStation;
+
+  showStationTypeModal: boolean = false;
+
+  toggleModal() {
+    this.showStationTypeModal = !this.showStationTypeModal;
+  }
 }

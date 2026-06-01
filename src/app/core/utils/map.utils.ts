@@ -74,14 +74,12 @@ export const MAP_ICONS: Record<string, string> = {
   'icon-pane-cemaden': `
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="7" fill="${MAP_COLORS.cemaden}" stroke="${MAP_COLORS.border}" stroke-width="2.5" />
-      <circle cx="18" cy="6" r="4.5" fill="${MAP_COLORS.warning}" stroke="${MAP_COLORS.border}" stroke-width="1.5" />
-      <text x="18" y="8" text-anchor="middle" font-size="6" font-weight="bold" fill="white" font-family="Arial">!</text>
+      <circle cx="18" cy="6" r="4.5" fill="${MAP_COLORS.warning}" stroke="${MAP_COLORS.border}" stroke-width="1.5"/>
     </svg>`,
   'icon-pane-inmet': `
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
       <rect x="5" y="5" width="14" height="14" rx="3" fill="${MAP_COLORS.inmet}" stroke="${MAP_COLORS.border}" stroke-width="2.5" />
-      <circle cx="18" cy="6" r="4.5" fill="${MAP_COLORS.warning}" stroke="${MAP_COLORS.border}" stroke-width="1.5" />
-      <text x="18" y="8" text-anchor="middle" font-size="6" font-weight="bold" fill="white" font-family="Arial">!</text>
+      <circle cx="18" cy="6" r="4.5" fill="${MAP_COLORS.warning}" stroke="${MAP_COLORS.border}" stroke-width="1.5"/>
     </svg>`,
 };
 

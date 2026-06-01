@@ -31,7 +31,12 @@
       {{ station.source }}
       <span class="badge-code">{{ station.code }}</span>
     </span>
-    <span class="station-type" *ngIf="station.station_type">{{ station.station_type }}</span>
+    <span class="station-type" *ngIf="station.station_type">
+      {{ station.station_type }}
+      <button class="station-type-info" (click)="openModal()">
+        <ng-icon name="lucideInfo" class="info-icon"></ng-icon>
+      </button>
+    </span>
   </div>
 
   <div class="availability-section">

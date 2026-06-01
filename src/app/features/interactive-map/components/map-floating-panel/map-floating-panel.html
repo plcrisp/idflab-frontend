@@ -5,5 +5,7 @@
 
   <app-station-list *ngIf="stations().length !== 0 && !station()"> </app-station-list>
 
-  <app-select-station *ngIf="station()"> </app-select-station>
+  <app-select-station (open)="toggleModal()" *ngIf="station()"> </app-select-station>
 </div>
+
+<app-station-modal *ngIf="showStationTypeModal" (close)="toggleModal()"> </app-station-modal>

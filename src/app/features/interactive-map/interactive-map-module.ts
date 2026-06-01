@@ -9,8 +9,14 @@ import { InteractiveMap } from './pages/interactive-map/interactive-map';
 import { NgIconsModule } from '@ng-icons/core';
 import {
   lucideActivity,
+  lucideAlertCircle,
   lucideArrowLeft,
   lucideArrowRight,
+  lucideCalendar,
+  lucideChartLine,
+  lucideClock,
+  lucideDroplet,
+  lucideInfo,
   lucideLayoutDashboard,
   lucideMapPin,
   lucideSearch,
@@ -21,6 +27,7 @@ import { StationAnalytics } from './components/station-analytics/station-analyti
 import { StationList } from './components/station-list/station-list';
 import { SelectStation } from './components/select-station/select-station';
 import { StationSearch } from './components/station-search/station-search';
+import { StationModal } from './components/station-modal/station-modal';
 
 @NgModule({
   declarations: [
@@ -30,6 +37,7 @@ import { StationSearch } from './components/station-search/station-search';
     StationList,
     SelectStation,
     StationSearch,
+    StationModal,
   ],
   imports: [
     CommonModule,
@@ -44,6 +52,11 @@ import { StationSearch } from './components/station-search/station-search';
       lucideArrowRight,
       lucideArrowLeft,
       lucideLayoutDashboard,
+      lucideInfo,
+      lucideCalendar,
+      lucideAlertCircle,
+      lucideClock,
+      lucideChartLine,
     }),
   ],
 })

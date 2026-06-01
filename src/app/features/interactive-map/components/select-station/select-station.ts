@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { MapService } from '../../../../core/services/utils/map.service';
 import { BRAZIL_STATES } from '../../../../shared/utils/brazil-states.constants';
 
@@ -10,6 +10,8 @@ import { BRAZIL_STATES } from '../../../../shared/utils/brazil-states.constants'
 })
 export class SelectStation {
   mapService = inject(MapService);
+
+  @Output() open = new EventEmitter<void>();
 
   station = this.mapService.selectedStation;
   stations = this.mapService.selectedCityStations;
@@ -37,6 +39,10 @@ export class SelectStation {
   get minDate(): string {
     const s = this.station();
     return s?.operation_start_date ? s.operation_start_date : '1900-01-01';
+  }
+
+  openModal(): void {
+    this.open.emit();
   }
 
   startAnalysis() {
