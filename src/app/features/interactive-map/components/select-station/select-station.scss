@@ -98,21 +98,22 @@
 
     &.operante {
       .status-dot {
-        background-color: #10b981;
-        box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+        background-color: var(--color-success);
+        box-shadow: 0 0 6px color-mix(in srgb, var(--color-success) 50%, transparent);
       }
       .status-label {
-        color: #10b981;
+        color: var(--color-success);
       }
     }
 
     &.pane,
     &.falha {
       .status-dot {
-        background-color: #f59e0b;
+        background-color: var(--color-warning);
+        box-shadow: 0 0 6px color-mix(in srgb, var(--color-warning) 50%, transparent);
       }
       .status-label {
-        color: #f59e0b;
+        color: var(--color-warning);
       }
     }
   }

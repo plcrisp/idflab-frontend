@@ -75,24 +75,24 @@
       position: absolute;
       inset: -4px;
       border-radius: inherit;
-      opacity: 0.25;
-      filter: blur(4px);
+      opacity: 0.2;
+      filter: blur(6px);
     }
 
     &.operante {
-      background: #22c55e;
+      background: var(--color-success);
 
       &::after {
-        background: #22c55e;
+        background: var(--color-success);
       }
     }
 
     &.pane,
     &.falha {
-      background: #f59e0b;
+      background: var(--color-warning);
 
       &::after {
-        background: #f59e0b;
+        background: var(--color-warning);
       }
     }
   }
@@ -124,15 +124,13 @@
     backdrop-filter: blur(10px);
 
     &.inmet {
-      background: rgba(73, 98, 139, 0.12);
-      border-color: rgba(73, 98, 139, 0.2);
-      color: var(--primary);
+      background-color: color-mix(in srgb, var(--inmet) 12%, transparent);
+      color: var(--inmet);
     }
 
     &.cemaden {
-      background: rgba(34, 197, 94, 0.1);
-      border-color: rgba(34, 197, 94, 0.16);
-      color: #22c55e;
+      background-color: color-mix(in srgb, var(--cemaden) 12%, transparent);
+      color: var(--cemaden);
     }
   }
 
