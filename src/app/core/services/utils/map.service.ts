@@ -7,8 +7,16 @@ import { Marker, Station, StationBBoxRequest } from '../../models/api/station.mo
 import { StationService } from '../api/stations.service';
 import { StationAnalyticsService } from './station-analytics.service';
 import { BRAZIL_STATES } from '../../../shared/utils/brazil-states.constants';
-
-const CLUSTER_SOURCE = 'stations';
+import {
+  CLUSTER_SOURCE,
+  CLUSTER_LAYERS_IDS,
+  getClusterSourceConfig,
+  CLUSTER_LAYER,
+  CLUSTER_COUNT_LAYER,
+  UNCLUSTERED_POINT_LAYER,
+  MAP_ICONS,
+  getHoverPopupHtml,
+} from '../../utils/map.utils';
 
 @Injectable({ providedIn: 'root' })
 export class MapService implements OnDestroy {
@@ -184,107 +192,43 @@ export class MapService implements OnDestroy {
       })),
     };
 
-    this.map.addSource(CLUSTER_SOURCE, {
-      type: 'geojson',
-      data: geojson,
-      cluster: true,
-      clusterMaxZoom: 9,
-      clusterRadius: 60,
-    });
+    this.map.addSource(CLUSTER_SOURCE, getClusterSourceConfig(geojson) as any);
 
-    // cluster
-    this.map.addLayer({
-      id: 'clusters',
-      type: 'circle',
-      source: CLUSTER_SOURCE,
-      filter: ['has', 'point_count'],
-      paint: {
-        'circle-color': ['step', ['get', 'point_count'], '#49628b', 50, '#2a3c58', 500, '#1e2a3f'],
-        'circle-radius': ['step', ['get', 'point_count'], 14, 50, 18, 500, 24],
-        'circle-opacity': 0.9,
-        'circle-stroke-width': 1.5,
-        'circle-stroke-color': 'rgba(242, 242, 242, 0.4)',
-      },
-    });
-
-    // cluster number
-    this.map.addLayer({
-      id: 'cluster-count',
-      type: 'symbol',
-      source: CLUSTER_SOURCE,
-      filter: ['has', 'point_count'],
-      layout: {
-        'text-field': '{point_count_abbreviated}',
-        'text-size': 12,
-        'text-font': ['Inter Regular', 'Open Sans Regular', 'Arial Unicode MS Regular'],
-      },
-      paint: {
-        'text-color': '#f2f2f2',
-      },
-    });
+    this.map.addLayer(CLUSTER_LAYER as any);
+    this.map.addLayer(CLUSTER_COUNT_LAYER as any);
 
     await this.registerStatusIcons();
 
-    // station
-    this.map.addLayer({
-      id: 'unclustered-point',
-      type: 'symbol',
-      source: CLUSTER_SOURCE,
-      filter: ['!', ['has', 'point_count']],
-      layout: {
-        'icon-image': [
-          'concat',
-          ['match', ['get', 'status'], 'Pane', 'icon-pane-', 'icon-operante-'],
-          ['match', ['get', 'source'], 'INMET', 'inmet', 'cemaden'],
-        ],
-        'icon-size': 1,
-        'icon-allow-overlap': true,
-      },
-    });
+    this.map.addLayer(UNCLUSTERED_POINT_LAYER as any);
 
     this.setupClusterInteractions();
   }
 
   private async registerStatusIcons(): Promise<void> {
-    const icons: Record<string, string> = {
-      'icon-operante-cemaden': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-    <circle cx="8" cy="8" r="6" fill="#49628b" stroke="#f2f2f2" stroke-width="1.5"/>
-  </svg>`,
+    if (!this.map) return;
 
-      'icon-operante-inmet': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-    <circle cx="8" cy="8" r="6" fill="#1e2a3f" stroke="#f2f2f2" stroke-width="1.5"/>
-    <circle cx="8" cy="8" r="2" fill="#f2f2f2"/>
-  </svg>`,
-
-      'icon-pane-cemaden': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-    <polygon points="8,2 14.5,13.5 1.5,13.5" fill="#f2f2f2" stroke="#49628b" stroke-width="2" stroke-linejoin="round"/>
-  </svg>`,
-
-      'icon-pane-inmet': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-    <polygon points="8,2 14.5,13.5 1.5,13.5" fill="#f2f2f2" stroke="#1e2a3f" stroke-width="2" stroke-linejoin="round"/>
-    <circle cx="8" cy="9.5" r="1.5" fill="#1e2a3f"/>
-  </svg>`,
-    };
-
-    const loads = Object.entries(icons).map(([name, svg]) => {
+    const loads = Object.entries(MAP_ICONS).map(([name, svg]) => {
       if (this.map!.hasImage(name)) return Promise.resolve();
+
       return new Promise<void>((resolve) => {
-        const img = new Image(16, 16);
+        const img = new Image(24, 24);
+
         img.onload = () => {
           this.map!.addImage(name, img);
           resolve();
         };
+
         img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
       });
     });
 
-    return Promise.all(loads).then(() => {});
+    await Promise.all(loads);
   }
 
   private setupClusterInteractions(): void {
     if (!this.map) return;
 
-    // zoom in
+    // Zoom in
     this.map.on('click', 'clusters', (e) => {
       const features = this.map!.queryRenderedFeatures(e.point, { layers: ['clusters'] });
       const clusterId = features[0].properties?.['cluster_id'];
@@ -301,14 +245,13 @@ export class MapService implements OnDestroy {
       );
     });
 
-    // popup
+    // Popup
     this.map.on('click', 'unclustered-point', (e) => {
       const props = e.features?.[0].properties;
-
       if (props) this.selectStation(props['id']);
     });
 
-    // Cursors
+    // Cursors e Hover
     this.map.on('mouseenter', 'unclustered-point', (e) => {
       this.map!.getCanvas().style.cursor = 'pointer';
 
@@ -325,32 +268,13 @@ export class MapService implements OnDestroy {
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
       }
 
+      // Certifique-se de que BRAZIL_STATES esteja acessível aqui ou importe no topo
       const regionText = props['city']
         ? `${props['city']}, ${props['state']}`
         : `${BRAZIL_STATES[props['state']]}`;
-      const statusClass = (props['status'] || 'desconhecido').toLowerCase();
 
-      const nameLower = props['name'] ? props['name'].toLowerCase() : '';
-      const sourceClass = props['source'] ? props['source'].toLowerCase() : '';
-
-      const html = `
-      <div class="hover-content">
-        <div class="hover-header">
-          <span class="hover-region">${regionText}</span>
-          <div class="hover-dot ${statusClass}"></div>
-        </div>
-
-        <div class="hover-name">${nameLower}</div>
-
-        <div class="hover-divider"></div>
-
-        <div class="hover-footer">
-          <div class="hover-badge ${sourceClass}">
-            ${props['source']}
-          </div>
-        </div>
-      </div>
-    `;
+      // Gera o HTML do popup usando a função utilitária
+      const html = getHoverPopupHtml(props, regionText);
 
       this.hoverPopup.setLngLat(coordinates).setHTML(html).addTo(this.map!);
     });
@@ -366,7 +290,7 @@ export class MapService implements OnDestroy {
 
   private removeClusterLayers(): void {
     if (!this.map) return;
-    ['unclustered-point', 'cluster-count', 'clusters'].forEach((layer) => {
+    CLUSTER_LAYERS_IDS.forEach((layer) => {
       if (this.map!.getLayer(layer)) this.map!.removeLayer(layer);
     });
     if (this.map.getSource(CLUSTER_SOURCE)) this.map.removeSource(CLUSTER_SOURCE);
