@@ -20,9 +20,12 @@
     "@fontsource/inter": "^5.2.8",
     "@ng-icons/core": "^33.2.2",
     "@ng-icons/lucide": "^33.2.2",
+    "@tailwindcss/postcss": "^4.3.0",
     "mapbox-gl": "^3.23.1",
     "ngx-mapbox-gl": "^14.0.0",
+    "postcss": "^8.5.15",
     "rxjs": "~7.8.0",
+    "tailwindcss": "^4.3.0",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
