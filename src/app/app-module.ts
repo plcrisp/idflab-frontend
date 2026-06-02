@@ -7,9 +7,10 @@ import { LayoutModule } from './layout/layout-module';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { AppComponent } from './app.component';
+import { HlmToasterImports } from '@spartan-ng/helm/sonner';
 @NgModule({
   declarations: [AppComponent],
-  imports: [BrowserModule, AppRoutingModule, LayoutModule],
+  imports: [BrowserModule, AppRoutingModule, LayoutModule, ...HlmToasterImports],
   providers: [
     provideBrowserGlobalErrorListeners(),
 
