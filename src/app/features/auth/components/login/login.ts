@@ -24,7 +24,7 @@ export class Login implements OnInit {
     private route: ActivatedRoute,
   ) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)]],
       password: ['', Validators.required],
     });
   }
