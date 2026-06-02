@@ -10,7 +10,16 @@ import { VerifyEmail } from './components/verify-email/verify-email';
 import { ForgotPassword } from './components/forgot-password/forgot-password';
 import { ResetPassword } from './components/reset-password/reset-password';
 import { SharedModule } from '../../shared/shared-module';
-import { lucideBan, lucideLock, lucideMail } from '@ng-icons/lucide';
+import {
+  lucideBan,
+  lucideCheck,
+  lucideCheckCircle,
+  lucideLoader2,
+  lucideLock,
+  lucideMail,
+  lucideSend,
+  lucideUser,
+} from '@ng-icons/lucide';
 import { NgIcon, NgIconsModule, provideIcons } from '@ng-icons/core';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmLabelImports } from '@spartan-ng/helm/label';
@@ -18,6 +27,7 @@ import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmInputGroupImports } from '@spartan-ng/helm/input-group';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
+import { HlmToggleGroup, HlmToggleGroupImports } from '@spartan-ng/helm/toggle-group';
 
 @NgModule({
   declarations: [Login, Register, VerifyEmail, ForgotPassword, ResetPassword],
@@ -31,6 +41,11 @@ import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
       lucideBan,
       lucideMail,
       lucideLock,
+      lucideSend,
+      lucideCheck,
+      lucideCheckCircle,
+      lucideLoader2,
+      lucideUser,
     }),
     ...HlmButtonImports,
     ...HlmLabelImports,
@@ -38,6 +53,7 @@ import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
     ...HlmInputImports,
     ...HlmInputGroupImports,
     ...HlmSpinnerImports,
+    ...HlmToggleGroupImports,
   ],
 })
 export class AuthModule {}

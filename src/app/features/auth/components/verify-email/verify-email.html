@@ -1,102 +1,129 @@
-<div class="verify-container">
-  <app-theme-toggle></app-theme-toggle>
-  <div class="state-card" *ngIf="status === 'loading'">
-    <div class="spinner-wrapper">
-      <div class="spinner-large"></div>
-    </div>
-    <h2>Verificando e-mail...</h2>
-    <p>Aguarde enquanto validamos suas credenciais e liberamos seu acesso ao IDFLab.</p>
-  </div>
+<div class="mx-auto flex w-115 max-w-115 flex-col gap-6 p-4">
+  <ng-container *ngIf="status === 'loading'">
+    <div class="flex flex-col items-center gap-5">
+      <div class="icon-circle-wrapper">
+        <ng-icon name="lucideLoader2" size="24"></ng-icon>
+      </div>
 
-  <div class="state-card" *ngIf="status === 'success'">
-    <div class="icon-circle icon-success">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path
-          d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-        <path d="M22 4L12 14.01l-3-3" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
+      <div class="flex flex-col items-center gap-2">
+        <h1 class="mb-0 text-center">Verificando e-mail...</h1>
+        <p class="text-sm text-center text-muted-foreground">
+          Aguarde enquanto validamos suas credenciais e liberamos seu acesso ao IDFLab.
+        </p>
+      </div>
     </div>
-    <h2>E-mail verificado!</h2>
-    <p>
-      Sua conta foi ativada com sucesso. Você já tem acesso total à plataforma de análise
-      hidrológica.
-    </p>
-    <button routerLink="/auth/login" class="btn-primary">Acessar o IDFLab</button>
-  </div>
+  </ng-container>
 
-  <div class="state-card" *ngIf="status === 'error'">
-    <div class="icon-circle icon-error">
-      <ng-icon name="lucideBan" class="icon"></ng-icon>
+  <ng-container *ngIf="status === 'success'">
+    <div class="flex flex-col items-center gap-5">
+      <div class="icon-circle-wrapper">
+        <ng-icon name="lucideCheckCircle" size="24"></ng-icon>
+      </div>
+
+      <div class="flex flex-col items-center gap-2">
+        <h1 class="mb-0 text-center">E-mail verificado!</h1>
+        <p class="text-sm text-center text-muted-foreground">
+          Sua conta foi ativada com sucesso. Você já tem acesso total à plataforma de análise
+          hidrológica.
+        </p>
+      </div>
+
+      <div class="mt-2 flex w-full flex-col gap-4">
+        <button hlmBtn routerLink="/auth/login" class="w-full">Acessar o IDFLab</button>
+      </div>
     </div>
-    <h2>Ops, algo deu errado</h2>
-    <p>
-      {{ errorMessage }} Digite o e-mail cadastrado e enviaremos um novo link para completar sua
-      verificação.
-    </p>
-    <form [formGroup]="resendForm" (submit)="onSubmit()">
-      <div class="input-group">
-        <label for="email">E-mail</label>
-        <input
-          type="email"
-          id="email"
-          formControlName="email"
-          autocomplete="email"
-          [class.invalid]="resendForm.get('email')?.invalid && resendForm.get('email')?.touched"
-        />
-        <div
-          class="error-text"
-          *ngIf="resendForm.get('email')?.invalid && resendForm.get('email')?.touched"
-        >
-          Informe um e-mail válido
+  </ng-container>
+
+  <ng-container *ngIf="status === 'error'">
+    <div class="flex flex-col items-center gap-5">
+      <div class="icon-circle-wrapper">
+        <ng-icon name="lucideBan" size="24"></ng-icon>
+      </div>
+
+      <div class="flex flex-col items-center gap-2">
+        <h1 class="mb-0 text-center">Ops, algo deu errado</h1>
+        <p class="text-sm text-center text-muted-foreground">
+          {{ errorMessage }} Digite o e-mail cadastrado e enviaremos um novo link para completar sua
+          verificação.
+        </p>
+      </div>
+
+      <form [formGroup]="resendForm" (submit)="onSubmit()" class="flex w-full flex-col gap-5">
+        <div class="flex flex-col gap-2">
+          <label hlmFieldLabel for="email">E-mail</label>
+          <hlm-input-group>
+            <input
+              hlmInputGroupInput
+              type="email"
+              id="email"
+              formControlName="email"
+              autocomplete="email"
+              [class.border-destructive]="resendForm.get('email')?.errors && resendForm.get('email')?.touched"
+            />
+            <hlm-input-group-addon>
+              <ng-icon name="lucideMail" class="text-muted-foreground"></ng-icon>
+            </hlm-input-group-addon>
+          </hlm-input-group>
+          <p
+            class="text-xs font-normal text-destructive"
+            *ngIf="resendForm.get('email')?.errors && resendForm.get('email')?.touched"
+          >
+            Informe um e-mail válido
+          </p>
         </div>
+
+        <div class="flex flex-col gap-3 mt-2">
+          <button hlmBtn class="w-full" type="submit">Enviar link de recuperação</button>
+          <p class="text-center text-sm text-muted-foreground">
+            Voltar para a
+            <a routerLink="/auth/login" class="font-medium text-primary hover:underline">
+              tela de acesso
+            </a>
+          </p>
+        </div>
+      </form>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="status === 'resent'">
+    <div class="flex flex-col items-center gap-5">
+      <div class="icon-circle-wrapper">
+        <ng-icon name="lucideSend" class="mr-0.5" size="24"></ng-icon>
       </div>
 
-      <div class="actions">
-        <button type="submit" class="btn-primary">Enviar link de recuperação</button>
+      <div class="flex flex-col items-center gap-2">
+        <h1 class="mb-0 text-center">E-mail enviado com sucesso!</h1>
+        <p class="text-sm text-center text-muted-foreground">
+          Enviamos um link de verificação para
+          <strong class="font-medium text-foreground">{{ resendForm.value.email }}</strong>. Acesse
+          sua caixa de entrada para prosseguir com sua ação.
+        </p>
       </div>
-    </form>
-    <button routerLink="/auth/login" class="btn-secondary">Voltar para a tela de acesso</button>
-  </div>
 
-  <div *ngIf="status === 'resent'" class="success-state">
-    <div class="icon-circle">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path
-          d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
+      <div class="mt-2 flex w-full flex-col gap-4">
+        <button hlmBtn routerLink="/auth/login" class="w-full">Entrar</button>
+
+        <p class="text-center text-sm text-muted-foreground">
+          Não recebeu?
+
+          <span *ngIf="!timerService.canResend">
+            Aguarde {{ timerService.resendCountdown }}s para reenviar
+          </span>
+
+          <a
+            *ngIf="timerService.canResend"
+            href="javascript:void(0)"
+            (click)="onResendEmail()"
+            class="font-medium text-primary hover:underline"
+            [class.cursor-not-allowed]="isResending"
+            [class.opacity-50]="isResending"
+          >
+            {{ isResending ? 'Enviando...' : 'Reenviar e-mail' }}
+          </a>
+        </p>
+      </div>
     </div>
-
-    <h2>E-mail enviado com sucesso!</h2>
-    <p>
-      Enviamos um link de verificação para <strong>{{ resendForm.value.email }}</strong>. Acesse sua
-      caixa de entrada para prosseguir com sua ação.
-    </p>
-
-    <div class="success-actions">
-      <button routerLink="/auth/login" class="btn-primary">Entrar</button>
-
-      <p class="resend-text">
-        Não recebeu?
-
-        <span *ngIf="!timerService.canResend" class="countdown">
-          Aguarde {{ timerService.resendCountdown }}s para reenviar
-        </span>
-
-        <a
-          *ngIf="timerService.canResend"
-          href="javascript:void(0)"
-          (click)="onResendEmail()"
-          [class.disabled]="isResending"
-        >
-          {{ isResending ? 'Enviando...' : 'Reenviar e-mail' }}
-        </a>
-      </p>
-    </div>
-  </div>
+  </ng-container>
 </div>
+
+<app-theme-toggle></app-theme-toggle>

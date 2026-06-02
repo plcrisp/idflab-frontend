@@ -27,7 +27,7 @@ export class ForgotPassword implements OnInit {
     public timerService: TimerService,
   ) {
     this.forgotForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)]],
     });
   }
 

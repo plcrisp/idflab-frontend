@@ -17,6 +17,12 @@
   }
 }
 
+@layer components {
+  .icon-circle-wrapper {
+    @apply flex items-center justify-center rounded-full p-5 bg-primary/10 text-primary;
+  }
+}
+
 /* DARK THEME */
 :root {
   color-scheme: dark;

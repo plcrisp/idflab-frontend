@@ -27,7 +27,7 @@ export class VerifyEmail {
     public timerService: TimerService,
   ) {
     this.resendForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)]],
     });
   }
 

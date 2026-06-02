@@ -1,147 +1,205 @@
-<div class="form-wrapper">
-  <app-theme-toggle></app-theme-toggle>
-  <form *ngIf="!isRegistered" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-    <div class="form-header">
-      <h1 [class.google-auth]="isGoogleAuth">Criar conta</h1>
+<div class="mx-auto flex w-115 max-w-115 flex-col gap-6 p-4">
+  <ng-container *ngIf="!isRegistered">
+    <div class="flex flex-col items-center gap-2">
+      <h1 class="mb-0 text-center">Criar conta</h1>
 
-      <p *ngIf="isGoogleAuth" class="subtitle">
-        Quase lá! Complete seu perfil para finalizar o cadastro com o Google.
-      </p>
-    </div>
-    <div class="role-selector">
-      <label class="role-option">
-        <input type="radio" formControlName="user_type" value="STUDENT" />
-        <span class="role-label">Estudante</span>
-      </label>
-
-      <label class="role-option">
-        <input type="radio" formControlName="user_type" value="RESEARCHER" />
-        <span class="role-label">Pesquisador</span>
-      </label>
-
-      <label class="role-option">
-        <input type="radio" formControlName="user_type" value="PROFESSOR" />
-        <span class="role-label">Professor</span>
-      </label>
-    </div>
-
-    <div class="input-group">
-      <label for="name">Nome completo</label>
-      <input
-        id="name"
-        formControlName="name"
-        autocomplete="name"
-        [class.invalid]="registerForm.get('name')?.invalid && registerForm.get('name')?.touched"
-      />
-    </div>
-
-    <div class="input-group">
-      <label for="email">E-mail</label>
-      <input
-        type="email"
-        id="email"
-        formControlName="email"
-        autocomplete="email"
-        [class.invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
-      />
-      <p
-        class="error-text"
-        *ngIf="registerForm.get('email')?.hasError('email') && registerForm.get('email')?.touched"
-      >
-        Insira um e-mail válido.
+      <p class="text-sm text-center text-muted-foreground">
+        {{ isGoogleAuth ? 'Quase lá! Complete seu perfil para finalizar o cadastro com o Google.' :
+        'Crie sua conta preenchendo as informações abaixo.' }}
       </p>
     </div>
 
-    <div class="input-group" *ngIf="!isGoogleAuth">
-      <label for="password">Senha</label>
-      <input
-        type="password"
-        id="password"
-        formControlName="password"
-        autocomplete="new-password"
-        [class.invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
-      />
-      <p
-        class="error-text"
-        *ngIf="registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched"
-      >
-        A senha deve ter pelo menos 8 caracteres.
-      </p>
-    </div>
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5">
+      <div class="flex flex-col gap-2">
+        <label hlmFieldLabel for="name">Nome completo</label>
+        <hlm-input-group>
+          <input
+            hlmInputGroupInput
+            type="text"
+            id="name"
+            formControlName="name"
+            autocomplete="name"
+            [class.border-destructive]="registerForm.get('name')?.invalid && registerForm.get('name')?.touched"
+          />
+          <hlm-input-group-addon>
+            <ng-icon name="lucideUser" class="text-muted-foreground"></ng-icon>
+          </hlm-input-group-addon>
+        </hlm-input-group>
+      </div>
 
-    <div class="input-group" *ngIf="!isGoogleAuth">
-      <label for="confirm_password">Confirmar senha</label>
-      <input
-        type="password"
-        id="confirm_password"
-        formControlName="confirm_password"
-        autocomplete="new-password"
-        [class.invalid]="registerForm.hasError('passwordMismatch') && registerForm.get('confirm_password')?.touched"
-      />
-
-      <p
-        class="error-text"
-        *ngIf="registerForm.hasError('passwordMismatch') && registerForm.get('confirm_password')?.touched"
-      >
-        As senhas não coincidem.
-      </p>
-
-      <p class="error-text" *ngIf="errorMessage && !(registerForm.hasError('passwordMismatch'))">
-        {{ errorMessage }}
-      </p>
-    </div>
-
-    <div class="actions">
-      <button type="submit" class="btn-primary" [disabled]="isLoading">
-        <span *ngIf="!isLoading">Cadastrar</span>
-        <div class="spinner" *ngIf="isLoading"></div>
-      </button>
-    </div>
-
-    <div class="toggle-view">
-      <p>
-        Já tem uma conta?
-        <a routerLink="/auth/login">Entrar</a>
-      </p>
-    </div>
-  </form>
-
-  <div *ngIf="isRegistered" class="success-state">
-    <div class="icon-circle">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path
-          d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
-    </div>
-
-    <h2>Verifique seu e-mail</h2>
-    <p>
-      Enviamos um link de ativação para <strong>{{ registerForm.value.email }}</strong>. Acesse sua
-      caixa de entrada para confirmar seu cadastro.
-    </p>
-
-    <div class="success-actions">
-      <button routerLink="/auth/login" class="btn-primary">Entrar</button>
-
-      <p class="resend-text">
-        Não recebeu?
-
-        <span *ngIf="!timerService.canResend" class="countdown">
-          Aguarde {{ timerService.resendCountdown }}s para reenviar
-        </span>
-
-        <a
-          *ngIf="timerService.canResend"
-          href="javascript:void(0)"
-          (click)="onResendEmail()"
-          [class.disabled]="isResending"
+      <div class="flex flex-col gap-2">
+        <label hlmFieldLabel for="email">E-mail</label>
+        <hlm-input-group>
+          <input
+            hlmInputGroupInput
+            type="email"
+            id="email"
+            formControlName="email"
+            autocomplete="email"
+            [class.border-destructive]="registerForm.get('email')?.errors && registerForm.get('email')?.touched"
+          />
+          <hlm-input-group-addon>
+            <ng-icon name="lucideMail" class="text-muted-foreground"></ng-icon>
+          </hlm-input-group-addon>
+        </hlm-input-group>
+        <p
+          class="text-xs font-normal text-destructive"
+          *ngIf="registerForm.get('email')?.errors && registerForm.get('email')?.touched"
         >
-          {{ isResending ? 'Enviando...' : 'Reenviar e-mail' }}
-        </a>
+          Insira um e-mail válido.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label hlmFieldLabel>Ocupação</label>
+
+        <hlm-toggle-group
+          formControlName="user_type"
+          type="single"
+          variant="outline"
+          class="w-full"
+        >
+          <button
+            hlmToggleGroupItem
+            value="STUDENT"
+            class="flex-1"
+            aria-label="Selecionar perfil estudante"
+          >
+            Estudante
+          </button>
+
+          <button
+            hlmToggleGroupItem
+            value="RESEARCHER"
+            class="flex-1"
+            aria-label="Selecionar perfil pesquisador"
+          >
+            Pesquisador
+          </button>
+
+          <button
+            hlmToggleGroupItem
+            value="PROFESSOR"
+            class="flex-1"
+            aria-label="Selecionar perfil professor"
+          >
+            Professor
+          </button>
+        </hlm-toggle-group>
+
+        <p
+          class="text-xs font-normal text-destructive"
+          *ngIf="registerForm.get('user_type')?.invalid && registerForm.get('user_type')?.touched"
+        >
+          Selecione um tipo de perfil.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-2" *ngIf="!isGoogleAuth">
+        <label hlmFieldLabel for="password">Senha</label>
+        <hlm-input-group>
+          <input
+            hlmInputGroupInput
+            type="password"
+            id="password"
+            formControlName="password"
+            autocomplete="new-password"
+            [class.border-destructive]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+          />
+          <hlm-input-group-addon>
+            <ng-icon name="lucideLock" class="text-muted-foreground"></ng-icon>
+          </hlm-input-group-addon>
+        </hlm-input-group>
+        <p
+          class="text-xs font-normal text-destructive"
+          *ngIf="registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched"
+        >
+          A senha deve ter pelo menos 8 caracteres.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-2" *ngIf="!isGoogleAuth">
+        <label hlmFieldLabel for="confirm_password">Confirmar senha</label>
+        <hlm-input-group>
+          <input
+            hlmInputGroupInput
+            type="password"
+            id="confirm_password"
+            formControlName="confirm_password"
+            autocomplete="new-password"
+            [class.border-destructive]="registerForm.hasError('passwordMismatch') && registerForm.get('confirm_password')?.touched"
+          />
+          <hlm-input-group-addon>
+            <ng-icon name="lucideLock" class="text-muted-foreground"></ng-icon>
+          </hlm-input-group-addon>
+        </hlm-input-group>
+
+        <p
+          class="text-xs font-normal text-destructive"
+          *ngIf="registerForm.hasError('passwordMismatch') && registerForm.get('confirm_password')?.touched"
+        >
+          As senhas não coincidem.
+        </p>
+
+        <p
+          class="mt-1 text-xs font-normal text-destructive"
+          *ngIf="errorMessage && !(registerForm.hasError('passwordMismatch'))"
+        >
+          {{ errorMessage }}
+        </p>
+      </div>
+
+      <button hlmBtn class="mt-2 w-full" type="submit" [disabled]="isLoading">
+        <hlm-spinner *ngIf="isLoading" data-icon="inline-start"></hlm-spinner>
+        {{ isLoading ? 'Cadastrando...' : 'Cadastrar' }}
+      </button>
+
+      <p class="text-center text-sm text-muted-foreground">
+        Já tem uma conta?
+        <a routerLink="/auth/login" class="font-medium text-primary hover:underline"> Entrar </a>
       </p>
+    </form>
+  </ng-container>
+
+  <ng-container *ngIf="isRegistered">
+    <div class="flex flex-col items-center gap-5">
+      <div class="icon-circle-wrapper">
+        <ng-icon name="lucideSend" size="24"></ng-icon>
+      </div>
+
+      <div class="flex flex-col items-center gap-2">
+        <h1 class="mb-0 text-center">Verifique seu e-mail</h1>
+        <p class="text-sm text-center text-muted-foreground">
+          Enviamos um link de ativação para
+          <strong class="font-medium text-foreground">{{ registerForm.value.email }}</strong>.
+          Acesse sua caixa de entrada para confirmar seu cadastro.
+        </p>
+      </div>
+
+      <div class="mt-2 flex w-full flex-col gap-4">
+        <button hlmBtn routerLink="/auth/login" class="w-full">Entrar</button>
+
+        <p class="text-center text-sm text-muted-foreground">
+          Não recebeu?
+
+          <span *ngIf="!timerService.canResend">
+            Aguarde {{ timerService.resendCountdown }}s para reenviar
+          </span>
+
+          <a
+            *ngIf="timerService.canResend"
+            href="javascript:void(0)"
+            (click)="onResendEmail()"
+            class="font-medium text-primary hover:underline"
+            [class.cursor-not-allowed]="isResending"
+            [class.opacity-50]="isResending"
+          >
+            {{ isResending ? 'Enviando...' : 'Reenviar e-mail' }}
+          </a>
+        </p>
+      </div>
     </div>
-  </div>
+  </ng-container>
 </div>
+
+<app-theme-toggle></app-theme-toggle>
