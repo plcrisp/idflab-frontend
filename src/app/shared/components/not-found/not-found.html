@@ -1,13 +1,18 @@
-<div class="not-found-container">
+<div class="flex min-h-[90vh] w-full items-center justify-center bg-background px-6 py-8">
   <app-theme-toggle></app-theme-toggle>
-  <div class="content">
-    <h1 class="error-code">404</h1>
-    <h2 class="title">Caminho não encontrado</h2>
-    <p class="description">
+
+  <div class="flex max-w-md flex-col items-center text-center">
+    <h1 class="m-0 text-7xl font-bold leading-none tracking-tight text-primary opacity-80">404</h1>
+
+    <h2 class="mt-4 text-2xl font-semibold tracking-tight text-foreground">
+      Caminho não encontrado
+    </h2>
+
+    <p class="mt-3 mb-6 text-sm leading-6 text-muted-foreground sm:text-base">
       A página que você está procurando pode ter sido movida, excluída ou talvez nunca tenha
       existido.
     </p>
 
-    <button class="btn-primary" (click)="goHome()">Voltar para o Início</button>
+    <button hlmBtn class="w-full mt-2" (click)="goHome()">Voltar para o Início</button>
   </div>
 </div>

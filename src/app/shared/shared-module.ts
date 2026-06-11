@@ -26,6 +26,7 @@ import { Navbar } from './components/navbar/navbar';
 import { Sidebar } from './components/sidebar/sidebar';
 import { LoadingOverlay } from './components/loading-overlay/loading-overlay';
 import { NotFound } from './components/not-found/not-found';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
 
 @NgModule({
   declarations: [ThemeToggle, Navbar, Sidebar, LoadingOverlay, NotFound],
@@ -51,6 +52,7 @@ import { NotFound } from './components/not-found/not-found';
       lucideDroplet,
       lucideMap,
     }),
+    ...HlmButtonImports,
   ],
   exports: [ThemeToggle, Navbar, Sidebar, LoadingOverlay],
   providers: [provideBrowserGlobalErrorListeners()],

@@ -13,7 +13,6 @@ export class MainLayout implements OnInit {
   mainLayoutService = inject(MainLayoutService);
 
   breadcrumbs = this.mainLayoutService.breadcrumbs;
-  workflowSteps = this.mainLayoutService.workflowSteps;
 
   constructor(private auth: AuthService) {}
 
