@@ -1,52 +1,106 @@
-<header class="navbar" [class.sidebar-collapsed]="mainLayoutService.isSidebarCollapsed()">
-  <div class="breadcrumb">
-    <ng-container *ngFor="let crumb of breadcrumbs; let last = last">
-      <span class="crumb-text" [class.active]="crumb.active"> {{ crumb.label }} </span>
-
-      <span class="crumb-separator" *ngIf="!last">/</span>
-    </ng-container>
+<header
+  class="flex items-center justify-between h-12 px-6 bg-(--color-primary-800) z-10 transition-all duration-300 ease-out"
+  [class.sidebar-collapsed]="mainLayoutService.isSidebarCollapsed()"
+>
+  <div class="flex items-center gap-6">
+    <button hlmSidebarTrigger variant="ghost" class="h-8 w-8 px-0">
+      <span class="sr-only"></span>
+    </button>
+    <nav hlmBreadcrumb class="breadcrumb">
+      <ol hlmBreadcrumbList>
+        <ng-container *ngFor="let crumb of breadcrumbs; let last = last">
+          <li hlmBreadcrumbItem>
+            <a *ngIf="!last" hlmBreadcrumbLink [href]="crumb.url || '#'"> {{ crumb.label }} </a>
+            <span *ngIf="last" hlmBreadcrumbPage> {{ crumb.label }} </span>
+          </li>
+          <li hlmBreadcrumbSeparator *ngIf="!last"></li>
+        </ng-container>
+      </ol>
+    </nav>
   </div>
 
-  <div class="utilities">
-    <div class="dropdown-container">
-      <button class="dropdown-trigger" (click)="toggleLangMenu()">
-        <ng-icon name="lucideGlobe" class="icon"></ng-icon>
-        <span class="lang-text">{{ language }}</span>
-        <ng-icon name="lucideChevronDown" class="icon-sm"></ng-icon>
+  <div class="flex items-center gap-5">
+    <div class="relative">
+      <button
+        class="group flex items-center gap-2 px-3 py-1.5 rounded-md bg-transparent text-white transition-colors hover:bg-sidebar-accent cursor-pointer"
+        [hlmDropdownMenuTrigger]="menuLanguage"
+      >
+        <ng-icon name="lucideGlobe" class="text-[16px] text-(--color-grey-light)"></ng-icon>
+        <span class="text-[13px]">{{ language }}</span>
+
+        <ng-icon
+          name="lucideChevronDown"
+          class="text-[14px] text-(--color-grey-light) transition-transform duration-200 -rotate-90 group-aria-expanded:rotate-0"
+        ></ng-icon>
       </button>
 
-      <div class="dropdown-menu min-w-32" *ngIf="showLangMenu">
-        <button (click)="setLanguage('EN')" [class.active]="language === 'EN'">English</button>
-        <button (click)="setLanguage('PT-BR')" [class.active]="language === 'PT-BR'">
-          Português (BR)
-        </button>
-      </div>
+      <ng-template #menuLanguage>
+        <hlm-dropdown-menu class="w-42">
+          <hlm-dropdown-menu-group>
+            <hlm-dropdown-menu-label>Idioma</hlm-dropdown-menu-label>
+            <hlm-dropdown-menu-separator />
+            <button
+              hlmDropdownMenuRadio
+              [checked]="language === 'EN'"
+              (triggered)="setLanguage('EN')"
+            >
+              <hlm-dropdown-menu-radio-indicator />
+              <span>English</span>
+            </button>
+            <button
+              hlmDropdownMenuRadio
+              [checked]="language === 'PT-BR'"
+              (triggered)="setLanguage('PT-BR')"
+            >
+              <hlm-dropdown-menu-radio-indicator />
+              <span>Português (BR)</span>
+            </button>
+          </hlm-dropdown-menu-group>
+        </hlm-dropdown-menu>
+      </ng-template>
     </div>
 
-    <div class="vertical-divider"></div>
+    <div class="w-px h-6 bg-(--border-alt)"></div>
 
     <app-theme-toggle [isFixed]="false"></app-theme-toggle>
 
-    <button class="icon-btn" aria-label="Notifications">
-      <ng-icon name="lucideBell" class="icon-md"></ng-icon>
-      <span class="badge" *ngIf="hasNotifications"></span>
+    <button
+      class="relative flex items-center justify-center p-1.5 rounded-md bg-transparent text-(--color-grey-light) transition-colors hover:bg-sidebar-accent cursor-pointer"
+      aria-label="Notifications"
+    >
+      <ng-icon name="lucideBell" class="text-lg"></ng-icon>
     </button>
 
-    <div class="vertical-divider"></div>
+    <div class="w-px h-6 bg-(--border-alt)"></div>
 
-    <div class="dropdown-container">
-      <button class="dropdown-trigger user-trigger" (click)="toggleUserMenu()">
-        <div class="avatar">{{ userInitials() }}</div>
-        <span class="user-name" *ngIf="user()?.name">{{ user()?.name }}</span>
-        <div class="spinner" *ngIf="!user()?.name"></div>
-        <ng-icon name="lucideChevronDown" class="icon-sm"></ng-icon>
+    <div class="relative group" [hlmDropdownMenuTrigger]="menuProfile">
+      <button
+        class="flex items-center gap-3 px-3 py-1 rounded-md bg-transparent text-white transition-colors hover:bg-sidebar-accent cursor-pointer"
+      >
+        <hlm-avatar class="h-8 w-8 text-xs">
+          <img hlmAvatarImage src="/assets/avatar.png" alt="" *ngIf="false" />
+          <span hlmAvatarFallback>{{ userInitials() }}</span>
+        </hlm-avatar>
+        <span class="text-sm font-light" *ngIf="user()?.name">{{ user()?.name }}</span>
+        <hlm-spinner *ngIf="!user()?.name" data-icon="inline-start" class="w-4 h-4" />
+
+        <ng-icon
+          name="lucideChevronDown"
+          class="text-[14px] text-(--color-grey-light) transition-transform duration-200 -rotate-90 group-aria-expanded:rotate-0"
+        ></ng-icon>
       </button>
 
-      <div class="dropdown-menu menu-right min-w-40" *ngIf="showUserMenu">
-        <button>Perfil</button>
-        <div class="divider"></div>
-        <button (click)="logout()">Sair</button>
-      </div>
+      <ng-template #menuProfile>
+        <hlm-dropdown-menu class="w-43">
+          <hlm-dropdown-menu-group>
+            <button hlmDropdownMenuItem>
+              <span>Perfil</span>
+            </button>
+          </hlm-dropdown-menu-group>
+          <hlm-dropdown-menu-separator />
+          <button hlmDropdownMenuItem (click)="logout()">Sair</button>
+        </hlm-dropdown-menu>
+      </ng-template>
     </div>
   </div>
 </header>

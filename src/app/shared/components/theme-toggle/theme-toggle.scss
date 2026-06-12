@@ -1,6 +1,12 @@
 .theme-toggle {
   .toggle-btn {
     position: relative;
+
+    /* CORREÇÃO DOS 37px: Resetando comportamento padrão do botão no navegador */
+    display: block;
+    box-sizing: border-box;
+    padding: 0;
+
     width: 64px;
     height: 32px;
     border-radius: 999px;

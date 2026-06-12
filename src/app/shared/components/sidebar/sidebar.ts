@@ -9,4 +9,22 @@ import { MainLayoutService } from '../../../core/services/state/main-layout.serv
 })
 export class Sidebar {
   mainLayoutService = inject(MainLayoutService);
+
+  protected readonly items = [
+    {
+      title: 'Dashboard',
+      url: '/app/dashboard',
+      icon: 'lucideHome',
+    },
+    {
+      title: 'Central de Projetos',
+      url: '/app/projetos',
+      icon: 'lucideFolderOpen',
+    },
+    {
+      title: 'Mapa Interativo',
+      url: '/app/analysis/interactive-map',
+      icon: 'lucideMap',
+    },
+  ];
 }

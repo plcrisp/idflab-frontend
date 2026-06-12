@@ -11,7 +11,9 @@ export class Dashboard implements OnInit {
   private mainLayoutService = inject(MainLayoutService);
 
   ngOnInit() {
-    this.mainLayoutService.setBreadcrumbs([{ label: 'Dashboard', active: true }]);
+    this.mainLayoutService.setBreadcrumbs([
+      { label: 'Dashboard', url: '/app/dashboard', active: true },
+    ]);
 
     if (this.mainLayoutService.isSidebarCollapsed()) {
       this.mainLayoutService.toggleSidebar();

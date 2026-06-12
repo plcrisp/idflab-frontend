@@ -31,7 +31,9 @@ export class HlmSidebarTrigger {
   private readonly _sidebarService = inject(HlmSidebarService);
 
   constructor() {
-    this._hlmBtn.setClass('size-7');
+    this._hlmBtn.setClass(
+      'size-7 !text-(--white) hover:!text-(--white) hover:!bg-(--sidebar-accent)',
+    );
   }
 
   protected _onClick(): void {

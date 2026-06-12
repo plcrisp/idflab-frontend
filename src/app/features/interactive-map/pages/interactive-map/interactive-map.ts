@@ -9,6 +9,7 @@ import {
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
 import { MapService } from '../../../../core/services/utils/map.service';
 import { Marker, Station } from '../../../../core/models/api/station.model';
+import { HlmSidebarService } from '@spartan-ng/helm/sidebar';
 
 @Component({
   selector: 'app-interactive-map',
@@ -18,6 +19,7 @@ import { Marker, Station } from '../../../../core/models/api/station.model';
 })
 export class InteractiveMap implements OnInit, AfterViewInit, OnDestroy {
   private mainLayoutService = inject(MainLayoutService);
+  private sidebarService = inject(HlmSidebarService);
   private mapService = inject(MapService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -25,16 +27,14 @@ export class InteractiveMap implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.mainLayoutService.setBreadcrumbs([
-      { label: 'Nova Análise' },
-      { label: 'Mapa Interativo', active: true },
+      { label: 'Nova Análise', url: '/app/dashboard' },
+      { label: 'Mapa Interativo', url: '/app/analysis/interactive-map' },
     ]);
   }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      if (!this.mainLayoutService.isSidebarCollapsed()) {
-        this.mainLayoutService.toggleSidebar();
-      }
+      this.sidebarService.setOpen(false);
     }, 300);
 
     this.mapService.init('map');

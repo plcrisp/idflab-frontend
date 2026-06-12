@@ -12,6 +12,6 @@ import { classes } from '@spartan-ng/helm/utils';
 })
 export class HlmSidebarSeparator {
   constructor() {
-    classes(() => 'bg-sidebar-border mx-2 w-auto');
+    classes(() => 'bg-sidebar-border w-auto');
   }
 }

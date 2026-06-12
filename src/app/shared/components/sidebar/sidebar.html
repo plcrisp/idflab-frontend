@@ -1,54 +1,75 @@
-<aside class="sidebar" [class.collapsed]="mainLayoutService.isSidebarCollapsed()">
-  <div class="logo-area">
-    <a class="logo-wrapper" routerLink="/app/dashboard">
-      <img src="assets/images/logos/IDFLab_white.png" alt="IDFLab" />
-      <span class="logo-text">IDFLab</span>
-    </a>
-
-    <button class="toggle-btn" (click)="mainLayoutService.toggleSidebar()">
-      <ng-icon
-        [name]="mainLayoutService.isSidebarCollapsed() ? 'lucideChevronRight' : 'lucideChevronLeft'"
-      ></ng-icon>
-    </button>
-  </div>
-
-  <nav class="main-nav">
-    <a
-      routerLink="/app/dashboard"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{exact: true}"
-      class="nav-item"
-    >
-      <ng-icon name="lucideHome" class="nav-icon"></ng-icon>
-      <span>Dashboard</span>
-    </a>
-
-    <a routerLink="/app/projetos" routerLinkActive="active" class="nav-item">
-      <ng-icon name="lucideFolderOpen" class="nav-icon"></ng-icon>
-      <span>Central de Projetos</span>
-    </a>
-
-    <a routerLink="/app/analysis/interactive-map" routerLinkActive="active" class="nav-item">
-      <ng-icon name="lucideMap" class="nav-icon"></ng-icon>
-      <span>Mapa Interativo</span>
-    </a>
-  </nav>
-
-  <div
-    class="projects-section"
-    [style.display]="mainLayoutService.isSidebarCollapsed() ? 'none' : 'block'"
-  >
-    <h3 class="section-title">PROJETOS RECENTES</h3>
-
-    <div class="empty-projects-state">
-      <div class="empty-icon-wrapper">
-        <ng-icon name="lucideFolder" class="empty-icon"></ng-icon>
-      </div>
-      <span class="empty-text">Nenhum projeto salvo</span>
+<div hlmSidebarWrapper class="border-r-0">
+  <hlm-sidebar collapsible="icon">
+    <div hlmSidebarHeader>
+      <a class="flex items-center gap-3 p-1" routerLink="/app/dashboard">
+        <img src="assets/images/logos/IDFLab_white.png" alt="IDFLab" class="w-9" />
+        <span class="font-bold text-2xl group-data-[collapsible=icon]:hidden">IDFLab</span>
+      </a>
+      <div hlmSidebarSeparator></div>
     </div>
-  </div>
+    <div hlmSidebarContent>
+      <div hlmSidebarGroup>
+        <div hlmSidebarGroupContent>
+          <ul hlmSidebarMenu>
+            @for(item of items; track item.title){
+            <li hlmSidebarMenuItem>
+              <a hlmSidebarMenuButton [routerLink]="item.url" routerLinkActive="bg-sidebar-accent">
+                <ng-icon hlm [name]="item.icon" />
+                <span>{{ item.title }}</span>
+              </a>
+            </li>
+            }
+          </ul>
+          <div hlmSidebarSeparator></div>
+        </div>
+      </div>
+      <div hlmSidebarGroup>
+        <div hlmSidebarGroupContent>
+          <ul hlmSidebarMenu>
+            <hlm-collapsible [expanded]="true" class="group/collapsible">
+              <li hlmSidebarMenuItem>
+                <button
+                  hlmCollapsibleTrigger
+                  hlmSidebarMenuButton
+                  class="flex w-full items-center justify-between"
+                >
+                  <span>Projetos Recentes</span>
+                  <ng-icon
+                    name="lucideChevronRight"
+                    class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90"
+                    hlm
+                  />
+                </button>
+                <hlm-collapsible-content>
+                  <ul hlmSidebarMenuSub>
+                    <div
+                      class="mx-3 flex flex-col items-center justify-center rounded-lg px-4 py-8 text-center"
+                    >
+                      <div
+                        class="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-primary/20"
+                      >
+                        <ng-icon
+                          name="lucideFolder"
+                          class="text-xl text-muted-foreground/40"
+                        ></ng-icon>
+                      </div>
 
-  <div class="sidebar-footer" *ngIf="!mainLayoutService.isSidebarCollapsed()">
-    <p>IDFLab v1.0.0 &copy; 2026</p>
-  </div>
-</aside>
+                      <span class="mb-5 text-xs text-(--sidebar-text-muted)">
+                        Nenhum projeto salvo
+                      </span>
+                    </div>
+                  </ul>
+                </hlm-collapsible-content>
+              </li>
+            </hlm-collapsible>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div hlmSidebarFooter class="px-2 py-4 group-data-[collapsible=icon]:hidden">
+      <div hlmSidebarSeparator></div>
+      <span class="text-xs text-(--sidebar-text-muted) mt-2 ml-4">IDFLab v1.0.0 &copy; 2026</span>
+    </div>
+  </hlm-sidebar>
+  <ng-content />
+</div>
