@@ -4,6 +4,7 @@ export const CLUSTER_LAYERS_IDS = ['unclustered-point', 'cluster-count', 'cluste
 export const MAP_COLORS = {
   inmet: '#49628b',
   cemaden: '#0891b2',
+  ana: '#0f766e',
   warning: '#f59e0b',
   border: '#ffffff',
   shadow: 'rgba(0,0,0,0.15)',
@@ -55,7 +56,7 @@ export const UNCLUSTERED_POINT_LAYER = {
     'icon-image': [
       'concat',
       ['match', ['get', 'status'], 'Pane', 'icon-pane-', 'icon-operante-'],
-      ['match', ['get', 'source'], 'INMET', 'inmet', 'cemaden'],
+      ['match', ['get', 'source'], 'INMET', 'inmet', 'ANA', 'ana', 'cemaden'],
     ],
     'icon-size': 1,
     'icon-allow-overlap': true,
@@ -71,6 +72,10 @@ export const MAP_ICONS: Record<string, string> = {
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
       <rect x="5" y="5" width="14" height="14" rx="3" fill="${MAP_COLORS.inmet}" stroke="${MAP_COLORS.border}" stroke-width="2.5" />
     </svg>`,
+  'icon-operante-ana': `
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+      <polygon points="12,4 20,12 12,20 4,12" fill="${MAP_COLORS.ana}" stroke="${MAP_COLORS.border}" stroke-width="2" stroke-linejoin="round" />
+    </svg>`,
   'icon-pane-cemaden': `
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="7" fill="${MAP_COLORS.cemaden}" stroke="${MAP_COLORS.border}" stroke-width="2.5" />
@@ -79,6 +84,11 @@ export const MAP_ICONS: Record<string, string> = {
   'icon-pane-inmet': `
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
       <rect x="5" y="5" width="14" height="14" rx="3" fill="${MAP_COLORS.inmet}" stroke="${MAP_COLORS.border}" stroke-width="2.5" />
+      <circle cx="18" cy="6" r="4.5" fill="${MAP_COLORS.warning}" stroke="${MAP_COLORS.border}" stroke-width="1.5"/>
+    </svg>`,
+  'icon-pane-ana': `
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+      <polygon points="12,4 20,12 12,20 4,12" fill="${MAP_COLORS.ana}" stroke="${MAP_COLORS.border}" stroke-width="2" stroke-linejoin="round" />
       <circle cx="18" cy="6" r="4.5" fill="${MAP_COLORS.warning}" stroke="${MAP_COLORS.border}" stroke-width="1.5"/>
     </svg>`,
 };

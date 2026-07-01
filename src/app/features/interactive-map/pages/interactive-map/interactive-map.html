@@ -1,5 +1,5 @@
-<div class="map-wrapper">
-  <div id="map" class="mapbox-layer"></div>
+<div class="relative w-full h-full overflow-hidden">
+  <div id="map" class="absolute inset-0 w-full h-full"></div>
 
   <app-loading-overlay *ngIf="isLoadingMap" message="Carregando o Mapa Interativo">
   </app-loading-overlay>

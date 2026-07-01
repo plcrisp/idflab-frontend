@@ -1,4 +1,4 @@
-export type StationSource = 'INMET' | 'CEMADEN';
+export type StationSource = 'INMET' | 'CEMADEN' | 'ANA';
 
 export type StationTypeEnum =
   | 'Acqua'
@@ -50,8 +50,10 @@ export interface SidebarDashboardStats {
   activePercentage: number;
   inmetCount: number;
   cemadenCount: number;
-  inmetActivePercentage: number;
-  cemadenActivePercentage: number;
+  anaCount: number;
+  inmetActiveShare: number;
+  cemadenActiveShare: number;
+  anaActiveShare: number;
 }
 
 export interface SearchResult {

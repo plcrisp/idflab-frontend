@@ -1,6 +1,16 @@
-import { computed, effect, Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { Marker, SidebarDashboardStats } from '../../models/api/station.model';
-import { BRAZIL_STATES } from '../../../shared/utils/brazil-states.constants';
+
+const EMPTY_STATS: SidebarDashboardStats = {
+  totalStations: 0,
+  activePercentage: 0,
+  inmetCount: 0,
+  cemadenCount: 0,
+  anaCount: 0,
+  inmetActiveShare: 0,
+  cemadenActiveShare: 0,
+  anaActiveShare: 0,
+};
 
 @Injectable({
   providedIn: 'root',
@@ -11,43 +21,50 @@ export class StationAnalyticsService {
 
   readonly stats = computed<SidebarDashboardStats>(() => {
     const stations = this.visibleStations();
+    const total = stations.length;
 
-    if (stations.length === 0) {
-      return {
-        totalStations: 0,
-        activePercentage: 0,
-        inmetCount: 0,
-        cemadenCount: 0,
-        inmetActivePercentage: 0,
-        cemadenActivePercentage: 0,
-      };
+    if (total === 0) {
+      return EMPTY_STATS;
     }
 
     let inmet = 0;
     let cemaden = 0;
+    let ana = 0;
     let inmetOperante = 0;
     let cemadenOperante = 0;
+    let anaOperante = 0;
 
-    for (const station of stations) {
-      if (station.source === 'INMET') {
-        inmet++;
-        if (station.status === 'Operante') inmetOperante++;
-      } else if (station.source === 'CEMADEN') {
-        cemaden++;
-        if (station.status === 'Operante') cemadenOperante++;
+    for (let i = 0; i < total; i++) {
+      const station = stations[i];
+      const isOperante = station.status === 'Operante';
+
+      switch (station.source) {
+        case 'INMET':
+          inmet++;
+          if (isOperante) inmetOperante++;
+          break;
+        case 'CEMADEN':
+          cemaden++;
+          if (isOperante) cemadenOperante++;
+          break;
+        case 'ANA':
+          ana++;
+          if (isOperante) anaOperante++;
+          break;
       }
     }
 
-    const total = stations.length;
-    const totalOperante = inmetOperante + cemadenOperante;
+    const totalOperante = inmetOperante + cemadenOperante + anaOperante;
 
     return {
       totalStations: total,
       activePercentage: Math.round((totalOperante / total) * 100),
       inmetCount: inmet,
       cemadenCount: cemaden,
-      inmetActivePercentage: (inmetOperante / total) * 100,
-      cemadenActivePercentage: (cemadenOperante / total) * 100,
+      anaCount: ana,
+      inmetActiveShare: inmet > 0 ? Math.round((inmetOperante / total) * 100) : 0,
+      cemadenActiveShare: cemaden > 0 ? Math.round((cemadenOperante / total) * 100) : 0,
+      anaActiveShare: ana > 0 ? Math.round((anaOperante / total) * 100) : 0,
     };
   });
 

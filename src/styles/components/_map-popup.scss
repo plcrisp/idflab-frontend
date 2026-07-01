@@ -132,6 +132,11 @@
       background-color: color-mix(in srgb, var(--cemaden) 12%, transparent);
       color: var(--cemaden);
     }
+
+    &.ana {
+      background-color: color-mix(in srgb, var(--ana) 12%, transparent);
+      color: var(--ana);
+    }
   }
 
   .hover-divider {

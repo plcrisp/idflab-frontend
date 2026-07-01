@@ -83,13 +83,17 @@
         &.cemaden {
           background-color: var(--cemaden);
         }
+
+        &.ana {
+          background-color: var(--ana);
+        }
       }
     }
   }
 
   .sources-breakdown {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 0.5rem;
     padding-top: 0.625rem;
     border-top: 1px solid var(--border-subtle);
@@ -119,6 +123,10 @@
 
       &.cemaden .source-count {
         color: var(--cemaden);
+      }
+
+      &.ana .source-count {
+        color: var(--ana);
       }
     }
   }

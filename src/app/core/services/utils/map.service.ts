@@ -292,12 +292,10 @@ export class MapService implements OnDestroy {
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
       }
 
-      // Certifique-se de que BRAZIL_STATES esteja acessível aqui ou importe no topo
       const regionText = props['city']
         ? `${props['city']}, ${props['state']}`
         : `${BRAZIL_STATES[props['state']]}`;
 
-      // Gera o HTML do popup usando a função utilitária
       const html = getHoverPopupHtml(props, regionText);
 
       this.hoverPopup.setLngLat(coordinates).setHTML(html).addTo(this.map!);

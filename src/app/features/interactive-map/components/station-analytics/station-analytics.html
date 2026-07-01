@@ -11,9 +11,11 @@
     </div>
 
     <div class="health-track">
-      <div class="health-fill inmet" [style.width.%]="stats().inmetActivePercentage"></div>
+      <div class="health-fill inmet" [style.width.%]="stats().inmetActiveShare"></div>
 
-      <div class="health-fill cemaden" [style.width.%]="stats().cemadenActivePercentage"></div>
+      <div class="health-fill cemaden" [style.width.%]="stats().cemadenActiveShare"></div>
+
+      <div class="health-fill ana" [style.width.%]="stats().anaActiveShare"></div>
     </div>
   </div>
 
@@ -25,6 +27,10 @@
     <div class="source-stat cemaden">
       <span class="source-name">CEMADEN</span>
       <span class="source-count">{{ stats().cemadenCount }}</span>
+    </div>
+    <div class="source-stat ana">
+      <span class="source-name">ANA</span>
+      <span class="source-count">{{ stats().anaCount }}</span>
     </div>
   </div>
 </div>
