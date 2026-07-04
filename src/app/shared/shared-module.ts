@@ -6,12 +6,15 @@ import { ThemeToggle } from './components/theme-toggle/theme-toggle';
 import { NgIconsModule } from '@ng-icons/core';
 import {
   lucideBell,
+  lucideBellOff,
   lucideCalendar,
   lucideCheck,
   lucideChevronDown,
   lucideChevronLeft,
   lucideChevronRight,
   lucideCircle,
+  lucideCircleCheck,
+  lucideCircleX,
   lucideDroplet,
   lucideFolder,
   lucideFolderOpen,
@@ -20,11 +23,13 @@ import {
   lucideHouse,
   lucideInbox,
   lucideLoader2,
+  lucideLogOut,
   lucideMap,
   lucideMoon,
   lucideSearch,
   lucideSettings,
   lucideSun,
+  lucideUser,
 } from '@ng-icons/lucide';
 import { Navbar } from './components/navbar/navbar';
 import { Sidebar } from './components/sidebar/sidebar';
@@ -38,9 +43,10 @@ import { HlmBreadcrumbImports } from '@spartan-ng/helm/breadcrumb';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
+import { NotificationsBell } from './components/notifications-bell/notifications-bell';
 
 @NgModule({
-  declarations: [ThemeToggle, Navbar, Sidebar, LoadingOverlay, NotFound],
+  declarations: [ThemeToggle, Navbar, Sidebar, LoadingOverlay, NotFound, NotificationsBell],
   imports: [
     CommonModule,
     RouterModule,
@@ -64,6 +70,11 @@ import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
       lucideDroplet,
       lucideMap,
       lucideHouse,
+      lucideCircleX,
+      lucideCircleCheck,
+      lucideBellOff,
+      lucideLogOut,
+      lucideUser,
     }),
     ...HlmButtonImports,
     ...HlmSidebarImports,

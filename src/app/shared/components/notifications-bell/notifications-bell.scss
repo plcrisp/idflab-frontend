@@ -1,0 +1,14 @@
+.badge-ana {
+  color: var(--ana);
+  background: color-mix(in srgb, var(--ana) 18%, transparent);
+}
+
+.badge-cemaden {
+  color: var(--cemaden);
+  background: color-mix(in srgb, var(--cemaden) 18%, transparent);
+}
+
+.badge-inmet {
+  color: var(--inmet);
+  background: color-mix(in srgb, var(--inmet) 18%, transparent);
+}
