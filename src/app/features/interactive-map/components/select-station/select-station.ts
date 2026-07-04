@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, inject, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, inject, Output, effect } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -37,6 +37,27 @@ export class SelectStation implements OnInit {
   submitError: string | null = null;
 
   form!: FormGroup;
+
+  constructor() {
+    effect(() => {
+      const station = this.station();
+      if (!station) return;
+
+      this.submitError = null;
+
+      if (!this.form) {
+        this.form = this.fb.group(
+          {
+            startDate: [this.minDate, Validators.required],
+            endDate: [this.maxDate, Validators.required],
+          },
+          { validators: this.dateRangeValidator },
+        );
+      } else {
+        this.form.reset({ startDate: this.minDate, endDate: this.maxDate }, { emitEvent: false });
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.form = this.fb.group(

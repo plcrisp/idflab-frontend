@@ -14,64 +14,6 @@
       <div class="modal-columns">
         <div class="section">
           <div class="section-header">
-            <div class="section-title cemaden-color">
-              <span class="indicator cemaden-bg"></span>
-              <h3>CEMADEN</h3>
-            </div>
-          </div>
-
-          <div class="cards-container">
-            <div class="sub-card">
-              <div class="sub-card-header">
-                <span class="title">Pluviométrica & Geotécnica</span>
-                <span class="badge cemaden-badge">10 min</span>
-              </div>
-              <div class="sub-card-items">
-                <div class="icon-row">
-                  <ng-icon name="lucideClock"></ng-icon>
-                  <p>Maior resolução disponível, ideal para eventos convectivos intensos.</p>
-                </div>
-                <div class="icon-row">
-                  <ng-icon name="lucideChartLine"></ng-icon>
-                  <p>Recomendada para IDF com desagregação sub-horária.</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="sub-card">
-              <div class="sub-card-header">
-                <span class="title">Agrometeorológica & Acqua</span>
-                <span class="badge cemaden-badge">60 min</span>
-              </div>
-              <div class="sub-card-items">
-                <div class="icon-row">
-                  <ng-icon name="lucideClock"></ng-icon>
-                  <p>Resolução horária. Adequada para IDF com durações ≥ 1h.</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="sub-card">
-              <div class="sub-card-header">
-                <span class="title">Hidrológica</span>
-                <span class="badge warning-badge">Irregular</span>
-              </div>
-              <div class="sub-card-items">
-                <div class="icon-row">
-                  <ng-icon name="lucideAlertCircle"></ng-icon>
-                  <p>Transmissão acionada por eventos, série temporal com gaps frequentes.</p>
-                </div>
-                <div class="icon-row">
-                  <ng-icon name="lucideAlertCircle"></ng-icon>
-                  <p>Uso em IDF exige preenchimento de falhas.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="section">
-          <div class="section-header">
             <div class="section-title inmet-color">
               <span class="indicator inmet-bg"></span>
               <h3>INMET</h3>
@@ -83,6 +25,7 @@
               <div class="sub-card-header">
                 <span class="title">Convencionais</span>
                 <span class="badge inmet-badge">3x/dia</span>
+                <span class="badge min-series-badge">mín. 25 anos</span>
               </div>
               <div class="sub-card-items">
                 <div class="icon-row">
@@ -100,6 +43,7 @@
               <div class="sub-card-header">
                 <span class="title">Automáticas</span>
                 <span class="badge inmet-badge">60 min</span>
+                <span class="badge min-series-badge">mín. 15 anos</span>
               </div>
               <div class="sub-card-items">
                 <div class="icon-row">
@@ -109,6 +53,96 @@
                 <div class="icon-row">
                   <ng-icon name="lucideChartLine"></ng-icon>
                   <p>Complementam convencionais em resolução temporal.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-header">
+            <div class="section-title ana-color">
+              <span class="indicator ana-bg"></span>
+              <h3>ANA</h3>
+            </div>
+          </div>
+
+          <div class="cards-container">
+            <div class="sub-card">
+              <div class="sub-card-header">
+                <span class="title">Pluviométrica Convencional</span>
+                <span class="badge ana-badge">Diária</span>
+                <span class="badge min-series-badge">mín. 25 anos</span>
+              </div>
+              <div class="sub-card-items">
+                <div class="icon-row">
+                  <ng-icon name="lucideCalendar"></ng-icon>
+                  <p>
+                    Leitura manual diária, com séries que remontam a décadas em muitas estações.
+                  </p>
+                </div>
+                <div class="icon-row">
+                  <ng-icon name="lucideDroplet"></ng-icon>
+                  <p>Rede histórica da Hidroweb/RHN, referência para totais diários acumulados.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title cemaden-color">
+              <span class="indicator cemaden-bg"></span>
+              <h3>CEMADEN</h3>
+            </div>
+          </div>
+
+          <div class="cards-container">
+            <div class="sub-card">
+              <div class="sub-card-header">
+                <span class="title">Pluviométrica & Geotécnica</span>
+                <span class="badge cemaden-badge">10 min</span>
+                <span class="badge min-series-badge">mín. 10 anos</span>
+              </div>
+              <div class="sub-card-items">
+                <div class="icon-row">
+                  <ng-icon name="lucideClock"></ng-icon>
+                  <p>Maior resolução disponível, ideal para eventos convectivos intensos.</p>
+                </div>
+                <div class="icon-row">
+                  <ng-icon name="lucideChartLine"></ng-icon>
+                  <p>Recomendada para IDF com desagregação sub-horária.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="sub-card">
+              <div class="sub-card-header">
+                <span class="title">Agrometeorológica & Acqua</span>
+                <span class="badge cemaden-badge">60 min</span>
+                <span class="badge min-series-badge">mín. 10 anos</span>
+              </div>
+              <div class="sub-card-items">
+                <div class="icon-row">
+                  <ng-icon name="lucideClock"></ng-icon>
+                  <p>Resolução horária. Adequada para IDF com durações ≥ 1h.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="sub-card">
+              <div class="sub-card-header">
+                <span class="title">Hidrológica</span>
+                <span class="badge warning-badge">Irregular</span>
+                <span class="badge min-series-badge">mín. 10 anos</span>
+              </div>
+              <div class="sub-card-items">
+                <div class="icon-row">
+                  <ng-icon name="lucideAlertCircle"></ng-icon>
+                  <p>Transmissão acionada por eventos, série temporal com gaps frequentes.</p>
+                </div>
+                <div class="icon-row">
+                  <ng-icon name="lucideAlertCircle"></ng-icon>
+                  <p>Uso em IDF exige preenchimento de falhas.</p>
                 </div>
               </div>
             </div>

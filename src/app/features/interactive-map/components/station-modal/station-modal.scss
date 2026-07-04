@@ -14,7 +14,7 @@
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   width: 100%;
-  max-width: 720px;
+  max-width: 840px;
   max-height: 90vh;
   overflow-y: auto;
 }
@@ -76,7 +76,7 @@
 
 .modal-columns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 24px;
   align-items: start;
 
@@ -131,6 +131,12 @@
 .cemaden-bg {
   background-color: var(--cemaden);
 }
+.ana-color {
+  color: var(--ana);
+}
+.ana-bg {
+  background-color: var(--ana);
+}
 
 .cards-container {
   display: flex;
@@ -179,6 +185,18 @@
     background-color: color-mix(in srgb, var(--cemaden) 13%, transparent);
     color: var(--cemaden);
     border: 1px solid color-mix(in srgb, var(--cemaden) 27%, transparent);
+  }
+
+  &.ana-badge {
+    background-color: color-mix(in srgb, var(--ana) 13%, transparent);
+    color: var(--ana);
+    border: 1px solid color-mix(in srgb, var(--ana) 27%, transparent);
+  }
+
+  &.min-series-badge {
+    background-color: color-mix(in srgb, var(--text) 6%, transparent);
+    color: var(--text-subtle);
+    border: 1px solid var(--border-subtle);
   }
 
   &.warning-badge {
