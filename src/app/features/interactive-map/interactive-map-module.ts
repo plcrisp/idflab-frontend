@@ -28,6 +28,8 @@ import { StationList } from './components/station-list/station-list';
 import { SelectStation } from './components/select-station/select-station';
 import { StationSearch } from './components/station-search/station-search';
 import { StationModal } from './components/station-modal/station-modal';
+import { HlmDatePickerImports } from '@spartan-ng/helm/date-picker';
+import { HlmFieldImports } from '@spartan-ng/helm/field';
 
 @NgModule({
   declarations: [
@@ -58,6 +60,8 @@ import { StationModal } from './components/station-modal/station-modal';
       lucideClock,
       lucideChartLine,
     }),
+    ...HlmDatePickerImports,
+    ...HlmFieldImports,
   ],
 })
 export class InteractiveMapModule {}

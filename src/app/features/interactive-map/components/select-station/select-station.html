@@ -52,7 +52,7 @@
     </div>
   </div>
 
-  <div class="analysis-section">
+  <div class="analysis-section" [formGroup]="form">
     <h4 class="section-title">Configurar Análise</h4>
 
     <div class="date-pickers">
@@ -62,10 +62,16 @@
           type="date"
           id="startDate"
           class="clean-input"
+          formControlName="startDate"
           [min]="minDate"
           [max]="maxDate"
-          [value]="station.operation_start_date || minDate"
         />
+        <span
+          class="field-error"
+          *ngIf="form.get('startDate')?.touched && form.get('startDate')?.hasError('required')"
+        >
+          Campo obrigatório
+        </span>
       </div>
 
       <div class="input-group">
@@ -74,15 +80,27 @@
           type="date"
           id="endDate"
           class="clean-input"
+          formControlName="endDate"
           [min]="minDate"
           [max]="maxDate"
-          [value]="maxDate"
         />
+        <span
+          class="field-error"
+          *ngIf="form.get('endDate')?.touched && form.get('endDate')?.hasError('required')"
+        >
+          Campo obrigatório
+        </span>
       </div>
     </div>
 
-    <button class="primary-btn" (click)="startAnalysis()">
-      Iniciar Análise
+    <span class="field-error" *ngIf="form.touched && form.hasError('dateRangeInvalid')">
+      A data inicial não pode ser posterior à data final.
+    </span>
+
+    <span class="field-error" *ngIf="submitError"> {{ submitError }} </span>
+
+    <button class="primary-btn" (click)="startAnalysis()" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Iniciando...' : 'Iniciar Análise' }}
       <ng-icon name="lucideArrowRight" size="16" class="btn-icon"></ng-icon>
     </button>
   </div>
