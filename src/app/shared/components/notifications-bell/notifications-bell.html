@@ -1,9 +1,10 @@
 <div class="relative">
   <button
-    class="relative flex items-center justify-center w-9 h-9 rounded-md bg-transparent text-white transition-colors hover:bg-white/10 cursor-pointer"
+    class="relative flex items-center justify-center w-9 h-9 rounded-md bg-transparent text-white transition-colors hover:bg-sidebar-accent cursor-pointer"
     aria-label="Notificações"
     [hlmDropdownMenuTrigger]="menuNotifications"
     (hlmDropdownMenuClosed)="onMenuClosed()"
+    #bellTrigger
   >
     <ng-icon name="lucideBell" class="text-lg"></ng-icon>
 
@@ -58,19 +59,22 @@
         </div>
       </div>
 
-      <!-- Separador só se houver algo nos dois lados -->
       <hlm-dropdown-menu-separator *ngIf="activeJobs().length > 0 && notifications().length > 0" />
 
       <!-- Notificações -->
       <div class="max-h-70 overflow-y-auto divide-y divide-(--color-primary-divider)">
-        <div *ngFor="let notif of notifications()" class="flex gap-3 px-5 py-3.5">
+        <div
+          *ngFor="let notif of notifications(); trackBy: trackByNotifId"
+          class="group flex gap-3 px-5 py-3.5 cursor-pointer transition-colors hover:bg-sidebar-accent relative"
+          (click)="openProject(notif.project_id, notif.type)"
+        >
           <ng-icon
             [name]="notif.type === 'FAILED' ? 'lucideCircleX' : 'lucideCircleCheck'"
             class="text-lg mt-0.5 shrink-0"
             [style.color]="notif.type === 'FAILED' ? 'var(--color-error)' : 'var(--color-success)'"
           ></ng-icon>
 
-          <div class="flex-1 min-w-0">
+          <div class="flex-1 min-w-0 pr-8">
             <span
               class="text-[13.5px] font-semibold block mb-0.5"
               [class.text-(--color-white)]="notif.type !== 'FAILED'"
@@ -86,9 +90,18 @@
               {{ notif.message }}
             </p>
           </div>
+
+          <button
+            (pointerdown)="$event.stopPropagation()"
+            (mousedown)="$event.stopPropagation()"
+            (click)="deleteNotification(notif.id, $event)"
+            class="absolute right-4 top-3.5 py-0.5 px-1.5 rounded-md text-(--sidebar-text-muted) opacity-0 transition-all hover:bg-sidebar-accent hover:text-white group-hover:opacity-100"
+            title="Remover notificação"
+          >
+            <ng-icon name="lucideTrash2" class="text-sm"></ng-icon>
+          </button>
         </div>
 
-        <!-- Estado vazio -->
         <div *ngIf="notifications().length === 0 && activeJobs().length === 0" class="text-center">
           <div class="mx-3 flex flex-col items-center justify-center rounded-lg text-center pt-4">
             <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-primary/20">

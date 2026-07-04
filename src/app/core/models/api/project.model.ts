@@ -1,3 +1,14 @@
+export interface Project {
+  id: string;
+  user_id: string;
+  station_id: string;
+  name: string;
+  start_date: string;
+  end_date: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ProjectCreateRequest {
   station_id: string;
   name: string;
