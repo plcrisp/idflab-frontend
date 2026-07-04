@@ -121,10 +121,18 @@
   .tags-row {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     flex-wrap: wrap;
     gap: 0.5rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--border-subtle);
+
+    .badges-group {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
 
     .network-badge {
       display: inline-flex;
@@ -162,28 +170,40 @@
       border-radius: 1rem;
       color: var(--text-subtle);
       text-transform: capitalize;
+    }
+
+    .info-trigger {
+      flex-shrink: 0;
       display: inline-flex;
       align-items: center;
-      gap: 0.25rem;
+      justify-content: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      margin-left: auto;
+      background: none;
+      border: none;
+      border-radius: 50%;
+      padding: 0;
+      cursor: pointer;
+      color: var(--text);
+      opacity: 0.7;
+      transition:
+        opacity 0.15s ease,
+        background-color 0.15s ease;
 
-      .station-type-info {
-        display: inline-flex;
-        align-items: center;
-        background: none;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        color: var(--text-subtle);
-        transition: color 0.15s ease;
+      .info-icon {
+        font-size: 14px;
+      }
 
-        .btn-icon {
-          flex-shrink: 0;
-          font-size: 12px;
-        }
+      &:hover,
+      &:focus-visible {
+        opacity: 1;
+        background-color: var(--hover-primary-soft);
+      }
 
-        &:hover {
-          color: var(--text);
-        }
+      &:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
       }
     }
   }

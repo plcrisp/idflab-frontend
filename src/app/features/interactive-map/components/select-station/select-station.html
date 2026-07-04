@@ -27,16 +27,21 @@
   </div>
 
   <div class="tags-row">
-    <span class="network-badge" [ngClass]="station.source.toLowerCase()">
-      {{ station.source }}
-      <span class="badge-code">{{ station.code }}</span>
-    </span>
-    <span class="station-type" *ngIf="station.station_type">
-      {{ station.station_type }}
-      <button class="station-type-info" (click)="openModal()">
-        <ng-icon name="lucideInfo" class="info-icon"></ng-icon>
-      </button>
-    </span>
+    <div class="badges-group">
+      <span class="network-badge" [ngClass]="station.source.toLowerCase()">
+        {{ station.source }}
+        <span class="badge-code">{{ station.code }}</span>
+      </span>
+      <span class="station-type" *ngIf="station.station_type"> {{ station.station_type }} </span>
+    </div>
+    <button
+      class="info-trigger"
+      *ngIf="station.station_type"
+      (click)="openModal()"
+      aria-label="Ver tipos de estações de monitoramento"
+    >
+      <ng-icon name="lucideInfo" class="info-icon"></ng-icon>
+    </button>
   </div>
 
   <div class="availability-section">

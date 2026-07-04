@@ -29,6 +29,8 @@ import {
   lucideSearch,
   lucideSettings,
   lucideSun,
+  lucideTrash,
+  lucideTrash2,
   lucideUser,
 } from '@ng-icons/lucide';
 import { Navbar } from './components/navbar/navbar';
@@ -75,6 +77,8 @@ import { NotificationsBell } from './components/notifications-bell/notifications
       lucideBellOff,
       lucideLogOut,
       lucideUser,
+      lucideTrash2,
+      lucideTrash,
     }),
     ...HlmButtonImports,
     ...HlmSidebarImports,
