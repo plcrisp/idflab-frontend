@@ -17,6 +17,9 @@ export type JobDetails =
       message: string;
       external_id?: string | null;
       polling_count: number;
+      current_period_idx?: number;
+      station_id?: string;
+      missing_periods?: string[][];
       error_log?: string | null;
     }
   | {

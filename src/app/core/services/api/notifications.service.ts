@@ -6,6 +6,7 @@ import { environment } from '../../../../environments/environment';
 import { poll } from '../../utils/polling.utils';
 import { toast } from '@spartan-ng/brain/sonner';
 import { AuthService } from '../../../features/auth/services/auth.service';
+import { renderNotification } from '../../utils/notification-render.util';
 
 const POLL_INTERVAL_MS = 6000;
 
@@ -93,7 +94,8 @@ export class NotificationsService {
   }
 
   private showToast(notification: Notification): void {
-    const toastContent = notification.message;
+    const { title, message } = renderNotification(notification);
+    const toastContent = `${message}`;
 
     if (notification.type === 'SUCCESS') {
       toast.success(toastContent, {
@@ -102,6 +104,11 @@ export class NotificationsService {
       });
     } else if (notification.type === 'FAILED') {
       toast.error(toastContent, {
+        duration: 8000,
+        position: 'bottom-center',
+      });
+    } else if (notification.type === 'TIMEOUT') {
+      toast.warning(toastContent, {
         duration: 8000,
         position: 'bottom-center',
       });

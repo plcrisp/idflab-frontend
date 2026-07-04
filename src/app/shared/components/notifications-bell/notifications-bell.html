@@ -64,37 +64,36 @@
       <!-- Notificações -->
       <div class="max-h-70 overflow-y-auto divide-y divide-(--color-primary-divider)">
         <div
-          *ngFor="let notif of notifications(); trackBy: trackByNotifId"
+          *ngFor="let item of notifications(); trackBy: trackByNotifId"
           class="group flex gap-3 px-5 py-3.5 cursor-pointer transition-colors hover:bg-sidebar-accent relative"
-          (click)="openProject(notif.project_id, notif.type)"
+          (click)="openNotification(item.notif)"
         >
           <ng-icon
-            [name]="notif.type === 'FAILED' ? 'lucideCircleX' : 'lucideCircleCheck'"
+            [name]="item.rendered.icon"
             class="text-lg mt-0.5 shrink-0"
-            [style.color]="notif.type === 'FAILED' ? 'var(--color-error)' : 'var(--color-success)'"
+            [style.color]="getToneColor(item.rendered.tone)"
           ></ng-icon>
 
           <div class="flex-1 min-w-0 pr-8">
             <span
               class="text-[13.5px] font-semibold block mb-0.5"
-              [class.text-(--color-white)]="notif.type !== 'FAILED'"
-              [class.text-(--color-error)]="notif.type === 'FAILED'"
+              [style.color]="getToneTitleColor(item.rendered.tone)"
             >
-              {{ notif.title }}
+              {{ item.rendered.title }}
             </span>
+
             <p
               class="text-[12.5px] leading-relaxed"
-              [class.text-(--color-grey-light)]="notif.type !== 'FAILED'"
-              [class.text-(--color-error)]="notif.type === 'FAILED'"
+              [style.color]="getToneMessageColor(item.rendered.tone)"
             >
-              {{ notif.message }}
+              {{ item.rendered.message }}
             </p>
           </div>
 
           <button
             (pointerdown)="$event.stopPropagation()"
             (mousedown)="$event.stopPropagation()"
-            (click)="deleteNotification(notif.id, $event)"
+            (click)="deleteNotification(item.notif.id, $event)"
             class="absolute right-4 top-3.5 py-0.5 px-1.5 rounded-md text-(--sidebar-text-muted) opacity-0 transition-all hover:bg-sidebar-accent hover:text-white group-hover:opacity-100"
             title="Remover notificação"
           >
