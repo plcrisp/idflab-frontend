@@ -102,7 +102,7 @@ export class HlmToaster {
         'group-[.toaster]:bg-destructive/15 group-[.toaster]:text-destructive group-[.toaster]:border-destructive',
 
       success:
-        'group-[.toaster]:bg-green-500/10 group-[.toaster]:text-green-600 group-[.toaster]:border-green-500/30 dark:group-[.toaster]:text-green-400',
+        'group-[.toaster]:bg-[#1e2a3f] group-[.toaster]:text-white group-[.toaster]:border-[#1e2a3f]',
 
       warning:
         'group-[.toaster]:bg-yellow-500/10 group-[.toaster]:text-yellow-600 group-[.toaster]:border-yellow-500/30 dark:group-[.toaster]:text-yellow-400',
@@ -114,9 +114,9 @@ export class HlmToaster {
   public readonly userClass = input<ClassValue>('', { alias: 'class' });
   public readonly userStyle = input<Record<string, string>>(
     {
-      '--normal-bg': 'var(--popover)',
-      '--normal-text': 'var(--popover-foreground)',
-      '--normal-border': 'var(--border)',
+      '--normal-bg': '#1e2a3f',
+      '--normal-text': '#ffffff',
+      '--normal-border': '#1e2a3f',
       '--border-radius': 'var(--radius)',
     },
     { alias: 'style' },

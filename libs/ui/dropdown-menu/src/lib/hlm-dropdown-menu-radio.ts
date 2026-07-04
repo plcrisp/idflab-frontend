@@ -30,7 +30,7 @@ export class HlmDropdownMenuRadio {
   constructor() {
     classes(
       () =>
-        'hover:bg-sidebar-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground group relative flex w-full cursor-pointer items-center rounded-sm py-1.5 pr-2 pl-8 text-sm transition-colors outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        'hover:bg-sidebar-accent focus-visible:bg-accent focus-visible:text-accent-foreground group relative flex w-full cursor-pointer items-center rounded-sm py-1.5 pr-2 pl-8 text-sm transition-colors outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
     );
   }
 }
