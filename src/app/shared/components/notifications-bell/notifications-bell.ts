@@ -9,6 +9,8 @@ import {
   renderNotification,
   RenderedNotification,
 } from '../../../core/utils/notification-render.util';
+import { JobsService } from '../../../core/services/api/jobs.service';
+import { Job } from '../../../core/models/api/job.model';
 
 interface NotificationViewModel {
   notif: Notification;
@@ -24,6 +26,7 @@ interface NotificationViewModel {
 export class NotificationsBell {
   private notificationsService = inject(NotificationsService);
   private projectsService = inject(ProjectsService);
+  private jobsService = inject(JobsService);
   private mapService = inject(MapService);
   private router = inject(Router);
 
@@ -58,7 +61,11 @@ export class NotificationsBell {
   }
 
   openNotification(notif: Notification): void {
-    this.openProject(notif.project_id, notif.type);
+    if (notif.type === 'TIMEOUT') {
+      this.retryTimeoutNotif(notif.job_id);
+    } else {
+      this.openProject(notif.project_id, notif.type);
+    }
   }
 
   private openProject(projectId: string | null, notifType: Notification['type']): void {
@@ -80,6 +87,19 @@ export class NotificationsBell {
         },
       });
     }
+  }
+
+  private retryTimeoutNotif(jobId: string | null): void {
+    if (!jobId) return;
+
+    this.jobsService.retryCemadenCheck(jobId).subscribe({
+      next: (job: Job) => {
+        this.notificationsService.refetch();
+      },
+      error: (err) => {
+        console.error('Erro ao buscar job para nova verificação:', err);
+      },
+    });
   }
 
   deleteNotification(notificationId: string, event: Event): void {
