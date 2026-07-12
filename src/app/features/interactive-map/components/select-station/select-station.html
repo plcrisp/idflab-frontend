@@ -98,13 +98,15 @@
       </div>
     </div>
 
-    <span class="field-error" *ngIf="form.touched && form.hasError('dateRangeInvalid')">
-      A data inicial não pode ser posterior à data final.
-    </span>
+    <div
+      class="alert-error"
+      *ngIf="(form.touched && form.hasError('dateRangeInvalid')) || submitError"
+    >
+      <ng-icon name="lucideAlertCircle" size="14" class="alert-icon"></ng-icon>
+      <span>{{ submitError || 'A data inicial não pode ser posterior à data final.' }}</span>
+    </div>
 
-    <span class="field-error" *ngIf="submitError"> {{ submitError }} </span>
-
-    <button class="primary-btn" (click)="startAnalysis()" [disabled]="isSubmitting">
+    <button class="primary-btn" (click)="startAnalysis()" [disabled]="isSubmitting || form.invalid">
       {{ isSubmitting ? 'Iniciando...' : 'Iniciar Análise' }}
       <ng-icon name="lucideArrowRight" size="16" class="btn-icon"></ng-icon>
     </button>

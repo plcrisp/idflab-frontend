@@ -27,6 +27,17 @@ export class GeocodingService {
           access_token: environment.mapboxToken,
         },
       })
-      .pipe(map((res) => res.features || []));
+      .pipe(
+        map((res) => res.features || []),
+        map((features: MapboxFeature[]) =>
+          features.map((f) => {
+            const region = f.context?.find((c) => c.id.startsWith('region'))?.text;
+            return {
+              ...f,
+              place_name: region ? `${f.text}, ${region}` : f.text,
+            };
+          }),
+        ),
+      );
   }
 }
