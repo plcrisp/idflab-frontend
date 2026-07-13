@@ -28,3 +28,8 @@ export interface SidebarProject {
   station_name: string;
   created_at: string;
 }
+
+export interface SidebarState {
+  loading: boolean;
+  projects: SidebarProject[];
+}

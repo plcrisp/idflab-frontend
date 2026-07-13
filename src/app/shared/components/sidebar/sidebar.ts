@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of, startWith } from 'rxjs';
 import { MainLayoutService } from '../../../core/services/state/main-layout.service';
@@ -16,24 +16,15 @@ interface SidebarState {
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })
-export class Sidebar {
+export class Sidebar implements OnInit {
   mainLayoutService = inject(MainLayoutService);
   projectsService = inject(ProjectsService);
 
-  state = toSignal(
-    this.projectsService.getSidebarProjects().pipe(
-      map((projects): SidebarState => {
-        console.log(projects);
-        return { loading: false, projects };
-      }),
-      startWith<SidebarState>({ loading: true, projects: [] }),
-      catchError((err) => {
-        console.error(err);
-        return of<SidebarState>({ loading: false, projects: [] });
-      }),
-    ),
-    { initialValue: { loading: true, projects: [] } },
-  );
+  state = this.projectsService.state$;
+
+  ngOnInit(): void {
+    this.projectsService.refetch();
+  }
 
   protected readonly items = [
     { title: 'Dashboard', url: '/app/dashboard', icon: 'lucideHome' },

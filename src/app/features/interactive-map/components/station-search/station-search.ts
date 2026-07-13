@@ -4,6 +4,7 @@ import { catchError, debounceTime, distinctUntilChanged, filter, of, switchMap, 
 import { MapService } from '../../../../core/services/utils/map.service';
 import { StationService } from '../../../../core/services/api/stations.service';
 import { GeocodingService, MapboxFeature } from '../../../../core/services/utils/geocoding.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface DropdownItem {
   feature: MapboxFeature;
@@ -61,6 +62,13 @@ export class StationSearch {
         this.results.set(results);
         this.isLoading.set(false);
       });
+
+    this.mapService.resetAll$$.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.searchControl.setValue('', { emitEvent: false });
+      this.selected.set(null);
+      this.results.set([]);
+      this.activeIndex.set(-1);
+    });
   }
 
   select(item: DropdownItem): void {

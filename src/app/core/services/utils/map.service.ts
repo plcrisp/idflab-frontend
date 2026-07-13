@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy, signal } from '@angular/core';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import * as mapboxgl from 'mapbox-gl';
 import { ThemeService } from './theme.service';
 import { environment } from '../../../../environments/environment';
@@ -50,6 +50,9 @@ export class MapService implements OnDestroy {
 
   private isReady$ = new BehaviorSubject<boolean>(false);
   readonly mapReady$ = this.isReady$.asObservable();
+
+  private resetAll$ = new Subject<void>();
+  readonly resetAll$$ = this.resetAll$.asObservable();
 
   private allMarkers: Marker[] = [];
 
@@ -169,6 +172,16 @@ export class MapService implements OnDestroy {
         });
       }
     }
+  }
+
+  resetAll(): void {
+    this.clearStation(false);
+    this.selectedCityStations.set([]);
+    this.selectedCityCenter.set(null);
+
+    this.resetCamera();
+
+    this.resetAll$.next();
   }
 
   private loadInitialMarkers(): void {

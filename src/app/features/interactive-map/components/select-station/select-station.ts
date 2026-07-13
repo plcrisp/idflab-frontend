@@ -155,22 +155,10 @@ export class SelectStation implements OnInit {
           position: 'bottom-center',
         });
 
-        this.mapService.clearStation();
-        this.mapService.selectedCityStations.set([]);
-        this.mapService.selectedCityCenter.set(null);
+        this.mapService.resetAll();
         this.sidebarService.setOpen(true);
-
-        const map = this.mapService.getMap();
-
-        if (map) {
-          map.flyTo({
-            center: [-51.9253, -14.235],
-            zoom: 3.5,
-            speed: 1.4,
-            curve: 1.2,
-          });
-        }
         this.isSubmitting = false;
+        this.projectsService.refetch();
       },
     });
   }
