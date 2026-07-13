@@ -11,6 +11,7 @@ import {
 } from '../../../core/utils/notification-render.util';
 import { JobsService } from '../../../core/services/api/jobs.service';
 import { Job } from '../../../core/models/api/job.model';
+import { CdkMenuTrigger } from '@angular/cdk/menu';
 
 interface NotificationViewModel {
   notif: Notification;
@@ -44,6 +45,7 @@ export class NotificationsBell {
   );
 
   @ViewChild('bellTrigger') bellTrigger!: ElementRef<HTMLButtonElement>;
+  @ViewChild(CdkMenuTrigger) menuTrigger!: CdkMenuTrigger;
 
   onMenuClosed(): void {
     this.notificationsService.readAll().subscribe({
@@ -61,6 +63,7 @@ export class NotificationsBell {
   }
 
   openNotification(notif: Notification): void {
+    this.menuTrigger.close();
     if (notif.type === 'TIMEOUT') {
       this.retryTimeoutNotif(notif.job_id);
     } else {
@@ -72,15 +75,24 @@ export class NotificationsBell {
     if (!projectId) return;
 
     if (notifType === 'SUCCESS') {
-      this.router.navigateByUrl(`/app/projects/${projectId}`);
+      this.router.navigateByUrl(`/app/analysis/${projectId}`);
       return;
     }
 
     if (notifType === 'FAILED') {
       this.projectsService.getProjectById(projectId).subscribe({
         next: (project: Project) => {
-          this.router.navigateByUrl('/app/analysis/interactive-map');
-          this.mapService.selectStation(project.station_id);
+          const targetUrl = '/app/interactive-map';
+
+          if (this.router.url === targetUrl) {
+            this.mapService.selectStation(project.station_id);
+          } else {
+            this.router.navigateByUrl(targetUrl).then((navigated) => {
+              if (navigated) {
+                this.mapService.selectStation(project.station_id);
+              }
+            });
+          }
         },
         error: (err) => {
           console.error('Erro ao buscar projeto para navegação:', err);

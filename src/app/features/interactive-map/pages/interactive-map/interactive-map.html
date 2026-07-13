@@ -4,5 +4,5 @@
   <app-loading-overlay *ngIf="isLoadingMap" message="Carregando o Mapa Interativo">
   </app-loading-overlay>
 
-  <app-map-floating-panel></app-map-floating-panel>
+  <app-map-floating-panel *ngIf="!isLoadingMap"></app-map-floating-panel>
 </div>
