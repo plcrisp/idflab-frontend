@@ -27,26 +27,23 @@ const routes: Routes = [
       },
 
       {
-        path: 'analysis',
-        children: [
-          {
-            path: 'interactive-map',
-            loadChildren: () =>
-              import('./features/interactive-map/interactive-map-module').then(
-                (m) => m.InteractiveMapModule,
-              ),
-          },
-        ],
+        path: 'interactive-map',
+        loadChildren: () =>
+          import('./features/interactive-map/interactive-map-module').then(
+            (m) => m.InteractiveMapModule,
+          ),
       },
+
+      {
+        path: 'analysis/:projectId',
+        loadChildren: () =>
+          import('./features/analysis/analysis-module').then((m) => m.AnalysisModule),
+      },
+
       { path: '**', component: NotFound, title: 'Página Não Encontrada | IDFLab' },
     ],
   },
-  {
-    path: '',
-    redirectTo: 'app',
-    pathMatch: 'full',
-  },
-
+  { path: '', redirectTo: 'app', pathMatch: 'full' },
   { path: '**', redirectTo: 'auth/login' },
 ];
 
