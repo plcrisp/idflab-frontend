@@ -22,3 +22,9 @@ export interface ProjectCreateResponse {
   message?: string | null;
   job_id?: string | null;
 }
+
+export interface SidebarProject {
+  id: string;
+  station_name: string;
+  created_at: string;
+}

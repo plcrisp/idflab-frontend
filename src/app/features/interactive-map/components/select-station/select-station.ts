@@ -12,6 +12,7 @@ import { ProjectsService } from '../../../../core/services/api/projects.service'
 import { NotificationsService } from '../../../../core/services/api/notifications.service';
 import { ProjectCreateRequest } from '../../../../core/models/api/project.model';
 import { toast } from '@spartan-ng/brain/sonner';
+import { HlmSidebarService } from '@spartan-ng/helm/sidebar';
 
 @Component({
   selector: 'app-select-station',
@@ -23,6 +24,7 @@ export class SelectStation implements OnInit {
   mapService = inject(MapService);
   private projectsService = inject(ProjectsService);
   private notificationsState = inject(NotificationsService);
+  private sidebarService = inject(HlmSidebarService);
   private fb = inject(FormBuilder);
 
   @Output() open = new EventEmitter<void>();
@@ -156,6 +158,7 @@ export class SelectStation implements OnInit {
         this.mapService.clearStation();
         this.mapService.selectedCityStations.set([]);
         this.mapService.selectedCityCenter.set(null);
+        this.sidebarService.setOpen(true);
 
         const map = this.mapService.getMap();
 

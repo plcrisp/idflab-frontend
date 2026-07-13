@@ -6,6 +6,7 @@ import {
   Project,
   ProjectCreateRequest,
   ProjectCreateResponse,
+  SidebarProject,
 } from '../../models/api/project.model';
 
 @Injectable({
@@ -17,6 +18,14 @@ export class ProjectsService {
 
   getProjectById(id: string): Observable<Project> {
     return this.http.get<Project>(`${this.baseUrl}/${id}`);
+  }
+
+  getProjects(): Observable<Project[]> {
+    return this.http.get<Project[]>(`${this.baseUrl}/`);
+  }
+
+  getSidebarProjects(): Observable<SidebarProject[]> {
+    return this.http.get<SidebarProject[]>(`${this.baseUrl}/sidebar`);
   }
 
   createProject(payload: ProjectCreateRequest): Observable<ProjectCreateResponse> {

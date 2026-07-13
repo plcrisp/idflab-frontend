@@ -27,7 +27,9 @@ import {
   lucideLoader2,
   lucideLogOut,
   lucideMap,
+  lucideMapPin,
   lucideMoon,
+  lucidePin,
   lucideSearch,
   lucideSettings,
   lucideSun,
@@ -48,6 +50,7 @@ import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { NotificationsBell } from './components/notifications-bell/notifications-bell';
+import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 
 @NgModule({
   declarations: [ThemeToggle, Navbar, Sidebar, LoadingOverlay, NotFound, NotificationsBell],
@@ -83,6 +86,8 @@ import { NotificationsBell } from './components/notifications-bell/notifications
       lucideTrash,
       lucideCloudOff,
       lucideClock,
+      lucideMapPin,
+      lucidePin,
     }),
     ...HlmButtonImports,
     ...HlmSidebarImports,
@@ -92,6 +97,7 @@ import { NotificationsBell } from './components/notifications-bell/notifications
     ...HlmDropdownMenuImports,
     ...HlmAvatarImports,
     ...HlmSpinnerImports,
+    ...HlmSkeletonImports,
   ],
   exports: [ThemeToggle, Navbar, Sidebar, LoadingOverlay],
   providers: [provideBrowserGlobalErrorListeners()],
