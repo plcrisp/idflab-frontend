@@ -71,6 +71,7 @@ export interface StationSummary {
   state: string | null;
   latitude: number;
   longitude: number;
+  resolution: string;
 
   station_type: StationTypeEnum;
 }

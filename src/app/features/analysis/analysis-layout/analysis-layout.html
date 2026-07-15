@@ -3,5 +3,7 @@
 
   <app-stepper [steps]="steps" [station_id]="project()?.station?.id"></app-stepper>
 
-  <router-outlet></router-outlet>
+  <main class="w-full flex-1">
+    <router-outlet></router-outlet>
+  </main>
 </div>

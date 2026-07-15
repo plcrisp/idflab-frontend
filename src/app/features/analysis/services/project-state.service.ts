@@ -16,6 +16,7 @@ export class ProjectStateService {
     this._loading.set(true);
     this.projectsService.getProjectById(projectId).subscribe({
       next: (project) => {
+        console.log(project);
         this._project.set(project);
         this._loading.set(false);
       },

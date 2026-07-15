@@ -15,17 +15,9 @@ export class ParamsHeader {
   get resolution(): Resolution | null {
     if (!this.headerData) return null;
 
-    const { source, station_type } = this.headerData;
+    if (this.headerData.resolution === 'daily') return 'Diária';
+    if (this.headerData.resolution === 'hourly') return 'Horária';
 
-    switch (source) {
-      case 'CEMADEN':
-        return 'Horária';
-      case 'ANA':
-        return 'Diária';
-      case 'INMET':
-        return station_type === 'Automática' ? 'Horária' : 'Diária';
-      default:
-        return null;
-    }
+    return 'Diária';
   }
 }

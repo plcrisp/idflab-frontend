@@ -1,0 +1,41 @@
+<div>
+  <div class="flex gap-4">
+    <app-stat-card
+      label="Registros totais"
+      value="438.291"
+      icon="lucideDatabase"
+      [footer]="{ type: 'text', content: 'registros horários' }"
+      class="flex-1"
+    >
+    </app-stat-card>
+
+    <app-stat-card
+      label="Falhas na série"
+      value="14,2%"
+      icon="lucideTriangleAlert"
+      [footer]="{ type: 'progress', value: 14.2, max: 100 }"
+      class="flex-1"
+    >
+    </app-stat-card>
+
+    <app-stat-card
+      label="Anos com cobertura útil"
+      value="37"
+      unit="de 50"
+      icon="lucideCalendar"
+      [footer]="{ type: 'progress', value: 37, max: 50 }"
+      class="flex-1"
+    >
+    </app-stat-card>
+
+    <app-stat-card
+      label="Máximo observado"
+      value="86,4"
+      unit="mm"
+      icon="lucideTrendingUp"
+      [footer]="{ type: 'text', content: 'jan/2011' }"
+      class="flex-1"
+    >
+    </app-stat-card>
+  </div>
+</div>

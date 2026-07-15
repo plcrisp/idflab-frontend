@@ -8,6 +8,13 @@ import { NgIconsModule } from '@ng-icons/core';
 import { InitialVisualization } from './pages/initial-visualization/initial-visualization';
 import { ANALYSIS_ROUTES } from './analysis.routes';
 import { AnalysisLayout } from './analysis-layout/analysis-layout';
+import {
+  lucideCalendar,
+  lucideDatabase,
+  lucideTrendingUp,
+  lucideTriangleAlert,
+} from '@ng-icons/lucide';
+import { HlmProgressImports } from '@spartan-ng/helm/progress';
 
 @NgModule({
   declarations: [AnalysisLayout, InitialVisualization],
@@ -16,7 +23,12 @@ import { AnalysisLayout } from './analysis-layout/analysis-layout';
     ReactiveFormsModule,
     RouterModule.forChild(ANALYSIS_ROUTES),
     SharedModule,
-    NgIconsModule.withIcons({}),
+    NgIconsModule.withIcons({
+      lucideDatabase,
+      lucideTriangleAlert,
+      lucideCalendar,
+      lucideTrendingUp,
+    }),
   ],
 })
 export class AnalysisModule {}

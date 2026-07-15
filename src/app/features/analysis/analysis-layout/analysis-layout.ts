@@ -28,10 +28,10 @@ export class AnalysisLayout {
       station_name: p.station.name,
       station_state: p.station.state,
       source: p.station.source,
-      station_type: p.station.station_type,
       station_code: p.station.code,
       start_date: p.start_date,
       end_date: p.end_date,
+      resolution: p.station.resolution,
     };
   });
 

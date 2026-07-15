@@ -55,6 +55,8 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { ParamsHeader } from './components/analysis-components/params-header/params-header';
 import { Stepper } from './components/analysis-components/stepper/stepper';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
+import { StatCard } from './components/analysis-components/stat-card/stat-card';
+import { HlmProgressImports } from '@spartan-ng/helm/progress';
 
 @NgModule({
   declarations: [
@@ -66,6 +68,7 @@ import { HlmBadgeImports } from '@spartan-ng/helm/badge';
     NotificationsBell,
     ParamsHeader,
     Stepper,
+    StatCard,
   ],
   imports: [
     CommonModule,
@@ -114,8 +117,9 @@ import { HlmBadgeImports } from '@spartan-ng/helm/badge';
     ...HlmSpinnerImports,
     ...HlmSkeletonImports,
     ...HlmBadgeImports,
+    ...HlmProgressImports,
   ],
-  exports: [ThemeToggle, Navbar, Sidebar, LoadingOverlay, ParamsHeader, Stepper],
+  exports: [ThemeToggle, Navbar, Sidebar, LoadingOverlay, ParamsHeader, Stepper, StatCard],
   providers: [provideBrowserGlobalErrorListeners()],
   bootstrap: [],
 })
