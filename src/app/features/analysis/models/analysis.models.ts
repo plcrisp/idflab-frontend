@@ -9,3 +9,8 @@ export interface HeaderData {
   start_date: string;
   end_date: string;
 }
+
+export interface AnalysisStep {
+  label: string;
+  path: string;
+}

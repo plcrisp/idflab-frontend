@@ -1,5 +1,7 @@
-<div class="flex-1 w-full bg-background transition-colors duration-300 ease-out p-6">
+<div class="flex flex-col w-full gap-6 bg-background transition-colors duration-300 ease-out p-6">
   <app-params-header [headerData]="headerData()"></app-params-header>
+
+  <app-stepper [steps]="steps" [station_id]="project()?.station?.id"></app-stepper>
 
   <router-outlet></router-outlet>
 </div>

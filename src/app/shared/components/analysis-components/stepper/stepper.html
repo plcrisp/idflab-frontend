@@ -1,1 +1,52 @@
-<p>stepper works!</p>
+<div class="flex w-full items-start">
+  @for (step of steps; track step.path; let i = $index; let isLast = $last) {
+  <div class="relative flex flex-1 flex-col items-center">
+    <!-- Linhas de conexão (renderiza em todos menos no último) -->
+    @if (!isLast) {
+    <!-- Linha de fundo (cinza) -->
+    <div class="absolute left-1/2 top-1.5 z-0 h-0.5 w-full bg-border"></div>
+
+    <!-- Linha de progresso preenchida -->
+    <div
+      class="absolute left-1/2 top-1.5 z-0 h-0.5 bg-primary origin-left transition-all duration-300 ease-out"
+      [ngClass]="{
+          'w-full': stepState(i) === 'completed',
+          'w-0': stepState(i) !== 'completed'
+        }"
+    ></div>
+    }
+
+    <!-- Elemento clicável (Bolinha + Rótulo) -->
+    <a
+      [routerLink]="getStepLink(step, stepState(i))"
+      (click)="onStepClick(step)"
+      class="relative z-10 flex flex-col items-center gap-2.5 outline-none group"
+      [class.cursor-default]="stepState(i) === 'upcoming'"
+      [class.pointer-events-none]="stepState(i) === 'upcoming'"
+    >
+      <!-- Bolinha -->
+      <span
+        class="flex h-3 w-3 mt-px items-center justify-center rounded-full transition-all duration-300 origin-center"
+        [ngClass]="{
+          'bg-primary': stepState(i) === 'completed' || stepState(i) === 'active',
+          'scale-[1.3] border-2 border-primary ring-[3px] ring-primary/20': stepState(i) === 'active',
+          'border-2 border-border bg-border group-hover:border-primary/50': stepState(i) === 'upcoming'
+        }"
+      ></span>
+
+      <!-- Rótulo -->
+      <span
+        class="text-sm whitespace-nowrap transition-colors duration-300"
+        [ngClass]="{
+          'text-primary': stepState(i) === 'completed' || stepState(i) === 'active',
+          'font-semibold': stepState(i) === 'active',
+          'font-medium': stepState(i) === 'completed',
+          'text-(--text-subtle) font-medium': stepState(i) === 'upcoming'
+        }"
+      >
+        {{ step.label }}
+      </span>
+    </a>
+  </div>
+  }
+</div>

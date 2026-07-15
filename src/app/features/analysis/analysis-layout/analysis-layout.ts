@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { ProjectStateService } from '../services/project-state.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HeaderData } from '../models/analysis.models';
+import { AnalysisStep, HeaderData } from '../models/analysis.models';
 import { map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -34,6 +34,17 @@ export class AnalysisLayout {
       end_date: p.end_date,
     };
   });
+
+  readonly steps: AnalysisStep[] = [
+    { label: 'Mapa', path: 'interactive-map' },
+    { label: 'Visualização inicial', path: 'initial-view' },
+    { label: 'Tratamento de falhas', path: 'tratamento-de-falhas' },
+    { label: 'Resolução temporal', path: 'resolucao-temporal' },
+    { label: 'Distribuição estatística', path: 'distribuicao-estatistica' },
+    { label: 'IDF histórica', path: 'idf-historica' },
+    { label: 'Cenários futuros', path: 'cenarios-futuros' },
+    { label: 'Resultados', path: 'resultados' },
+  ];
 
   ngOnInit(): void {
     this.route.paramMap
