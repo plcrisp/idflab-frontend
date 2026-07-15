@@ -1,0 +1,37 @@
+@if (headerData; as data) {
+<div
+  class="flex items-center justify-between rounded-xl border border-(--border-subtle) bg-(--surface) px-6 py-4"
+>
+  <div class="flex items-center gap-3">
+    <p class="text-lg font-semibold text-(--text)">
+      {{ data.station_name | titlecase }}, {{ data.station_state }}
+    </p>
+
+    <span
+      hlmBadge
+      [ngClass]="data.source.toLowerCase()"
+      class="flex items-center gap-1.5 border-none font-medium"
+    >
+      <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+      {{ data.source }}
+    </span>
+
+    <span hlmBadge variant="outline" class="text-(--text-muted)"> {{ data.station_code }} </span>
+  </div>
+
+  <div class="flex items-center gap-8 text-right">
+    <div>
+      <p class="text-xs font-medium tracking-wide text-(--text-subtle)">PERÍODO</p>
+      <p class="text-sm font-semibold text-(--text)">
+        {{ data.start_date | date:'dd/MM/yyyy' }} – {{ data.end_date | date:'dd/MM/yyyy' }}
+      </p>
+    </div>
+
+    <div>
+      <p class="text-xs font-medium tracking-wide text-(--text-subtle)">RESOLUÇÃO</p>
+      <p class="text-sm font-semibold text-(--text)">{{ resolution }}</p>
+    </div>
+  </div>
+</div>
+
+}

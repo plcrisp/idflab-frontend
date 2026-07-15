@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { RouterLink, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +17,7 @@ import {
   lucideCircleX,
   lucideClock,
   lucideCloudOff,
+  lucideDot,
   lucideDroplet,
   lucideFolder,
   lucideFolderOpen,
@@ -51,14 +52,27 @@ import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { NotificationsBell } from './components/notifications-bell/notifications-bell';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
+import { ParamsHeader } from './components/analysis-components/params-header/params-header';
+import { Stepper } from './components/analysis-components/stepper/stepper';
+import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 
 @NgModule({
-  declarations: [ThemeToggle, Navbar, Sidebar, LoadingOverlay, NotFound, NotificationsBell],
+  declarations: [
+    ThemeToggle,
+    Navbar,
+    Sidebar,
+    LoadingOverlay,
+    NotFound,
+    NotificationsBell,
+    ParamsHeader,
+    Stepper,
+  ],
   imports: [
     CommonModule,
     RouterModule,
     FormsModule,
     RouterLink,
+    TitleCasePipe,
     NgIconsModule.withIcons({
       lucideSun,
       lucideMoon,
@@ -88,6 +102,7 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
       lucideClock,
       lucideMapPin,
       lucidePin,
+      lucideDot,
     }),
     ...HlmButtonImports,
     ...HlmSidebarImports,
@@ -98,8 +113,9 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
     ...HlmAvatarImports,
     ...HlmSpinnerImports,
     ...HlmSkeletonImports,
+    ...HlmBadgeImports,
   ],
-  exports: [ThemeToggle, Navbar, Sidebar, LoadingOverlay],
+  exports: [ThemeToggle, Navbar, Sidebar, LoadingOverlay, ParamsHeader, Stepper],
   providers: [provideBrowserGlobalErrorListeners()],
   bootstrap: [],
 })

@@ -7,9 +7,10 @@ import { SharedModule } from '../../shared/shared-module';
 import { NgIconsModule } from '@ng-icons/core';
 import { InitialVisualization } from './pages/initial-visualization/initial-visualization';
 import { ANALYSIS_ROUTES } from './analysis.routes';
+import { AnalysisLayout } from './analysis-layout/analysis-layout';
 
 @NgModule({
-  declarations: [InitialVisualization],
+  declarations: [AnalysisLayout, InitialVisualization],
   imports: [
     CommonModule,
     ReactiveFormsModule,

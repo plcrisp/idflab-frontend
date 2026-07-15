@@ -61,3 +61,16 @@ export interface SearchResult {
   label: string;
   sublabel: string;
 }
+
+export interface StationSummary {
+  id: string;
+  code: string;
+  source: StationSource;
+  name: string;
+  city: string | null;
+  state: string | null;
+  latitude: number;
+  longitude: number;
+
+  station_type: StationTypeEnum;
+}

@@ -39,7 +39,8 @@
       "@spartan-ng/helm/popover": ["./libs/ui/popover/src/index.ts"],
       "@spartan-ng/helm/date-picker": ["./libs/ui/date-picker/src/index.ts"],
       "@spartan-ng/helm/calendar": ["./libs/ui/calendar/src/index.ts"],
-      "@spartan-ng/helm/select": ["./libs/ui/select/src/index.ts"]
+      "@spartan-ng/helm/select": ["./libs/ui/select/src/index.ts"],
+      "@spartan-ng/helm/badge": ["./libs/ui/badge/src/index.ts"]
     }
   },
   "angularCompilerOptions": {
