@@ -156,6 +156,14 @@
       &.cemaden {
         background-color: color-mix(in srgb, var(--cemaden) 12%, transparent);
         color: var(--cemaden);
+
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+
+        .badge-code {
+          display: block;
+        }
       }
       &.ana {
         background-color: color-mix(in srgb, var(--ana) 12%, transparent);

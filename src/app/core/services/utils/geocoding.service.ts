@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { STATE_ABBREVIATIONS } from '../../utils/state_abbreviations.utils';
 
 export interface MapboxFeature {
   id: string;
@@ -32,9 +33,11 @@ export class GeocodingService {
         map((features: MapboxFeature[]) =>
           features.map((f) => {
             const region = f.context?.find((c) => c.id.startsWith('region'))?.text;
+            const state = region ? (STATE_ABBREVIATIONS[region] ?? region) : '';
+
             return {
               ...f,
-              place_name: region ? `${f.text}, ${region}` : f.text,
+              place_name: state ? `${f.text}, ${state}` : f.text,
             };
           }),
         ),
