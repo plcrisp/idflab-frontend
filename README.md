@@ -1,61 +1,133 @@
-# 🌧️ IDFLab - Frontend
+# 🌧️ IDFLab — Frontend
 
-This repository contains the frontend source code for a web platform designed to analyze extreme rainfall events and generate Intensity-Duration-Frequency (IDF) curves. 
+![Status](https://img.shields.io/badge/status-in%20development-yellow)
+![Angular](https://img.shields.io/badge/Angular-frontend-dd0031)
+![License](https://img.shields.io/badge/license-all%20rights%20reserved-lightgrey)
 
-This user interface was built to be responsive and modular, allowing researchers, engineers, and students to interact with complex climate data intuitively.
+Web platform for automated generation of rainfall Intensity-Duration-Frequency (IDF) curves, with support for future climate scenarios. **This repository contains only the frontend application** (Angular / TypeScript).
 
-## ✨ Key Features
+---
 
-The interface guides the user through a complete workflow, from data selection to exporting results:
+## 📖 Overview
 
- - Interactive Map: Search and select meteorological stations from the INMET and CEMADEN networks.
+IDF curves are the standard tool hydraulic engineers use to size drainage systems, culverts, and detention reservoirs. In Brazil, generating them has historically depended on manual, hardcoded scripts or desktop tools limited to static, pre-computed equations that ignore climate change.
 
- - Data Visualization: Interactive charts for analyzing raw and processed rainfall time series.
+IDFLab automates the full pipeline: acquiring rainfall data from government APIs, filling gaps in incomplete time series with machine learning, fitting extreme value distributions, and projecting future IDF curves from climate models, all through a web interface that requires no programming knowledge from the end user.
 
- - Data Quality & Treatment: Visual tools for consistency verification (e.g., Double Mass Curve) and automatic gap filling using the Random Forest algorithm.
+The project started as a FAPEMIG-funded scientific initiation and is now a Computer Engineering capstone project (TCC) at UNIFEI. **TCC01 was approved with the highest grade**; final defense (TCC02) is scheduled for December 2026.
 
- - IDF Curve Generation: Generation of historical IDF curves with automated or manual selection of the best-fitting probability distribution.
+---
 
- - Future Scenarios: Projection and visual comparison with future climate scenarios based on the CLIMBra dataset (including bias correction).
+## 🏗️ System Architecture
 
- - Project Workspace: A logged-in dashboard to view history, manage saved projects (CRUD), and monitor background processing task statuses.
+The platform is split into a public **frontend** (this repository) and a private **backend**. The diagram below documents the full system design to demonstrate end-to-end ownership of the architecture, even though the backend code itself isn't published.
 
- - Exporting: Export generated results (rainfall intensities and model parameters) in CSV/Excel formats, and download technical reports as PDFs.
+```mermaid
+flowchart TB
+    subgraph Client["🖥️ Client"]
+        Browser[User Browser]
+    end
 
- - Accessibility & Localization: Native support for Dark Mode toggle and dynamic language switching between English and Portuguese (PT-BR).
+    subgraph Frontend["📦 Frontend — This Repository"]
+        Angular[Angular / TypeScript SPA]
+    end
 
-## 🛠️ Technology Stack
+    subgraph Backend["🔒 Backend (Private Repository)"]
+        API[FastAPI REST API]
+        Redis[(Redis Broker)]
+        Workers[Celery Async Workers]
+    end
 
- - Framework: Angular
+    subgraph Storage["💾 Data Layer"]
+        PG[(PostgreSQL + TimescaleDB)]
+        R2[(Cloudflare R2 Object Storage)]
+    end
 
- - Data Visualization: Apache ECharts
+    subgraph External["🌐 External Data Sources"]
+        INMET[INMET API]
+        CEMADEN[CEMADEN API]
+        ANA[ANA API]
+        CLIMBra[CLIMBra Climate Dataset]
+    end
 
- - Authentication: Session management via JWT (JSON Web Token)
-
- - Architectural Context: This frontend consumes a RESTful API. The complete project ecosystem also includes a backend built with FastAPI (Python), a PostgreSQL database with the TimescaleDB extension for time-series data, asynchronous processing powered by Celery + Redis, and object storage via CloudFlare R2.
-
-## 🚀 How to run the project locally
-
-1. Clone this repository: 
-
-```bash
-git clone https://github.com/plcrisp/idflab-frontend.git
+    Browser --> Angular
+    Angular <-->|REST / JSON| API
+    API --> PG
+    API --> Redis
+    Redis <--> Workers
+    Workers --> PG
+    Workers --> R2
+    Workers -.-> INMET
+    Workers -.-> CEMADEN
+    Workers -.-> ANA
+    Workers -.-> CLIMBra
 ```
 
-2. Navigate to the project directory:
+**Why this design:**
 
-```bash
-cd idflab-frontend
-```
+- Frontend and backend communicate exclusively via REST, keeping the client fully decoupled from processing logic.
+- Data acquisition, gap-filling, and statistical fitting are CPU/IO-heavy and run as async jobs (Celery + Redis) instead of blocking HTTP requests, keeping the UI responsive.
+- Rainfall time series (millions of chronologically ordered records) are stored in PostgreSQL with the TimescaleDB extension for efficient range queries.
+- Large climate datasets and exported artifacts are stored in object storage (Cloudflare R2) rather than the relational database.
 
-3. Install the dependencies: 
+> **Scope note:** The backend (FastAPI service, Celery/Redis orchestration, database schema, and the hydrological/statistical processing engine) lives in a private repository. No proprietary algorithms or business logic are disclosed here.
 
-```bash
-npm install
-```
+---
 
-4. Start the development server:
+## 🖥️ What This Repository Implements
 
-```bash
-ng serve --open
-```
+- **Interactive map** for searching and selecting rainfall gauge stations across Brazil, with marker clustering by region and filtering by source (INMET, CEMADEN, ANA).
+- **Station detail panels** showing operational status, source, station code, and available date range.
+- **Analysis configuration flow**, letting users define a date range and trigger a new analysis run against the backend.
+- **Project workspace**, with a dashboard of recent projects and a hub for managing and exporting past analyses.
+- **Result visualizations** for time series, histograms, and IDF curves returned by the API.
+- **Async job feedback**, reflecting backend processing status (data acquisition, gap-filling, statistical fitting) via notifications without blocking the UI.
+- **Internationalization and theming**, with language switching and light/dark mode.
+
+This repository contains no data-processing logic, all computation happens server-side and is consumed exclusively through the REST API.
+
+---
+
+## 🛠️ Tech Stack
+
+**Frontend (this repository)**
+
+- Angular + TypeScript
+- Spartan — Angular UI kit (shadcn-inspired, built on Angular CDK)
+- Mapbox GL — interactive geospatial station search
+- Apache ECharts — time series, histograms, and IDF curve rendering
+
+**Backend & infrastructure (private repository)**
+
+- FastAPI (Python), Celery + Redis for async task orchestration
+- PostgreSQL + TimescaleDB, Cloudflare R2 for object storage
+- Random Forest for time-series gap-filling, integrated with INMET/CEMADEN/ANA APIs and the CLIMBra climate dataset
+
+---
+
+## 📸 Screenshots
+
+<p align="center">
+  <img src="./docs/screenshots/interactive-map.png" alt="Interactive map with station clustering" width="850">
+</p>
+<p align="center"><em>Interactive map - stations clustered by region, with live counts per data source (INMET, CEMADEN, ANA).</em></p>
+<br>
+<p align="center">
+  <img src="./docs/screenshots/station.png" alt="Station detail and analysis configuration panel" width="850">
+</p>
+<p align="center"><em>Station selected - operational status, source, and available date range before configuring an analysis.</em></p>
+
+---
+
+## 👤 Author
+
+**Pedro Lucas Crisp** — Computer Engineering student, UNIFEI
+[LinkedIn](https://linkedin.com/in/pedrolcrisp) · [GitHub](https://github.com/plcrisp) · pedrolcrisp@gmail.com
+
+---
+
+## 📄 License
+
+All rights reserved. This repository is made public strictly for portfolio and evaluation purposes. No part of this source code may be copied, modified, distributed, or used, in whole or in part, without explicit written permission from the author.
+
+© 2026 Pedro Lucas Crisp.
