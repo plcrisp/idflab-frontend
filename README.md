@@ -70,7 +70,7 @@ flowchart TB
 - Rainfall time series (millions of chronologically ordered records) are stored in PostgreSQL with the TimescaleDB extension for efficient range queries.
 - Large climate datasets and exported artifacts are stored in object storage (Cloudflare R2) rather than the relational database.
 
-> **Scope note:** The backend (FastAPI service, Celery/Redis orchestration, database schema, and the hydrological/statistical processing engine) lives in a private repository. No proprietary algorithms or business logic are disclosed here.
+> **Scope note:** The underlying statistical and hydrological methods (data acquisition, gap-filling, disaggregation, extreme value modeling) are openly published in [Automatic-IDF-Graphs](https://github.com/plcrisp/Automatic-IDF-Graphs), the research library this platform builds on. What stays private here is the **productized web platform** wrapped around that engine (async orchestration (FastAPI + Celery/Redis), multi-user project management, database schema, and infrastructure) the layer that turns a research library into a deployable product.
 
 ---
 
