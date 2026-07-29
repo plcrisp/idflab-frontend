@@ -14,7 +14,10 @@ import {
   lucideTrendingUp,
   lucideTriangleAlert,
 } from '@ng-icons/lucide';
-import { HlmProgressImports } from '@spartan-ng/helm/progress';
+import { registerLocaleData } from '@angular/common';
+import localePt from '@angular/common/locales/pt';
+
+registerLocaleData(localePt);
 
 @NgModule({
   declarations: [AnalysisLayout, InitialVisualization],

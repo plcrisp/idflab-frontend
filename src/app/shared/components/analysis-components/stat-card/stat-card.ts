@@ -10,7 +10,7 @@ import { StatCardFooter } from '../../../../features/analysis/models/analysis.mo
 export class StatCard {
   @Input() label = '';
   @Input() icon: string = '';
-  @Input() value = '';
+  @Input() value: string | number | null = '';
   @Input() unit?: string;
   @Input() footer: StatCardFooter = null;
 
