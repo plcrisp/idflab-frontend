@@ -25,6 +25,7 @@
     "@tailwindcss/postcss": "^4.3.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "echarts": "^6.1.0",
     "luxon": "^3.7.2",
     "mapbox-gl": "^3.23.1",
     "ngx-mapbox-gl": "^14.0.0",

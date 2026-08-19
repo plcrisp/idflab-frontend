@@ -43,7 +43,7 @@
                 <hlm-collapsible-content>
                   @if (!state().loading) {
                   <ul hlmSidebarMenuSub>
-                    @for (project of state().projects; track project.station_name) {
+                    @for (project of state().projects; track project.id) {
                     <li hlmSidebarMenuSubItem>
                       <a
                         hlmSidebarMenuSubButton

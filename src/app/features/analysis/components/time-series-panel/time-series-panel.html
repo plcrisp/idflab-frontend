@@ -1,0 +1,10 @@
+<div class="h-full flex flex-col rounded-xl border border-(--border-subtle) bg-(--surface)">
+  <h3
+    class="flex items-center font-semibold text-(--text) text-sm uppercase gap-1.5 tracking-wide border-b border-(--border-subtle) p-4"
+  >
+    Série temporal
+    <span>·</span>
+    <span>{{ rangeLabel() }}</span>
+  </h3>
+  <app-time-series-detail-chart [data]="detail()"></app-time-series-detail-chart>
+</div>

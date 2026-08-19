@@ -9,9 +9,9 @@ import { StatCardFooter } from '../../../../features/analysis/models/analysis.mo
 })
 export class StatCard {
   @Input() label = '';
-  @Input() icon: string = '';
-  @Input() value: string | number | null = '';
-  @Input() unit?: string;
+  @Input() icon = '';
+  @Input() value: string | number | null | undefined = null;
+  @Input() unit?: string | null | undefined;
   @Input() footer: StatCardFooter = null;
 
   get progressPercent(): number {

@@ -16,11 +16,13 @@ import {
 } from '@ng-icons/lucide';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
+import { TimeSeriesPanel } from './components/time-series-panel/time-series-panel';
+import { TimeSeriesDetailChart } from './components/time-series-detail-chart/time-series-detail-chart';
 
 registerLocaleData(localePt);
 
 @NgModule({
-  declarations: [AnalysisLayout, InitialVisualization],
+  declarations: [AnalysisLayout, InitialVisualization, TimeSeriesPanel, TimeSeriesDetailChart],
   imports: [
     CommonModule,
     ReactiveFormsModule,
