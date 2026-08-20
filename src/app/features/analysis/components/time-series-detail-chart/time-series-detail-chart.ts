@@ -159,6 +159,23 @@ export class TimeSeriesDetailChart implements OnDestroy {
       { xAxis: new Date(w.end).getTime() + DAY_MS },
     ]);
 
+    const firstTs = barData[0]?.[0] ?? 0;
+    const lastTs = barData[barData.length - 1]?.[0] ?? 0;
+    const spanDays = (lastTs - firstTs) / DAY_MS;
+
+    const tickStepDays =
+      spanDays <= 21 ? 2 : spanDays <= 45 ? 5 : spanDays <= 90 ? 7 : spanDays <= 180 ? 14 : 30;
+
+    const tickInterval = tickStepDays * DAY_MS;
+
+    const tickValues: number[] = [];
+    for (let ts = firstTs; ts <= lastTs; ts += tickInterval) {
+      tickValues.push(ts);
+    }
+    if (tickValues[tickValues.length - 1] !== lastTs) {
+      tickValues.push(lastTs);
+    }
+
     return {
       textStyle: {
         fontFamily: t.fontFamily,
@@ -177,12 +194,12 @@ export class TimeSeriesDetailChart implements OnDestroy {
             itemStyle: { color: t.primary },
           },
           {
-            name: 'Máximo anual',
+            name: 'Máximo observado',
             icon: 'circle',
             itemStyle: { color: t.primaryDark },
           },
           {
-            name: 'Falha / sem dados',
+            name: 'Falha',
             icon: 'roundRect',
             itemStyle: {
               color: hexToRgba(t.error, 0.18),
@@ -198,8 +215,8 @@ export class TimeSeriesDetailChart implements OnDestroy {
         },
       },
       grid: {
-        left: 8,
-        right: 8,
+        left: 16,
+        right: 16,
         top: 32,
         bottom: 32,
         containLabel: true,
@@ -236,15 +253,16 @@ export class TimeSeriesDetailChart implements OnDestroy {
       },
       xAxis: {
         type: 'time',
-        maxInterval: 14 * DAY_MS,
         axisLine: { lineStyle: { color: t.border } },
-        axisTick: { show: false },
+        axisTick: {
+          show: false,
+        },
         axisLabel: {
           color: '#4d4d4d',
           fontFamily: t.fontFamily,
           fontSize: 11,
           margin: 12,
-          hideOverlap: true,
+          customValues: tickValues,
           formatter: (value: number) => {
             const d = new Date(value);
             const day = d.getUTCDate();
@@ -256,6 +274,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
       },
       yAxis: {
         type: 'value',
+        interval: 50,
         axisLine: { show: false },
         axisTick: { show: false },
         splitLine: {
@@ -273,12 +292,9 @@ export class TimeSeriesDetailChart implements OnDestroy {
           name: this.seriesName(),
           type: 'bar',
           data: barData,
-          barMaxWidth: 6,
+          barCategoryGap: '0%',
           itemStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: t.primary },
-              { offset: 1, color: t.primaryMid },
-            ]),
+            color: t.primary,
             borderRadius: [3, 3, 0, 0],
           },
           emphasis: {
@@ -303,6 +319,24 @@ export class TimeSeriesDetailChart implements OnDestroy {
               borderType: 'dashed',
             },
             data: markAreaData as any,
+          },
+        },
+        {
+          name: 'Máximo observado',
+          type: 'scatter',
+          data: [],
+          symbol: 'circle',
+          symbolSize: 10,
+          itemStyle: { color: t.primaryDark },
+        },
+        {
+          name: 'Falha',
+          type: 'bar',
+          data: [],
+          itemStyle: {
+            color: hexToRgba(t.error, 0.18),
+            borderColor: t.error,
+            borderWidth: 1,
           },
         },
       ],

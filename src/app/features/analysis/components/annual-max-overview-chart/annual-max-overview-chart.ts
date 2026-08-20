@@ -168,12 +168,12 @@ export class AnnualMaxOverviewChart {
             itemStyle: { color: t.primary },
           },
           {
-            name: 'Máximo anual',
+            name: 'Máximo observado',
             icon: 'circle',
             itemStyle: { color: t.primaryDark },
           },
           {
-            name: 'Falha / sem dados',
+            name: 'Falha',
             icon: 'roundRect',
             itemStyle: {
               color: hexToRgba(t.error, 0.18),
@@ -189,8 +189,8 @@ export class AnnualMaxOverviewChart {
         },
       },
       grid: {
-        left: 8,
-        right: 8,
+        left: 16,
+        right: 16,
         top: 32,
         bottom: 32,
         containLabel: true,
@@ -300,10 +300,7 @@ export class AnnualMaxOverviewChart {
           data: barData,
           barCategoryGap: '20%',
           itemStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: t.primary },
-              { offset: 1, color: t.primaryMid },
-            ]),
+            color: t.primary,
             borderRadius: [3, 3, 0, 0],
           },
           emphasis: {
@@ -319,6 +316,24 @@ export class AnnualMaxOverviewChart {
               borderWidth: 1.5,
             },
             label: { show: false },
+          },
+        },
+        {
+          name: 'Máximo observado',
+          type: 'scatter',
+          data: [],
+          symbol: 'scatter',
+          symbolSize: 10,
+          itemStyle: { color: t.primaryDark },
+        },
+        {
+          name: 'Falha',
+          type: 'scatter',
+          data: [],
+          itemStyle: {
+            color: hexToRgba(t.error, 0.18),
+            borderColor: t.error,
+            borderWidth: 1,
           },
         },
       ],
