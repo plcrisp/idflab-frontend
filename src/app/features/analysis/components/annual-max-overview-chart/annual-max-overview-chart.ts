@@ -1,37 +1,7 @@
-import {
-  Component,
-  effect,
-  ElementRef,
-  HostListener,
-  input,
-  OnDestroy,
-  signal,
-  ViewChild,
-} from '@angular/core';
+import { Component, effect, ElementRef, input, signal, ViewChild } from '@angular/core';
+import { CoverageStatus, YearlySummaryItem } from '../../models/initial-visualization.model';
 import * as echarts from 'echarts';
 import { EChartsOption } from 'echarts';
-import {
-  DetailPoint,
-  DetailResponse,
-  FailureWindow,
-} from '../../models/initial-visualization.model';
-
-const MONTHS_PT = [
-  'jan',
-  'fev',
-  'mar',
-  'abr',
-  'mai',
-  'jun',
-  'jul',
-  'ago',
-  'set',
-  'out',
-  'nov',
-  'dez',
-];
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 interface ChartTokens {
   fontFamily: string;
@@ -64,15 +34,15 @@ function hexToRgba(hex: string, alpha: number): string {
 }
 
 @Component({
-  selector: 'app-time-series-detail-chart',
+  selector: 'app-annual-max-overview-chart',
   standalone: false,
-  templateUrl: './time-series-detail-chart.html',
-  styleUrl: './time-series-detail-chart.scss',
+  templateUrl: './annual-max-overview-chart.html',
+  styleUrl: './annual-max-overview-chart.scss',
 })
-export class TimeSeriesDetailChart implements OnDestroy {
-  data = input<DetailResponse | null>(null);
+export class AnnualMaxOverviewChart {
+  data = input<YearlySummaryItem[] | null>(null);
   unit = input('mm');
-  seriesName = input('Precipitação diária');
+  seriesName = input('Máximo Anual');
 
   @ViewChild('chartContainer', { static: true })
   private chartContainer!: ElementRef<HTMLDivElement>;
@@ -138,26 +108,47 @@ export class TimeSeriesDetailChart implements OnDestroy {
     };
   }
 
-  private buildOption(data: DetailResponse): EChartsOption {
-    const { points, failure_windows } = data;
+  private findGlobalMax(data: YearlySummaryItem[]): YearlySummaryItem | null {
+    return data.reduce<YearlySummaryItem | null>((best, item) => {
+      if (item.max_value === null) return best;
+      if (!best || best.max_value === null || item.max_value > best.max_value) return item;
+      return best;
+    }, null);
+  }
+
+  private buildOption(data: YearlySummaryItem[]): EChartsOption {
     const t = this.getTokens();
 
-    const barData = points.map((p: DetailPoint) => [
-      new Date(p.date).getTime(),
-      p.is_failure ? null : p.value,
-    ]);
+    const years = data.map((d) => d.year.toString());
+    const barData = data.map((d) => d.max_value);
 
-    const annualMaxData = points
-      .filter((p) => p.is_annual_max)
-      .map((p) => ({
-        name: 'Máximo anual',
-        coord: [new Date(p.date).getTime(), p.value] as [number, number],
-      }));
+    const markAreaData: [{ xAxis: number }, { xAxis: number }][] = [];
+    let gapStart: number | null = null;
 
-    const markAreaData = (failure_windows ?? []).map((w: FailureWindow) => [
-      { xAxis: new Date(w.start).getTime() },
-      { xAxis: new Date(w.end).getTime() + DAY_MS },
-    ]);
+    data.forEach((d, i) => {
+      const isGap = d.coverage_status !== 'complete';
+      if (isGap && gapStart === null) {
+        gapStart = i;
+      } else if (!isGap && gapStart !== null) {
+        markAreaData.push([{ xAxis: gapStart }, { xAxis: i }]);
+        gapStart = null;
+      }
+    });
+    if (gapStart !== null) {
+      markAreaData.push([{ xAxis: gapStart }, { xAxis: data.length }]);
+    }
+
+    const globalMax = this.findGlobalMax(data);
+    const annualMaxData = globalMax
+      ? [
+          {
+            name: 'Máximo anual',
+            coord: [globalMax.year.toString(), globalMax.max_value as number] as [string, number],
+          },
+        ]
+      : [];
+
+    const labelStep = Math.max(1, Math.round(years.length / 10));
 
     return {
       textStyle: {
@@ -221,41 +212,59 @@ export class TimeSeriesDetailChart implements OnDestroy {
           lineStyle: { color: t.border, type: 'dashed' },
         },
         formatter: (params: any) => {
-          const p = Array.isArray(params) ? params[0] : params;
-          // Em eixo `time`, o valor do ponto é [timestamp, valor].
-          const timestamp = Array.isArray(p.value) ? p.value[0] : p.axisValue;
-          const value = Array.isArray(p.value) ? p.value[1] : p.data;
-          const date = new Date(timestamp);
-          const dateLabel = date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+          const items = Array.isArray(params) ? params : [params];
+          const p = items.find((it: any) => it.componentSubType === 'bar') ?? items[0];
+          const item = data[p.dataIndex];
+          if (!item) return '';
+
           const valueLabel =
-            value === null || value === undefined
+            item.max_value === null
               ? 'Sem dado registrado'
-              : `${value.toLocaleString('pt-BR')} ${this.unit()}`;
-          return `<div style="font-weight:600;margin-bottom:2px;">${dateLabel}</div>${valueLabel}`;
+              : `${item.max_value.toLocaleString('pt-BR')} ${this.unit()}`;
+
+          const dateLabel = item.max_value_date
+            ? new Date(item.max_value_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
+            : null;
+
+          const statusLabel: Record<CoverageStatus, string | null> = {
+            complete: null,
+            partial: `Cobertura parcial · ${item.failure_percentage.toLocaleString('pt-BR')}% de falhas`,
+            failure: `Cobertura insuficiente · ${item.failure_percentage.toLocaleString('pt-BR')}% de falhas`,
+          };
+          const status = statusLabel[item.coverage_status];
+
+          return `
+            <div style="font-weight:600;margin-bottom:2px;">${item.year}</div>
+            <div>${valueLabel}${dateLabel ? ` · ${dateLabel}` : ''}</div>
+            ${status ? `<div style="color:${t.error};margin-top:4px;">${status}</div>` : ''}
+          `;
         },
       },
-      xAxis: {
-        type: 'time',
-        maxInterval: 14 * DAY_MS,
-        axisLine: { lineStyle: { color: t.border } },
-        axisTick: { show: false },
-        axisLabel: {
-          color: '#4d4d4d',
-          fontFamily: t.fontFamily,
-          fontSize: 11,
-          margin: 12,
-          hideOverlap: true,
-          formatter: (value: number) => {
-            const d = new Date(value);
-            const day = d.getUTCDate();
-            const month = MONTHS_PT[d.getUTCMonth()];
-            return `${day} ${month}`;
+      xAxis: [
+        {
+          type: 'category',
+          data: years,
+          axisLine: { lineStyle: { color: t.border } },
+          axisTick: { show: false },
+          axisLabel: {
+            color: '#4d4d4d',
+            fontFamily: t.fontFamily,
+            fontSize: 11,
+            margin: 12,
+            interval: (index: number) => index % labelStep === 0,
           },
+          splitLine: { show: false },
         },
-        splitLine: { show: false },
-      },
+        {
+          type: 'value',
+          min: 0,
+          max: data.length,
+          show: false,
+        },
+      ],
       yAxis: {
         type: 'value',
+        interval: 50,
         axisLine: { show: false },
         axisTick: { show: false },
         splitLine: {
@@ -270,10 +279,26 @@ export class TimeSeriesDetailChart implements OnDestroy {
       },
       series: [
         {
+          type: 'line',
+          xAxisIndex: 1,
+          data: [],
+          silent: true,
+          tooltip: { show: false },
+          markArea: {
+            itemStyle: {
+              color: hexToRgba(t.error, 0.1),
+              borderColor: t.error,
+              borderWidth: 1,
+              borderType: 'dashed',
+            },
+            data: markAreaData as any,
+          },
+        },
+        {
           name: this.seriesName(),
           type: 'bar',
           data: barData,
-          barMaxWidth: 6,
+          barCategoryGap: '20%',
           itemStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               { offset: 0, color: t.primary },
@@ -294,15 +319,6 @@ export class TimeSeriesDetailChart implements OnDestroy {
               borderWidth: 1.5,
             },
             label: { show: false },
-          },
-          markArea: {
-            itemStyle: {
-              color: hexToRgba(t.error, 0.1),
-              borderColor: t.error,
-              borderWidth: 1,
-              borderType: 'dashed',
-            },
-            data: markAreaData as any,
           },
         },
       ],

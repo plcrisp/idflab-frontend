@@ -12,16 +12,15 @@ export class TimeSeriesPanel {
   yearly_summary = input<YearlySummaryItem[]>([]);
   detail = input<DetailResponse | null>(null);
 
-  private selectedWindow = signal<[string, string] | null>(null);
-  readonly effectiveWindow = computed(() => this.selectedWindow() ?? this.window());
+  firstYear = computed(() => {
+    const summary = this.yearly_summary();
+    return summary.length > 0 ? summary[0].year : null;
+  });
 
-  // se a seleção exigir buscar dados novos no backend, o pai precisa saber
-  windowChange = output<[string, string]>();
-
-  onYearSelected(range: [string, string]): void {
-    this.selectedWindow.set(range);
-    this.windowChange.emit(range);
-  }
+  lastYear = computed(() => {
+    const summary = this.yearly_summary();
+    return summary.length > 0 ? summary[summary.length - 1].year : null;
+  });
 
   rangeLabel = computed(() => {
     const d = this.detail();

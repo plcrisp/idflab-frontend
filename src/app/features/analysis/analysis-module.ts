@@ -18,11 +18,18 @@ import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
 import { TimeSeriesPanel } from './components/time-series-panel/time-series-panel';
 import { TimeSeriesDetailChart } from './components/time-series-detail-chart/time-series-detail-chart';
+import { AnnualMaxOverviewChart } from './components/annual-max-overview-chart/annual-max-overview-chart';
 
 registerLocaleData(localePt);
 
 @NgModule({
-  declarations: [AnalysisLayout, InitialVisualization, TimeSeriesPanel, TimeSeriesDetailChart],
+  declarations: [
+    AnalysisLayout,
+    InitialVisualization,
+    TimeSeriesPanel,
+    TimeSeriesDetailChart,
+    AnnualMaxOverviewChart,
+  ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
