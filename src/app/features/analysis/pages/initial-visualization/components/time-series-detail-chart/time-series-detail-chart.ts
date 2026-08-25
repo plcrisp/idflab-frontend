@@ -81,9 +81,11 @@ export class TimeSeriesDetailChart implements OnDestroy {
         coord: [new Date(p.date).getTime(), p.value] as [number, number],
       }));
 
+    const HALF_DAY_MS = DAY_MS / 2;
+
     const markAreaData = (failure_windows ?? []).map((w: FailureWindow) => [
-      { xAxis: new Date(w.start).getTime() },
-      { xAxis: new Date(w.end).getTime() + DAY_MS },
+      { xAxis: new Date(w.start).getTime() - HALF_DAY_MS },
+      { xAxis: new Date(w.end).getTime() + HALF_DAY_MS },
     ]);
 
     const firstTs = barData[0]?.[0] ?? 0;

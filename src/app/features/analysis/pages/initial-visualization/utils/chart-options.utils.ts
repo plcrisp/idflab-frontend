@@ -4,7 +4,7 @@ import { ChartTokens } from '../../../../../core/services/utils/echarts.service'
 
 export const CHART_LEGEND_LABELS = {
   maxObservado: 'Máximo observado',
-  falha: 'Falha',
+  falha: 'Cobertura incompleta',
 } as const;
 
 export const CHART_AXIS_LABEL_COLOR = '#4d4d4d';
@@ -32,7 +32,7 @@ export function hexToRgba(hex: string, alpha: number): string {
 export function buildLegend(seriesName: string, tokens: ChartTokens): EChartsOption['legend'] {
   return {
     top: 0,
-    right: 0,
+    right: 16,
     itemGap: 24,
     itemWidth: 12,
     itemHeight: 12,
@@ -58,6 +58,7 @@ export function buildLegend(seriesName: string, tokens: ChartTokens): EChartsOpt
       color: tokens.textMuted,
       fontFamily: tokens.fontFamily,
       fontSize: 12,
+      fontWeight: 'lighter',
     },
   };
 }

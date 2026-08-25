@@ -1,0 +1,47 @@
+<div
+  class="h-full flex flex-col justify-between rounded-xl border border-(--border-subtle) bg-(--surface)"
+>
+  <h3
+    class="flex items-center gap-1.5 tracking-wide uppercase font-semibold text-(--text) text-sm p-4 border-b border-(--border-subtle)"
+  >
+    Disponibilidade de Dados por Ano
+  </h3>
+
+  <div class="flex flex-col gap-3 p-4">
+    <div class="flex flex-wrap gap-1">
+      @for (cell of cells(); track cell.year) {
+      <div class="relative group">
+        <div
+          class="w-3.5 h-5 rounded-sm transition-opacity duration-150 hover:opacity-80 cursor-default"
+          [class]="cellColor(cell.statusClass)"
+        ></div>
+
+        <div
+          class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap rounded-lg bg-(--surface) border border-border px-3.5 py-2.5 invisible opacity-0 scale-95 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-hover:scale-100 z-10 shadow-[0_4px_16px_rgba(16,24,40,0.12)]"
+        >
+          <p class="font-semibold text-xs text-(--text)">{{ cell.year }}</p>
+          <p class="text-xs text-(--text-muted) mt-0.5">
+            {{ cell.completeness.toLocaleString('pt-BR', { minimumFractionDigits: 1,
+            maximumFractionDigits: 1 }) }}% completo
+          </p>
+        </div>
+      </div>
+      }
+    </div>
+
+    <div class="flex flex-wrap gap-4 text-xs text-(--text-muted) justify-end">
+      <span class="flex items-center gap-1.5">
+        <i class="w-2 h-2 rounded-full bg-(--color-success) inline-block"></i>
+        &ge;90% completo
+      </span>
+      <span class="flex items-center gap-1.5">
+        <i class="w-2 h-2 rounded-full bg-(--color-warning) inline-block"></i>
+        50-89%
+      </span>
+      <span class="flex items-center gap-1.5">
+        <i class="w-2 h-2 rounded-full bg-(--color-error) inline-block"></i>
+        &lt;50% (falha)
+      </span>
+    </div>
+  </div>
+</div>

@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-4 overflow-x-hidden">
   <div class="flex gap-4">
     <app-stat-card
       label="Registros totais"
@@ -45,4 +45,6 @@
     [window]="defaultWindow()!"
     [yearly_summary]="yearlySummary()"
   ></app-time-series-panel>
+
+  <app-data-availability-ribbon [yearly_summary]="yearlySummary()"></app-data-availability-ribbon>
 </div>

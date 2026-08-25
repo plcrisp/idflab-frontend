@@ -23,6 +23,7 @@ import { Stepper } from './shared/components/stepper/stepper';
 import { ParamsHeader } from './shared/components/params-header/params-header';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmProgressImports } from '@spartan-ng/helm/progress';
+import { DataAvailabilityRibbon } from './shared/components/data-availability-ribbon/data-availability-ribbon';
 
 registerLocaleData(localePt);
 
@@ -35,6 +36,7 @@ registerLocaleData(localePt);
     AnnualMaxOverviewChart,
     Stepper,
     ParamsHeader,
+    DataAvailabilityRibbon,
   ],
   imports: [
     CommonModule,
