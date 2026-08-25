@@ -22,5 +22,9 @@
     </div>
   </div>
 
-  <app-annual-max-overview-chart [data]="yearly_summary()"></app-annual-max-overview-chart>
+  <app-annual-max-overview-chart
+    [data]="yearly_summary()"
+    [selectedPeriod]="selectedPeriod()"
+    (periodSelected)="onPeriodSelected($event)"
+  ></app-annual-max-overview-chart>
 </div>

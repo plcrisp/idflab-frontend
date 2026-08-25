@@ -1,6 +1,6 @@
-import { Component, effect, inject, Signal } from '@angular/core';
+import { Component, computed, effect, inject, Signal, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { filter, switchMap, catchError, map, shareReplay } from 'rxjs/operators';
+import { filter, switchMap, catchError, map, shareReplay, combineLatestWith } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
@@ -53,11 +53,31 @@ export class InitialVisualization {
     { initialValue: [] },
   );
 
+  private readonly selectedWindow = signal<[string, string] | null>(null);
+  private selectedWindow$ = toObservable(this.selectedWindow);
+
+  private static readonly FALLBACK_WINDOW: [string, string] = [
+    '2026-01-01T00:00:00',
+    '2026-01-31T00:00:00',
+  ];
+
+  readonly activeWindow: Signal<[string, string]> = toSignal(
+    this.selectedWindow$.pipe(
+      combineLatestWith(toObservable(this.defaultWindow)),
+      map(([selected, defaultW]) => selected ?? defaultW ?? InitialVisualization.FALLBACK_WINDOW),
+    ),
+    { initialValue: InitialVisualization.FALLBACK_WINDOW },
+  );
+
   readonly detail: Signal<any | null> = toSignal(
     this.summary$.pipe(
-      filter((res): res is { projectId: string; summary: any } => !!res?.summary?.default_window),
-      switchMap(({ projectId, summary }) => {
-        const [rawStart, rawEnd] = summary.default_window;
+      filter((res): res is { projectId: string; summary: any } => !!res),
+      combineLatestWith(this.selectedWindow$),
+      switchMap(([{ projectId, summary }, selected]) => {
+        const window = selected ?? summary.default_window;
+        if (!window) return of(null);
+
+        const [rawStart, rawEnd] = window;
         const start = rawStart.slice(0, 10);
         const end = rawEnd.slice(0, 10);
 
@@ -77,12 +97,18 @@ export class InitialVisualization {
       const project = this.project();
       if (!project) return;
 
+      this.selectedWindow.set(null);
+
       this.mainLayoutService.setBreadcrumbs([
         { label: 'Nova Análise', url: '/app/interactive-map' },
         { label: project.name, url: `app/project/${project.id}` },
         { label: 'Visualização Inicial', url: `/app/analysis/${project.id}/initial-view` },
       ]);
     });
+  }
+
+  onWindowChange(window: [string, string]): void {
+    this.selectedWindow.set(window);
   }
 
   protected get recordsLabel(): string {

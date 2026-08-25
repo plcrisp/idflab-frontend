@@ -1,5 +1,6 @@
-import { Component, computed, input, Input, output, signal } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { DetailResponse, YearlySummaryItem } from '../../models/initial-visualization.model';
+import { YearRange } from '../annual-max-overview-chart/annual-max-overview-chart';
 
 @Component({
   selector: 'app-time-series-panel',
@@ -11,6 +12,8 @@ export class TimeSeriesPanel {
   window = input<[string, string]>(['2026-01-01T00:00:00', '2026-01-31T00:00:00']);
   yearly_summary = input<YearlySummaryItem[]>([]);
   detail = input<DetailResponse | null>(null);
+
+  windowChange = output<[string, string]>();
 
   firstYear = computed(() => {
     const summary = this.yearly_summary();
@@ -35,4 +38,23 @@ export class TimeSeriesPanel {
 
     return `${formatDate(first)} - ${formatDate(last)}`;
   });
+
+  selectedPeriod = computed<YearRange | null>(() => {
+    const [start, end] = this.window();
+    if (!start || !end) return null;
+
+    return {
+      startYear: new Date(start).getUTCFullYear(),
+      endYear: new Date(end).getUTCFullYear(),
+    };
+  });
+
+  onPeriodSelected(period: YearRange | null): void {
+    if (!period) return;
+
+    const start = `${period.startYear}-01-01T00:00:00`;
+    const end = `${period.endYear}-12-31T00:00:00`;
+
+    this.windowChange.emit([start, end]);
+  }
 }

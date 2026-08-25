@@ -1,5 +1,15 @@
-import { Component, ElementRef, inject, input, OnDestroy, ViewChild } from '@angular/core';
-import { EChartsOption } from 'echarts';
+import {
+  Component,
+  ElementRef,
+  inject,
+  input,
+  output,
+  OnDestroy,
+  ViewChild,
+  untracked,
+  effect,
+} from '@angular/core';
+import type { ECharts, EChartsOption } from 'echarts';
 import { CoverageStatus, YearlySummaryItem } from '../../models/initial-visualization.model';
 import {
   buildAxisLabelBase,
@@ -12,8 +22,14 @@ import {
   buildMaxObservadoLegendSeries,
   buildSplitLineStyle,
   buildTooltipBase,
+  hexToRgba,
 } from '../../utils/chart-options.utils';
 import { EchartsService } from '../../../../../../core/services/utils/echarts.service';
+
+export interface YearRange {
+  startYear: number;
+  endYear: number;
+}
 
 @Component({
   selector: 'app-annual-max-overview-chart',
@@ -26,22 +42,95 @@ export class AnnualMaxOverviewChart implements OnDestroy {
   data = input<YearlySummaryItem[] | null>(null);
   unit = input('mm');
   seriesName = input('Máximo Anual');
+  selectedPeriod = input<YearRange | null>(null);
+  periodSelected = output<YearRange | null>();
 
   @ViewChild('chartContainer', { static: true })
   private chartContainer!: ElementRef<HTMLDivElement>;
 
   private readonly echarts = inject(EchartsService) as EchartsService<YearlySummaryItem[]>;
 
+  private years: string[] = [];
+  private chart?: ECharts;
+  private brushListenerAttached = false;
+
+  private applyingExternal = false;
+  private lastAppliedPeriod: string | null = null;
+
   constructor() {
     this.echarts.setup({
       container: () => this.chartContainer.nativeElement,
       data: this.data,
       buildOption: (data) => this.buildOption(data),
+      onReady: (chart) => this.onChartReady(chart),
+    });
+
+    effect(() => {
+      const period = this.selectedPeriod();
+      if (!this.chart) return;
+      this.syncExternalSelection(this.chart, period);
     });
   }
 
   ngOnDestroy(): void {
     this.echarts.destroy();
+  }
+
+  private onChartReady(chart: ECharts): void {
+    this.chart = chart;
+
+    chart.dispatchAction({
+      type: 'takeGlobalCursor',
+      key: 'brush',
+      brushOption: { brushType: 'lineX', brushMode: 'single' },
+    });
+
+    if (!this.brushListenerAttached) {
+      this.brushListenerAttached = true;
+      chart.on('brushSelected', (params: any) => this.handleBrushSelected(params));
+    }
+
+    untracked(() => this.syncExternalSelection(chart, this.selectedPeriod()));
+  }
+
+  private handleBrushSelected(params: any): void {
+    if (this.applyingExternal) return; // ignora o eco de uma seleção programática
+
+    const indices: number[] = (params.batch?.[0]?.selected ?? []).flatMap(
+      (s: any) => s.dataIndex ?? [],
+    );
+
+    if (!indices.length) {
+      this.lastAppliedPeriod = null;
+      this.periodSelected.emit(null);
+      return;
+    }
+
+    const startYear = Number(this.years[Math.min(...indices)]);
+    const endYear = Number(this.years[Math.max(...indices)]);
+    const period = { startYear, endYear };
+
+    this.lastAppliedPeriod = JSON.stringify(period);
+    this.periodSelected.emit(period);
+  }
+
+  private syncExternalSelection(chart: ECharts, period: YearRange | null): void {
+    const key = period ? JSON.stringify(period) : null;
+    if (key === this.lastAppliedPeriod) return;
+    this.lastAppliedPeriod = key;
+
+    if (!period || !this.years.length) return;
+
+    const startIndex = this.years.indexOf(period.startYear.toString());
+    const endIndex = this.years.indexOf(period.endYear.toString());
+    if (startIndex === -1 || endIndex === -1) return;
+
+    this.applyingExternal = true;
+    chart.dispatchAction({
+      type: 'brush',
+      areas: [{ brushType: 'lineX', xAxisIndex: 0, coordRange: [startIndex, endIndex] }],
+    });
+    this.applyingExternal = false;
   }
 
   private findGlobalMax(data: YearlySummaryItem[]): YearlySummaryItem | null {
@@ -56,6 +145,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
     const t = this.echarts.getTokens();
 
     const years = data.map((d) => d.year.toString());
+    this.years = years;
     const barData = data.map((d) => d.max_value);
 
     const markAreaData: [{ xAxis: number }, { xAxis: number }][] = [];
@@ -90,6 +180,20 @@ export class AnnualMaxOverviewChart implements OnDestroy {
       textStyle: { fontFamily: t.fontFamily },
       legend: buildLegend(this.seriesName(), t),
       grid: buildGrid(),
+      brush: {
+        toolbox: [],
+        xAxisIndex: 0,
+        brushType: 'lineX',
+        brushMode: 'single',
+        throttleType: 'debounce',
+        throttleDelay: 300,
+        brushStyle: {
+          color: hexToRgba(t.primary, 0.15),
+          borderColor: t.primary,
+          borderWidth: 1,
+        },
+        transformable: true,
+      },
       tooltip: {
         ...buildTooltipBase(t),
         formatter: (params: any) => {

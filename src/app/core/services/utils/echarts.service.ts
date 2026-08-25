@@ -81,6 +81,7 @@ export class EchartsService<T = unknown> {
     container: () => HTMLDivElement;
     data: Signal<T | null>;
     buildOption: (data: T) => EChartsOption;
+    onReady?: (chart: echarts.ECharts) => void;
   }): void {
     effect(() => {
       const data = config.data();
@@ -92,7 +93,12 @@ export class EchartsService<T = unknown> {
         this.disposeResize = observeResize(config.container(), () => this.chart?.resize());
       }
       this.chart.setOption(config.buildOption(data), true);
+      config.onReady?.(this.chart);
     });
+  }
+
+  getInstance(): echarts.ECharts | undefined {
+    return this.chart;
   }
 
   destroy(): void {

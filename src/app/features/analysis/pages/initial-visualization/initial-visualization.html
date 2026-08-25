@@ -41,8 +41,9 @@
   </div>
 
   <app-time-series-panel
-    [detail]="detail()"
-    [window]="defaultWindow()!"
+    [window]="activeWindow()"
     [yearly_summary]="yearlySummary()"
-  ></app-time-series-panel>
+    [detail]="detail()"
+    (windowChange)="onWindowChange($event)"
+  />
 </div>
