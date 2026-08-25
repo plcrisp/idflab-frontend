@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { HeaderData } from '../../../../features/analysis/models/analysis.models';
+import { HeaderData } from '../../models/analysis.models';
 
 type Resolution = 'Horária' | 'Diária';
 

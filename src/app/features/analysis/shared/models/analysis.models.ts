@@ -1,4 +1,4 @@
-import { StationSource, StationTypeEnum } from '../../../core/models/api/station.model';
+import { StationSource } from '../../../../core/models/api/station.model';
 
 export interface HeaderData {
   station_name: string;

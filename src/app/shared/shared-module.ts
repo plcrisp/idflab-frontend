@@ -52,10 +52,8 @@ import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { NotificationsBell } from './components/notifications-bell/notifications-bell';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
-import { ParamsHeader } from './components/analysis-components/params-header/params-header';
-import { Stepper } from './components/analysis-components/stepper/stepper';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
-import { StatCard } from './components/analysis-components/stat-card/stat-card';
+import { StatCard } from './components/stat-card/stat-card';
 import { HlmProgressImports } from '@spartan-ng/helm/progress';
 
 @NgModule({
@@ -66,8 +64,6 @@ import { HlmProgressImports } from '@spartan-ng/helm/progress';
     LoadingOverlay,
     NotFound,
     NotificationsBell,
-    ParamsHeader,
-    Stepper,
     StatCard,
   ],
   imports: [
@@ -119,7 +115,7 @@ import { HlmProgressImports } from '@spartan-ng/helm/progress';
     ...HlmBadgeImports,
     ...HlmProgressImports,
   ],
-  exports: [ThemeToggle, Navbar, Sidebar, LoadingOverlay, ParamsHeader, Stepper, StatCard],
+  exports: [ThemeToggle, Navbar, Sidebar, LoadingOverlay, StatCard],
   providers: [provideBrowserGlobalErrorListeners()],
   bootstrap: [],
 })

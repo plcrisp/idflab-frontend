@@ -16,9 +16,11 @@ import {
 } from '@ng-icons/lucide';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
-import { TimeSeriesPanel } from './components/time-series-panel/time-series-panel';
-import { TimeSeriesDetailChart } from './components/time-series-detail-chart/time-series-detail-chart';
-import { AnnualMaxOverviewChart } from './components/annual-max-overview-chart/annual-max-overview-chart';
+import { TimeSeriesPanel } from './pages/initial-visualization/components/time-series-panel/time-series-panel';
+import { TimeSeriesDetailChart } from './pages/initial-visualization/components/time-series-detail-chart/time-series-detail-chart';
+import { AnnualMaxOverviewChart } from './pages/initial-visualization/components/annual-max-overview-chart/annual-max-overview-chart';
+import { Stepper } from './shared/components/stepper/stepper';
+import { ParamsHeader } from './shared/components/params-header/params-header';
 
 registerLocaleData(localePt);
 
@@ -29,6 +31,8 @@ registerLocaleData(localePt);
     TimeSeriesPanel,
     TimeSeriesDetailChart,
     AnnualMaxOverviewChart,
+    Stepper,
+    ParamsHeader,
   ],
   imports: [
     CommonModule,

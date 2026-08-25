@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { StatCardFooter } from '../../../../features/analysis/models/analysis.models';
+import { StatCardFooter } from '../../../features/analysis/shared/models/analysis.models';
 
 @Component({
   selector: 'app-stat-card',

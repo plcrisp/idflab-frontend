@@ -1,9 +1,9 @@
 import { Component, computed, inject, Input } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { AnalysisStep } from '../../../../features/analysis/models/analysis.models';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs';
-import { MapService } from '../../../../core/services/utils/map.service';
+import { MapService } from '../../../../../core/services/utils/map.service';
+import { AnalysisStep } from '../../models/analysis.models';
 
 @Component({
   selector: 'app-stepper',

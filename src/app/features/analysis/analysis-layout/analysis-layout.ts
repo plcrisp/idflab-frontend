@@ -1,9 +1,9 @@
 import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { ProjectStateService } from '../services/project-state.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AnalysisStep, HeaderData } from '../models/analysis.models';
 import { map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AnalysisStep, HeaderData } from '../shared/models/analysis.models';
 
 @Component({
   selector: 'app-analysis-layout',

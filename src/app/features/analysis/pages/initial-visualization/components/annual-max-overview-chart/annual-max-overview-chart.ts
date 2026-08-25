@@ -1,7 +1,7 @@
 import { Component, effect, ElementRef, input, signal, ViewChild } from '@angular/core';
-import { CoverageStatus, YearlySummaryItem } from '../../models/initial-visualization.model';
 import * as echarts from 'echarts';
 import { EChartsOption } from 'echarts';
+import { CoverageStatus, YearlySummaryItem } from '../../models/initial-visualization.model';
 
 interface ChartTokens {
   fontFamily: string;

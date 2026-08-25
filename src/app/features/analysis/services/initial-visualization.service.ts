@@ -2,7 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { DetailResponse, SummaryResponse } from '../models/initial-visualization.model';
+import {
+  DetailResponse,
+  SummaryResponse,
+} from '../pages/initial-visualization/models/initial-visualization.model';
 
 @Injectable({ providedIn: 'root' })
 export class InitialVisualizationService {

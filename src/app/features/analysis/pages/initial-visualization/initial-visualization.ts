@@ -7,7 +7,7 @@ import { MainLayoutService } from '../../../../core/services/state/main-layout.s
 import { Project } from '../../../../core/models/api/project.model';
 import { ProjectStateService } from '../../services/project-state.service';
 import { InitialVisualizationService } from '../../services/initial-visualization.service';
-import { GlobalStats, YearlySummaryItem } from '../../models/initial-visualization.model';
+import { GlobalStats, YearlySummaryItem } from './models/initial-visualization.model';
 
 @Component({
   selector: 'app-initial-visualization',
