@@ -21,6 +21,8 @@ import { TimeSeriesDetailChart } from './pages/initial-visualization/components/
 import { AnnualMaxOverviewChart } from './pages/initial-visualization/components/annual-max-overview-chart/annual-max-overview-chart';
 import { Stepper } from './shared/components/stepper/stepper';
 import { ParamsHeader } from './shared/components/params-header/params-header';
+import { HlmBadgeImports } from '@spartan-ng/helm/badge';
+import { HlmProgressImports } from '@spartan-ng/helm/progress';
 
 registerLocaleData(localePt);
 
@@ -45,6 +47,8 @@ registerLocaleData(localePt);
       lucideCalendar,
       lucideTrendingUp,
     }),
+    ...HlmBadgeImports,
+    ...HlmProgressImports,
   ],
 })
 export class AnalysisModule {}
