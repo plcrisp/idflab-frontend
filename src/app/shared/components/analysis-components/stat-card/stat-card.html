@@ -1,27 +1,32 @@
-<div class="h-full flex flex-col rounded-xl border border-(--border-subtle) bg-(--surface) p-4">
-  <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 mb-4 text-primary">
-    <ng-icon name="{{ icon }}"></ng-icon>
+<div
+  class="h-full flex flex-col justify-between rounded-xl border border-(--border-subtle) bg-(--surface) p-3"
+>
+  <div class="flex items-center gap-2 mb-2">
+    <div
+      class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary"
+    >
+      <ng-icon name="{{ icon }}" size="18"></ng-icon>
+    </div>
+    <p class="text-sm font-medium text-muted-foreground">{{ label }}</p>
   </div>
-
-  <p class="text-sm text-muted-foreground mb-1">{{ label }}</p>
 
   <div class="flex items-baseline gap-1">
     @if (value != null) {
-    <span class="text-3xl font-semibold text-(--text)">{{ value }}</span>
+    <span class="text-2xl font-semibold text-(--text)">{{ value }}</span>
     } @else {
-    <span class="text-3xl font-medium text-muted-foreground/50">-</span>
+    <span class="text-2xl font-semibold text-muted-foreground/50">-</span>
     } @if (value != null && unit) {
-    <span class="text-base font-medium text-muted-foreground">{{ unit }}</span>
+    <span class="text-sm text-muted-foreground">{{ unit }}</span>
     }
   </div>
 
   @switch (footer?.type) { @case ('text') {
-  <p class="text-xs text-muted-foreground mt-auto pt-2">
+  <p class="text-xs text-muted-foreground mt-2 pt-2">
     {{ $any(footer).content != null ? $any(footer).content : '-' }}
   </p>
   } @case ('progress') {
-  <div class="mt-auto pt-2">
-    <hlm-progress [value]="progressPercent">
+  <div class="mt-2 pt-2">
+    <hlm-progress [value]="progressPercent" class="h-2">
       <hlm-progress-indicator />
     </hlm-progress>
   </div>

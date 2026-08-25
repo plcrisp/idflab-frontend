@@ -33,6 +33,6 @@ export class TimeSeriesPanel {
     const first = new Date(d.points[0].date);
     const last = new Date(d.points[d.points.length - 1].date);
 
-    return `${formatDate(first)} – ${formatDate(last)}`;
+    return `${formatDate(first)} - ${formatDate(last)}`;
   });
 }

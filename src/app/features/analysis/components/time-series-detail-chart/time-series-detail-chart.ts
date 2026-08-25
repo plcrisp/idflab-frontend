@@ -97,7 +97,9 @@ export class TimeSeriesDetailChart implements OnDestroy {
       if (!data) return;
 
       if (!this.chart) {
-        this.chart = echarts.init(this.chartContainer.nativeElement);
+        this.chart = echarts.init(this.chartContainer.nativeElement, undefined, {
+          renderer: 'svg',
+        });
         this.observeContainerResize();
       }
       this.chart.setOption(this.buildOption(data), true);
@@ -209,7 +211,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
           },
         ],
         textStyle: {
-          color: t.textMuted,
+          color: 't.textMuted',
           fontFamily: t.fontFamily,
           fontSize: 12,
         },

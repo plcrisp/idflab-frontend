@@ -67,7 +67,9 @@ export class AnnualMaxOverviewChart {
       if (!data) return;
 
       if (!this.chart) {
-        this.chart = echarts.init(this.chartContainer.nativeElement);
+        this.chart = echarts.init(this.chartContainer.nativeElement, undefined, {
+          renderer: 'svg',
+        });
         this.observeContainerResize();
       }
       this.chart.setOption(this.buildOption(data), true);
@@ -264,7 +266,7 @@ export class AnnualMaxOverviewChart {
       ],
       yAxis: {
         type: 'value',
-        interval: 50,
+        splitNumber: 2,
         axisLine: { show: false },
         axisTick: { show: false },
         splitLine: {
@@ -274,6 +276,7 @@ export class AnnualMaxOverviewChart {
           color: '#4d4d4d',
           fontFamily: t.fontFamily,
           fontSize: 11,
+          hideOverlap: true,
           formatter: `{value} ${this.unit()}`,
         },
       },
