@@ -12,6 +12,7 @@ import {
   buildMaxObservadoLegendSeries,
   buildSplitLineStyle,
   buildTooltipBase,
+  CHART_LEGEND_LABELS,
 } from '../../utils/chart-options.utils';
 import { EchartsService } from '../../../../../../core/services/utils/echarts.service';
 
@@ -88,7 +89,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
 
     return {
       textStyle: { fontFamily: t.fontFamily },
-      legend: buildLegend(this.seriesName(), t),
+      legend: buildLegend(this.seriesName(), CHART_LEGEND_LABELS.maxObservado, t),
       grid: buildGrid(),
       tooltip: {
         ...buildTooltipBase(t),
@@ -171,7 +172,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
           emphasis: { itemStyle: { color: t.primaryDark } },
           markPoint: buildMarkPoint(annualMaxData, t),
         },
-        buildMaxObservadoLegendSeries(t, { symbol: 'scatter' }),
+        buildMaxObservadoLegendSeries(t, CHART_LEGEND_LABELS.maxObservado, { symbol: 'scatter' }),
         buildFalhaLegendSeries(t, 'scatter'),
       ],
     };

@@ -47,4 +47,16 @@
   ></app-time-series-panel>
 
   <app-data-availability-ribbon [yearly_summary]="yearlySummary()"></app-data-availability-ribbon>
+
+  <div class="flex w-full items-center justify-end gap-3">
+    <button hlmBtn variant="outline" size="lg">
+      <ng-icon name="lucideDownload" class="mr-2" />
+      Baixar série bruta
+    </button>
+
+    <button hlmBtn size="lg">
+      Avançar
+      <ng-icon name="lucideArrowRight" class="ml-2" />
+    </button>
+  </div>
 </div>

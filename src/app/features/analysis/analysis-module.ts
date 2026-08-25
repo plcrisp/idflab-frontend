@@ -9,8 +9,10 @@ import { InitialVisualization } from './pages/initial-visualization/initial-visu
 import { ANALYSIS_ROUTES } from './analysis.routes';
 import { AnalysisLayout } from './analysis-layout/analysis-layout';
 import {
+  lucideArrowRight,
   lucideCalendar,
   lucideDatabase,
+  lucideDownload,
   lucideTrendingUp,
   lucideTriangleAlert,
 } from '@ng-icons/lucide';
@@ -24,6 +26,7 @@ import { ParamsHeader } from './shared/components/params-header/params-header';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmProgressImports } from '@spartan-ng/helm/progress';
 import { DataAvailabilityRibbon } from './shared/components/data-availability-ribbon/data-availability-ribbon';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
 
 registerLocaleData(localePt);
 
@@ -48,9 +51,12 @@ registerLocaleData(localePt);
       lucideTriangleAlert,
       lucideCalendar,
       lucideTrendingUp,
+      lucideDownload,
+      lucideArrowRight,
     }),
     ...HlmBadgeImports,
     ...HlmProgressImports,
+    ...HlmButtonImports,
   ],
 })
 export class AnalysisModule {}

@@ -16,6 +16,7 @@ import {
   buildMaxObservadoLegendSeries,
   buildSplitLineStyle,
   buildTooltipBase,
+  CHART_LEGEND_LABELS,
 } from '../../utils/chart-options.utils';
 import { EchartsService } from '../../../../../../core/services/utils/echarts.service';
 
@@ -107,7 +108,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
 
     return {
       textStyle: { fontFamily: t.fontFamily },
-      legend: buildLegend(this.seriesName(), t),
+      legend: buildLegend(this.seriesName(), CHART_LEGEND_LABELS.maxPeriodo, t),
       grid: buildGrid(),
       tooltip: {
         ...buildTooltipBase(t),
@@ -163,7 +164,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
           markPoint: buildMarkPoint(annualMaxData, t),
           markArea: buildMarkArea(markAreaData, t),
         },
-        buildMaxObservadoLegendSeries(t),
+        buildMaxObservadoLegendSeries(t, CHART_LEGEND_LABELS.maxPeriodo),
         buildFalhaLegendSeries(t, 'bar'),
       ],
     };

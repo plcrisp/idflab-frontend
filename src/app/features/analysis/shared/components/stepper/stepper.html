@@ -24,8 +24,8 @@
       <span
         class="flex h-2.5 w-2.5 mt-px items-center justify-center rounded-full transition-all duration-300 origin-center"
         [ngClass]="{
-          'bg-primary': stepState(i) === 'completed',
-          'h-3 w-3 bg-primary ring-[3px] ring-primary/20': stepState(i) === 'active',
+          'bg-primary': (stepState(i) === 'active') || (stepState(i) === 'completed'),
+          'ring-[3px] ring-primary/20 h-3 w-3': (stepState(i) === 'active'),
           'bg-background border border-muted-foreground/40 group-hover:border-primary/50': stepState(i) === 'upcoming'
         }"
       ></span>

@@ -3,7 +3,8 @@ import type { SeriesOption } from 'echarts';
 import { ChartTokens } from '../../../../../core/services/utils/echarts.service';
 
 export const CHART_LEGEND_LABELS = {
-  maxObservado: 'Máximo observado',
+  maxObservado: 'Recorde histórico',
+  maxPeriodo: 'Pico do período',
   falha: 'Cobertura incompleta',
 } as const;
 
@@ -29,7 +30,11 @@ export function hexToRgba(hex: string, alpha: number): string {
 
 // legend
 
-export function buildLegend(seriesName: string, tokens: ChartTokens): EChartsOption['legend'] {
+export function buildLegend(
+  seriesName: string,
+  nameMax: string,
+  tokens: ChartTokens,
+): EChartsOption['legend'] {
   return {
     top: 0,
     right: 16,
@@ -40,7 +45,7 @@ export function buildLegend(seriesName: string, tokens: ChartTokens): EChartsOpt
     data: [
       { name: seriesName, icon: 'roundRect', itemStyle: { color: tokens.primary } },
       {
-        name: CHART_LEGEND_LABELS.maxObservado,
+        name: nameMax,
         icon: 'circle',
         itemStyle: { color: tokens.primaryDark },
       },
@@ -143,10 +148,11 @@ export function buildMarkPoint(data: any[], tokens: ChartTokens) {
 
 export function buildMaxObservadoLegendSeries(
   tokens: ChartTokens,
+  name: string,
   opts: { symbol?: string } = {},
 ): SeriesOption {
   return {
-    name: CHART_LEGEND_LABELS.maxObservado,
+    name: name,
     type: 'scatter',
     data: [] as any[],
     symbol: opts.symbol ?? 'circle',
