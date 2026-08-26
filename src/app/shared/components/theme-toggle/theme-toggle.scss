@@ -1,7 +1,6 @@
 .theme-toggle {
   .toggle-btn {
     position: relative;
-
     display: block;
     box-sizing: border-box;
     padding: 0;
@@ -9,8 +8,9 @@
     width: 64px;
     height: 32px;
     border-radius: 999px;
-    border: 1px solid var(--border-alt);
-    background: var(--color-primary-800);
+
+    border: 1px solid var(--primary-700);
+    background: var(--primary-800);
     cursor: pointer;
 
     .icon {
@@ -19,12 +19,13 @@
       transform: translateY(-50%);
       transition: all 0.3s ease;
       opacity: 0.5;
-      color: var(--color-grey-light);
+
+      color: var(--neutral-400);
       z-index: 1;
 
       &.active {
         opacity: 1;
-        color: var(--color-white);
+        color: var(--neutral-50);
       }
     }
 
@@ -43,7 +44,8 @@
       width: 24px;
       height: 24px;
       border-radius: 50%;
-      background: var(--color-primary-600);
+
+      background: var(--primary-600);
       transition: all 0.3s ease;
       z-index: 0;
 
@@ -63,11 +65,11 @@
     right: 24px;
 
     .toggle-btn {
-      border: 1px solid var(--surface);
-      background: var(--surface);
+      border: 1px solid var(--background);
+      background: var(--background);
 
       .icon {
-        color: var(--icon);
+        color: var(--muted-foreground);
 
         &.active {
           color: var(--primary);

@@ -10,8 +10,8 @@
 }
 
 .modal-container {
-  background-color: var(--surface);
-  border: 1px solid var(--border-subtle);
+  background-color: var(--popover);
+  border: 1px solid var(--border);
   border-radius: 12px;
   width: 100%;
   max-width: 840px;
@@ -21,7 +21,7 @@
 
 .modal-header {
   padding: 22px 24px 18px;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -33,7 +33,7 @@
     gap: 4px;
 
     h2 {
-      color: var(--text);
+      color: var(--foreground);
       font-size: 16px;
       font-weight: 600;
       line-height: 1.4;
@@ -41,7 +41,7 @@
     }
 
     p {
-      color: var(--text-subtle);
+      color: var(--muted-foreground);
       font-size: 12.5px;
       line-height: 1.5;
       margin: 0;
@@ -53,7 +53,7 @@
     border: none;
     cursor: pointer;
     padding: 4px;
-    color: var(--text-subtle);
+    color: var(--muted-foreground);
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -62,7 +62,7 @@
     transition: color 0.15s;
 
     &:hover {
-      color: var(--text);
+      color: var(--foreground);
     }
   }
 }
@@ -145,8 +145,8 @@
 }
 
 .sub-card {
-  background-color: color-mix(in srgb, var(--text) 2%, transparent);
-  border: 1px solid var(--border-subtle);
+  background-color: color-mix(in srgb, var(--foreground) 2%, transparent);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px 14px;
   display: flex;
@@ -160,7 +160,7 @@
     flex-wrap: wrap;
 
     .title {
-      color: var(--text);
+      color: var(--foreground);
       font-size: 13px;
       font-weight: 500;
     }
@@ -194,15 +194,15 @@
   }
 
   &.min-series-badge {
-    background-color: color-mix(in srgb, var(--text) 6%, transparent);
-    color: var(--text-subtle);
-    border: 1px solid var(--border-subtle);
+    background-color: color-mix(in srgb, var(--foreground) 6%, transparent);
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
   }
 
   &.warning-badge {
-    background-color: color-mix(in srgb, var(--color-warning) 13%, transparent);
-    color: var(--color-warning);
-    border: 1px solid color-mix(in srgb, var(--color-warning) 27%, transparent);
+    background-color: color-mix(in srgb, var(--warning) 13%, transparent);
+    color: var(--warning);
+    border: 1px solid color-mix(in srgb, var(--warning) 27%, transparent);
   }
 }
 
@@ -224,7 +224,7 @@
   }
 
   p {
-    color: var(--text-muted);
+    color: var(--muted-foreground);
     font-size: 13px;
     line-height: 1.45;
     margin: 0;
@@ -232,8 +232,8 @@
 }
 
 .footer-note {
-  background-color: color-mix(in srgb, var(--text) 2%, transparent);
-  border: 1px solid var(--border-subtle);
+  background-color: color-mix(in srgb, var(--foreground) 2%, transparent);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px 14px;
   display: flex;
@@ -247,13 +247,13 @@
   }
 
   p {
-    color: var(--text-muted);
+    color: var(--muted-foreground);
     font-size: 12px;
     line-height: 1.55;
     margin: 0;
 
     strong {
-      color: var(--text);
+      color: var(--foreground);
       font-weight: 600;
     }
   }

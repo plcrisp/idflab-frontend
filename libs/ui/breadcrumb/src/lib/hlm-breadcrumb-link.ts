@@ -36,7 +36,7 @@ export class HlmBreadcrumbLink {
 
       return [
         'transition-colors cursor-default',
-        hasLink ? 'hover:text-(--white) cursor-pointer' : '',
+        hasLink ? 'hover:text-(--primary-50) cursor-pointer' : '',
       ].join(' ');
     });
   }

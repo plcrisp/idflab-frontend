@@ -36,16 +36,21 @@ function readTokens(): ChartTokens {
 
   return {
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-    surface: v('--surface', '#ffffff'),
-    border: v('--border', '#d1d5db'),
-    borderSubtle: v('--border-subtle', 'rgba(0, 0, 0, 0.07)'),
-    text: v('--text', '#1f1f1f'),
-    textMuted: v('--text-muted', '#1f1f1f'),
-    textSubtle: v('--text-subtle', 'rgba(13, 13, 13, 0.4)'),
+
+    surface: v('--card', '#ffffff'),
+
+    border: v('--border', '#e2e8f0'),
+    borderSubtle: v('--border', '#e2e8f0'),
+
+    text: v('--foreground', '#020617'),
+    textMuted: v('--muted-foreground', '#3f3f46'),
+    textSubtle: v('--muted-foreground', '#3f3f46'),
+
     primary: v('--primary', '#49628b'),
-    primaryMid: v('--color-primary-700', '#2a3c58'),
-    primaryDark: v('--color-primary-800', '#1e2a3f'),
-    error: v('--color-error', '#ef4444'),
+    primaryMid: v('--primary-700', '#394b6b'),
+    primaryDark: v('--primary-800', '#32415a'),
+
+    error: v('--destructive', '#ef4444'),
   };
 }
 

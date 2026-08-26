@@ -3,8 +3,8 @@
   z-index: 90;
 
   .mapboxgl-popup-content {
-    background: color-mix(in srgb, var(--surface) 92%, transparent);
-    border: 1px solid var(--border-subtle);
+    background: color-mix(in srgb, var(--popover) 92%, transparent);
+    border: 1px solid var(--border);
     border-radius: 1rem;
     padding: 0.85rem 1rem;
     backdrop-filter: blur(18px);
@@ -43,7 +43,7 @@
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--text-subtle);
+    color: var(--muted-foreground);
     opacity: 0.9;
   }
 
@@ -51,7 +51,7 @@
     font-size: 0.9rem;
     font-weight: 600;
     line-height: 1.2;
-    color: var(--text);
+    color: var(--foreground);
     text-transform: capitalize;
 
     max-width: 220px;
@@ -68,7 +68,7 @@
     border-radius: 999px;
     flex-shrink: 0;
 
-    background: var(--text-subtle);
+    background: var(--muted-foreground);
 
     &::after {
       content: '';
@@ -80,19 +80,19 @@
     }
 
     &.operante {
-      background: var(--color-success);
+      background: var(--success);
 
       &::after {
-        background: var(--color-success);
+        background: var(--success);
       }
     }
 
     &.pane,
     &.falha {
-      background: var(--color-warning);
+      background: var(--warning);
 
       &::after {
-        background: var(--color-warning);
+        background: var(--warning);
       }
     }
   }
@@ -142,6 +142,6 @@
   .hover-divider {
     width: 100%;
     height: 1px;
-    background: linear-gradient(to right, transparent, var(--border-subtle), transparent);
+    background: linear-gradient(to right, transparent, var(--border), transparent);
   }
 }

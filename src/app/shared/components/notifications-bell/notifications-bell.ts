@@ -127,11 +127,11 @@ export class NotificationsBell {
   getToneColor(tone: string): string {
     switch (tone) {
       case 'success':
-        return 'var(--color-success)';
+        return 'var(--success)';
       case 'warning':
-        return 'var(--color-warning)';
+        return 'var(--warning)';
       case 'error':
-        return 'var(--color-error)';
+        return 'var(--destructive)';
       default:
         return 'inherit';
     }
@@ -140,11 +140,11 @@ export class NotificationsBell {
   getToneTitleColor(tone: string): string {
     switch (tone) {
       case 'success':
-        return 'var(--color-white)';
+        return 'var(--neutral-50)';
       case 'warning':
-        return 'var(--color-warning)';
+        return 'var(--warning)';
       case 'error':
-        return 'var(--color-error)';
+        return 'var(--destructive)';
       default:
         return 'inherit';
     }
@@ -153,11 +153,11 @@ export class NotificationsBell {
   getToneMessageColor(tone: string): string {
     switch (tone) {
       case 'success':
-        return 'var(--color-grey-light)';
+        return 'var(--neutral-200)';
       case 'warning':
-        return 'var(--color-warning)';
+        return 'var(--warning)';
       case 'error':
-        return 'var(--color-error)';
+        return 'var(--destructive)';
       default:
         return 'inherit';
     }

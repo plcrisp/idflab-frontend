@@ -73,9 +73,7 @@ const renderDownloadStationData: Renderer = (notification) => {
     case 'ANA':
       return {
         title: 'Falha ao baixar dados da ANA',
-        message: details.error_log
-          ? `O download da estação do projeto ${project} parou no ano ${details.current_chunk} de ${details.total_chunks}: ${details.error_log}`
-          : `O download da estação do projeto ${project} parou no ano ${details.current_chunk} de ${details.total_chunks}.`,
+        message: `Não foi possível baixar os dados da estação do projeto ${project}. Tente novamente.`,
         tone: 'error',
         icon: 'lucideCircleX',
       };

@@ -25,7 +25,7 @@ export class HlmDropdownMenu {
   constructor() {
     classes(
       () =>
-        'bg-(--color-primary-800) text-(--white) data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 my-[--spacing(var(--side-offset))] min-w-[8rem] origin-top overflow-x-hidden overflow-y-auto rounded-md border border-sidebar-border p-1 shadow-md',
+        'bg-(--primary-800) text-(--primary-50) data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 my-[--spacing(var(--side-offset))] min-w-[8rem] origin-top overflow-x-hidden overflow-y-auto rounded-md border border-sidebar-border p-1 shadow-md',
     );
 
     this.setSideWithDarkMagic();

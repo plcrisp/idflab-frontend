@@ -30,9 +30,9 @@ export class DataAvailabilityRibbon {
 
   cellColor(status: YearCell['statusClass']): string {
     return {
-      full: 'bg-(--color-success)',
-      partial: 'bg-(--color-warning)',
-      failure: 'bg-(--color-error)',
+      full: 'bg-(--success)',
+      partial: 'bg-(--warning)',
+      failure: 'bg-(--destructive)',
     }[status];
   }
 }

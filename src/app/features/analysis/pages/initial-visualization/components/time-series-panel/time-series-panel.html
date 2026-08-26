@@ -1,9 +1,7 @@
 <div
-  class="h-full flex flex-col rounded-xl border border-(--border-subtle) bg-(--surface) font-semibold text-(--text) text-sm"
+  class="h-full flex flex-col rounded-xl border border-border bg-popover font-semibold text-foreground text-sm"
 >
-  <h3
-    class="flex items-center gap-1.5 tracking-wide border-b border-(--border-subtle) p-4 uppercase"
-  >
+  <h3 class="flex items-center gap-1.5 tracking-wide border-b border-border p-4 uppercase">
     Precipitações diárias máximas anuais · {{firstYear()}} - {{lastYear()}}
   </h3>
 
@@ -11,13 +9,13 @@
 
   <div>
     <div class="flex items-center mb-4 px-8">
-      <div class="flex-1 border-t border-(--border-subtle)"></div>
+      <div class="flex-1 border-t border-border"></div>
 
       <span class="px-4 tracking-wide uppercase">
         Série temporal de precipitação diária · {{ rangeLabel() }}</span
       >
 
-      <div class="flex-1 border-t border-(--border-subtle)"></div>
+      <div class="flex-1 border-t border-border"></div>
     </div>
   </div>
 

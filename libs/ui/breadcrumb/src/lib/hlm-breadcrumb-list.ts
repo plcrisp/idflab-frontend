@@ -11,7 +11,7 @@ export class HlmBreadcrumbList {
   constructor() {
     classes(
       () =>
-        'text-(--sidebar-text-muted) gap-1.5 text-sm sm:gap-2.5 flex flex-wrap items-center wrap-break-word',
+        'text-(--primary-50) gap-1.5 text-sm sm:gap-2.5 flex flex-wrap items-center wrap-break-word',
     );
   }
 }

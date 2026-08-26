@@ -32,7 +32,7 @@ export class HlmSidebarTrigger {
 
   constructor() {
     this._hlmBtn.setClass(
-      'size-7 !text-(--white) hover:!text-(--white) hover:!bg-(--sidebar-accent)',
+      'size-7 !text-(--primary-50) hover:!text-(--primary-50) hover:!bg-(--sidebar-accent)',
     );
   }
 

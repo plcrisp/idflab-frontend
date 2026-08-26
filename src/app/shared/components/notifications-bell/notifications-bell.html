@@ -1,6 +1,6 @@
 <div class="relative">
   <button
-    class="relative flex items-center justify-center w-9 h-9 rounded-md bg-transparent text-white transition-colors hover:bg-sidebar-accent cursor-pointer"
+    class="relative flex items-center justify-center w-9 h-9 rounded-md bg-transparent text-(--neutral-50) transition-colors hover:bg-sidebar-accent cursor-pointer"
     aria-label="Notificações"
     [hlmDropdownMenuTrigger]="menuNotifications"
     (hlmDropdownMenuClosed)="onMenuClosed()"
@@ -10,19 +10,19 @@
 
     <span
       *ngIf="hasWorkingJobs()"
-      class="absolute inset-0.75 rounded-full border-[1.5px] border-t-transparent border-(--color-primary-600) animate-spin"
+      class="absolute inset-0.75 rounded-full border-[1.5px] border-t-transparent border-(--primary-600) animate-spin"
     ></span>
 
     <span
       *ngIf="!hasWorkingJobs() && unreadCount() > 0"
-      class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-(--color-error) ring-2 ring-(--color-primary-800)"
+      class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-(--destructive) ring-2 ring-(--primary-800)"
     ></span>
   </button>
   <ng-template #menuNotifications>
     <hlm-dropdown-menu class="w-90">
       <div class="flex items-center justify-between pl-2 pr-4">
         <hlm-dropdown-menu-label>Notificações</hlm-dropdown-menu-label>
-        <span *ngIf="notifications().length > 0" class="text-xs text-(--color-grey-light)">
+        <span *ngIf="notifications().length > 0" class="text-xs text-(--neutral-100)">
           {{ notifications().length }}
         </span>
       </div>
@@ -31,12 +31,12 @@
       <!-- Jobs ativos -->
       <div
         *ngIf="activeJobs().length > 0"
-        class="px-5 pb-4 pt-4 bg-(--color-primary-700) border-l-2 border-(--color-primary-600)"
+        class="px-5 pb-4 pt-4 bg-(--primary-700) border-l-2 border-(--primary-600)"
       >
         <div *ngFor="let job of activeJobs()" class="mb-3 last:mb-0">
           <div class="flex items-start gap-2 mb-2">
             <span
-              class="w-3.5 h-3.5 mt-0.5 rounded-full border-2 border-(--color-primary-600) border-t-transparent animate-spin shrink-0"
+              class="w-3.5 h-3.5 mt-0.5 rounded-full border-2 border-(--primary-600) border-t-transparent animate-spin shrink-0"
             ></span>
             <span class="text-[13px] font-semibold text-white leading-snug truncate">
               {{ job.project_name }}
@@ -46,13 +46,13 @@
             </span>
           </div>
 
-          <p class="text-[13px] text-(--color-grey-light) mb-2.5 leading-relaxed">
+          <p class="text-[13px] text-(--neutral--500) mb-2.5 leading-relaxed">
             {{ job.details?.message }}
           </p>
 
-          <div class="h-1 bg-(--color-primary-800) rounded-full overflow-hidden">
+          <div class="h-1 bg-(--primary-800) rounded-full overflow-hidden">
             <div
-              class="h-full bg-(--color-primary-600) rounded-full transition-all duration-300"
+              class="h-full bg-(--primary-600) rounded-full transition-all duration-300"
               [style.width.%]="job.progress"
             ></div>
           </div>
@@ -62,7 +62,7 @@
       <hlm-dropdown-menu-separator *ngIf="activeJobs().length > 0 && notifications().length > 0" />
 
       <!-- Notificações -->
-      <div class="max-h-70 overflow-y-auto divide-y divide-(--color-primary-divider)">
+      <div class="max-h-70 overflow-y-auto divide-y divide-(--primary-700)">
         <div
           *ngFor="let item of notifications(); trackBy: trackByNotifId"
           class="group flex gap-3 px-5 py-3.5 cursor-pointer transition-colors hover:bg-sidebar-accent relative"
@@ -94,7 +94,7 @@
             (pointerdown)="$event.stopPropagation()"
             (mousedown)="$event.stopPropagation()"
             (click)="deleteNotification(item.notif.id, $event)"
-            class="absolute right-4 top-3.5 py-0.5 px-1.5 rounded-md text-(--sidebar-text-muted) opacity-0 transition-all hover:bg-sidebar-accent hover:text-white group-hover:opacity-100"
+            class="absolute right-4 top-3.5 py-0.5 px-1.5 rounded-md text-(--neutral-400) opacity-0 transition-all hover:text-(--neutral-50) group-hover:opacity-100"
             title="Remover notificação"
           >
             <ng-icon name="lucideTrash2" class="text-sm"></ng-icon>

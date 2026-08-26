@@ -1,5 +1,5 @@
 <header
-  class="flex items-center justify-between h-12 px-6 bg-(--color-primary-800) z-10 transition-all duration-300 ease-out"
+  class="flex items-center justify-between h-12 px-6 bg-(--primary-900) z-10 transition-all duration-300 ease-out"
   [class.sidebar-collapsed]="mainLayoutService.isSidebarCollapsed()"
 >
   <div class="flex items-center gap-6">
@@ -29,12 +29,12 @@
         class="group flex items-center gap-2 px-3 py-1.5 rounded-md bg-transparent text-white transition-colors hover:bg-sidebar-accent cursor-pointer"
         [hlmDropdownMenuTrigger]="menuLanguage"
       >
-        <ng-icon name="lucideGlobe" class="text-[16px] text-(--color-grey-light)"></ng-icon>
+        <ng-icon name="lucideGlobe" class="text-[16px] text-(--primary-50)"></ng-icon>
         <span class="text-[13px]">{{ language }}</span>
 
         <ng-icon
           name="lucideChevronDown"
-          class="text-[14px] text-(--color-grey-light) transition-transform duration-200 -rotate-90 group-aria-expanded:rotate-0"
+          class="text-[14px] text-(--primary-50) transition-transform duration-200 -rotate-90 group-aria-expanded:rotate-0"
         ></ng-icon>
       </button>
 
@@ -81,7 +81,7 @@
 
         <ng-icon
           name="lucideChevronDown"
-          class="text-[14px] text-(--color-grey-light) transition-transform duration-200 -rotate-90 group-aria-expanded:rotate-0"
+          class="text-[14px] text-(--primary-50) transition-transform duration-200 -rotate-90 group-aria-expanded:rotate-0"
         ></ng-icon>
       </button>
 

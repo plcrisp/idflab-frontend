@@ -1,8 +1,6 @@
-<div
-  class="h-full flex flex-col justify-between rounded-xl border border-(--border-subtle) bg-(--surface)"
->
+<div class="h-full flex flex-col justify-between rounded-xl border border-border bg-popover">
   <h3
-    class="flex items-center gap-1.5 tracking-wide uppercase font-semibold text-(--text) text-sm p-4 border-b border-(--border-subtle)"
+    class="flex items-center gap-1.5 tracking-wide uppercase font-semibold text-foreground text-sm p-4 border-b border-border"
   >
     Disponibilidade de Dados por Ano
   </h3>
@@ -17,10 +15,10 @@
         ></div>
 
         <div
-          class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap rounded-lg bg-(--surface) border border-border px-3.5 py-2.5 invisible opacity-0 scale-95 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-hover:scale-100 z-10 shadow-[0_4px_16px_rgba(16,24,40,0.12)]"
+          class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap rounded-lg bg-popover border border-border px-3.5 py-2.5 invisible opacity-0 scale-95 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-hover:scale-100 z-10 shadow-[0_4px_16px_rgba(16,24,40,0.12)]"
         >
-          <p class="font-semibold text-xs text-(--text)">{{ cell.year }}</p>
-          <p class="text-xs text-(--text-muted) mt-0.5">
+          <p class="font-semibold text-xs text-foreground">{{ cell.year }}</p>
+          <p class="text-xs text-muted-foreground mt-0.5">
             {{ cell.completeness.toLocaleString('pt-BR', { minimumFractionDigits: 1,
             maximumFractionDigits: 1 }) }}% completo
           </p>
@@ -29,17 +27,17 @@
       }
     </div>
 
-    <div class="flex flex-wrap gap-4 text-xs text-(--text-muted) justify-end">
+    <div class="flex flex-wrap gap-4 text-xs text-muted-foreground justify-end">
       <span class="flex items-center gap-1.5">
-        <i class="w-2 h-2 rounded-full bg-(--color-success) inline-block"></i>
+        <i class="w-2 h-2 rounded-full bg-(--success) inline-block"></i>
         &ge;90% completo
       </span>
       <span class="flex items-center gap-1.5">
-        <i class="w-2 h-2 rounded-full bg-(--color-warning) inline-block"></i>
+        <i class="w-2 h-2 rounded-full bg-(--warning) inline-block"></i>
         50-89%
       </span>
       <span class="flex items-center gap-1.5">
-        <i class="w-2 h-2 rounded-full bg-(--color-error) inline-block"></i>
+        <i class="w-2 h-2 rounded-full bg-destructive inline-block"></i>
         &lt;50% (falha)
       </span>
     </div>
