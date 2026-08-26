@@ -33,6 +33,7 @@ export function hexToRgba(hex: string, alpha: number): string {
 export function buildLegend(
   seriesName: string,
   nameMax: string,
+  seriesColor: string,
   tokens: ChartTokens,
 ): EChartsOption['legend'] {
   return {
@@ -43,7 +44,7 @@ export function buildLegend(
     itemHeight: 12,
     selectedMode: false,
     data: [
-      { name: seriesName, icon: 'roundRect', itemStyle: { color: tokens.primary } },
+      { name: seriesName, icon: 'roundRect', itemStyle: { color: seriesColor } },
       {
         name: nameMax,
         icon: 'circle',

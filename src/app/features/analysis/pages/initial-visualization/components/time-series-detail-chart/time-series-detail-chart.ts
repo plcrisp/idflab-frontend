@@ -108,7 +108,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
 
     return {
       textStyle: { fontFamily: t.fontFamily },
-      legend: buildLegend(this.seriesName(), CHART_LEGEND_LABELS.maxPeriodo, t),
+      legend: buildLegend(this.seriesName(), CHART_LEGEND_LABELS.maxPeriodo, t.primaryMid, t),
       grid: buildGrid(),
       tooltip: {
         ...buildTooltipBase(t),
@@ -159,7 +159,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
           type: 'bar',
           data: barData,
           barCategoryGap: '0%',
-          itemStyle: { color: t.primary, borderRadius: [3, 3, 0, 0] },
+          itemStyle: { color: t.primaryMid, borderRadius: [3, 3, 0, 0] },
           emphasis: { itemStyle: { color: t.primaryDark } },
           markPoint: buildMarkPoint(annualMaxData, t),
           markArea: buildMarkArea(markAreaData, t),
