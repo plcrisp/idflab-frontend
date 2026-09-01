@@ -57,14 +57,8 @@ export class InitialVisualization {
     { initialValue: [] },
   );
 
-  /**
-   * Drill-down: quando o usuário clica em uma barra do gráfico anual,
-   * guardamos aqui a janela daquele ano. Enquanto for `null`, a série
-   * detalhada usa a `defaultWindow` vinda do summary.
-   */
   private readonly manualWindow = signal<[string, string] | null>(null);
 
-  /** Ano do drill-down ativo (bate com `manualWindow`), usado para destacar a barra no gráfico anual. */
   readonly selectedYear = signal<number | null>(null);
 
   readonly activeWindow: Signal<[string, string] | null> = computed(
@@ -112,7 +106,7 @@ export class InitialVisualization {
 
     effect(() => {
       const summary = this.yearlySummary();
-      if (summary.length === 0 || this.selectedYear() !== null) return;
+      if (summary.length === 0) return;
 
       const recordYear = this.findRecordYear(summary);
       if (recordYear !== null) {

@@ -37,11 +37,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
   data = input<YearlySummaryItem[] | null>(null);
   unit = input('mm');
   seriesName = input('Precipitação diária máxima anual');
-
-  /** Ano atualmente selecionado (drill-down ativo), vindo do container. */
   selectedYear = input<number | null>(null);
-
-  /** Emite o ano (ex: 1989) quando o usuário clica em uma barra do gráfico. */
   yearClick = output<number>();
 
   @ViewChild('chartContainer', { static: true })
@@ -52,10 +48,6 @@ export class AnnualMaxOverviewChart implements OnDestroy {
     selectedYear: number | null;
   }>;
 
-  /**
-   * Combina `data` e `selectedYear` em um único signal para que o EchartsService
-   * reconstrua o gráfico sempre que qualquer um dos dois mudar.
-   */
   private readonly chartInput = computed(() => ({
     items: this.data() ?? [],
     selectedYear: this.selectedYear(),

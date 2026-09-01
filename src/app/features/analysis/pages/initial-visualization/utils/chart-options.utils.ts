@@ -93,8 +93,8 @@ export function buildLegend(
 
 // grid
 
-export function buildGrid(): EChartsOption['grid'] {
-  return { left: 16, right: 16, top: 32, bottom: 32, containLabel: true };
+export function buildGrid(botom: number = 32): EChartsOption['grid'] {
+  return { left: 16, right: 16, top: 32, bottom: botom, containLabel: true };
 }
 
 // tooltip
@@ -161,7 +161,7 @@ export function buildMarkPoint(data: any[], tokens: ChartTokens) {
     itemStyle: {
       color: tokens.secondary,
       borderColor: tokens.surface,
-      borderWidth: 1.5,
+      borderWidth: 1,
     },
     label: { show: false },
   };

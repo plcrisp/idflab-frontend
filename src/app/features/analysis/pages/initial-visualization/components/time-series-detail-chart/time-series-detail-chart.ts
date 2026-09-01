@@ -18,6 +18,7 @@ import {
   buildSplitLineStyle,
   buildTooltipBase,
   CHART_LEGEND_LABELS,
+  hexToRgba,
 } from '../../utils/chart-options.utils';
 import { EchartsService } from '../../../../../../core/services/utils/echarts.service';
 
@@ -160,7 +161,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
     return {
       textStyle: { fontFamily: t.fontFamily },
       legend: buildLegend(this.seriesName(), legendNameMax, t.primaryLight, t, legendNamePico),
-      grid: buildGrid(),
+      grid: buildGrid(48),
       tooltip: {
         ...buildTooltipBase(t),
         formatter: (params: any) => {
@@ -205,6 +206,45 @@ export class TimeSeriesDetailChart implements OnDestroy {
           formatter: `{value} ${this.unit()}`,
         },
       },
+      dataZoom: [
+        {
+          type: 'slider',
+          show: true,
+          xAxisIndex: [0],
+          bottom: 10,
+          start: 0,
+          end: 100,
+          height: 16,
+          showDataShadow: false,
+          borderColor: 'transparent',
+          backgroundColor: hexToRgba(t.border, 0.3),
+          fillerColor: hexToRgba(t.primaryDark, 0.1),
+          handleSize: '120%',
+          handleStyle: {
+            color: t.primaryDark,
+            borderColor: '#fff',
+            borderWidth: 1.5,
+            shadowBlur: 3,
+            shadowColor: 'rgba(0, 0, 0, 0.1)',
+          },
+          textStyle: {
+            color: t.textMuted,
+            fontFamily: t.fontFamily,
+          },
+          labelFormatter: (value: number) => {
+            const d = new Date(value);
+            const day = d.getUTCDate().toString().padStart(2, '0');
+            const month = (d.getUTCMonth() + 1).toString().padStart(2, '0');
+            return `${day}/${month}`;
+          },
+        },
+        {
+          type: 'inside',
+          xAxisIndex: [0],
+          start: 0,
+          end: 100,
+        },
+      ],
       series,
     };
   }
