@@ -4,7 +4,7 @@ import { ChartTokens } from '../../../../../core/services/utils/echarts.service'
 
 export const CHART_LEGEND_LABELS = {
   maxObservado: 'Recorde histórico',
-  maxPeriodo: 'Pico do período',
+  maxPeriodo: 'Precipitação diária máxima do período',
   falha: 'Cobertura incompleta',
 } as const;
 
@@ -32,10 +32,39 @@ export function hexToRgba(hex: string, alpha: number): string {
 
 export function buildLegend(
   seriesName: string,
-  nameMax: string,
+  nameMax: string | null,
   seriesColor: string,
   tokens: ChartTokens,
+  maxPeriodName: string | null = null,
 ): EChartsOption['legend'] {
+  const data: any[] = [{ name: seriesName, icon: 'roundRect', itemStyle: { color: seriesColor } }];
+
+  if (maxPeriodName) {
+    data.push({
+      name: maxPeriodName,
+      icon: 'roundRect',
+      itemStyle: { color: tokens.primaryDark },
+    });
+  }
+
+  if (nameMax) {
+    data.push({
+      name: nameMax,
+      icon: 'circle',
+      itemStyle: { color: tokens.secondary },
+    });
+  }
+
+  data.push({
+    name: CHART_LEGEND_LABELS.falha,
+    icon: 'roundRect',
+    itemStyle: {
+      color: hexToRgba(tokens.error, 0.18),
+      borderColor: tokens.error,
+      borderWidth: 1,
+    },
+  });
+
   return {
     top: 0,
     right: 16,
@@ -43,23 +72,7 @@ export function buildLegend(
     itemWidth: 12,
     itemHeight: 12,
     selectedMode: false,
-    data: [
-      { name: seriesName, icon: 'roundRect', itemStyle: { color: seriesColor } },
-      {
-        name: nameMax,
-        icon: 'circle',
-        itemStyle: { color: tokens.primaryDark },
-      },
-      {
-        name: CHART_LEGEND_LABELS.falha,
-        icon: 'roundRect',
-        itemStyle: {
-          color: hexToRgba(tokens.error, 0.18),
-          borderColor: tokens.error,
-          borderWidth: 1,
-        },
-      },
-    ],
+    data,
     textStyle: {
       color: tokens.textMuted,
       fontFamily: tokens.fontFamily,
@@ -137,7 +150,7 @@ export function buildMarkPoint(data: any[], tokens: ChartTokens) {
     symbolSize: 10,
     data,
     itemStyle: {
-      color: tokens.primaryDark,
+      color: tokens.secondary,
       borderColor: tokens.surface,
       borderWidth: 1.5,
     },
@@ -158,7 +171,7 @@ export function buildMaxObservadoLegendSeries(
     data: [] as any[],
     symbol: opts.symbol ?? 'circle',
     symbolSize: 10,
-    itemStyle: { color: tokens.primaryDark },
+    itemStyle: { color: tokens.secondary },
   };
 }
 
@@ -176,4 +189,13 @@ export function buildFalhaLegendSeries(
       borderWidth: 1,
     },
   } as SeriesOption;
+}
+
+export function buildMaxPeriodoLegendSeries(tokens: ChartTokens, name: string): SeriesOption {
+  return {
+    name: name,
+    type: 'bar',
+    data: [] as any[],
+    itemStyle: { color: tokens.primaryDark },
+  };
 }

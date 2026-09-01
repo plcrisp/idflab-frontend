@@ -14,6 +14,7 @@ import {
   buildMarkArea,
   buildMarkPoint,
   buildMaxObservadoLegendSeries,
+  buildMaxPeriodoLegendSeries,
   buildSplitLineStyle,
   buildTooltipBase,
   CHART_LEGEND_LABELS,
@@ -37,6 +38,14 @@ const MONTHS_PT = [
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+function isSameUTCDate(a: Date, b: Date): boolean {
+  return (
+    a.getUTCFullYear() === b.getUTCFullYear() &&
+    a.getUTCMonth() === b.getUTCMonth() &&
+    a.getUTCDate() === b.getUTCDate()
+  );
+}
+
 @Component({
   selector: 'app-time-series-detail-chart',
   standalone: false,
@@ -48,6 +57,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
   data = input<DetailResponse | null>(null);
   unit = input('mm');
   seriesName = input('Precipitação diária');
+  historicalMaxDate = input<string | null>(null);
 
   @ViewChild('chartContainer', { static: true })
   private chartContainer!: ElementRef<HTMLDivElement>;
@@ -70,32 +80,49 @@ export class TimeSeriesDetailChart implements OnDestroy {
     const { points, failure_windows } = data;
     const t = this.echarts.getTokens();
 
-    const barData = points.map((p: DetailPoint) => [
-      new Date(p.date).getTime(),
-      p.is_failure ? null : p.value,
-    ]);
+    const historicalMaxDate = this.historicalMaxDate();
+    const historicalMaxRef = historicalMaxDate ? new Date(historicalMaxDate) : null;
 
-    const annualMaxData = points
-      .filter((p) => p.is_annual_max)
-      .map((p) => ({
-        name: 'Máximo anual',
-        coord: [new Date(p.date).getTime(), p.value] as [number, number],
-      }));
+    const annualMaxData = historicalMaxRef
+      ? points
+          .filter((p) => isSameUTCDate(new Date(p.date), historicalMaxRef))
+          .map((p) => ({
+            name: CHART_LEGEND_LABELS.maxObservado,
+            coord: [new Date(p.date).getTime(), p.value] as [number, number],
+          }))
+      : [];
+
+    let maxPeriodoValue = -Infinity;
+    let maxPeriodoDate: string | null = null;
+
+    points.forEach((p) => {
+      if (!p.is_failure && p.value !== null && p.value > maxPeriodoValue) {
+        maxPeriodoValue = p.value;
+        maxPeriodoDate = p.date;
+      }
+    });
+
+    const barData = points.map((p: DetailPoint) => {
+      const value = p.is_failure ? null : p.value;
+      const isPico = p.date === maxPeriodoDate && value !== null; // ignora falhas
+
+      return isPico
+        ? { value: [new Date(p.date).getTime(), value], itemStyle: { color: t.primaryDark } }
+        : [new Date(p.date).getTime(), value];
+    });
 
     const HALF_DAY_MS = DAY_MS / 2;
-
     const markAreaData = (failure_windows ?? []).map((w: FailureWindow) => [
       { xAxis: new Date(w.start).getTime() - HALF_DAY_MS },
       { xAxis: new Date(w.end).getTime() + HALF_DAY_MS },
     ]);
 
-    const firstTs = barData[0]?.[0] ?? 0;
-    const lastTs = barData[barData.length - 1]?.[0] ?? 0;
+    const firstTs = points.length ? new Date(points[0].date).getTime() : 0;
+    const lastTs = points.length ? new Date(points[points.length - 1].date).getTime() : 0;
     const spanDays = (lastTs - firstTs) / DAY_MS;
 
     const tickStepDays =
       spanDays <= 21 ? 2 : spanDays <= 45 ? 5 : spanDays <= 90 ? 7 : spanDays <= 180 ? 14 : 30;
-
     const tickInterval = tickStepDays * DAY_MS;
 
     const tickValues: number[] = [];
@@ -106,9 +133,33 @@ export class TimeSeriesDetailChart implements OnDestroy {
       tickValues.push(lastTs);
     }
 
+    const hasHistoricalMax = annualMaxData.length > 0;
+    const legendNameMax = hasHistoricalMax ? CHART_LEGEND_LABELS.maxObservado : null;
+    const legendNamePico = CHART_LEGEND_LABELS.maxPeriodo;
+
+    const series: any[] = [
+      {
+        name: this.seriesName(),
+        type: 'bar',
+        data: barData,
+        barCategoryGap: '1%',
+        itemStyle: { color: t.primaryLight, borderRadius: [3, 3, 0, 0] },
+        emphasis: { itemStyle: { color: t.primaryMid } },
+        markPoint: buildMarkPoint(annualMaxData, t),
+        markArea: buildMarkArea(markAreaData, t),
+      },
+      buildMaxPeriodoLegendSeries(t, CHART_LEGEND_LABELS.maxPeriodo),
+    ];
+
+    if (hasHistoricalMax) {
+      series.push(buildMaxObservadoLegendSeries(t, CHART_LEGEND_LABELS.maxObservado));
+    }
+
+    series.push(buildFalhaLegendSeries(t, 'bar'));
+
     return {
       textStyle: { fontFamily: t.fontFamily },
-      legend: buildLegend(this.seriesName(), CHART_LEGEND_LABELS.maxPeriodo, t.primaryMid, t),
+      legend: buildLegend(this.seriesName(), legendNameMax, t.primaryLight, t, legendNamePico),
       grid: buildGrid(),
       tooltip: {
         ...buildTooltipBase(t),
@@ -133,6 +184,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
           ...buildAxisLabelBase(t),
           margin: 12,
           customValues: tickValues,
+          hideOverlap: true,
           formatter: (value: number) => {
             const d = new Date(value);
             const day = d.getUTCDate();
@@ -153,20 +205,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
           formatter: `{value} ${this.unit()}`,
         },
       },
-      series: [
-        {
-          name: this.seriesName(),
-          type: 'bar',
-          data: barData,
-          barCategoryGap: '0%',
-          itemStyle: { color: t.primaryMid, borderRadius: [3, 3, 0, 0] },
-          emphasis: { itemStyle: { color: t.primaryDark } },
-          markPoint: buildMarkPoint(annualMaxData, t),
-          markArea: buildMarkArea(markAreaData, t),
-        },
-        buildMaxObservadoLegendSeries(t, CHART_LEGEND_LABELS.maxPeriodo),
-        buildFalhaLegendSeries(t, 'bar'),
-      ],
+      series,
     };
   }
 }

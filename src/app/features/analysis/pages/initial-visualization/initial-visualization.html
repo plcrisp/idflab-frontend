@@ -44,6 +44,7 @@
     [detail]="detail()"
     [window]="defaultWindow()!"
     [yearly_summary]="yearlySummary()"
+    [max_value_date]="stats()?.max_value_date ?? null"
   ></app-time-series-panel>
 
   <app-data-availability-ribbon [yearly_summary]="yearlySummary()"></app-data-availability-ribbon>

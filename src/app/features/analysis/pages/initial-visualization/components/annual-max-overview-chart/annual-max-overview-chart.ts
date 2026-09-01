@@ -26,7 +26,7 @@ import { EchartsService } from '../../../../../../core/services/utils/echarts.se
 export class AnnualMaxOverviewChart implements OnDestroy {
   data = input<YearlySummaryItem[] | null>(null);
   unit = input('mm');
-  seriesName = input('Precipitação máxima anual');
+  seriesName = input('Precipitação diária máxima anual');
 
   @ViewChild('chartContainer', { static: true })
   private chartContainer!: ElementRef<HTMLDivElement>;
@@ -89,7 +89,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
 
     return {
       textStyle: { fontFamily: t.fontFamily },
-      legend: buildLegend(this.seriesName(), CHART_LEGEND_LABELS.maxObservado, t.primary, t),
+      legend: buildLegend(this.seriesName(), CHART_LEGEND_LABELS.maxObservado, t.primaryDark, t),
       grid: buildGrid(),
       tooltip: {
         ...buildTooltipBase(t),
@@ -168,8 +168,8 @@ export class AnnualMaxOverviewChart implements OnDestroy {
           type: 'bar',
           data: barData,
           barCategoryGap: '20%',
-          itemStyle: { color: t.primary, borderRadius: [3, 3, 0, 0] },
-          emphasis: { itemStyle: { color: t.primaryDark } },
+          itemStyle: { color: t.primaryDark, borderRadius: [3, 3, 0, 0] },
+          emphasis: { itemStyle: { color: t.primaryMid } },
           markPoint: buildMarkPoint(annualMaxData, t),
         },
         buildMaxObservadoLegendSeries(t, CHART_LEGEND_LABELS.maxObservado, { symbol: 'scatter' }),

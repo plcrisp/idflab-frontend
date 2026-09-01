@@ -19,5 +19,8 @@
     </div>
   </div>
 
-  <app-time-series-detail-chart [data]="detail()"></app-time-series-detail-chart>
+  <app-time-series-detail-chart
+    [data]="detail()"
+    [historicalMaxDate]="max_value_date()"
+  ></app-time-series-detail-chart>
 </div>

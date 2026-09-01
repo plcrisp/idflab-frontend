@@ -11,6 +11,7 @@ export class TimeSeriesPanel {
   window = input<[string, string]>(['2026-01-01T00:00:00', '2026-01-31T00:00:00']);
   yearly_summary = input<YearlySummaryItem[]>([]);
   detail = input<DetailResponse | null>(null);
+  max_value_date = input<string | null>(null);
 
   firstYear = computed(() => {
     const summary = this.yearly_summary();

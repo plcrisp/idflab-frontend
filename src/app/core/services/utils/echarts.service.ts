@@ -13,6 +13,9 @@ export interface ChartTokens {
   primary: string;
   primaryDark: string;
   primaryMid: string;
+  primaryLight: string;
+  secondary: string;
+  highlight: string;
   error: string;
 }
 
@@ -48,7 +51,11 @@ function readTokens(): ChartTokens {
 
     primary: v('--primary', '#49628b'),
     primaryMid: v('--primary-700', '#394b6b'),
-    primaryDark: v('--primary-800', '#32415a'),
+    primaryDark: v('--primary-900', '#32415a'),
+    primaryLight: v('--primary-500', '#94a3b8'),
+
+    secondary: v('--accent-500', '#f59e0b'),
+    highlight: v('--cemaden', '#0891b2'),
 
     error: v('--destructive', '#ef4444'),
   };
