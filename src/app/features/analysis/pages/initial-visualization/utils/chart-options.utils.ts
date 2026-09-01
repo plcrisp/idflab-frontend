@@ -6,8 +6,8 @@ export const CHART_LEGEND_LABELS = {
   maxObservado: 'Recorde histórico',
   maxPeriodo: 'Precipitação diária máxima do período',
   falha: 'Cobertura incompleta',
+  anoSelecionado: 'Ano selecionado',
 } as const;
-
 export const CHART_AXIS_LABEL_COLOR = '#4d4d4d';
 
 // color handler
@@ -36,6 +36,7 @@ export function buildLegend(
   seriesColor: string,
   tokens: ChartTokens,
   maxPeriodName: string | null = null,
+  selectedYearName: string | null = null, // novo
 ): EChartsOption['legend'] {
   const data: any[] = [{ name: seriesName, icon: 'roundRect', itemStyle: { color: seriesColor } }];
 
@@ -44,6 +45,14 @@ export function buildLegend(
       name: maxPeriodName,
       icon: 'roundRect',
       itemStyle: { color: tokens.primaryDark },
+    });
+  }
+
+  if (selectedYearName) {
+    data.push({
+      name: selectedYearName,
+      icon: 'roundRect',
+      itemStyle: { color: tokens.primary },
     });
   }
 
@@ -197,5 +206,14 @@ export function buildMaxPeriodoLegendSeries(tokens: ChartTokens, name: string): 
     type: 'bar',
     data: [] as any[],
     itemStyle: { color: tokens.primaryDark },
+  };
+}
+
+export function buildSelectedYearLegendSeries(tokens: ChartTokens, name: string): SeriesOption {
+  return {
+    name,
+    type: 'scatter',
+    data: [] as any[],
+    itemStyle: { color: tokens.primary },
   };
 }

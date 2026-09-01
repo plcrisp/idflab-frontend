@@ -42,9 +42,11 @@
 
   <app-time-series-panel
     [detail]="detail()"
-    [window]="defaultWindow()!"
+    [window]="activeWindow()!"
     [yearly_summary]="yearlySummary()"
     [max_value_date]="stats()?.max_value_date ?? null"
+    (yearSelected)="onYearSelected($event)"
+    [selectedYear]="selectedYear()"
   ></app-time-series-panel>
 
   <app-data-availability-ribbon [yearly_summary]="yearlySummary()"></app-data-availability-ribbon>

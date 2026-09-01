@@ -5,7 +5,11 @@
     Precipitações diárias máximas anuais · {{firstYear()}} - {{lastYear()}}
   </h3>
 
-  <app-annual-max-overview-chart [data]="yearly_summary()"></app-annual-max-overview-chart>
+  <app-annual-max-overview-chart
+    [data]="yearly_summary()"
+    [selectedYear]="selectedYear()"
+    (yearClick)="onYearClick($event)"
+  ></app-annual-max-overview-chart>
 
   <div>
     <div class="flex items-center mb-4 px-8">

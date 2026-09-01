@@ -13,6 +13,19 @@ export class TimeSeriesPanel {
   detail = input<DetailResponse | null>(null);
   max_value_date = input<string | null>(null);
 
+  /** Ano com drill-down ativo, repassado ao gráfico anual para destacar a barra. */
+  selectedYear = input<number | null>(null);
+
+  /**
+   * Drill-down: repassa para o container o ano clicado no gráfico anual,
+   * para que ele busque a série diária daquele ano e atualize `detail`/`window`.
+   */
+  yearSelected = output<number>();
+
+  onYearClick(year: number): void {
+    this.yearSelected.emit(year);
+  }
+
   firstYear = computed(() => {
     const summary = this.yearly_summary();
     return summary.length > 0 ? summary[0].year : null;

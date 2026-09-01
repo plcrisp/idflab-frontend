@@ -1,5 +1,14 @@
-import { Component, ElementRef, inject, input, OnDestroy, ViewChild } from '@angular/core';
-import { EChartsOption } from 'echarts';
+import {
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  input,
+  OnDestroy,
+  output,
+  ViewChild,
+} from '@angular/core';
+import { ECElementEvent, EChartsOption } from 'echarts';
 import { CoverageStatus, YearlySummaryItem } from '../../models/initial-visualization.model';
 import {
   buildAxisLabelBase,
@@ -10,6 +19,7 @@ import {
   buildMarkArea,
   buildMarkPoint,
   buildMaxObservadoLegendSeries,
+  buildSelectedYearLegendSeries,
   buildSplitLineStyle,
   buildTooltipBase,
   CHART_LEGEND_LABELS,
@@ -28,17 +38,46 @@ export class AnnualMaxOverviewChart implements OnDestroy {
   unit = input('mm');
   seriesName = input('Precipitação diária máxima anual');
 
+  /** Ano atualmente selecionado (drill-down ativo), vindo do container. */
+  selectedYear = input<number | null>(null);
+
+  /** Emite o ano (ex: 1989) quando o usuário clica em uma barra do gráfico. */
+  yearClick = output<number>();
+
   @ViewChild('chartContainer', { static: true })
   private chartContainer!: ElementRef<HTMLDivElement>;
 
-  private readonly echarts = inject(EchartsService) as EchartsService<YearlySummaryItem[]>;
+  private readonly echarts = inject(EchartsService) as EchartsService<{
+    items: YearlySummaryItem[];
+    selectedYear: number | null;
+  }>;
+
+  /**
+   * Combina `data` e `selectedYear` em um único signal para que o EchartsService
+   * reconstrua o gráfico sempre que qualquer um dos dois mudar.
+   */
+  private readonly chartInput = computed(() => ({
+    items: this.data() ?? [],
+    selectedYear: this.selectedYear(),
+  }));
 
   constructor() {
     this.echarts.setup({
       container: () => this.chartContainer.nativeElement,
-      data: this.data,
-      buildOption: (data) => this.buildOption(data),
+      data: this.chartInput,
+      buildOption: ({ items, selectedYear }) => this.buildOption(items, selectedYear),
+      onClick: (params) => this.handleChartClick(params),
     });
+  }
+
+  private handleChartClick(params: ECElementEvent): void {
+    if (params.componentType !== 'series' || params.seriesType !== 'bar') return;
+    if (params.seriesName !== this.seriesName()) return;
+
+    const year = Number(params.name);
+    if (!Number.isNaN(year)) {
+      this.yearClick.emit(year);
+    }
   }
 
   ngOnDestroy(): void {
@@ -53,11 +92,29 @@ export class AnnualMaxOverviewChart implements OnDestroy {
     }, null);
   }
 
-  private buildOption(data: YearlySummaryItem[]): EChartsOption {
+  private buildOption(data: YearlySummaryItem[], selectedYear: number | null): EChartsOption {
     const t = this.echarts.getTokens();
 
     const years = data.map((d) => d.year.toString());
-    const barData = data.map((d) => d.max_value);
+    const selectedYearStr = selectedYear !== null ? selectedYear.toString() : null;
+
+    const barData = data.map((d) => {
+      const isSelected = selectedYearStr !== null && d.year.toString() === selectedYearStr;
+      if (!isSelected) return d.max_value;
+
+      // barra do ano selecionado
+      return {
+        value: d.max_value,
+        itemStyle: {
+          color: t.primary,
+        },
+      };
+    });
+
+    const selectedItem =
+      selectedYearStr !== null
+        ? (data.find((d) => d.year.toString() === selectedYearStr) ?? null)
+        : null;
 
     const markAreaData: [{ xAxis: number }, { xAxis: number }][] = [];
     let gapStart: number | null = null;
@@ -89,7 +146,14 @@ export class AnnualMaxOverviewChart implements OnDestroy {
 
     return {
       textStyle: { fontFamily: t.fontFamily },
-      legend: buildLegend(this.seriesName(), CHART_LEGEND_LABELS.maxObservado, t.primaryDark, t),
+      legend: buildLegend(
+        this.seriesName(),
+        CHART_LEGEND_LABELS.maxObservado,
+        t.primaryDark,
+        t,
+        null,
+        selectedYearStr !== null ? CHART_LEGEND_LABELS.anoSelecionado : null,
+      ),
       grid: buildGrid(),
       tooltip: {
         ...buildTooltipBase(t),
@@ -115,8 +179,10 @@ export class AnnualMaxOverviewChart implements OnDestroy {
           };
           const status = statusLabel[item.coverage_status];
 
+          const isSelected = selectedYearStr !== null && item.year.toString() === selectedYearStr;
+
           return `
-            <div style="font-weight:600;margin-bottom:2px;">${item.year}</div>
+            <div style="font-weight:600;margin-bottom:2px;">${item.year}${isSelected ? ' · Selecionado' : ''}</div>
             <div>${valueLabel}${dateLabel ? ` · ${dateLabel}` : ''}</div>
             ${status ? `<div style="color:${t.error};margin-top:4px;">${status}</div>` : ''}
           `;
@@ -131,7 +197,16 @@ export class AnnualMaxOverviewChart implements OnDestroy {
           axisLabel: {
             ...buildAxisLabelBase(t),
             margin: 12,
-            interval: (index: number) => index % labelStep === 0,
+            interval: (index: number) =>
+              index % labelStep === 0 || years[index] === selectedYearStr,
+            formatter: (value: string) =>
+              value === selectedYearStr ? `{selected|${value}}` : value,
+            rich: {
+              selected: {
+                color: t.primaryDark,
+                fontWeight: 600,
+              },
+            },
           },
           splitLine: { show: false },
         },
@@ -168,12 +243,16 @@ export class AnnualMaxOverviewChart implements OnDestroy {
           type: 'bar',
           data: barData,
           barCategoryGap: '20%',
+          cursor: 'pointer',
           itemStyle: { color: t.primaryDark, borderRadius: [3, 3, 0, 0] },
           emphasis: { itemStyle: { color: t.primaryMid } },
           markPoint: buildMarkPoint(annualMaxData, t),
         },
         buildMaxObservadoLegendSeries(t, CHART_LEGEND_LABELS.maxObservado, { symbol: 'scatter' }),
         buildFalhaLegendSeries(t, 'scatter'),
+        ...(selectedYearStr !== null
+          ? [buildSelectedYearLegendSeries(t, CHART_LEGEND_LABELS.anoSelecionado)]
+          : []),
       ],
     };
   }

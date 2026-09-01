@@ -93,6 +93,7 @@ export class EchartsService<T = unknown> {
     container: () => HTMLDivElement;
     data: Signal<T | null>;
     buildOption: (data: T) => EChartsOption;
+    onClick?: (params: echarts.ECElementEvent) => void;
   }): void {
     effect(() => {
       const data = config.data();
@@ -102,6 +103,9 @@ export class EchartsService<T = unknown> {
       if (!this.chart) {
         this.chart = echarts.init(config.container(), undefined, { renderer: 'svg' });
         this.disposeResize = observeResize(config.container(), () => this.chart?.resize());
+        if (config.onClick) {
+          this.chart.on('click', config.onClick);
+        }
       }
       this.chart.setOption(config.buildOption(data), true);
     });
