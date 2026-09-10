@@ -17,6 +17,12 @@ export interface ChartTokens {
   secondary: string;
   highlight: string;
   error: string;
+  chartBarOverview: string;
+  chartBarDetail: string;
+  chartBarSelected: string;
+  historicalMax: string;
+  incompleteCoverage: string;
+  incompleteBorder: string;
 }
 
 const themeTick = signal(0);
@@ -58,6 +64,13 @@ function readTokens(): ChartTokens {
     highlight: v('--cemaden', '#0891b2'),
 
     error: v('--destructive', '#ef4444'),
+
+    chartBarOverview: v('--chart-bar-overview', '#32415a'),
+    chartBarDetail: v('--chart-bar-detail', '#94a3b8'),
+    chartBarSelected: v('--chart-bar-selected', '#49628b'),
+    historicalMax: v('--chart-historical-max', '#f59e0b'),
+    incompleteCoverage: v('--chart-incomplete-coverage', 'rgba(239, 68, 68, 0.2)'),
+    incompleteBorder: v('--chart-incomplete-border', '#ef4444'),
   };
 }
 

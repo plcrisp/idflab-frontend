@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, input, OnDestroy, ViewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, input, OnDestroy, ViewChild } from '@angular/core';
 import { EChartsOption } from 'echarts';
 import {
   DetailPoint,
@@ -10,6 +10,7 @@ import {
   buildAxisLineStyle,
   buildFalhaLegendSeries,
   buildGrid,
+  buildHistoricalMaxMarkLine,
   buildLegend,
   buildMarkArea,
   buildMarkPoint,
@@ -17,6 +18,7 @@ import {
   buildMaxPeriodoLegendSeries,
   buildSplitLineStyle,
   buildTooltipBase,
+  calcYAxisMax,
   CHART_LEGEND_LABELS,
   hexToRgba,
 } from '../../utils/chart-options.utils';
@@ -53,23 +55,36 @@ function isSameUTCDate(a: Date, b: Date): boolean {
   templateUrl: './time-series-detail-chart.html',
   styleUrl: './time-series-detail-chart.scss',
   providers: [EchartsService],
+  host: { class: 'block w-full min-w-0' },
 })
 export class TimeSeriesDetailChart implements OnDestroy {
   data = input<DetailResponse | null>(null);
   unit = input('mm');
   seriesName = input('Precipitação diária');
   historicalMaxDate = input<string | null>(null);
+  historicalMaxValue = input<number | null>(null);
 
   @ViewChild('chartContainer', { static: true })
   private chartContainer!: ElementRef<HTMLDivElement>;
 
-  private readonly echarts = inject(EchartsService) as EchartsService<DetailResponse>;
+  private readonly echarts = inject(EchartsService) as EchartsService<{
+    detail: DetailResponse | null;
+    historicalMaxDate: string | null;
+    historicalMaxValue: number | null;
+  }>;
+
+  private readonly chartInput = computed(() => ({
+    detail: this.data(),
+    historicalMaxDate: this.historicalMaxDate(),
+    historicalMaxValue: this.historicalMaxValue(),
+  }));
 
   constructor() {
     this.echarts.setup({
       container: () => this.chartContainer.nativeElement,
-      data: this.data,
-      buildOption: (data) => this.buildOption(data),
+      data: this.chartInput,
+      buildOption: ({ detail, historicalMaxDate, historicalMaxValue }) =>
+        detail ? this.buildOption(detail, historicalMaxDate, historicalMaxValue) : {},
     });
   }
 
@@ -77,11 +92,14 @@ export class TimeSeriesDetailChart implements OnDestroy {
     this.echarts.destroy();
   }
 
-  private buildOption(data: DetailResponse): EChartsOption {
+  private buildOption(
+    data: DetailResponse,
+    historicalMaxDate: string | null,
+    historicalMaxValue: number | null,
+  ): EChartsOption {
     const { points, failure_windows } = data;
     const t = this.echarts.getTokens();
 
-    const historicalMaxDate = this.historicalMaxDate();
     const historicalMaxRef = historicalMaxDate ? new Date(historicalMaxDate) : null;
 
     const annualMaxData = historicalMaxRef
@@ -134,7 +152,11 @@ export class TimeSeriesDetailChart implements OnDestroy {
       tickValues.push(lastTs);
     }
 
-    const hasHistoricalMax = annualMaxData.length > 0;
+    const histMax =
+      historicalMaxValue ??
+      (annualMaxData.length > 0 ? (annualMaxData[0].coord[1] as number) : null);
+
+    const hasHistoricalMax = histMax !== null && histMax !== undefined;
     const legendNameMax = hasHistoricalMax ? CHART_LEGEND_LABELS.maxObservado : null;
     const legendNamePico = CHART_LEGEND_LABELS.maxPeriodo;
 
@@ -145,10 +167,11 @@ export class TimeSeriesDetailChart implements OnDestroy {
         data: barData,
         barCategoryGap: '10%',
         barGap: '-100%',
-        itemStyle: { color: t.primaryLight, borderRadius: [3, 3, 0, 0] },
+        itemStyle: { color: t.chartBarDetail, borderRadius: [3, 3, 0, 0] },
         emphasis: { itemStyle: { color: t.primaryMid } },
         markPoint: buildMarkPoint(annualMaxData, t),
         markArea: buildMarkArea(markAreaData, t),
+        markLine: buildHistoricalMaxMarkLine(histMax, t, this.unit()),
       },
       buildMaxPeriodoLegendSeries(t, CHART_LEGEND_LABELS.maxPeriodo),
     ];
@@ -161,7 +184,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
 
     return {
       textStyle: { fontFamily: t.fontFamily },
-      legend: buildLegend(this.seriesName(), legendNameMax, t.primaryLight, t, legendNamePico),
+      legend: buildLegend(this.seriesName(), legendNameMax, t.chartBarDetail, t, legendNamePico),
       grid: buildGrid(48),
       tooltip: {
         ...buildTooltipBase(t),
@@ -199,6 +222,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
       yAxis: {
         type: 'value',
         interval: 50,
+        max: (extent: { min: number; max: number }) => calcYAxisMax(extent.max, histMax, 50),
         axisLine: { show: false },
         axisTick: { show: false },
         splitLine: buildSplitLineStyle(t),
@@ -223,7 +247,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
           handleSize: '120%',
           handleStyle: {
             color: t.primaryDark,
-            borderColor: '#fff',
+            borderColor: t.surface,
             borderWidth: 1.5,
             shadowBlur: 3,
             shadowColor: 'rgba(0, 0, 0, 0.1)',

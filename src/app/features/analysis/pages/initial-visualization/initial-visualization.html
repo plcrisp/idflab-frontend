@@ -44,8 +44,10 @@
     [detail]="detail()"
     [window]="activeWindow()!"
     [yearly_summary]="yearlySummary()"
+    [max_value]="stats()?.max_value ?? null"
     [max_value_date]="stats()?.max_value_date ?? null"
     (yearSelected)="onYearSelected($event)"
+    (rangeSelected)="onRangeSelected($event)"
     [selectedYear]="selectedYear()"
   ></app-time-series-panel>
 

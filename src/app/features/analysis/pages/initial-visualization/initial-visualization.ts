@@ -135,4 +135,22 @@ export class InitialVisualization {
     this.manualWindow.set([`${year}-01-01T00:00:00`, `${year}-12-31T00:00:00`]);
     this.selectedYear.set(year);
   }
+
+  // ao selecionar um intervalo de datas pelo date range picker
+  onRangeSelected([start, end]: [string, string]): void {
+    this.manualWindow.set([start, end]);
+
+    const startYear = start.slice(0, 4);
+    const endYear = end.slice(0, 4);
+    const isFullYear =
+      startYear === endYear &&
+      start.slice(5, 10) === '01-01' &&
+      end.slice(5, 10) === '12-31';
+
+    if (isFullYear) {
+      this.selectedYear.set(Number(startYear));
+    } else {
+      this.selectedYear.set(null);
+    }
+  }
 }

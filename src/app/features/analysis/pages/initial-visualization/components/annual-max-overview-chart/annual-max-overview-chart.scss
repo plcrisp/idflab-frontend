@@ -1,8 +1,12 @@
 .chart-card {
-  padding: 10px 20px 0px;
+  padding: 16px 16px 4px;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .chart-container {
   width: 100%;
   height: 220px;
+  overflow: hidden;
+  min-width: 0;
 }

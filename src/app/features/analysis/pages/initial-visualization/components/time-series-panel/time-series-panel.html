@@ -1,30 +1,49 @@
 <div
-  class="h-full flex flex-col rounded-xl border border-border bg-popover font-semibold text-foreground text-sm"
+  class="h-full w-full min-w-0 flex flex-col rounded-xl border border-border bg-popover text-foreground overflow-hidden"
 >
-  <h3 class="flex items-center gap-1.5 tracking-wide border-b border-border p-4 uppercase">
-    Precipitações diárias máximas anuais · {{firstYear()}} - {{lastYear()}}
-  </h3>
+  <div class="flex items-center justify-between border-b border-border p-4">
+    <div class="flex items-center gap-2">
+      <h3 class="text-sm font-semibold uppercase tracking-wide text-foreground">
+        Precipitações diárias máximas anuais
+      </h3>
+      @if (firstYear() && lastYear()) {
+        <span class="text-sm font-normal text-muted-foreground">
+          · {{ firstYear() }} - {{ lastYear() }}
+        </span>
+      }
+    </div>
+  </div>
 
   <app-annual-max-overview-chart
     [data]="yearly_summary()"
     [selectedYear]="selectedYear()"
+    [historicalMaxValue]="historicalMaxValue()"
     (yearClick)="onYearClick($event)"
   ></app-annual-max-overview-chart>
 
-  <div>
-    <div class="flex items-center mb-4 px-8">
-      <div class="flex-1 border-t border-border"></div>
+  <div class="border-t border-border p-4 flex items-center justify-between gap-4 min-w-0">
+    <h3 class="text-sm font-semibold uppercase tracking-wide text-foreground">
+      Série temporal de precipitação diária
+    </h3>
 
-      <span class="px-4 tracking-wide uppercase">
-        Série temporal de precipitação diária · {{ rangeLabel() }}</span
-      >
-
-      <div class="flex-1 border-t border-border"></div>
-    </div>
+    <hlm-date-range-picker
+      [min]="minDate()"
+      [max]="maxDate()"
+      [date]="pickerDate()"
+      [maxSpanDays]="365"
+      [autoCloseOnEndSelection]="true"
+      captionLayout="dropdown"
+      [formatDates]="formatDates"
+      (dateChange)="onDateRangeChange($event)"
+      class="w-auto"
+    >
+      <span class="text-sm text-muted-foreground">Filtrar período...</span>
+    </hlm-date-range-picker>
   </div>
 
   <app-time-series-detail-chart
     [data]="detail()"
     [historicalMaxDate]="max_value_date()"
+    [historicalMaxValue]="historicalMaxValue()"
   ></app-time-series-detail-chart>
 </div>

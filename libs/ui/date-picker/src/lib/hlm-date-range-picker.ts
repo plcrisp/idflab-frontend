@@ -78,7 +78,7 @@ let nextId = 0;
           }
         </span>
 
-        <ng-icon hlm size="sm" name="lucideChevronDown" />
+        <ng-icon hlm size="sm" name="lucideChevronDown" class="text-muted-foreground" />
       </button>
 
       <hlm-popover-content class="w-fit p-0" *hlmPopoverPortal="let ctx">
@@ -90,6 +90,7 @@ let nextId = 0;
           [min]="min()"
           [max]="max()"
           [disabled]="_mutableDisabled()"
+          [dateDisabled]="_combinedDateDisabled()"
           (startDateChange)="_handleStartDayChange($event)"
           (endDateChange)="_handleEndDateChange($event)"
         />
@@ -116,7 +117,7 @@ export class HlmDateRangePicker<T> implements ControlValueAccessor {
   public readonly userClass = input<ClassValue>('', { alias: 'class' });
   protected readonly _computedClass = computed(() =>
     hlm(
-      'ring-offset-background border-input bg-background hover:bg-accent dark:bg-input/30 dark:hover:bg-input/50 inline-flex h-9 w-[280px] cursor-default items-center justify-between gap-2 rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50',
+      'ring-offset-background border-input bg-surface hover:bg-accent dark:bg-input/30 dark:hover:bg-input/50 inline-flex h-9 w-[280px] cursor-default items-center justify-between gap-2 rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 cursor-pointer',
       'focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
       'disabled:pointer-events-none disabled:opacity-50',
       '[&_ng-icon]:pointer-events-none [&_ng-icon]:shrink-0',
@@ -138,6 +139,30 @@ export class HlmDateRangePicker<T> implements ControlValueAccessor {
 
   /** The maximum date that can be selected. */
   public readonly max = input<T>();
+
+  /** Maximum span in days allowed between start and end date */
+  public readonly maxSpanDays = input<number>();
+
+  /** Whether a specific date is disabled. */
+  public readonly dateDisabled = input<(date: T) => boolean>(() => false);
+
+  protected readonly _combinedDateDisabled = computed(() => {
+    const userFn = this.dateDisabled();
+    const maxDays = this.maxSpanDays();
+    const start = this._start();
+    const end = this._end();
+
+    return (date: T) => {
+      if (userFn && userFn(date)) return true;
+      if (maxDays && start && !end) {
+        const startMs = start instanceof Date ? start.getTime() : new Date(start as any).getTime();
+        const targetMs = date instanceof Date ? date.getTime() : new Date(date as any).getTime();
+        const diffDays = Math.abs(targetMs - startMs) / (24 * 60 * 60 * 1000);
+        if (diffDays > maxDays) return true;
+      }
+      return false;
+    };
+  });
 
   /** Determine if the date picker is disabled. */
   public readonly disabled = input<boolean, BooleanInput>(false, {
@@ -185,11 +210,11 @@ export class HlmDateRangePicker<T> implements ControlValueAccessor {
   protected _onChange?: ChangeFn<[T, T] | null>;
   protected _onTouched?: TouchFn;
 
-  protected _handleStartDayChange(value: T) {
+  protected _handleStartDayChange(value: T | undefined) {
     this._start.set(value);
   }
 
-  protected _handleEndDateChange(value: T): void {
+  protected _handleEndDateChange(value: T | undefined): void {
     this._end.set(value);
     if (this._mutableDisabled()) return;
 

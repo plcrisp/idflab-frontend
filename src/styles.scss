@@ -10,6 +10,7 @@
 html,
 body {
   height: 100%;
+  overflow-x: hidden;
 }
 
 // palette
@@ -50,6 +51,10 @@ body {
     --ana: #0f766e;
     --chart-incomplete-coverage: rgba(239, 68, 68, 0.2);
     --chart-incomplete-border: #ef4444;
+    --chart-bar-overview: var(--primary-900);
+    --chart-bar-detail: var(--primary-500);
+    --chart-bar-selected: var(--primary-600);
+    --chart-historical-max: var(--accent-500);
     --success: #22c55e;
     --warning: #f59e0b;
 
@@ -76,8 +81,8 @@ body {
     --muted: var(--neutral-800);
     --muted-foreground: var(--neutral-200);
 
-    --accent: var(--accent-500);
-    --accent-foreground: var(--neutral-950);
+    --accent: var(--neutral-800);
+    --accent-foreground: var(--neutral-50);
 
     --destructive: #ef4444;
     --destructive-foreground: var(--neutral-50);
@@ -125,8 +130,8 @@ body {
     --muted: var(--neutral-100);
     --muted-foreground: #525252;
 
-    --accent: var(--accent-500);
-    --accent-foreground: #ffffff;
+    --accent: var(--neutral-100);
+    --accent-foreground: var(--neutral-900);
 
     --destructive: #ef4444;
     --destructive-foreground: #ffffff;
@@ -134,6 +139,13 @@ body {
     --border: var(--neutral-200);
     --input: var(--neutral-200);
     --ring: var(--primary-600);
+
+    --chart-incomplete-coverage: rgba(239, 68, 68, 0.15);
+    --chart-incomplete-border: #ef4444;
+    --chart-bar-overview: var(--primary-600);
+    --chart-bar-detail: var(--primary-400);
+    --chart-bar-selected: var(--primary-700);
+    --chart-historical-max: var(--accent-500);
   }
 }
 

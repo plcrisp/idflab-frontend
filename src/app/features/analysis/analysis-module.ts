@@ -27,6 +27,9 @@ import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmProgressImports } from '@spartan-ng/helm/progress';
 import { DataAvailabilityRibbon } from './shared/components/data-availability-ribbon/data-availability-ribbon';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmDateRangePicker } from '@spartan-ng/helm/date-picker';
+import { provideNativeDateAdapter } from '@spartan-ng/brain/date-time';
+import { provideBrnCalendarI18n } from '@spartan-ng/brain/calendar';
 
 registerLocaleData(localePt);
 
@@ -57,6 +60,64 @@ registerLocaleData(localePt);
     ...HlmBadgeImports,
     ...HlmProgressImports,
     ...HlmButtonImports,
+    HlmDateRangePicker,
+  ],
+  providers: [
+    provideNativeDateAdapter(),
+    provideBrnCalendarI18n({
+      formatWeekdayName: (index) => ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'][index],
+      months: () => [
+        'Janeiro',
+        'Fevereiro',
+        'Março',
+        'Abril',
+        'Maio',
+        'Junho',
+        'Julho',
+        'Agosto',
+        'Setembro',
+        'Outubro',
+        'Novembro',
+        'Dezembro',
+      ],
+      years: (startYear = 1900, endYear = 2050) =>
+        Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i),
+      formatHeader: (month, year) => {
+        const months = [
+          'Janeiro',
+          'Fevereiro',
+          'Março',
+          'Abril',
+          'Maio',
+          'Junho',
+          'Julho',
+          'Agosto',
+          'Setembro',
+          'Outubro',
+          'Novembro',
+          'Dezembro',
+        ];
+        return `${months[month]} de ${year}`;
+      },
+      formatMonth: (month) =>
+        ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][
+          month
+        ],
+      formatYear: (year) => `${year}`,
+      labelPrevious: () => 'Mês anterior',
+      labelNext: () => 'Próximo mês',
+      labelWeekday: (index) =>
+        [
+          'Domingo',
+          'Segunda-feira',
+          'Terça-feira',
+          'Quarta-feira',
+          'Quinta-feira',
+          'Sexta-feira',
+          'Sábado',
+        ][index],
+      firstDayOfWeek: () => 0,
+    }),
   ],
 })
 export class AnalysisModule {}

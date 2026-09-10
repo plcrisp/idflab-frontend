@@ -15,6 +15,7 @@ import {
   buildAxisLineStyle,
   buildFalhaLegendSeries,
   buildGrid,
+  buildHistoricalMaxMarkLine,
   buildLegend,
   buildMarkArea,
   buildMarkPoint,
@@ -22,6 +23,7 @@ import {
   buildSelectedYearLegendSeries,
   buildSplitLineStyle,
   buildTooltipBase,
+  calcYAxisMax,
   CHART_LEGEND_LABELS,
 } from '../../utils/chart-options.utils';
 import { EchartsService } from '../../../../../../core/services/utils/echarts.service';
@@ -32,12 +34,14 @@ import { EchartsService } from '../../../../../../core/services/utils/echarts.se
   templateUrl: './annual-max-overview-chart.html',
   styleUrl: './annual-max-overview-chart.scss',
   providers: [EchartsService],
+  host: { class: 'block w-full min-w-0' },
 })
 export class AnnualMaxOverviewChart implements OnDestroy {
   data = input<YearlySummaryItem[] | null>(null);
   unit = input('mm');
   seriesName = input('Precipitação diária máxima anual');
   selectedYear = input<number | null>(null);
+  historicalMaxValue = input<number | null>(null);
   yearClick = output<number>();
 
   @ViewChild('chartContainer', { static: true })
@@ -46,18 +50,21 @@ export class AnnualMaxOverviewChart implements OnDestroy {
   private readonly echarts = inject(EchartsService) as EchartsService<{
     items: YearlySummaryItem[];
     selectedYear: number | null;
+    historicalMaxValue: number | null;
   }>;
 
   private readonly chartInput = computed(() => ({
     items: this.data() ?? [],
     selectedYear: this.selectedYear(),
+    historicalMaxValue: this.historicalMaxValue(),
   }));
 
   constructor() {
     this.echarts.setup({
       container: () => this.chartContainer.nativeElement,
       data: this.chartInput,
-      buildOption: ({ items, selectedYear }) => this.buildOption(items, selectedYear),
+      buildOption: ({ items, selectedYear, historicalMaxValue }) =>
+        this.buildOption(items, selectedYear, historicalMaxValue),
       onClick: (params) => this.handleChartClick(params),
     });
   }
@@ -84,7 +91,11 @@ export class AnnualMaxOverviewChart implements OnDestroy {
     }, null);
   }
 
-  private buildOption(data: YearlySummaryItem[], selectedYear: number | null): EChartsOption {
+  private buildOption(
+    data: YearlySummaryItem[],
+    selectedYear: number | null,
+    historicalMaxValue: number | null = null,
+  ): EChartsOption {
     const t = this.echarts.getTokens();
 
     const years = data.map((d) => d.year.toString());
@@ -98,7 +109,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
       return {
         value: d.max_value,
         itemStyle: {
-          color: t.primary,
+          color: t.chartBarSelected,
         },
       };
     });
@@ -125,6 +136,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
     }
 
     const globalMax = this.findGlobalMax(data);
+    const histMax = historicalMaxValue ?? globalMax?.max_value ?? null;
     const annualMaxData = globalMax
       ? [
           {
@@ -141,12 +153,12 @@ export class AnnualMaxOverviewChart implements OnDestroy {
       legend: buildLegend(
         this.seriesName(),
         CHART_LEGEND_LABELS.maxObservado,
-        t.primaryDark,
+        t.chartBarOverview,
         t,
         null,
         selectedYearStr !== null ? CHART_LEGEND_LABELS.anoSelecionado : null,
       ),
-      grid: buildGrid(),
+      grid: buildGrid(12),
       tooltip: {
         ...buildTooltipBase(t),
         formatter: (params: any) => {
@@ -195,7 +207,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
               value === selectedYearStr ? `{selected|${value}}` : value,
             rich: {
               selected: {
-                color: t.primaryDark,
+                color: t.chartBarSelected,
                 fontWeight: 600,
               },
             },
@@ -212,6 +224,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
       yAxis: {
         type: 'value',
         interval: 50,
+        max: (extent: { min: number; max: number }) => calcYAxisMax(extent.max, histMax, 50),
         axisLine: { show: false },
         axisTick: { show: false },
         splitLine: buildSplitLineStyle(t),
@@ -236,9 +249,10 @@ export class AnnualMaxOverviewChart implements OnDestroy {
           data: barData,
           barCategoryGap: '20%',
           cursor: 'pointer',
-          itemStyle: { color: t.primaryDark, borderRadius: [3, 3, 0, 0] },
+          itemStyle: { color: t.chartBarOverview, borderRadius: [3, 3, 0, 0] },
           emphasis: { itemStyle: { color: t.primaryMid } },
           markPoint: buildMarkPoint(annualMaxData, t),
+          markLine: buildHistoricalMaxMarkLine(histMax, t, this.unit()),
         },
         buildMaxObservadoLegendSeries(t, CHART_LEGEND_LABELS.maxObservado, { symbol: 'scatter' }),
         buildFalhaLegendSeries(t, 'scatter'),
