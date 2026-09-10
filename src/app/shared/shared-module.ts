@@ -127,6 +127,7 @@ import { JobProgressCard } from './components/job-progress-card/job-progress-car
     JobProgressCard,
     ...HlmSkeletonImports,
     ...HlmEmptyImports,
+    ...HlmSpinnerImports,
   ],
   providers: [provideBrowserGlobalErrorListeners()],
   bootstrap: [],

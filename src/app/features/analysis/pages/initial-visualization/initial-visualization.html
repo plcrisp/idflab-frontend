@@ -55,7 +55,7 @@
   } @else if (hasInsufficientData()) {
     <!-- Estado vazio dedicado quando o job concluiu mas não há registros -->
     <div class="flex flex-col items-center justify-center rounded-xl border border-border bg-popover p-10 md:p-16 text-center">
-      <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground border border-border">
+      <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted text-muted-foreground border border-border">
         <ng-icon name="lucideDatabase" class="text-2xl" />
       </div>
 
@@ -85,7 +85,6 @@
     ></app-time-series-panel>
   }
 
-  <!-- Disponibilidade de Dados por Ano (Opção A: Oculta em Carregando e Sem Dados) -->
   @if (!isJobRunning() && !hasInsufficientData()) {
     <app-data-availability-ribbon [yearly_summary]="yearlySummary()"></app-data-availability-ribbon>
   }
@@ -96,9 +95,14 @@
       hlmBtn
       variant="outline"
       size="lg"
-      [disabled]="isJobRunning() || hasInsufficientData()"
+      (click)="onDownloadRawSeries()"
+      [disabled]="isJobRunning() || hasInsufficientData() || isDownloadingRawSeries()"
     >
-      <ng-icon name="lucideDownload" class="mr-2" />
+      @if (isDownloadingRawSeries()) {
+        <hlm-spinner class="mr-2" />
+      } @else {
+        <ng-icon name="lucideDownload" class="mr-2" />
+      }
       Baixar série bruta
     </button>
 

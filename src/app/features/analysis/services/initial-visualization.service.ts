@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
@@ -30,5 +30,20 @@ export class InitialVisualizationService {
     return this.http
       .get<DetailResponse>(`${this.baseUrl}/detail`, { params })
       .pipe(tap((response) => console.log('Detail Response:', response)));
+  }
+
+  downloadRawSeries(
+    projectId: string,
+    delimiter: ';' | ',' = ';',
+  ): Observable<HttpResponse<Blob>> {
+    const params = new HttpParams()
+      .set('project_id', projectId)
+      .set('delimiter', delimiter);
+
+    return this.http.get<Blob>(`${environment.apiUrl}/precipitation-data/download`, {
+      params,
+      responseType: 'blob' as 'json',
+      observe: 'response',
+    });
   }
 }

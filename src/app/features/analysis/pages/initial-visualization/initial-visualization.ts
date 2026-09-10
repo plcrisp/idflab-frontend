@@ -1,8 +1,9 @@
 import { Component, computed, effect, inject, signal, Signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { filter, switchMap, catchError, map, shareReplay, distinctUntilChanged } from 'rxjs/operators';
+import { filter, switchMap, catchError, map, shareReplay, distinctUntilChanged, finalize } from 'rxjs/operators';
 import { combineLatest, of } from 'rxjs';
 import { Router } from '@angular/router';
+import { toast } from '@spartan-ng/brain/sonner';
 
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
 import { Project } from '../../../../core/models/api/project.model';
@@ -14,6 +15,7 @@ import {
   GlobalStats,
   YearlySummaryItem,
 } from './models/initial-visualization.model';
+import { FileDownloadService } from '../../../../core/services/utils/file-download.service';
 
 @Component({
   selector: 'app-initial-visualization',
@@ -25,6 +27,7 @@ export class InitialVisualization {
   private mainLayoutService = inject(MainLayoutService);
   private projectState = inject(ProjectStateService);
   private initialVisualizationService = inject(InitialVisualizationService);
+  private fileDownloadService = inject(FileDownloadService);
   private mapService = inject(MapService);
   private router = inject(Router);
 
@@ -32,6 +35,7 @@ export class InitialVisualization {
   readonly activeJob = this.projectState.activeJob;
   readonly isJobRunning = this.projectState.isJobRunning;
   readonly hasInsufficientData = this.projectState.hasInsufficientData;
+  readonly isDownloadingRawSeries = signal(false);
 
   private project$ = toObservable(this.project);
   private readonly refreshSummaryTrigger = signal<number>(0);
@@ -227,5 +231,36 @@ export class InitialVisualization {
         this.mapService.selectStation(stationId);
       }
     });
+  }
+
+  onDownloadRawSeries(): void {
+    const project = this.project();
+    if (!project) return;
+ 
+    this.isDownloadingRawSeries.set(true);
+ 
+    this.initialVisualizationService
+      .downloadRawSeries(project.id)
+      .pipe(finalize(() => this.isDownloadingRawSeries.set(false)))
+      .subscribe({
+        next: (response) => {
+          try {
+            this.fileDownloadService.triggerDownload(response, `precipitacao_${project.id}.csv`);
+          } catch (err) {
+            console.error('[InitialVisualization] erro ao processar arquivo baixado:', err);
+            toast.error('Não foi possível baixar a série bruta. Arquivo vazio.', {
+              duration: 8000,
+              position: 'bottom-center',
+            });
+          }
+        },
+        error: (err) => {
+          console.error('[InitialVisualization] erro ao baixar série bruta:', err);
+          toast.error('Não foi possível baixar a série bruta. Tente novamente.', {
+            duration: 8000,
+            position: 'bottom-center',
+          });
+        },
+      });
   }
 }
