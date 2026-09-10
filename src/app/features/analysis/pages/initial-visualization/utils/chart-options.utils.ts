@@ -3,7 +3,7 @@ import type { SeriesOption } from 'echarts';
 import { ChartTokens } from '../../../../../core/services/utils/echarts.service';
 
 export const CHART_LEGEND_LABELS = {
-  maxObservado: 'Recorde histórico',
+  maxObservado: 'Máximo histórico',
   maxPeriodo: 'Precipitação diária máxima do período',
   falha: 'Cobertura incompleta',
   anoSelecionado: 'Ano selecionado',
