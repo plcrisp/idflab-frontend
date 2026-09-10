@@ -8,7 +8,6 @@ export const CHART_LEGEND_LABELS = {
   falha: 'Cobertura incompleta',
   anoSelecionado: 'Ano selecionado',
 } as const;
-export const CHART_AXIS_LABEL_COLOR = '#4d4d4d';
 
 // color handler
 
@@ -52,7 +51,7 @@ export function buildLegend(
     data.push({
       name: selectedYearName,
       icon: 'roundRect',
-      itemStyle: { color: tokens.primary },
+      itemStyle: { color: tokens.chartBarSelected },
     });
   }
 
@@ -60,7 +59,7 @@ export function buildLegend(
     data.push({
       name: nameMax,
       icon: 'circle',
-      itemStyle: { color: tokens.secondary },
+      itemStyle: { color: tokens.historicalMax },
     });
   }
 
@@ -68,16 +67,17 @@ export function buildLegend(
     name: CHART_LEGEND_LABELS.falha,
     icon: 'roundRect',
     itemStyle: {
-      color: hexToRgba(tokens.error, 0.18),
-      borderColor: tokens.error,
+      color: tokens.incompleteCoverage,
+      borderColor: tokens.incompleteBorder,
       borderWidth: 1,
     },
   });
 
   return {
+    type: 'scroll',
     top: 0,
     right: 16,
-    itemGap: 24,
+    itemGap: 16,
     itemWidth: 12,
     itemHeight: 12,
     selectedMode: false,
@@ -86,15 +86,14 @@ export function buildLegend(
       color: tokens.textMuted,
       fontFamily: tokens.fontFamily,
       fontSize: 12,
-      fontWeight: 'lighter',
     },
   };
 }
 
 // grid
 
-export function buildGrid(botom: number = 32): EChartsOption['grid'] {
-  return { left: 16, right: 16, top: 32, bottom: botom, containLabel: true };
+export function buildGrid(bottom: number = 32): EChartsOption['grid'] {
+  return { left: 16, right: 16, top: 32, bottom: bottom, containLabel: true };
 }
 
 // tooltip
@@ -127,7 +126,7 @@ export function buildAxisLineStyle(tokens: ChartTokens) {
 
 export function buildAxisLabelBase(tokens: ChartTokens) {
   return {
-    color: CHART_AXIS_LABEL_COLOR,
+    color: tokens.textMuted,
     fontFamily: tokens.fontFamily,
     fontSize: 11,
   };
@@ -142,8 +141,8 @@ export function buildSplitLineStyle(tokens: ChartTokens) {
 export function buildMarkArea(data: any[], tokens: ChartTokens) {
   return {
     itemStyle: {
-      color: hexToRgba(tokens.error, 0.1),
-      borderColor: tokens.error,
+      color: tokens.incompleteCoverage,
+      borderColor: tokens.incompleteBorder,
       borderWidth: 1,
       borderType: 'dashed' as const,
     },
@@ -159,12 +158,55 @@ export function buildMarkPoint(data: any[], tokens: ChartTokens) {
     symbolSize: 10,
     data,
     itemStyle: {
-      color: tokens.secondary,
+      color: tokens.historicalMax,
       borderColor: tokens.surface,
       borderWidth: 1,
     },
     label: { show: false },
   };
+}
+
+// markline
+
+export function buildHistoricalMaxMarkLine(
+  maxValue: number | null | undefined,
+  tokens: ChartTokens,
+  unit: string = 'mm',
+) {
+  if (maxValue === null || maxValue === undefined || Number.isNaN(maxValue) || maxValue <= 0) {
+    return undefined;
+  }
+
+  return {
+    silent: true,
+    symbol: ['none', 'none'] as [string, string],
+    animation: true,
+    label: { show: false },
+    data: [
+      {
+        name: CHART_LEGEND_LABELS.maxObservado,
+        yAxis: maxValue,
+        lineStyle: {
+          color: tokens.historicalMax,
+          type: 'dashed' as const,
+          width: 1.2,
+          opacity: 0.9,
+        },
+        label: { show: false },
+      },
+    ],
+  };
+}
+
+export function calcYAxisMax(
+  extentMax: number,
+  historicalMax: number | null | undefined,
+  step: number = 50,
+): number {
+  const target = Math.max(extentMax || 0, historicalMax ?? 0);
+  if (target <= 0) return step;
+  const rounded = Math.ceil(target / step) * step;
+  return rounded - target < 10 ? rounded + step : rounded;
 }
 
 // series fantasma
@@ -180,7 +222,7 @@ export function buildMaxObservadoLegendSeries(
     data: [] as any[],
     symbol: opts.symbol ?? 'circle',
     symbolSize: 10,
-    itemStyle: { color: tokens.secondary },
+    itemStyle: { color: tokens.historicalMax },
   };
 }
 
@@ -193,8 +235,8 @@ export function buildFalhaLegendSeries(
     type,
     data: [] as any[],
     itemStyle: {
-      color: hexToRgba(tokens.error, 0.18),
-      borderColor: tokens.error,
+      color: tokens.incompleteCoverage,
+      borderColor: tokens.incompleteBorder,
       borderWidth: 1,
     },
   } as SeriesOption;
@@ -214,6 +256,6 @@ export function buildSelectedYearLegendSeries(tokens: ChartTokens, name: string)
     name,
     type: 'scatter',
     data: [] as any[],
-    itemStyle: { color: tokens.primary },
+    itemStyle: { color: tokens.chartBarSelected },
   };
 }
