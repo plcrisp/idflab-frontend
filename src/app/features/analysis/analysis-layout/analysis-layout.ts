@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AnalysisStep, HeaderData } from '../shared/models/analysis.models';
+import { NotificationsService } from '../../../core/services/api/notifications.service';
 
 @Component({
   selector: 'app-analysis-layout',
@@ -17,8 +18,11 @@ export class AnalysisLayout {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private projectState = inject(ProjectStateService);
+  private notificationsService = inject(NotificationsService);
 
   project = this.projectState.project;
+  isJobRunning = this.projectState.isJobRunning;
+  hasInsufficientData = this.projectState.hasInsufficientData;
 
   headerData = computed<HeaderData | null>(() => {
     const p = this.project();
@@ -58,6 +62,7 @@ export class AnalysisLayout {
           return;
         }
         this.projectState.loadProject(projectId);
+        this.notificationsService.refetch();
       });
   }
 }

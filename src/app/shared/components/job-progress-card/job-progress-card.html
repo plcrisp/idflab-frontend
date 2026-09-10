@@ -1,0 +1,82 @@
+@if (variant() === 'compact') {
+  <div class="w-full">
+    <div class="flex items-start gap-2 mb-2">
+      <span
+        class="w-3.5 h-3.5 mt-0.5 rounded-full border-2 border-(--primary-600) border-t-transparent animate-spin shrink-0"
+      ></span>
+      <span class="text-[13px] font-semibold text-white leading-snug truncate">
+        {{ job().project_name }}
+      </span>
+      <span class="ml-auto text-sm font-semibold text-white shrink-0">
+        {{ progress() }}%
+      </span>
+    </div>
+
+    <p class="text-[13px] text-(--neutral-400) mb-2.5 leading-relaxed">
+      {{ stageMessage() }}
+    </p>
+
+    <div class="h-1 bg-(--primary-800) rounded-full overflow-hidden">
+      <div
+        class="h-full bg-(--primary-600) rounded-full transition-all duration-300"
+        [style.width.%]="progress()"
+      ></div>
+    </div>
+  </div>
+} @else {
+  <!-- Variante Full (Central na Visualização Inicial) -->
+  <div class="flex flex-col items-center justify-center rounded-xl border border-border bg-popover p-8 md:p-12 text-center shadow-xs transition-colors">
+    <div class="relative mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary border border-primary/20">
+      <span class="absolute inset-1 rounded-full border-2 border-primary border-t-transparent animate-spin"></span>
+      <ng-icon name="lucideSearch" class="text-2xl text-primary" />
+    </div>
+
+    <div class="flex flex-wrap items-center justify-center gap-2 mb-2">
+      <h3 class="text-xl font-semibold text-foreground tracking-tight">
+        {{ job().project_name }}
+      </h3>
+      @if (source()) {
+        <span
+          hlmBadge
+          [ngClass]="source()!.toLowerCase()"
+          class="flex items-center gap-1.5 border-none font-medium text-xs py-0.5 px-2"
+        >
+          <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+          {{ source() }}
+        </span>
+      }
+    </div>
+
+    <p class="text-sm text-muted-foreground mb-6 max-w-md">
+      Busca e processamento dos dados da estação em andamento.
+    </p>
+
+    <div class="w-full max-w-xl flex flex-col gap-2.5 mb-8">
+      <div class="flex items-center justify-between text-sm px-1">
+        <div class="flex items-center gap-2.5 text-foreground font-medium min-w-0">
+          <span class="relative flex h-2 w-2 shrink-0">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+          </span>
+          <span class="truncate">{{ stageMessage() }}</span>
+        </div>
+        <span class="font-semibold text-foreground shrink-0 ml-3">{{ progress() }}%</span>
+      </div>
+
+      <div class="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+        <div
+          class="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+          [style.width.%]="progress()"
+        ></div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3 rounded-lg border border-border/70 bg-muted/40 px-5 py-3.5 text-xs text-muted-foreground max-w-xl text-left">
+      <ng-icon name="lucideClock" class="text-base shrink-0 text-primary" />
+      <span class="leading-relaxed">
+        Você pode navegar para outros projetos ou utilizar o sistema normalmente enquanto espera.
+        Uma notificação avisará você assim que a busca for concluída.
+      </span>
+    </div>
+  </div>
+}

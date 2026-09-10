@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { HeaderData } from '../../models/analysis.models';
 
 type Resolution = 'Horária' | 'Diária';
@@ -10,14 +10,17 @@ type Resolution = 'Horária' | 'Diária';
   styleUrl: './params-header.scss',
 })
 export class ParamsHeader {
-  @Input() headerData: HeaderData | null = null;
+  headerData = input<HeaderData | null>(null);
+  loading = input<boolean>(false);
+  hasInsufficientData = input<boolean>(false);
 
-  get resolution(): Resolution | null {
-    if (!this.headerData) return null;
+  readonly resolution = computed<Resolution | null>(() => {
+    const data = this.headerData();
+    if (!data) return null;
 
-    if (this.headerData.resolution === 'daily') return 'Diária';
-    if (this.headerData.resolution === 'hourly') return 'Horária';
+    if (data.resolution === 'daily') return 'Diária';
+    if (data.resolution === 'hourly') return 'Horária';
 
     return 'Diária';
-  }
+  });
 }

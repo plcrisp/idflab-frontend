@@ -1,4 +1,4 @@
-@if (headerData; as data) {
+@if (headerData(); as data) {
 <div class="flex items-center justify-between rounded-xl border border-border bg-popover px-6 py-4">
   <div class="flex items-center gap-3">
     <p class="text-lg font-semibold text-foreground">
@@ -15,21 +15,39 @@
     </span>
 
     <span hlmBadge variant="outline" class="text-muted-foreground"> {{ data.station_code }} </span>
+
+    @if (hasInsufficientData()) {
+      <span
+        hlmBadge
+        variant="outline"
+        class="border-(--warning)/40 text-(--warning) bg-(--warning)/10 flex items-center gap-1.5 font-medium"
+      >
+        <span class="h-1.5 w-1.5 rounded-full bg-(--warning)"></span>
+        Dados insuficientes
+      </span>
+    }
   </div>
 
   <div class="flex items-center gap-8 text-right">
     <div>
       <p class="text-xs font-medium tracking-wide text-muted-foreground">PERÍODO</p>
-      <p class="text-sm font-semibold text-foreground">
-        {{ data.start_date | date:'dd/MM/yyyy' }} - {{ data.end_date | date:'dd/MM/yyyy' }}
-      </p>
+      @if (loading()) {
+        <div hlmSkeleton class="h-5 w-36 mt-0.5 rounded-md"></div>
+      } @else {
+        <p class="text-sm font-semibold text-foreground">
+          {{ data.start_date | date:'dd/MM/yyyy' }} - {{ data.end_date | date:'dd/MM/yyyy' }}
+        </p>
+      }
     </div>
 
     <div>
       <p class="text-xs font-medium tracking-wide text-muted-foreground">RESOLUÇÃO</p>
-      <p class="text-sm font-semibold text-foreground">{{ resolution }}</p>
+      @if (loading()) {
+        <div hlmSkeleton class="h-5 w-16 mt-0.5 rounded-md ml-auto"></div>
+      } @else {
+        <p class="text-sm font-semibold text-foreground">{{ resolution() }}</p>
+      }
     </div>
   </div>
 </div>
-
 }

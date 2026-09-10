@@ -1,12 +1,14 @@
 import { Component, computed, effect, inject, signal, Signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { filter, switchMap, catchError, map, shareReplay } from 'rxjs/operators';
+import { filter, switchMap, catchError, map, shareReplay, distinctUntilChanged } from 'rxjs/operators';
 import { combineLatest, of } from 'rxjs';
+import { Router } from '@angular/router';
 
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
 import { Project } from '../../../../core/models/api/project.model';
 import { ProjectStateService } from '../../services/project-state.service';
 import { InitialVisualizationService } from '../../services/initial-visualization.service';
+import { MapService } from '../../../../core/services/utils/map.service';
 import {
   DetailResponse,
   GlobalStats,
@@ -23,38 +25,57 @@ export class InitialVisualization {
   private mainLayoutService = inject(MainLayoutService);
   private projectState = inject(ProjectStateService);
   private initialVisualizationService = inject(InitialVisualizationService);
+  private mapService = inject(MapService);
+  private router = inject(Router);
 
   readonly project: Signal<Project | null> = this.projectState.project;
+  readonly activeJob = this.projectState.activeJob;
+  readonly isJobRunning = this.projectState.isJobRunning;
+  readonly hasInsufficientData = this.projectState.hasInsufficientData;
 
   private project$ = toObservable(this.project);
+  private readonly refreshSummaryTrigger = signal<number>(0);
+  private previousJobRunning = false;
 
-  private summary$ = this.project$.pipe(
-    filter((project): project is Project => !!project),
-    switchMap((project) =>
+  private summaryTrigger$ = combineLatest([
+    this.project$,
+    toObservable(this.refreshSummaryTrigger),
+    toObservable(this.isJobRunning),
+  ]).pipe(
+    filter(
+      (tuple): tuple is [Project, number, boolean] =>
+        Boolean(tuple[0]) && !tuple[2],
+    ),
+    distinctUntilChanged(
+      (prev, curr) => prev[0].id === curr[0].id && prev[1] === curr[1],
+    ),
+  );
+
+  private summary$ = this.summaryTrigger$.pipe(
+    switchMap(([project]) =>
       this.initialVisualizationService.getSummary(project.id).pipe(
-        map((summary) => ({ projectId: project.id, summary })),
+        map((summary) => ({ projectId: project.id, summary, error: false })),
         catchError((err) => {
           console.error('[InitialVisualization] erro ao buscar summary:', err);
-          return of(null);
+          return of({ projectId: project.id, summary: null, error: true });
         }),
       ),
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  readonly stats: Signal<GlobalStats | null> = toSignal(
-    this.summary$.pipe(map((res) => res?.summary.stats ?? null)),
-    { initialValue: null },
+  private readonly summaryResponse = toSignal(this.summary$, { initialValue: null });
+
+  readonly stats: Signal<GlobalStats | null> = computed(
+    () => this.summaryResponse()?.summary?.stats ?? null,
   );
 
-  readonly defaultWindow: Signal<[string, string] | null> = toSignal(
-    this.summary$.pipe(map((res) => res?.summary.default_window ?? null)),
-    { initialValue: null },
+  readonly defaultWindow: Signal<[string, string] | null> = computed(
+    () => this.summaryResponse()?.summary?.default_window ?? null,
   );
 
-  readonly yearlySummary: Signal<YearlySummaryItem[]> = toSignal(
-    this.summary$.pipe(map((res) => res?.summary.yearly_summary ?? [])),
-    { initialValue: [] },
+  readonly yearlySummary: Signal<YearlySummaryItem[]> = computed(
+    () => this.summaryResponse()?.summary?.yearly_summary ?? [],
   );
 
   private readonly manualWindow = signal<[string, string] | null>(null);
@@ -74,6 +95,10 @@ export class InitialVisualization {
   readonly detail: Signal<DetailResponse | null> = toSignal(
     this.detailTrigger$.pipe(
       switchMap(([project, window]) => {
+        if (this.isJobRunning() || this.hasInsufficientData()) {
+          return of(null);
+        }
+
         const [rawStart, rawEnd] = window;
         const start = rawStart.slice(0, 10);
         const end = rawEnd.slice(0, 10);
@@ -89,6 +114,20 @@ export class InitialVisualization {
     { initialValue: null },
   );
 
+  readonly isAdvanceDisabled = computed(() => {
+    return this.isJobRunning() || this.hasInsufficientData();
+  });
+
+  readonly advanceTooltip = computed(() => {
+    if (this.isJobRunning()) {
+      return 'Aguardando conclusão da busca de dados';
+    }
+    if (this.hasInsufficientData()) {
+      return 'Não é possível avançar sem dados suficientes';
+    }
+    return '';
+  });
+
   constructor() {
     effect(() => {
       const project = this.project();
@@ -102,6 +141,33 @@ export class InitialVisualization {
         { label: project.name, url: `app/project/${project.id}` },
         { label: 'Visualização Inicial', url: `/app/analysis/${project.id}/initial-view` },
       ]);
+    });
+
+    // Detecta transição de job ativo para finalizado sem exigir reload manual
+    effect(() => {
+      const running = this.isJobRunning();
+      const p = this.project();
+      if (this.previousJobRunning && !running && p) {
+        this.projectState.loadProject(p.id);
+        this.refreshSummaryTrigger.update((v) => v + 1);
+      }
+      this.previousJobRunning = running;
+    });
+
+    // Atualiza estado de dados insuficientes
+    effect(() => {
+      if (this.isJobRunning()) {
+        this.projectState.setInsufficientData(false);
+        return;
+      }
+      const res = this.summaryResponse();
+      if (res) {
+        const hasNoData =
+          !res.summary ||
+          !res.summary.stats ||
+          res.summary.stats.total_records === 0;
+        this.projectState.setInsufficientData(hasNoData);
+      }
     });
 
     effect(() => {
@@ -152,5 +218,14 @@ export class InitialVisualization {
     } else {
       this.selectedYear.set(null);
     }
+  }
+
+  onBackToMap(): void {
+    const stationId = this.project()?.station_id;
+    this.router.navigateByUrl('/app/interactive-map').then((navigated) => {
+      if (navigated && stationId) {
+        this.mapService.selectStation(stationId);
+      }
+    });
   }
 }

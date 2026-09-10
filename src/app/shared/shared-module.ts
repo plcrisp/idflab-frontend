@@ -55,6 +55,7 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { StatCard } from './components/stat-card/stat-card';
 import { HlmProgressImports } from '@spartan-ng/helm/progress';
+import { JobProgressCard } from './components/job-progress-card/job-progress-card';
 
 @NgModule({
   declarations: [
@@ -65,6 +66,7 @@ import { HlmProgressImports } from '@spartan-ng/helm/progress';
     NotFound,
     NotificationsBell,
     StatCard,
+    JobProgressCard,
   ],
   imports: [
     CommonModule,
@@ -102,6 +104,7 @@ import { HlmProgressImports } from '@spartan-ng/helm/progress';
       lucideMapPin,
       lucidePin,
       lucideDot,
+      lucideSearch
     }),
     ...HlmButtonImports,
     ...HlmSidebarImports,
@@ -115,7 +118,16 @@ import { HlmProgressImports } from '@spartan-ng/helm/progress';
     ...HlmBadgeImports,
     ...HlmProgressImports,
   ],
-  exports: [ThemeToggle, Navbar, Sidebar, LoadingOverlay, StatCard],
+  exports: [
+    ThemeToggle,
+    Navbar,
+    Sidebar,
+    LoadingOverlay,
+    StatCard,
+    JobProgressCard,
+    ...HlmSkeletonImports,
+    ...HlmEmptyImports,
+  ],
   providers: [provideBrowserGlobalErrorListeners()],
   bootstrap: [],
 })

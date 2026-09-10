@@ -1,0 +1,19 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ana {
+  background-color: color-mix(in srgb, var(--ana) 15%, transparent);
+  color: var(--ana);
+}
+
+.cemaden {
+  background-color: color-mix(in srgb, var(--cemaden) 15%, transparent);
+  color: var(--cemaden);
+}
+
+.inmet {
+  background-color: color-mix(in srgb, var(--inmet) 15%, transparent);
+  color: var(--inmet);
+}

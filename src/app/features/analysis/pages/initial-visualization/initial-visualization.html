@@ -1,10 +1,13 @@
 <div class="flex flex-col gap-4 overflow-x-hidden">
+  <!-- KPI Cards -->
   <div class="flex gap-4">
     <app-stat-card
       label="Registros totais"
       [value]="stats()?.total_records | number: '1.0-0':'pt-BR'"
       icon="lucideDatabase"
       [footer]="{ type: 'text', content: recordsLabel }"
+      [loading]="isJobRunning()"
+      [muted]="hasInsufficientData()"
       class="flex-1"
     >
     </app-stat-card>
@@ -15,6 +18,8 @@
       unit="%"
       icon="lucideTriangleAlert"
       [footer]="{ type: 'progress', value: stats()?.failure_percentage ?? 0, max: 100 }"
+      [loading]="isJobRunning()"
+      [muted]="hasInsufficientData()"
       class="flex-1"
     >
     </app-stat-card>
@@ -25,6 +30,8 @@
       [unit]="stats()?.total_years ? 'de ' + stats()?.total_years : undefined"
       icon="lucideCalendar"
       [footer]="{ type: 'progress', value: stats()?.valid_years ?? 0, max: stats()?.total_years ?? 1 }"
+      [loading]="isJobRunning()"
+      [muted]="hasInsufficientData()"
       class="flex-1"
     >
     </app-stat-card>
@@ -35,33 +42,76 @@
       unit="mm"
       icon="lucideTrendingUp"
       [footer]="{ type: 'text', content: (stats()?.max_value_date | date: 'dd/MM/yyyy':'':'pt-BR') ?? '' }"
+      [loading]="isJobRunning()"
+      [muted]="hasInsufficientData()"
       class="flex-1"
     >
     </app-stat-card>
   </div>
 
-  <app-time-series-panel
-    [detail]="detail()"
-    [window]="activeWindow()!"
-    [yearly_summary]="yearlySummary()"
-    [max_value]="stats()?.max_value ?? null"
-    [max_value_date]="stats()?.max_value_date ?? null"
-    (yearSelected)="onYearSelected($event)"
-    (rangeSelected)="onRangeSelected($event)"
-    [selectedYear]="selectedYear()"
-  ></app-time-series-panel>
+  <!-- Área Central: Gráficos / Card de Progresso / Estado Vazio -->
+  @if (isJobRunning() && activeJob()) {
+    <app-job-progress-card [job]="activeJob()!" variant="full"></app-job-progress-card>
+  } @else if (hasInsufficientData()) {
+    <!-- Estado vazio dedicado quando o job concluiu mas não há registros -->
+    <div class="flex flex-col items-center justify-center rounded-xl border border-border bg-popover p-10 md:p-16 text-center">
+      <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground border border-border">
+        <ng-icon name="lucideDatabase" class="text-2xl" />
+      </div>
 
-  <app-data-availability-ribbon [yearly_summary]="yearlySummary()"></app-data-availability-ribbon>
+      <h3 class="text-lg font-semibold text-foreground mb-2">
+        Nenhum dado disponível para o período selecionado
+      </h3>
 
+      <p class="text-sm text-muted-foreground max-w-md mb-6 leading-relaxed">
+        A consulta na fonte oficial foi finalizada, mas a estação não possui registros de precipitação válidos para o intervalo selecionado.
+      </p>
+
+      <button hlmBtn variant="outline" size="default" (click)="onBackToMap()">
+        <ng-icon name="lucideMap" class="mr-2" />
+        Voltar ao Mapa e escolher outra estação/período
+      </button>
+    </div>
+  } @else {
+    <app-time-series-panel
+      [detail]="detail()"
+      [window]="activeWindow()!"
+      [yearly_summary]="yearlySummary()"
+      [max_value]="stats()?.max_value ?? null"
+      [max_value_date]="stats()?.max_value_date ?? null"
+      (yearSelected)="onYearSelected($event)"
+      (rangeSelected)="onRangeSelected($event)"
+      [selectedYear]="selectedYear()"
+    ></app-time-series-panel>
+  }
+
+  <!-- Disponibilidade de Dados por Ano (Opção A: Oculta em Carregando e Sem Dados) -->
+  @if (!isJobRunning() && !hasInsufficientData()) {
+    <app-data-availability-ribbon [yearly_summary]="yearlySummary()"></app-data-availability-ribbon>
+  }
+
+  <!-- Rodapé com ações -->
   <div class="flex w-full items-center justify-end gap-3">
-    <button hlmBtn variant="outline" size="lg">
+    <button
+      hlmBtn
+      variant="outline"
+      size="lg"
+      [disabled]="isJobRunning() || hasInsufficientData()"
+    >
       <ng-icon name="lucideDownload" class="mr-2" />
       Baixar série bruta
     </button>
 
-    <button hlmBtn size="lg">
-      Avançar
-      <ng-icon name="lucideArrowRight" class="ml-2" />
-    </button>
+    <div
+      [hlmTooltip]="advanceTooltip()"
+      [tooltipDisabled]="!isAdvanceDisabled()"
+      position="top"
+      class="inline-flex"
+    >
+      <button hlmBtn size="lg" [disabled]="isAdvanceDisabled()">
+        Avançar
+        <ng-icon name="lucideArrowRight" class="ml-2" />
+      </button>
+    </div>
   </div>
 </div>

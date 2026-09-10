@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { StatCardFooter } from '../../../features/analysis/shared/models/analysis.models';
 
 @Component({
@@ -8,16 +8,19 @@ import { StatCardFooter } from '../../../features/analysis/shared/models/analysi
   styleUrl: './stat-card.scss',
 })
 export class StatCard {
-  @Input() label = '';
-  @Input() icon = '';
-  @Input() value: string | number | null | undefined = null;
-  @Input() unit?: string | null | undefined;
-  @Input() footer: StatCardFooter = null;
+  label = input<string>('');
+  icon = input<string>('');
+  value = input<string | number | null | undefined>(null);
+  unit = input<string | null | undefined>(undefined);
+  footer = input<StatCardFooter>(null);
+  loading = input<boolean>(false);
+  muted = input<boolean>(false);
 
-  get progressPercent(): number {
-    if (this.footer?.type !== 'progress' || !this.footer.max) {
+  readonly progressPercent = computed<number>(() => {
+    const f = this.footer();
+    if (f?.type !== 'progress' || !f.max) {
       return 0;
     }
-    return Math.min(100, (this.footer.value / this.footer.max) * 100);
-  }
+    return Math.min(100, (f.value / f.max) * 100);
+  });
 }

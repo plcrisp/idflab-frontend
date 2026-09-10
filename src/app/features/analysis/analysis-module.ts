@@ -11,8 +11,10 @@ import { AnalysisLayout } from './analysis-layout/analysis-layout';
 import {
   lucideArrowRight,
   lucideCalendar,
+  lucideClock,
   lucideDatabase,
   lucideDownload,
+  lucideMap,
   lucideTrendingUp,
   lucideTriangleAlert,
 } from '@ng-icons/lucide';
@@ -28,6 +30,7 @@ import { HlmProgressImports } from '@spartan-ng/helm/progress';
 import { DataAvailabilityRibbon } from './shared/components/data-availability-ribbon/data-availability-ribbon';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmDateRangePicker } from '@spartan-ng/helm/date-picker';
+import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 import { provideNativeDateAdapter } from '@spartan-ng/brain/date-time';
 import { provideBrnCalendarI18n } from '@spartan-ng/brain/calendar';
 
@@ -56,10 +59,13 @@ registerLocaleData(localePt);
       lucideTrendingUp,
       lucideDownload,
       lucideArrowRight,
+      lucideMap,
+      lucideClock,
     }),
     ...HlmBadgeImports,
     ...HlmProgressImports,
     ...HlmButtonImports,
+    ...HlmTooltipImports,
     HlmDateRangePicker,
   ],
   providers: [
