@@ -112,7 +112,7 @@
       position="top"
       class="inline-flex"
     >
-      <button hlmBtn size="lg" [disabled]="isAdvanceDisabled()">
+      <button hlmBtn size="lg" [disabled]="isAdvanceDisabled()" (click)="onAdvance()">
         Avançar
         <ng-icon name="lucideArrowRight" class="ml-2" />
       </button>

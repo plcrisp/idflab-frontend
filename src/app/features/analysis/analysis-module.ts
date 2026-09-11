@@ -9,12 +9,17 @@ import { InitialVisualization } from './pages/initial-visualization/initial-visu
 import { ANALYSIS_ROUTES } from './analysis.routes';
 import { AnalysisLayout } from './analysis-layout/analysis-layout';
 import {
+  lucideActivity,
+  lucideArrowLeft,
   lucideArrowRight,
   lucideCalendar,
+  lucideCheckCircle2,
   lucideClock,
   lucideDatabase,
   lucideDownload,
   lucideMap,
+  lucideShieldCheck,
+  lucideSparkles,
   lucideTrendingUp,
   lucideTriangleAlert,
 } from '@ng-icons/lucide';
@@ -33,6 +38,7 @@ import { HlmDateRangePicker } from '@spartan-ng/helm/date-picker';
 import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 import { provideNativeDateAdapter } from '@spartan-ng/brain/date-time';
 import { provideBrnCalendarI18n } from '@spartan-ng/brain/calendar';
+import { ConsistencyCheck } from './pages/consistency-check/consistency-check';
 
 registerLocaleData(localePt);
 
@@ -46,6 +52,7 @@ registerLocaleData(localePt);
     Stepper,
     ParamsHeader,
     DataAvailabilityRibbon,
+    ConsistencyCheck,
   ],
   imports: [
     CommonModule,
@@ -59,8 +66,13 @@ registerLocaleData(localePt);
       lucideTrendingUp,
       lucideDownload,
       lucideArrowRight,
+      lucideArrowLeft,
       lucideMap,
       lucideClock,
+      lucideShieldCheck,
+      lucideActivity,
+      lucideCheckCircle2,
+      lucideSparkles,
     }),
     ...HlmBadgeImports,
     ...HlmProgressImports,
@@ -106,9 +118,7 @@ registerLocaleData(localePt);
         return `${months[month]} de ${year}`;
       },
       formatMonth: (month) =>
-        ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][
-          month
-        ],
+        ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][month],
       formatYear: (year) => `${year}`,
       labelPrevious: () => 'Mês anterior',
       labelNext: () => 'Próximo mês',

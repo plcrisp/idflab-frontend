@@ -262,4 +262,10 @@ export class InitialVisualization {
         },
       });
   }
+
+  onAdvance(): void {
+    const project = this.project();
+    if (!project) return;
+    this.router.navigate(['/app/analysis', project.id, 'consistency-check']);
+  }
 }
