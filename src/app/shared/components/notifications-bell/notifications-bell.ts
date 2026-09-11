@@ -1,6 +1,6 @@
 import { Component, computed, ElementRef, inject, ViewChild } from '@angular/core';
 import { NotificationsService } from '../../../core/services/api/notifications.service';
-import { Notification } from '../../../core/models/api/notification.model';
+import { Notification, ActiveJobItem } from '../../../core/models/api/notification.model';
 import { ProjectsService } from '../../../core/services/api/projects.service';
 import { Router } from '@angular/router';
 import { MapService } from '../../../core/services/utils/map.service';
@@ -58,8 +58,18 @@ export class NotificationsBell {
     return item.notif.id;
   }
 
+  trackByJobId(index: number, item: ActiveJobItem): string {
+    return item.job_id;
+  }
+
   markAsRead(notificationId: string): void {
     this.notificationsService.markAsRead(notificationId).subscribe();
+  }
+
+  openJob(job: ActiveJobItem): void {
+    if (!job.project_id) return;
+    this.menuTrigger.close();
+    this.router.navigateByUrl(`/app/analysis/${job.project_id}`);
   }
 
   openNotification(notif: Notification): void {
@@ -67,37 +77,48 @@ export class NotificationsBell {
     if (notif.type === 'TIMEOUT') {
       this.retryTimeoutNotif(notif.job_id);
     } else {
-      this.openProject(notif.project_id, notif.type);
+      this.openProject(notif);
     }
   }
 
-  private openProject(projectId: string | null, notifType: Notification['type']): void {
-    if (!projectId) return;
-
-    if (notifType === 'SUCCESS') {
-      this.router.navigateByUrl(`/app/analysis/${projectId}`);
+  private openProject(notif: Notification): void {
+    if (notif.type === 'SUCCESS') {
+      if (notif.project_id) {
+        this.router.navigateByUrl(`/app/analysis/${notif.project_id}`);
+      }
       return;
     }
 
-    if (notifType === 'FAILED') {
-      this.projectsService.getProjectById(projectId).subscribe({
-        next: (project: Project) => {
-          const targetUrl = '/app/interactive-map';
+    if (notif.type === 'FAILED') {
+      const detailsStationId = (notif.details as any)?.station_id;
 
-          if (this.router.url === targetUrl) {
-            this.mapService.selectStation(project.station_id);
-          } else {
-            this.router.navigateByUrl(targetUrl).then((navigated) => {
-              if (navigated) {
-                this.mapService.selectStation(project.station_id);
-              }
-            });
-          }
-        },
-        error: (err) => {
-          console.error('Erro ao buscar projeto para navegação:', err);
-        },
-      });
+      if (notif.project_id) {
+        this.projectsService.getProjectById(notif.project_id).subscribe({
+          next: (project: Project) => {
+            const stationId = project.station_id || project.station?.id || detailsStationId;
+            this.navigateToMapWithStation(stationId);
+          },
+          error: (err) => {
+            console.error('Erro ao buscar projeto para navegação:', err);
+            this.navigateToMapWithStation(detailsStationId);
+          },
+        });
+      } else {
+        this.navigateToMapWithStation(detailsStationId);
+      }
+    }
+  }
+
+  private navigateToMapWithStation(stationId?: string | null): void {
+    const targetUrl = '/app/interactive-map';
+    const isAlreadyOnMap = this.router.url.split('?')[0] === targetUrl;
+
+    if (stationId) {
+      this.mapService.selectStation(stationId);
+    }
+
+    if (!isAlreadyOnMap) {
+      this.router.navigateByUrl(targetUrl);
     }
   }
 

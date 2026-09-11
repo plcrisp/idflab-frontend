@@ -42,6 +42,7 @@ export class AnalysisLayout {
   readonly steps: AnalysisStep[] = [
     { label: 'Mapa', path: 'interactive-map' },
     { label: 'Visualização inicial', path: 'initial-view' },
+    { label: 'Verificação de Consistência', path: 'tratamento-de-falhas' },
     { label: 'Tratamento de falhas', path: 'tratamento-de-falhas' },
     { label: 'Resolução temporal', path: 'resolucao-temporal' },
     { label: 'Distribuição estatística', path: 'distribuicao-estatistica' },

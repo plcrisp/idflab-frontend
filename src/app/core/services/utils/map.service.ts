@@ -72,12 +72,18 @@ export class MapService implements OnDestroy {
       this.map?.setStyle(this.mapStyles[theme]);
     });
 
+    const activeStation = this.selectedStation();
+    const initialCenter = activeStation
+      ? ([activeStation.longitude, activeStation.latitude] as [number, number])
+      : (options?.center ?? this.defaultCenter);
+    const initialZoom = activeStation ? 13 : (options?.zoom ?? this.defaultZoom);
+
     this.map = new mapboxgl.Map({
       accessToken: environment.mapboxToken,
       container: containerId,
       style: this.mapStyles[this.currentTheme],
-      center: options?.center ?? this.defaultCenter,
-      zoom: options?.zoom ?? this.defaultZoom,
+      center: initialCenter,
+      zoom: initialZoom,
     });
 
     this.map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
@@ -87,6 +93,11 @@ export class MapService implements OnDestroy {
     this.map.on('load', () => {
       this.isReady$.next(true);
       this.loadInitialMarkers();
+
+      const currentStation = this.selectedStation();
+      if (currentStation) {
+        this.flyToStation(currentStation.latitude, currentStation.longitude);
+      }
     });
 
     this.map.on('style.load', () => {
@@ -115,7 +126,9 @@ export class MapService implements OnDestroy {
   }
 
   flyToStation(lat: number, long: number, zoom = 13): void {
-    this.map?.flyTo({
+    if (!this.map || !this.isReady$.value) return;
+
+    this.map.flyTo({
       center: [long, lat],
       zoom,
       speed: 1.4,
@@ -136,13 +149,18 @@ export class MapService implements OnDestroy {
   }
 
   selectStation(stationId: string): void {
+    if (!stationId) return;
+
     this.stationService.getStationByIdFromProvider(stationId).subscribe({
       next: (station: Station) => {
-        this.flyToStation(station.latitude, station.longitude);
         this.selectedStation.set(station);
+
+        if (this.isReady$.value && this.map) {
+          this.flyToStation(station.latitude, station.longitude);
+        }
       },
       error: (err) => {
-        console.error(err);
+        console.error('Erro ao buscar estação no provedor:', err);
       },
     });
   }

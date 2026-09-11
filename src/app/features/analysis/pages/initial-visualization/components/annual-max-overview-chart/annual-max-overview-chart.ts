@@ -153,7 +153,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
       legend: buildLegend(
         this.seriesName(),
         CHART_LEGEND_LABELS.maxObservado,
-        t.chartBarOverview,
+        t.primaryDark,
         t,
         null,
         selectedYearStr !== null ? CHART_LEGEND_LABELS.anoSelecionado : null,
@@ -249,7 +249,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
           data: barData,
           barCategoryGap: '20%',
           cursor: 'pointer',
-          itemStyle: { color: t.chartBarOverview, borderRadius: [3, 3, 0, 0] },
+          itemStyle: { color: t.primaryDark, borderRadius: [3, 3, 0, 0] },
           emphasis: { itemStyle: { color: t.primaryMid } },
           markPoint: buildMarkPoint(annualMaxData, t),
           markLine: buildHistoricalMaxMarkLine(histMax, t, this.unit()),

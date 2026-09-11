@@ -51,7 +51,7 @@ export function buildLegend(
     data.push({
       name: selectedYearName,
       icon: 'roundRect',
-      itemStyle: { color: tokens.chartBarSelected },
+      itemStyle: { color: tokens.primary },
     });
   }
 
@@ -256,6 +256,6 @@ export function buildSelectedYearLegendSeries(tokens: ChartTokens, name: string)
     name,
     type: 'scatter',
     data: [] as any[],
-    itemStyle: { color: tokens.chartBarSelected },
+    itemStyle: { color: tokens.primary },
   };
 }

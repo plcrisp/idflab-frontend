@@ -225,12 +225,11 @@ export class InitialVisualization {
   }
 
   onBackToMap(): void {
-    const stationId = this.project()?.station_id;
-    this.router.navigateByUrl('/app/interactive-map').then((navigated) => {
-      if (navigated && stationId) {
-        this.mapService.selectStation(stationId);
-      }
-    });
+    const stationId = this.project()?.station_id || this.project()?.station?.id;
+    if (stationId) {
+      this.mapService.selectStation(stationId);
+    }
+    this.router.navigateByUrl('/app/interactive-map');
   }
 
   onDownloadRawSeries(): void {
