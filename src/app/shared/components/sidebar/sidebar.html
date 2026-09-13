@@ -12,8 +12,17 @@
         <div hlmSidebarGroupContent>
           <ul hlmSidebarMenu>
             @for(item of items; track item.title){
-            <li hlmSidebarMenuItem>
-              <a hlmSidebarMenuButton [routerLink]="item.url" routerLinkActive="bg-sidebar-accent">
+            <li
+              hlmSidebarMenuItem
+              [hlmTooltip]="item.title"
+              [tooltipDisabled]="!isSidebarCollapsed()"
+              position="right"
+            >
+              <a
+                hlmSidebarMenuButton
+                [routerLink]="item.url"
+                routerLinkActive="bg-sidebar-accent"
+              >
                 <ng-icon hlm [name]="item.icon" />
                 <span>{{ item.title }}</span>
               </a>

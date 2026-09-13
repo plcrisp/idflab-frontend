@@ -56,6 +56,7 @@ import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { StatCard } from './components/stat-card/stat-card';
 import { HlmProgressImports } from '@spartan-ng/helm/progress';
 import { JobProgressCard } from './components/job-progress-card/job-progress-card';
+import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 
 @NgModule({
   declarations: [
@@ -117,6 +118,7 @@ import { JobProgressCard } from './components/job-progress-card/job-progress-car
     ...HlmSkeletonImports,
     ...HlmBadgeImports,
     ...HlmProgressImports,
+    ...HlmTooltipImports,
   ],
   exports: [
     ThemeToggle,
@@ -128,6 +130,7 @@ import { JobProgressCard } from './components/job-progress-card/job-progress-car
     ...HlmSkeletonImports,
     ...HlmEmptyImports,
     ...HlmSpinnerImports,
+    ...HlmTooltipImports,
   ],
   providers: [provideBrowserGlobalErrorListeners()],
   bootstrap: [],

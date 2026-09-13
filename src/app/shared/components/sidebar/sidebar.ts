@@ -1,9 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of, startWith } from 'rxjs';
 import { MainLayoutService } from '../../../core/services/state/main-layout.service';
 import { ProjectsService } from '../../../core/services/api/projects.service';
 import { SidebarProject } from '../../../core/models/api/project.model';
+import { HlmSidebarService } from '@spartan-ng/helm/sidebar';
 
 interface SidebarState {
   loading: boolean;
@@ -19,6 +20,9 @@ interface SidebarState {
 export class Sidebar implements OnInit {
   mainLayoutService = inject(MainLayoutService);
   projectsService = inject(ProjectsService);
+  sidebarService = inject(HlmSidebarService);
+
+  isSidebarCollapsed = computed(() => this.sidebarService.state() === 'collapsed');
 
   state = this.projectsService.state$;
 
