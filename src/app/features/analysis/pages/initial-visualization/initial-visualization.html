@@ -1,58 +1,16 @@
 <div class="flex flex-col gap-4 overflow-x-hidden">
   <!-- KPI Cards -->
-  <div class="flex gap-4">
-    <app-stat-card
-      label="Registros totais"
-      [value]="stats()?.total_records | number: '1.0-0':'pt-BR'"
-      icon="lucideDatabase"
-      [footer]="{ type: 'text', content: recordsLabel }"
-      [loading]="isJobRunning() || isInitialSkeleton()"
-      [muted]="hasInsufficientData()"
-      class="flex-1"
-    >
-    </app-stat-card>
-
-    <app-stat-card
-      label="Falhas na série"
-      [value]="stats()?.failure_percentage | number: '1.1-1':'pt-BR'"
-      unit="%"
-      icon="lucideTriangleAlert"
-      [footer]="{ type: 'progress', value: stats()?.failure_percentage ?? 0, max: 100 }"
-      [loading]="isJobRunning() || isInitialSkeleton()"
-      [muted]="hasInsufficientData()"
-      class="flex-1"
-    >
-    </app-stat-card>
-
-    <app-stat-card
-      label="Anos completos"
-      [value]="stats()?.valid_years"
-      [unit]="stats()?.total_years ? 'de ' + stats()?.total_years : undefined"
-      icon="lucideCalendar"
-      [footer]="{ type: 'progress', value: stats()?.valid_years ?? 0, max: stats()?.total_years ?? 1 }"
-      [loading]="isJobRunning() || isInitialSkeleton()"
-      [muted]="hasInsufficientData()"
-      class="flex-1"
-    >
-    </app-stat-card>
-
-    <app-stat-card
-      label="Máximo histórico"
-      [value]="stats()?.max_value | number: '1.1-1':'pt-BR'"
-      unit="mm"
-      icon="lucideTrendingUp"
-      [footer]="{ type: 'text', content: (stats()?.max_value_date | date: 'dd/MM/yyyy':'':'pt-BR') ?? '' }"
-      [loading]="isJobRunning() || isInitialSkeleton()"
-      [muted]="hasInsufficientData()"
-      class="flex-1"
-    >
-    </app-stat-card>
-  </div>
+  <app-initial-kpi-cards
+    [stats]="state.stats()"
+    [recordsLabel]="state.recordsLabel()"
+    [loading]="state.isJobRunning() || state.isInitialSkeleton()"
+    [muted]="state.hasInsufficientData()"
+  />
 
   <!-- Área Central: Gráficos / Card de Progresso / Estado Vazio -->
-  @if (isJobRunning() && activeJob()) {
-    <app-job-progress-card [job]="activeJob()!" variant="full"></app-job-progress-card>
-  } @else if (hasInsufficientData()) {
+  @if (state.isJobRunning() && state.activeJob()) {
+    <app-job-progress-card [job]="state.activeJob()!" variant="full"></app-job-progress-card>
+  } @else if (state.hasInsufficientData()) {
     <!-- Estado vazio dedicado quando o job concluiu mas não há registros -->
     <div class="flex flex-col items-center justify-center rounded-xl border border-border bg-popover p-10 md:p-16 text-center">
       <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted text-muted-foreground border border-border">
@@ -74,23 +32,23 @@
     </div>
   } @else {
     <app-time-series-panel
-      [detail]="detail()"
-      [window]="activeWindow()!"
-      [yearly_summary]="yearlySummary()"
-      [max_value]="stats()?.max_value ?? null"
-      [max_value_date]="stats()?.max_value_date ?? null"
-      [annualLoading]="isAnnualSkeleton()"
-      [detailLoading]="isDetailSkeleton()"
+      [detail]="state.detail()"
+      [window]="state.activeWindow()!"
+      [yearly_summary]="state.yearlySummary()"
+      [max_value]="state.stats()?.max_value ?? null"
+      [max_value_date]="state.stats()?.max_value_date ?? null"
+      [annualLoading]="state.isAnnualSkeleton()"
+      [detailLoading]="state.isDetailSkeleton()"
       (yearSelected)="onYearSelected($event)"
       (rangeSelected)="onRangeSelected($event)"
-      [selectedYear]="selectedYear()"
+      [selectedYear]="state.selectedYear()"
     ></app-time-series-panel>
   }
 
-  @if (!isJobRunning() && !hasInsufficientData()) {
+  @if (!state.isJobRunning() && !state.hasInsufficientData()) {
     <app-data-availability-ribbon
-      [yearly_summary]="yearlySummary()"
-      [loading]="isInitialSkeleton()"
+      [yearly_summary]="state.yearlySummary()"
+      [loading]="state.isInitialSkeleton()"
     ></app-data-availability-ribbon>
   }
 
@@ -101,9 +59,9 @@
       variant="outline"
       size="lg"
       (click)="onDownloadRawSeries()"
-      [disabled]="isJobRunning() || hasInsufficientData() || isDownloadingRawSeries()"
+      [disabled]="state.isJobRunning() || state.hasInsufficientData() || state.isDownloadingRawSeries()"
     >
-      @if (isDownloadingRawSeries()) {
+      @if (state.isDownloadingRawSeries()) {
         <hlm-spinner class="mr-2" />
       } @else {
         <ng-icon name="lucideDownload" class="mr-2" />
@@ -112,12 +70,12 @@
     </button>
 
     <div
-      [hlmTooltip]="advanceTooltip()"
-      [tooltipDisabled]="!isAdvanceDisabled()"
+      [hlmTooltip]="state.advanceTooltip()"
+      [tooltipDisabled]="!state.isAdvanceDisabled()"
       position="top"
       class="inline-flex"
     >
-      <button hlmBtn size="lg" [disabled]="isAdvanceDisabled()" (click)="onAdvance()">
+      <button hlmBtn size="lg" [disabled]="state.isAdvanceDisabled()" (click)="onAdvance()">
         Avançar
         <ng-icon name="lucideArrowRight" class="ml-2" />
       </button>

@@ -1,0 +1,48 @@
+<div class="flex gap-4">
+  <app-stat-card
+    label="Registros totais"
+    [value]="stats()?.total_records | number: '1.0-0':'pt-BR'"
+    icon="lucideDatabase"
+    [footer]="{ type: 'text', content: recordsLabel() }"
+    [loading]="loading()"
+    [muted]="muted()"
+    class="flex-1"
+  >
+  </app-stat-card>
+
+  <app-stat-card
+    label="Falhas na série"
+    [value]="stats()?.failure_percentage | number: '1.1-1':'pt-BR'"
+    unit="%"
+    icon="lucideTriangleAlert"
+    [footer]="{ type: 'progress', value: stats()?.failure_percentage ?? 0, max: 100 }"
+    [loading]="loading()"
+    [muted]="muted()"
+    class="flex-1"
+  >
+  </app-stat-card>
+
+  <app-stat-card
+    label="Anos completos"
+    [value]="stats()?.valid_years"
+    [unit]="stats()?.total_years ? 'de ' + stats()?.total_years : undefined"
+    icon="lucideCalendar"
+    [footer]="{ type: 'progress', value: stats()?.valid_years ?? 0, max: stats()?.total_years ?? 1 }"
+    [loading]="loading()"
+    [muted]="muted()"
+    class="flex-1"
+  >
+  </app-stat-card>
+
+  <app-stat-card
+    label="Máximo histórico"
+    [value]="stats()?.max_value | number: '1.1-1':'pt-BR'"
+    unit="mm"
+    icon="lucideTrendingUp"
+    [footer]="{ type: 'text', content: (stats()?.max_value_date | date: 'dd/MM/yyyy':'':'pt-BR') ?? '' }"
+    [loading]="loading()"
+    [muted]="muted()"
+    class="flex-1"
+  >
+  </app-stat-card>
+</div>

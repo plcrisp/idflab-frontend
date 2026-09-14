@@ -28,6 +28,7 @@ import localePt from '@angular/common/locales/pt';
 import { TimeSeriesPanel } from './pages/initial-visualization/components/time-series-panel/time-series-panel';
 import { TimeSeriesDetailChart } from './pages/initial-visualization/components/time-series-detail-chart/time-series-detail-chart';
 import { AnnualMaxOverviewChart } from './pages/initial-visualization/components/annual-max-overview-chart/annual-max-overview-chart';
+import { InitialKpiCards } from './pages/initial-visualization/components/initial-kpi-cards/initial-kpi-cards';
 import { Stepper } from './shared/components/stepper/stepper';
 import { ParamsHeader } from './shared/components/params-header/params-header';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
@@ -46,6 +47,7 @@ registerLocaleData(localePt);
   declarations: [
     AnalysisLayout,
     InitialVisualization,
+    InitialKpiCards,
     TimeSeriesPanel,
     TimeSeriesDetailChart,
     AnnualMaxOverviewChart,
