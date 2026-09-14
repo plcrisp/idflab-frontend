@@ -1,0 +1,9 @@
+<div class="flex flex-col gap-4 overflow-x-hidden">
+  <!-- Barra de Resumo Compacta da Estação -->
+  <app-station-summary-bar
+    [stats]="stats()"
+    [loading]="isLoading()"
+    [muted]="hasInsufficientData()"
+    [isHourly]="isHourly()"
+  />
+</div>

@@ -1,0 +1,110 @@
+<div
+  class="flex items-center justify-evenly flex-wrap gap-y-3 rounded-xl shadow-sm border border-border bg-popover px-6 py-3.5 transition-all text-sm w-full"
+  [class.opacity-50]="muted()"
+  [class.grayscale-50]="muted()"
+>
+  @if (loading()) {
+    <!-- Skeleton Loading com espaçamentos generosos -->
+    <div class="flex items-center gap-2.5">
+      <div hlmSkeleton class="h-4.5 w-4.5 rounded-sm bg-primary/20"></div>
+      <div hlmSkeleton class="h-4 w-28 rounded-md"></div>
+    </div>
+
+    <div class="h-4 w-px bg-border shrink-0 mx-6 lg:mx-8" aria-hidden="true"></div>
+
+    <div class="flex items-center gap-2.5">
+      <div hlmSkeleton class="h-4.5 w-4.5 rounded-sm" style="background-color: color-mix(in srgb, var(--warning) 20%, transparent)"></div>
+      <div hlmSkeleton class="h-4 w-24 rounded-md"></div>
+    </div>
+
+    <div class="h-4 w-px bg-border shrink-0 mx-6 lg:mx-8" aria-hidden="true"></div>
+
+    <div class="flex items-center gap-2.5">
+      <div hlmSkeleton class="h-4.5 w-4.5 rounded-sm bg-primary/20"></div>
+      <div hlmSkeleton class="h-4 w-24 rounded-md"></div>
+    </div>
+
+    <div class="h-4 w-px bg-border shrink-0 mx-6 lg:mx-8" aria-hidden="true"></div>
+
+    <div class="flex items-center gap-2.5">
+      <div hlmSkeleton class="h-4.5 w-4.5 rounded-sm" style="background-color: color-mix(in srgb, var(--accent-500) 20%, transparent)"></div>
+      <div hlmSkeleton class="h-4 w-28 rounded-md"></div>
+    </div>
+  } @else {
+    <!-- 1. Registros totais -->
+    <div class="flex items-center gap-2.5">
+      <ng-icon
+        name="lucideDatabase"
+        size="18"
+        color="var(--primary)"
+        class="stat-icon icon-database"
+      ></ng-icon>
+      <span class="text-muted-foreground font-normal">{{ recordsLabel() }}</span>
+      <span class="font-bold text-foreground">
+        {{ stats()?.total_records != null ? (stats()?.total_records | number: '1.0-0':'pt-BR') : '-' }}
+      </span>
+    </div>
+
+    <div class="h-5 w-px bg-border shrink-0 mx-6 lg:mx-8" aria-hidden="true"></div>
+
+    <!-- 2. Falhas na série -->
+    <div class="flex items-center gap-2.5">
+      <ng-icon
+        name="lucideTriangleAlert"
+        size="18"
+        color="var(--warning)"
+        class="stat-icon icon-warning"
+      ></ng-icon>
+      <span class="text-muted-foreground font-normal">Falhas na série</span>
+      <span class="font-bold text-foreground">
+        {{ stats()?.failure_percentage != null ? (stats()?.failure_percentage | number: '1.1-1':'pt-BR') + '%' : '-' }}
+      </span>
+    </div>
+
+    <div class="h-5 w-px bg-border shrink-0 mx-6 lg:mx-8" aria-hidden="true"></div>
+
+    <!-- 3. Anos completos -->
+    <div class="flex items-center gap-2.5">
+      <ng-icon
+        name="lucideCalendar"
+        size="18"
+        color="var(--primary)"
+        class="stat-icon icon-calendar"
+      ></ng-icon>
+      <span class="text-muted-foreground font-normal">Anos completos</span>
+      <span class="font-bold text-foreground">
+        @if (stats()?.valid_years != null) {
+          {{ stats()?.valid_years }}
+          @if (stats()?.total_years) {
+            <span class="font-normal">de</span> {{ stats()?.total_years }}
+          }
+        } @else {
+          -
+        }
+      </span>
+    </div>
+
+    <div class="h-5 w-px bg-border shrink-0 mx-6 lg:mx-8" aria-hidden="true"></div>
+
+    <!-- 4. Máximo histórico / anual -->
+    <div class="flex items-center gap-2.5">
+      <ng-icon
+        name="lucideTrendingUp"
+        size="18"
+        color="var(--primary)"
+        class="stat-icon icon-max"
+      ></ng-icon>
+      <span class="text-muted-foreground font-normal">{{ maxLabel() }}</span>
+      <span class="font-bold text-foreground">
+        @if (stats()?.max_value != null) {
+          {{ stats()?.max_value | number: '1.1-1':'pt-BR' }} mm
+          @if (formattedMaxDate(); as maxDate) {
+            <span class="font-normal text-xs text-muted-foreground ml-1.5">({{ maxDate }})</span>
+          }
+        } @else {
+          -
+        }
+      </span>
+    </div>
+  }
+</div>

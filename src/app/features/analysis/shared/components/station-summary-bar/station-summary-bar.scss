@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  vertical-align: middle;
+
+  &.icon-database {
+    color: var(--primary);
+  }
+
+  &.icon-warning {
+    color: var(--warning);
+  }
+
+  &.icon-calendar {
+    color: var(--primary);
+  }
+
+  &.icon-max {
+    color: var(--primary);
+  }
+
+  ::ng-deep svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    shape-rendering: geometricPrecision;
+  }
+}

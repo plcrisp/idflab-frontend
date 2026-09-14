@@ -1,4 +1,5 @@
 import { StationSource } from '../../../../core/models/api/station.model';
+export type { GlobalStats } from '../../pages/initial-visualization/models/initial-visualization.model';
 
 export interface HeaderData {
   station_name: string;

@@ -14,6 +14,7 @@ import {
   lucideArrowRight,
   lucideCalendar,
   lucideCheckCircle2,
+  lucideChevronDown,
   lucideClock,
   lucideDatabase,
   lucideDownload,
@@ -40,6 +41,7 @@ import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 import { provideNativeDateAdapter } from '@spartan-ng/brain/date-time';
 import { provideBrnCalendarI18n } from '@spartan-ng/brain/calendar';
 import { ConsistencyCheck } from './pages/consistency-check/consistency-check';
+import { StationSummaryBar } from './shared/components/station-summary-bar/station-summary-bar';
 
 registerLocaleData(localePt);
 
@@ -55,7 +57,9 @@ registerLocaleData(localePt);
     ParamsHeader,
     DataAvailabilityRibbon,
     ConsistencyCheck,
+    StationSummaryBar,
   ],
+  exports: [StationSummaryBar],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -65,6 +69,7 @@ registerLocaleData(localePt);
       lucideDatabase,
       lucideTriangleAlert,
       lucideCalendar,
+      lucideChevronDown,
       lucideTrendingUp,
       lucideDownload,
       lucideArrowRight,
