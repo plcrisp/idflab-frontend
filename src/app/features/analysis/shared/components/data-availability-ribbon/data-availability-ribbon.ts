@@ -14,6 +14,9 @@ interface YearCell extends YearlySummaryItem {
 })
 export class DataAvailabilityRibbon {
   yearly_summary = input<YearlySummaryItem[]>([]);
+  loading = input<boolean>(false);
+
+  readonly placeholderCells = Array.from({ length: 35 }, (_, i) => i);
 
   cells = computed<YearCell[]>(() =>
     this.yearly_summary().map((item) => ({

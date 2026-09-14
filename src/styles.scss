@@ -167,6 +167,55 @@ body {
   }
 }
 
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+// skeleton shimmer effect
+[data-slot='skeleton'],
+[hlmSkeleton],
+hlm-skeleton {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.04) 20%,
+      rgba(255, 255, 255, 0.12) 50%,
+      rgba(255, 255, 255, 0.04) 80%,
+      transparent 100%
+    );
+    animation: shimmer 1.8s infinite ease-in-out;
+    pointer-events: none;
+  }
+}
+
+[data-theme='light'] [data-slot='skeleton'],
+[data-theme='light'] [hlmSkeleton],
+[data-theme='light'] hlm-skeleton {
+  &::after {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(0, 0, 0, 0.02) 20%,
+      rgba(0, 0, 0, 0.06) 50%,
+      rgba(0, 0, 0, 0.02) 80%,
+      transparent 100%
+    );
+  }
+}
+
 // scroll
 * {
   scrollbar-width: thin;

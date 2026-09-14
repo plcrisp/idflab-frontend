@@ -24,6 +24,10 @@ export class AnalysisLayout {
   isJobRunning = this.projectState.isJobRunning;
   hasInsufficientData = this.projectState.hasInsufficientData;
 
+  readonly isHeaderLoading = computed<boolean>(
+    () => this.isJobRunning() || this.projectState.showProjectSkeleton(),
+  );
+
   headerData = computed<HeaderData | null>(() => {
     const p = this.project();
     if (!p) return null;

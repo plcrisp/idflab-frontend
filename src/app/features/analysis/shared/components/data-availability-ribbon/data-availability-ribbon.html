@@ -7,23 +7,29 @@
 
   <div class="flex flex-col gap-3 py-4 px-10">
     <div class="flex flex-wrap gap-1">
-      @for (cell of cells(); track cell.year) {
-      <div class="relative group">
-        <div
-          class="w-3.5 h-5 rounded-sm transition-opacity duration-150 hover:opacity-80 cursor-default"
-          [class]="cellColor(cell.statusClass)"
-        ></div>
+      @if (loading()) {
+        @for (i of placeholderCells; track i) {
+          <div hlmSkeleton class="w-3.5 h-5 rounded-sm"></div>
+        }
+      } @else {
+        @for (cell of cells(); track cell.year) {
+          <div class="relative group">
+            <div
+              class="w-3.5 h-5 rounded-sm transition-opacity duration-150 hover:opacity-80 cursor-default"
+              [class]="cellColor(cell.statusClass)"
+            ></div>
 
-        <div
-          class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap rounded-lg bg-popover border border-border px-3.5 py-2.5 invisible opacity-0 scale-95 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-hover:scale-100 z-10 shadow-[0_4px_16px_rgba(16,24,40,0.12)]"
-        >
-          <p class="font-semibold text-xs text-foreground">{{ cell.year }}</p>
-          <p class="text-xs text-muted-foreground mt-0.5">
-            {{ cell.completeness.toLocaleString('pt-BR', { minimumFractionDigits: 1,
-            maximumFractionDigits: 1 }) }}% completo
-          </p>
-        </div>
-      </div>
+            <div
+              class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap rounded-lg bg-popover border border-border px-3.5 py-2.5 invisible opacity-0 scale-95 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-hover:scale-100 z-10 shadow-[0_4px_16px_rgba(16,24,40,0.12)]"
+            >
+              <p class="font-semibold text-xs text-foreground">{{ cell.year }}</p>
+              <p class="text-xs text-muted-foreground mt-0.5">
+                {{ cell.completeness.toLocaleString('pt-BR', { minimumFractionDigits: 1,
+                maximumFractionDigits: 1 }) }}% completo
+              </p>
+            </div>
+          </div>
+        }
       }
     </div>
 

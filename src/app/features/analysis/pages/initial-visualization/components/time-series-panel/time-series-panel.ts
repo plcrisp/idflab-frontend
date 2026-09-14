@@ -14,9 +14,28 @@ export class TimeSeriesPanel {
   detail = input<DetailResponse | null>(null);
   max_value = input<number | null>(null);
   max_value_date = input<string | null>(null);
+  annualLoading = input<boolean>(false);
+  detailLoading = input<boolean>(false);
   selectedYear = input<number | null>(null);
   yearSelected = output<number>();
   rangeSelected = output<[string, string]>();
+
+  /**
+   * Alturas percentuais das barras para o gráfico simulado anual de máximas
+   */
+  readonly annualMockBars = [
+    35, 48, 28, 62, 44, 72, 38, 85, 52, 46, 68, 92, 42, 58, 76, 50, 95, 56, 40,
+    66, 52, 60, 78, 45, 64, 72, 54, 48, 66, 52, 70, 44, 58,
+  ];
+
+  /**
+   * Alturas percentuais das barras para a série temporal detalhada (chuvas diárias com spikes e intervalos)
+   */
+  readonly detailMockBars = [
+    0, 15, 45, 0, 0, 10, 28, 0, 0, 0, 38, 82, 14, 0, 0, 0, 8, 24, 0, 0, 68, 94,
+    32, 0, 0, 0, 20, 48, 0, 0, 12, 30, 58, 0, 0, 0, 42, 86, 22, 0, 0, 0, 16,
+    36, 0, 0, 0, 52, 74, 28, 0, 0, 18, 42, 0, 0, 0, 32, 64, 15, 0,
+  ];
 
   readonly historicalMaxValue = computed<number | null>(() => {
     const direct = this.max_value();

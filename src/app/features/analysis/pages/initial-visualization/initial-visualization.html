@@ -6,7 +6,7 @@
       [value]="stats()?.total_records | number: '1.0-0':'pt-BR'"
       icon="lucideDatabase"
       [footer]="{ type: 'text', content: recordsLabel }"
-      [loading]="isJobRunning()"
+      [loading]="isJobRunning() || isInitialSkeleton()"
       [muted]="hasInsufficientData()"
       class="flex-1"
     >
@@ -18,7 +18,7 @@
       unit="%"
       icon="lucideTriangleAlert"
       [footer]="{ type: 'progress', value: stats()?.failure_percentage ?? 0, max: 100 }"
-      [loading]="isJobRunning()"
+      [loading]="isJobRunning() || isInitialSkeleton()"
       [muted]="hasInsufficientData()"
       class="flex-1"
     >
@@ -30,7 +30,7 @@
       [unit]="stats()?.total_years ? 'de ' + stats()?.total_years : undefined"
       icon="lucideCalendar"
       [footer]="{ type: 'progress', value: stats()?.valid_years ?? 0, max: stats()?.total_years ?? 1 }"
-      [loading]="isJobRunning()"
+      [loading]="isJobRunning() || isInitialSkeleton()"
       [muted]="hasInsufficientData()"
       class="flex-1"
     >
@@ -42,7 +42,7 @@
       unit="mm"
       icon="lucideTrendingUp"
       [footer]="{ type: 'text', content: (stats()?.max_value_date | date: 'dd/MM/yyyy':'':'pt-BR') ?? '' }"
-      [loading]="isJobRunning()"
+      [loading]="isJobRunning() || isInitialSkeleton()"
       [muted]="hasInsufficientData()"
       class="flex-1"
     >
@@ -79,6 +79,8 @@
       [yearly_summary]="yearlySummary()"
       [max_value]="stats()?.max_value ?? null"
       [max_value_date]="stats()?.max_value_date ?? null"
+      [annualLoading]="isAnnualSkeleton()"
+      [detailLoading]="isDetailSkeleton()"
       (yearSelected)="onYearSelected($event)"
       (rangeSelected)="onRangeSelected($event)"
       [selectedYear]="selectedYear()"
@@ -86,7 +88,10 @@
   }
 
   @if (!isJobRunning() && !hasInsufficientData()) {
-    <app-data-availability-ribbon [yearly_summary]="yearlySummary()"></app-data-availability-ribbon>
+    <app-data-availability-ribbon
+      [yearly_summary]="yearlySummary()"
+      [loading]="isInitialSkeleton()"
+    ></app-data-availability-ribbon>
   }
 
   <!-- Rodapé com ações -->
