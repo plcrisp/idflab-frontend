@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
 import { ProjectStateService } from '../../services/project-state.service';
 import { InitialVisualizationService } from '../../services/initial-visualization.service';
+import { StationService } from '../../../../core/services/api/stations.service';
 import { Project } from '../../../../core/models/api/project.model';
 import { GlobalStats } from '../../shared/models/analysis.models';
 import {
@@ -21,6 +22,7 @@ export class ConsistencyCheck {
   private mainLayoutService = inject(MainLayoutService);
   private projectState = inject(ProjectStateService);
   private initialVisualizationService = inject(InitialVisualizationService);
+  private stationService = inject(StationService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
@@ -78,6 +80,18 @@ export class ConsistencyCheck {
             this.stats.set(null);
           },
         });
+
+      const stationId = project.station?.id || project.station_id;
+      if (stationId) {
+        this.stationService.getNeighborStations(stationId).subscribe({
+          next: (neighbors) => {
+            console.log('Estações vizinhas carregadas:', neighbors);
+          },
+          error: (err) => {
+            console.error('Erro ao buscar estações vizinhas:', err);
+          },
+        });
+      }
     });
   }
 

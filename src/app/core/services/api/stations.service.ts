@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Marker, Station, StationBBoxRequest } from '../../models/api/station.model';
+import { Marker, NeighborStation, NeighborStationsFilter, Station, StationBBoxRequest } from '../../models/api/station.model';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -34,5 +34,21 @@ export class StationService {
     params = params.set('search', search.trim());
 
     return this.http.get<Station[]>(`${this.baseUrl}/search/${state}`, { params });
+  }
+
+  getNeighborStations(
+    stationId: string,
+    filters?: NeighborStationsFilter,
+  ): Observable<NeighborStation[]> {
+    let params = new HttpParams();
+
+    if (filters?.limit !== undefined) {
+      params = params.set('limit', filters.limit);
+    }
+    if (filters?.max_distance_km !== undefined) {
+      params = params.set('max_distance_km', filters.max_distance_km);
+    }
+
+    return this.http.get<NeighborStation[]>(`${this.baseUrl}/${stationId}/neighbors`, { params });
   }
 }

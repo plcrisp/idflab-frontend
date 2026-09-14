@@ -3,7 +3,7 @@ import { StationSummary } from './station.model';
 export interface Project {
   id: string;
   user_id: string;
-  station_id: string;
+  station_id?: string;
   name: string;
   start_date: string;
   end_date: string;

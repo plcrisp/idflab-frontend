@@ -75,3 +75,21 @@ export interface StationSummary {
 
   station_type: StationTypeEnum;
 }
+
+export interface NeighborStation {
+  id: string;
+  code: string;
+  name: string;
+  source: StationSource;
+  latitude: number;
+  longitude: number;
+  temporal_resolution: string;
+  distance_km: number;
+  operation_start_date: string | null;
+  last_data_date: string;
+}
+
+export interface NeighborStationsFilter {
+  limit?: number;
+  max_distance_km?: number;
+}
