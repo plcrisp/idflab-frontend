@@ -25,3 +25,22 @@ export function getRecordsLabel(resolution?: string): string {
   if (!resolution) return '';
   return resolution === 'daily' ? 'registros diários' : 'registros horários';
 }
+
+export function formatMaxDate(dateStr: string | null | undefined, isHourly: boolean): string | null {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return null;
+
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const year = d.getUTCFullYear();
+
+  if (!isHourly) {
+    return `${day}/${month}/${year}`;
+  }
+
+  const hours = String(d.getUTCHours()).padStart(2, '0');
+  const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+  return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+

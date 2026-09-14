@@ -107,6 +107,7 @@ export class EchartsService<T = unknown> {
     data: Signal<T | null>;
     buildOption: (data: T) => EChartsOption;
     onClick?: (params: echarts.ECElementEvent) => void;
+    renderer?: 'canvas' | 'svg';
   }): void {
     effect(() => {
       const data = config.data();
@@ -114,7 +115,9 @@ export class EchartsService<T = unknown> {
       if (!data) return;
 
       if (!this.chart) {
-        this.chart = echarts.init(config.container(), undefined, { renderer: 'svg' });
+        this.chart = echarts.init(config.container(), undefined, {
+          renderer: config.renderer ?? 'svg',
+        });
         this.disposeResize = observeResize(config.container(), () => this.chart?.resize());
         if (config.onClick) {
           this.chart.on('click', config.onClick);

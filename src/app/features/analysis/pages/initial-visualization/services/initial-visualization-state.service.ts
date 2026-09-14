@@ -209,6 +209,9 @@ export class InitialVisualizationStateService {
     return res.detail;
   });
 
+  readonly stationResolution = computed(() => this.project()?.station.resolution ?? 'daily');
+  readonly isHourly = computed(() => this.project()?.station.resolution === 'hourly');
+
   readonly recordsLabel = computed(() => {
     const p = this.project();
     return getRecordsLabel(p?.station.resolution);

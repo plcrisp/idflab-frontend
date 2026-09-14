@@ -17,8 +17,31 @@ export class TimeSeriesPanel {
   annualLoading = input<boolean>(false);
   detailLoading = input<boolean>(false);
   selectedYear = input<number | null>(null);
+  isHourly = input<boolean>(false);
   yearSelected = output<number>();
   rangeSelected = output<[string, string]>();
+
+  readonly annualTitle = computed(() =>
+    this.isHourly()
+      ? 'Precipitações horárias máximas anuais'
+      : 'Precipitações diárias máximas anuais',
+  );
+
+  readonly annualSeriesName = computed(() =>
+    this.isHourly()
+      ? 'Precipitação horária máxima anual'
+      : 'Precipitação diária máxima anual',
+  );
+
+  readonly detailTitle = computed(() => {
+    const level = this.detail()?.aggregation_level;
+    if (level === 'hour') return 'Série temporal de precipitação horária';
+    if (level === 'month') return 'Série temporal de precipitação mensal';
+    if (level === 'day') return 'Série temporal de precipitação diária';
+    return this.isHourly()
+      ? 'Série temporal de precipitação horária'
+      : 'Série temporal de precipitação diária';
+  });
 
   /**
    * Alturas percentuais das barras para o gráfico simulado anual de máximas

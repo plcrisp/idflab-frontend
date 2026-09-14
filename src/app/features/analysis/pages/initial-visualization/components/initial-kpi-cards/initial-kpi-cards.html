@@ -39,7 +39,7 @@
     [value]="stats()?.max_value | number: '1.1-1':'pt-BR'"
     unit="mm"
     icon="lucideTrendingUp"
-    [footer]="{ type: 'text', content: (stats()?.max_value_date | date: 'dd/MM/yyyy':'':'pt-BR') ?? '' }"
+    [footer]="{ type: 'text', content: formattedMaxDate() }"
     [loading]="loading()"
     [muted]="muted()"
     class="flex-1"

@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { ECElementEvent, EChartsOption } from 'echarts';
 import { CoverageStatus, YearlySummaryItem } from '../../models/initial-visualization.model';
+import { formatMaxDate } from '../../utils/initial-visualization.utils';
 import {
   buildAxisLabelBase,
   buildAxisLineStyle,
@@ -42,6 +43,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
   seriesName = input('Precipitação diária máxima anual');
   selectedYear = input<number | null>(null);
   historicalMaxValue = input<number | null>(null);
+  isHourly = input<boolean>(false);
   yearClick = output<number>();
 
   @ViewChild('chartContainer', { static: true })
@@ -51,12 +53,16 @@ export class AnnualMaxOverviewChart implements OnDestroy {
     items: YearlySummaryItem[];
     selectedYear: number | null;
     historicalMaxValue: number | null;
+    isHourly: boolean;
+    seriesName: string;
   }>;
 
   private readonly chartInput = computed(() => ({
     items: this.data() ?? [],
     selectedYear: this.selectedYear(),
     historicalMaxValue: this.historicalMaxValue(),
+    isHourly: this.isHourly(),
+    seriesName: this.seriesName(),
   }));
 
   constructor() {
@@ -149,6 +155,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
     const labelStep = Math.max(1, Math.round(years.length / 10));
 
     return {
+      useUTC: true,
       textStyle: { fontFamily: t.fontFamily },
       legend: buildLegend(
         this.seriesName(),
@@ -173,7 +180,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
               : `${item.max_value.toLocaleString('pt-BR')} ${this.unit()}`;
 
           const dateLabel = item.max_value_date
-            ? new Date(item.max_value_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
+            ? formatMaxDate(item.max_value_date, this.isHourly())
             : null;
 
           const statusLabel: Record<CoverageStatus, string | null> = {

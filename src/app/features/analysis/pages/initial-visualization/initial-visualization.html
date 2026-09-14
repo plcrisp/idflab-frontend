@@ -3,6 +3,7 @@
   <app-initial-kpi-cards
     [stats]="state.stats()"
     [recordsLabel]="state.recordsLabel()"
+    [isHourly]="state.isHourly()"
     [loading]="state.isJobRunning() || state.isInitialSkeleton()"
     [muted]="state.hasInsufficientData()"
   />
@@ -37,6 +38,7 @@
       [yearly_summary]="state.yearlySummary()"
       [max_value]="state.stats()?.max_value ?? null"
       [max_value_date]="state.stats()?.max_value_date ?? null"
+      [isHourly]="state.isHourly()"
       [annualLoading]="state.isAnnualSkeleton()"
       [detailLoading]="state.isDetailSkeleton()"
       (yearSelected)="onYearSelected($event)"

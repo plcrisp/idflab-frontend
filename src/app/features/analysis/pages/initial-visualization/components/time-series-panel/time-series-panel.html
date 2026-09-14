@@ -4,7 +4,7 @@
   <div class="flex items-center justify-between border-b border-border p-4">
     <div class="flex items-center gap-2">
       <h3 class="text-sm font-semibold uppercase tracking-wide text-foreground">
-        Precipitações diárias máximas anuais
+        {{ annualTitle() }}
       </h3>
       @if (firstYear() && lastYear()) {
         <span class="text-sm font-normal text-muted-foreground">
@@ -60,13 +60,15 @@
       [data]="yearly_summary()"
       [selectedYear]="selectedYear()"
       [historicalMaxValue]="historicalMaxValue()"
+      [isHourly]="isHourly()"
+      [seriesName]="annualSeriesName()"
       (yearClick)="onYearClick($event)"
     ></app-annual-max-overview-chart>
   }
 
   <div class="border-t border-border p-4 flex items-center justify-between gap-4 min-w-0">
     <h3 class="text-sm font-semibold uppercase tracking-wide text-foreground">
-      Série temporal de precipitação diária
+      {{ detailTitle() }}
     </h3>
 
     <hlm-date-range-picker
