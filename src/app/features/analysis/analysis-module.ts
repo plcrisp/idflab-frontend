@@ -12,16 +12,20 @@ import {
   lucideActivity,
   lucideArrowLeft,
   lucideArrowRight,
+  lucideArrowUp,
   lucideArrowUpRight,
   lucideCalendar,
+  lucideCheck,
   lucideCheckCircle2,
   lucideChevronDown,
   lucideClock,
   lucideDatabase,
   lucideDownload,
+  lucideInfo,
   lucideLoader2,
   lucideMap,
   lucideMapPin,
+  lucideRotateCw,
   lucideScan,
   lucideShieldCheck,
   lucideSparkles,
@@ -48,6 +52,7 @@ import { ConsistencyCheck } from './pages/consistency-check/consistency-check';
 import { StationSummaryBar } from './shared/components/station-summary-bar/station-summary-bar';
 import { NeighborStationsCard } from './pages/consistency-check/components/neighbor-stations-card/neighbor-stations-card';
 import { NeighborStationsMap } from './pages/consistency-check/components/neighbor-stations-map/neighbor-stations-map';
+import { NeighborStationConfirmation } from './pages/consistency-check/components/neighbor-station-confirmation/neighbor-station-confirmation';
 
 registerLocaleData(localePt);
 
@@ -66,8 +71,9 @@ registerLocaleData(localePt);
     StationSummaryBar,
     NeighborStationsCard,
     NeighborStationsMap,
+    NeighborStationConfirmation,
   ],
-  exports: [StationSummaryBar, NeighborStationsCard, NeighborStationsMap],
+  exports: [StationSummaryBar, NeighborStationsCard, NeighborStationsMap, NeighborStationConfirmation],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -82,6 +88,7 @@ registerLocaleData(localePt);
       lucideDownload,
       lucideArrowRight,
       lucideArrowLeft,
+      lucideArrowUp,
       lucideArrowUpRight,
       lucideMap,
       lucideMapPin,
@@ -89,9 +96,12 @@ registerLocaleData(localePt);
       lucideLoader2,
       lucideShieldCheck,
       lucideActivity,
+      lucideCheck,
       lucideCheckCircle2,
       lucideSparkles,
       lucideScan,
+      lucideRotateCw,
+      lucideInfo,
     }),
     ...HlmBadgeImports,
     ...HlmProgressImports,

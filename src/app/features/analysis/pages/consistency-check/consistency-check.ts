@@ -8,11 +8,16 @@ import { InitialVisualizationService } from '../../services/initial-visualizatio
 import { StationService } from '../../../../core/services/api/stations.service';
 import { Project } from '../../../../core/models/api/project.model';
 import { NeighborStation } from '../../../../core/models/api/station.model';
+import { ActiveJobItem } from '../../../../core/models/api/notification.model';
 import { GlobalStats } from '../../shared/models/analysis.models';
 import {
   SkeletonLoadingCoordinator,
   trackWithSkeleton,
 } from '../../../../core/utils/skeleton-loading-coordinator';
+import {
+  ConfirmationStatus,
+  NeighborProgressInfo,
+} from './components/neighbor-station-confirmation/neighbor-station-confirmation';
 
 @Component({
   selector: 'app-consistency-check',
@@ -38,6 +43,11 @@ export class ConsistencyCheck {
   // Estados das estações vizinhas
   readonly neighbors = signal<NeighborStation[]>([]);
   readonly selectedNeighbor = signal<NeighborStation | null>(null);
+  readonly activeNeighborStation = signal<NeighborStation | null>(null);
+  readonly confirmationStatus = signal<ConfirmationStatus>('idle');
+  readonly neighborProgress = signal<NeighborProgressInfo | null>(null);
+  readonly neighborJob = signal<ActiveJobItem | null>(null);
+  readonly isSelectionLocked = signal<boolean>(false);
   readonly isLoadingNeighbors = signal<boolean>(true);
   readonly isLoadingNeighborData = signal<boolean>(false);
 
@@ -90,6 +100,11 @@ export class ConsistencyCheck {
           this.stats.set(null);
           this.neighbors.set([]);
           this.selectedNeighbor.set(null);
+          this.activeNeighborStation.set(null);
+          this.confirmationStatus.set('idle');
+          this.neighborProgress.set(null);
+          this.neighborJob.set(null);
+          this.isSelectionLocked.set(false);
           this.isLoadingNeighbors.set(true);
         });
         return;
@@ -154,13 +169,35 @@ export class ConsistencyCheck {
   }
 
   onNeighborSelected(neighbor: NeighborStation): void {
+    if (this.isSelectionLocked()) return;
     this.selectedNeighbor.set(neighbor);
-    this.isLoadingNeighborData.set(true);
+  }
 
-    // Simulação do carregamento de dados da série vizinha para comparação
+  onConfirmNeighbor(stationId: string): void {
+    const neighbor = this.neighbors().find((n) => n.id === stationId);
+    if (!neighbor) return;
+
+    this.confirmationStatus.set('loading');
+    this.neighborProgress.set({
+      message: `Buscando e processando registros da estação ${neighbor.name}...`,
+      percentage: 25,
+    });
+
+    // Mock inicial até acoplamento do polling assíncrono definitivo
     setTimeout(() => {
-      this.isLoadingNeighborData.set(false);
-    }, 1000);
+      this.activeNeighborStation.set(neighbor);
+      this.confirmationStatus.set('ready');
+      this.neighborProgress.set(null);
+    }, 1200);
+  }
+
+  onLockSelection(locked: boolean): void {
+    this.isSelectionLocked.set(locked);
+  }
+
+  onScrollToNeighborCard(): void {
+    const el = document.getElementById('neighbor-stations-selection-card');
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   onSkipToYears(): void {

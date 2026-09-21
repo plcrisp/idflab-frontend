@@ -1,4 +1,8 @@
-<div class="rounded-xl shadow-sm border border-border bg-popover text-foreground flex flex-col">
+<div
+  id="neighbor-stations-selection-card"
+  class="rounded-xl shadow-sm border border-border bg-popover text-foreground flex flex-col relative transition-opacity duration-200"
+  [class.opacity-65]="disabled"
+>
   <!-- Cabeçalho do Card -->
   <div class="flex flex-col border-b border-border p-4">
     <div class="flex items-center justify-between">
@@ -23,8 +27,19 @@
     </div>
   </div>
 
-  <!-- Corpo com 2 Colunas: Mini-mapa (lg:col-span-5) e Lista de Candidatas (lg:col-span-7) -->
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch p-4">
+  <!-- Banner de Bloqueio Durante Busca Ativa -->
+  @if (disabled) {
+    <div class="mx-4 mt-3 flex items-center justify-center gap-2 p-2.5 rounded-lg bg-muted/80 border border-border text-xs text-muted-foreground">
+      <ng-icon name="lucideClock" class="text-sm text-primary shrink-0" />
+      <span>Aguarde a busca atual terminar para selecionar outra estação.</span>
+    </div>
+  }
+
+  <!-- Corpo com 2 Colunas: Mini-mapa (lg:col-span-7) e Lista de Candidatas (lg:col-span-5) -->
+  <div
+    class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch p-4"
+    [class.pointer-events-none]="disabled"
+  >
     <!-- Coluna Esquerda: Mini-mapa (lg:col-span-5) -->
     <div class="lg:col-span-7 min-h-121.25 h-full flex flex-col">
       <app-neighbor-stations-map
@@ -155,5 +170,19 @@
         }
       </div>
     </div>
+  </div>
+
+  <!-- Divisória Sutil e Seção Inferior: Confirmação / Status da Estação Vizinha -->
+  <div class="border-t border-border px-5 py-2.5 rounded-b-xl">
+    <app-neighbor-station-confirmation
+      [highlightedStation]="selectedNeighbor"
+      [activeStation]="activeNeighborStation"
+      [status]="confirmationStatus"
+      [progress]="neighborProgress"
+      [job]="neighborJob"
+      (confirmSelection)="confirmSelection.emit($event)"
+      (lockSelection)="lockSelection.emit($event)"
+      (scrollToSelection)="scrollToSelection.emit()"
+    />
   </div>
 </div>

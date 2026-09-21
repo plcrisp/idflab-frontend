@@ -1,6 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NeighborStation, StationSummary } from '../../../../../../core/models/api/station.model';
+import { ActiveJobItem } from '../../../../../../core/models/api/notification.model';
 import { BRAZIL_STATES } from '../../../../../../shared/utils/brazil-states.constants';
+import {
+  ConfirmationStatus,
+  NeighborProgressInfo,
+} from '../neighbor-station-confirmation/neighbor-station-confirmation';
 
 @Component({
   selector: 'app-neighbor-stations-card',
@@ -12,11 +17,19 @@ export class NeighborStationsCard {
   @Input() mainStation: StationSummary | null = null;
   @Input() neighbors: NeighborStation[] = [];
   @Input() selectedNeighbor: NeighborStation | null = null;
+  @Input() activeNeighborStation: NeighborStation | null = null;
+  @Input() confirmationStatus: ConfirmationStatus = 'idle';
+  @Input() neighborProgress: NeighborProgressInfo | null = null;
+  @Input() neighborJob: ActiveJobItem | null = null;
   @Input() loading: boolean = false;
   @Input() isLoadingData: boolean = false;
+  @Input() disabled: boolean = false;
 
   @Output() stationSelected = new EventEmitter<NeighborStation>();
   @Output() skipClicked = new EventEmitter<void>();
+  @Output() confirmSelection = new EventEmitter<string>();
+  @Output() lockSelection = new EventEmitter<boolean>();
+  @Output() scrollToSelection = new EventEmitter<void>();
 
   readonly states = BRAZIL_STATES;
 
@@ -33,6 +46,7 @@ export class NeighborStationsCard {
   }
 
   selectStation(station: NeighborStation): void {
+    if (this.disabled) return;
     this.stationSelected.emit(station);
 
     const cardEl = document.getElementById(`neighbor-card-${station.id}`);

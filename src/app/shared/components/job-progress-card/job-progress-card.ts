@@ -8,19 +8,30 @@ import { ActiveJobItem } from '../../../core/models/api/notification.model';
   styleUrl: './job-progress-card.scss',
 })
 export class JobProgressCard {
-  job = input.required<ActiveJobItem>();
+  job = input<ActiveJobItem | null>(null);
   variant = input<'compact' | 'full'>('full');
 
+  customTitle = input<string | null>(null);
+  customSource = input<string | null>(null);
+  customDescription = input<string | null>(null);
+  customMessage = input<string | null>(null);
+  customProgress = input<number | null>(null);
+  extraWarning = input<string | null>(null);
+
+  displayTitle = computed(() => {
+    return this.customTitle() ?? this.job()?.project_name ?? '';
+  });
+
   source = computed(() => {
-    const details = this.job().details;
-    return details?.source ?? null;
+    return this.customSource() ?? this.job()?.details?.source ?? null;
   });
 
   stageMessage = computed(() => {
-    return this.job().details?.message ?? 'Processando requisição de dados...';
+    return this.customMessage() ?? this.job()?.details?.message ?? 'Processando requisição de dados...';
   });
 
   progress = computed(() => {
-    return Math.min(100, Math.max(0, this.job().progress ?? 0));
+    const val = this.customProgress() ?? this.job()?.progress ?? 0;
+    return Math.min(100, Math.max(0, val));
   });
 }

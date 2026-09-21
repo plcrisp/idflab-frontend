@@ -1,0 +1,141 @@
+<div class="confirmation-wrapper w-full">
+  @switch (currentState()) {
+    @case ('idle') {
+      <!-- 1. Estado IDLE: Neutro, orientativo -->
+      <div class="confirmation-card flex items-center justify-center gap-2.5 text-xs sm:text-sm text-muted-foreground py-1">
+        <ng-icon name="lucideInfo" class="text-base text-muted-foreground/80 shrink-0" />
+        <span>Selecione uma estação vizinha na lista ou no mapa para verificar a consistência e avaliar o preenchimento.</span>
+      </div>
+    }
+
+    @case ('ready_to_confirm') {
+      <!-- 2. Estado READY_TO_CONFIRM: Candidata destacada, aguardando confirmação -->
+      @if (targetStation(); as station) {
+        <div class="confirmation-card flex flex-wrap items-center justify-between gap-4 w-full py-0.5">
+          <!-- Informação Principal: Comparar com [Nome] [Badge Fonte] [Chip Distância] -->
+          <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+            <span class="text-sm text-muted-foreground tracking-tight">
+              Analisar a estação <span class="text-foreground font-semibold">{{ station.name | titlecase }}</span> como referência para preenchimento de falhas
+            </span>
+
+            <!-- Badge Colorido com Source -->
+            <span
+              hlmBadge
+              [ngClass]="station.source.toLowerCase()"
+              class="flex items-center gap-1.5 border-none font-medium text-xs px-2 py-0.5 rounded-md shrink-0"
+            >
+              <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+              {{ station.source }}
+            </span>
+
+            <!-- Chip de Distância com Ícone -->
+            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary/80 px-2.5 py-0.5 rounded-md border border-border shrink-0">
+              <ng-icon name="lucideMapPin" class="text-xs text-primary shrink-0" />
+              <span>{{ formatDistance(station.distance_km) }}</span>
+            </span>
+
+            @if (activeStation() && activeStation()?.id !== station.id) {
+              <span class="text-[11px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-md border border-border shrink-0">
+                Troca pendente
+              </span>
+            }
+          </div>
+
+          <!-- Botão com gap moderado logo ao lado -->
+          <button
+            hlmBtn
+            variant="default"
+            size="default"
+            (click)="onConfirm()"
+            class="cursor-pointer font-medium inline-flex items-center gap-1.5 shadow-xs transition-all shrink-0"
+          >
+            <ng-icon name="lucideSearch" class="text-xs" />
+            <span>Buscar dados desta estação</span>
+          </button>
+        </div>
+      }
+    }
+
+    @case ('loading') {
+      <!-- 3. Estado LOADING: Painel grande de progresso (JobProgressCard) -->
+      <div class="confirmation-card w-full py-1">
+        <app-job-progress-card
+          variant="full"
+          [job]="job()"
+          [customTitle]="targetStation()?.name ? (targetStation()!.name | titlecase) : 'Estação Vizinha'"
+          [customSource]="targetStation()?.source ?? null"
+          [customDescription]="'Busca e processamento dos dados da estação em andamento.'"
+          [customMessage]="progress()?.message ?? 'Processando requisição de dados...'"
+          [customProgress]="progress()?.percentage ?? 0"
+          [extraWarning]="isCemaden() ? 'Buscas via CEMADEN podem levar mais tempo — em alguns casos, até alguns dias.' : null"
+        />
+      </div>
+    }
+
+    @case ('ready') {
+      <!-- 4. Estado READY: Busca concluída com sucesso -->
+      @if (targetStation(); as station) {
+        <div class="confirmation-card flex flex-wrap items-center justify-between gap-4 w-full py-0.5">
+          <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+            <span class="text-sm text-muted-foreground tracking-tight">
+              Analisando consistência com <span class="text-foreground font-semibold">{{ station.name | titlecase }}</span>
+            </span>
+
+            <!-- Badge Colorido com Source -->
+            <span
+              hlmBadge
+              [ngClass]="station.source.toLowerCase()"
+              class="flex items-center gap-1.5 border-none font-medium text-xs px-2 py-0.5 rounded-md shrink-0"
+            >
+              <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+              {{ station.source }}
+            </span>
+
+            <!-- Chip de Distância com Ícone -->
+            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary/80 px-2.5 py-0.5 rounded-md border border-border shrink-0">
+              <ng-icon name="lucideMapPin" class="text-xs text-primary shrink-0" />
+              <span>{{ formatDistance(station.distance_km) }}</span>
+            </span>
+          </div>
+
+          <button
+            hlmBtn
+            variant="outline"
+            size="default"
+            (click)="onConfirm()"
+            class="cursor-pointer font-medium inline-flex items-center gap-1.5 shadow-xs transition-all shrink-0"
+          >
+            
+            <span>Trocar de estação</span>
+            <ng-icon name="lucideArrowUp" class="text-xs" />
+          </button>
+        </div>
+      }
+    }
+
+    @case ('error') {
+      <!-- 5. Estado ERROR: Busca falhou -->
+      <div class="confirmation-card flex flex-wrap items-center justify-center gap-3 sm:gap-4 w-full py-0.5 text-destructive">
+        <div class="flex items-center gap-2">
+          <ng-icon name="lucideTriangleAlert" class="text-sm shrink-0" />
+          <span class="text-sm font-medium">
+            Não foi possível obter os dados de
+            <span class="font-semibold">{{ targetStation()?.name ? (targetStation()!.name | titlecase) : 'esta estação' }}</span>.
+            <span class="text-muted-foreground text-xs ml-1">Tente novamente ou selecione outra estação.</span>
+          </span>
+        </div>
+
+        <button
+          hlmBtn
+          variant="outline"
+          size="sm"
+          (click)="onRetry()"
+          class="cursor-pointer font-medium inline-flex items-center gap-1.5 border-destructive/30 hover:bg-destructive/10 text-destructive text-xs h-7 px-3 shrink-0"
+        >
+          <ng-icon name="lucideRotateCw" class="text-xs" />
+          <span>Tentar novamente</span>
+        </button>
+      </div>
+    }
+  }
+</div>

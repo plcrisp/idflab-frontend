@@ -7,14 +7,22 @@
     [isHourly]="isHourly()"
   />
 
-  <!-- Card de Seleção da Estação Vizinha -->
+  <!-- Card de Seleção e Confirmação da Estação Vizinha -->
   <app-neighbor-stations-card
     [mainStation]="project()?.station ?? null"
     [neighbors]="neighbors()"
     [selectedNeighbor]="selectedNeighbor()"
+    [activeNeighborStation]="activeNeighborStation()"
+    [confirmationStatus]="confirmationStatus()"
+    [neighborProgress]="neighborProgress()"
+    [neighborJob]="neighborJob()"
     [loading]="isLoadingNeighbors()"
     [isLoadingData]="isLoadingNeighborData()"
+    [disabled]="isSelectionLocked()"
     (stationSelected)="onNeighborSelected($event)"
     (skipClicked)="onSkipToYears()"
+    (confirmSelection)="onConfirmNeighbor($event)"
+    (lockSelection)="onLockSelection($event)"
+    (scrollToSelection)="onScrollToNeighborCard()"
   />
 </div>

@@ -36,6 +36,7 @@ import {
   lucideSun,
   lucideTrash,
   lucideTrash2,
+  lucideTriangleAlert,
   lucideUser,
 } from '@ng-icons/lucide';
 import { Navbar } from './components/navbar/navbar';
@@ -105,7 +106,8 @@ import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
       lucideMapPin,
       lucidePin,
       lucideDot,
-      lucideSearch
+      lucideSearch,
+      lucideTriangleAlert,
     }),
     ...HlmButtonImports,
     ...HlmSidebarImports,
