@@ -1,0 +1,35 @@
+// Tokens e Cores de Fontes
+.inmet {
+  background-color: color-mix(in srgb, var(--inmet) 12%, transparent);
+  color: var(--inmet);
+}
+
+.cemaden {
+  background-color: color-mix(in srgb, var(--cemaden) 12%, transparent);
+  color: var(--cemaden);
+}
+
+.ana {
+  background-color: color-mix(in srgb, var(--ana) 12%, transparent);
+  color: var(--ana);
+}
+
+.text-warning {
+  color: var(--warning);
+}
+
+.bg-primary-5 {
+  background-color: color-mix(in srgb, var(--primary) 6%, transparent);
+}
+
+.bg-card-60 {
+  background-color: color-mix(in srgb, var(--card) 60%, transparent);
+}
+
+.hover\:bg-muted-40:hover {
+  background-color: color-mix(in srgb, var(--muted) 40%, transparent);
+}
+
+.border-muted-foreground-40 {
+  border-color: color-mix(in srgb, var(--muted-foreground) 40%, transparent);
+}

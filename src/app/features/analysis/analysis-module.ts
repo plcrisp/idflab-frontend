@@ -12,13 +12,16 @@ import {
   lucideActivity,
   lucideArrowLeft,
   lucideArrowRight,
+  lucideArrowUpRight,
   lucideCalendar,
   lucideCheckCircle2,
   lucideChevronDown,
   lucideClock,
   lucideDatabase,
   lucideDownload,
+  lucideLoader2,
   lucideMap,
+  lucideMapPin,
   lucideShieldCheck,
   lucideSparkles,
   lucideTrendingUp,
@@ -42,6 +45,7 @@ import { provideNativeDateAdapter } from '@spartan-ng/brain/date-time';
 import { provideBrnCalendarI18n } from '@spartan-ng/brain/calendar';
 import { ConsistencyCheck } from './pages/consistency-check/consistency-check';
 import { StationSummaryBar } from './shared/components/station-summary-bar/station-summary-bar';
+import { NeighborStationsCard } from './pages/consistency-check/components/neighbor-stations-card/neighbor-stations-card';
 
 registerLocaleData(localePt);
 
@@ -58,8 +62,9 @@ registerLocaleData(localePt);
     DataAvailabilityRibbon,
     ConsistencyCheck,
     StationSummaryBar,
+    NeighborStationsCard,
   ],
-  exports: [StationSummaryBar],
+  exports: [StationSummaryBar, NeighborStationsCard],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -74,8 +79,11 @@ registerLocaleData(localePt);
       lucideDownload,
       lucideArrowRight,
       lucideArrowLeft,
+      lucideArrowUpRight,
       lucideMap,
+      lucideMapPin,
       lucideClock,
+      lucideLoader2,
       lucideShieldCheck,
       lucideActivity,
       lucideCheckCircle2,

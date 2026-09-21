@@ -1,4 +1,4 @@
-import { DestroyRef, signal, Signal } from '@angular/core';
+import { DestroyRef, signal, Signal, untracked } from '@angular/core';
 import { defer, finalize, Observable } from 'rxjs';
 
 export interface SkeletonCoordinatorOptions {
@@ -31,57 +31,63 @@ export class SkeletonLoadingCoordinator {
   }
 
   start(): void {
-    if (this._showSkeleton()) {
-      return;
-    }
+    untracked(() => {
+      if (this._showSkeleton()) {
+        return;
+      }
 
-    if (this.delayTimer !== null) {
-      return;
-    }
+      if (this.delayTimer !== null) {
+        return;
+      }
 
-    this.clearTimers();
-    this._isFetching.set(true);
+      this.clearTimers();
+      this._isFetching.set(true);
 
-    this.delayTimer = setTimeout(() => {
-      this._showSkeleton.set(true);
-      this.skeletonShownTimestamp = Date.now();
-      this.delayTimer = null;
-    }, this.delayMs);
+      this.delayTimer = setTimeout(() => {
+        this._showSkeleton.set(true);
+        this.skeletonShownTimestamp = Date.now();
+        this.delayTimer = null;
+      }, this.delayMs);
+    });
   }
 
   finish(): void {
-    this._isFetching.set(false);
+    untracked(() => {
+      this._isFetching.set(false);
 
-    if (this.delayTimer !== null) {
-      clearTimeout(this.delayTimer);
-      this.delayTimer = null;
-      this._showSkeleton.set(false);
-      this.skeletonShownTimestamp = null;
-      return;
-    }
-
-    if (this._showSkeleton()) {
-      const elapsed = Date.now() - (this.skeletonShownTimestamp ?? 0);
-      const remaining = this.minDurationMs - elapsed;
-
-      if (remaining > 0) {
-        this.minDurationTimer = setTimeout(() => {
-          this._showSkeleton.set(false);
-          this.skeletonShownTimestamp = null;
-          this.minDurationTimer = null;
-        }, remaining);
-      } else {
+      if (this.delayTimer !== null) {
+        clearTimeout(this.delayTimer);
+        this.delayTimer = null;
         this._showSkeleton.set(false);
         this.skeletonShownTimestamp = null;
+        return;
       }
-    }
+
+      if (this._showSkeleton()) {
+        const elapsed = Date.now() - (this.skeletonShownTimestamp ?? 0);
+        const remaining = this.minDurationMs - elapsed;
+
+        if (remaining > 0) {
+          this.minDurationTimer = setTimeout(() => {
+            this._showSkeleton.set(false);
+            this.skeletonShownTimestamp = null;
+            this.minDurationTimer = null;
+          }, remaining);
+        } else {
+          this._showSkeleton.set(false);
+          this.skeletonShownTimestamp = null;
+        }
+      }
+    });
   }
 
   reset(): void {
-    this.clearTimers();
-    this._isFetching.set(false);
-    this._showSkeleton.set(false);
-    this.skeletonShownTimestamp = null;
+    untracked(() => {
+      this.clearTimers();
+      this._isFetching.set(false);
+      this._showSkeleton.set(false);
+      this.skeletonShownTimestamp = null;
+    });
   }
 
   destroy(): void {

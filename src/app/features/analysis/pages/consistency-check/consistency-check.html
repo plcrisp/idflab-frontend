@@ -6,4 +6,15 @@
     [muted]="hasInsufficientData()"
     [isHourly]="isHourly()"
   />
+
+  <!-- Card de Seleção da Estação Vizinha -->
+  <app-neighbor-stations-card
+    [mainStation]="project()?.station ?? null"
+    [neighbors]="neighbors()"
+    [selectedNeighbor]="selectedNeighbor()"
+    [loading]="isLoadingNeighbors()"
+    [isLoadingData]="isLoadingNeighborData()"
+    (stationSelected)="onNeighborSelected($event)"
+    (skipClicked)="onSkipToYears()"
+  />
 </div>

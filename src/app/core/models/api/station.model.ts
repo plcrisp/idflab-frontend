@@ -87,6 +87,8 @@ export interface NeighborStation {
   distance_km: number;
   operation_start_date: string | null;
   last_data_date: string;
+  city?: string | null;
+  state?: string | null;
 }
 
 export interface NeighborStationsFilter {
