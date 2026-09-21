@@ -23,10 +23,22 @@
     </div>
   </div>
 
-  <!-- Corpo com 2 Colunas: Mini-mapa (40%) e Lista de Candidatas (60%) -->
+  <!-- Corpo com 2 Colunas: Mini-mapa (lg:col-span-5) e Lista de Candidatas (lg:col-span-7) -->
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch p-4">
+    <!-- Coluna Esquerda: Mini-mapa (lg:col-span-5) -->
+    <div class="lg:col-span-7 min-h-121.25 h-full flex flex-col">
+      <app-neighbor-stations-map
+        class="w-full h-full flex-1 flex flex-col"
+        [mainStation]="mainStation"
+        [neighbors]="neighbors"
+        [selectedNeighbor]="selectedNeighbor"
+        [loading]="loading"
+        (stationSelected)="selectStation($event)"
+      />
+    </div>
+
     <!-- Coluna Direita: Lista de Candidatas (lg:col-span-7) -->
-    <div class="lg:col-span-7 flex flex-col justify-between">
+    <div class="lg:col-span-5 flex flex-col justify-between">
       <div class="flex-1 min-h-121.25 max-h-121.25 overflow-y-auto pr-1.5 space-y-2.5">
         @if (loading) {
           <!-- Skeletons enquanto busca as vizinhas (4 itens para preencher a altura) -->
@@ -142,14 +154,6 @@
           }
         }
       </div>
-
-      <!-- Estado de Carregamento ao Selecionar uma Vizinha -->
-      @if (isLoadingData && selectedNeighbor) {
-        <div class="flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-muted/50 border border-border text-xs text-muted-foreground animate-pulse mt-3">
-          <hlm-spinner class="h-3.5 w-3.5 text-primary" />
-          <span>Buscando dados via {{ selectedNeighbor.source }}…</span>
-        </div>
-      }
     </div>
   </div>
 </div>

@@ -1,0 +1,152 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+
+  // Customização de controles Mapbox
+  ::ng-deep .mapboxgl-ctrl-group {
+    background: color-mix(in srgb, var(--popover) 90%, transparent);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    button {
+      border-color: var(--border);
+
+      span {
+        filter: invert(var(--map-ctrl-invert, 0));
+      }
+
+      &:hover {
+        background-color: var(--muted);
+      }
+    }
+  }
+
+  ::ng-deep .mapboxgl-ctrl-bottom-right {
+    bottom: 0.75rem;
+    right: 0.75rem;
+  }
+
+  ::ng-deep .mapboxgl-ctrl-attrib {
+    font-size: 0.625rem;
+    background-color: color-mix(in srgb, var(--background) 70%, transparent);
+    backdrop-filter: blur(4px);
+    padding: 0 4px;
+    border-radius: 4px;
+    margin: 4px;
+  }
+}
+
+// Marcador da Estação Principal (Referência)
+::ng-deep .main-station-marker-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 25;
+
+  .main-pin {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &:hover {
+      transform: scale(1.15);
+    }
+  }
+
+  .main-label-tag {
+    position: absolute;
+    bottom: -1.25rem;
+    padding: 0.1rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background-color: color-mix(in srgb, var(--popover) 95%, transparent);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+  }
+}
+
+// Marcadores das Estações Vizinhas (Candidatas)
+::ng-deep .neighbor-marker-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 15;
+
+  .marker-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .selection-ring {
+    display: none;
+    position: absolute;
+    inset: -0.25rem;
+    border-radius: 9999px;
+    border: 2px solid var(--primary);
+    background-color: color-mix(in srgb, var(--primary) 20%, transparent);
+    pointer-events: none;
+  }
+
+  .shape-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+    transition: transform 0.2s ease;
+  }
+
+  &:hover {
+    z-index: 30;
+
+    .marker-wrapper {
+      transform: scale(1.18);
+    }
+  }
+
+  &.is-selected {
+    z-index: 35;
+
+    .marker-wrapper {
+      transform: scale(1.25);
+    }
+
+    .selection-ring {
+      display: block;
+    }
+
+    .shape-icon {
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+    }
+  }
+}

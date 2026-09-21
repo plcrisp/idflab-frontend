@@ -1,0 +1,58 @@
+<div class="map-container relative w-full h-full rounded-xl border border-border overflow-hidden bg-muted/20">
+  <!-- Container do Mapbox -->
+  <div [id]="containerId" class="w-full h-full"></div>
+
+  <!-- Loading Overlay / Skeleton durante carregamento -->
+  @if (loading) {
+    <div class="absolute inset-0 z-40 bg-background/80 backdrop-blur-xs flex flex-col items-center justify-center gap-3">
+      <div class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-popover/90 border border-border shadow-sm text-xs font-medium text-foreground">
+        <hlm-spinner class="h-4 w-4 text-primary" />
+        <span>Carregando mapa…</span>
+      </div>
+    </div>
+  }
+
+  <!-- Botão Flutuante: Enquadrar Todas as Estações (Fit Bounds) -->
+  @if (!loading && (neighbors.length > 0 || mainStation)) {
+    <div class="absolute top-3 right-3 z-30 flex items-center gap-1.5">
+      <button
+        type="button"
+        (click)="fitAllBounds()"
+        title="Enquadrar todas as estações"
+        aria-label="Enquadrar todas as estações no mapa"
+        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-popover/90 hover:bg-popover text-foreground border border-border shadow-sm backdrop-blur-md text-xs font-medium transition-all hover:scale-105 active:scale-95 cursor-pointer"
+      >
+        <ng-icon name="lucideScan" class="text-sm text-primary" />
+        <span class="hidden sm:inline">Enquadrar</span>
+      </button>
+    </div>
+  }
+
+  <!-- Legenda Flutuante Discreta (Top-Left) -->
+  @if (!loading && (neighbors.length > 0 || mainStation)) {
+    <div class="absolute top-3 left-3 z-30 pointer-events-none">
+      <div class="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-popover/90 border border-border shadow-sm backdrop-blur-md text-[11px] font-medium text-foreground">
+        <!-- Estação Principal -->
+        <span class="flex items-center gap-1.5">
+          <ng-icon name="lucideMapPin" class="text-xs shrink-0" [style.color]="getMainStationColor()" />
+          <span>Principal</span>
+        </span>
+
+        <span class="h-3 w-px bg-border"></span>
+
+        <!-- Estação Selecionada -->
+        <span class="flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full border-2 border-primary bg-primary/20 shrink-0"></span>
+          <span>Selecionada</span>
+        </span>
+
+        <span class="h-3 w-px bg-border"></span>
+
+        <!-- Total de Vizinhas -->
+        <span class="text-muted-foreground font-normal">
+          {{ neighbors.length }} {{ neighbors.length === 1 ? 'vizinha' : 'vizinhas' }}
+        </span>
+      </div>
+    </div>
+  }
+</div>

@@ -22,6 +22,7 @@ import {
   lucideLoader2,
   lucideMap,
   lucideMapPin,
+  lucideScan,
   lucideShieldCheck,
   lucideSparkles,
   lucideTrendingUp,
@@ -46,6 +47,7 @@ import { provideBrnCalendarI18n } from '@spartan-ng/brain/calendar';
 import { ConsistencyCheck } from './pages/consistency-check/consistency-check';
 import { StationSummaryBar } from './shared/components/station-summary-bar/station-summary-bar';
 import { NeighborStationsCard } from './pages/consistency-check/components/neighbor-stations-card/neighbor-stations-card';
+import { NeighborStationsMap } from './pages/consistency-check/components/neighbor-stations-map/neighbor-stations-map';
 
 registerLocaleData(localePt);
 
@@ -63,8 +65,9 @@ registerLocaleData(localePt);
     ConsistencyCheck,
     StationSummaryBar,
     NeighborStationsCard,
+    NeighborStationsMap,
   ],
-  exports: [StationSummaryBar, NeighborStationsCard],
+  exports: [StationSummaryBar, NeighborStationsCard, NeighborStationsMap],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -88,6 +91,7 @@ registerLocaleData(localePt);
       lucideActivity,
       lucideCheckCircle2,
       lucideSparkles,
+      lucideScan,
     }),
     ...HlmBadgeImports,
     ...HlmProgressImports,
