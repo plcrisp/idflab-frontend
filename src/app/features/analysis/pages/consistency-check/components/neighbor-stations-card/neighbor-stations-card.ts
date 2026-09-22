@@ -41,6 +41,34 @@ export class NeighborStationsCard {
     return neighbor.city || stateName || 'ND';
   }
 
+  formatInlineLocation(neighbor: NeighborStation): string | null {
+    const rawCity = neighbor.city?.trim();
+    const rawState = neighbor.state?.trim();
+
+    if (!rawCity && !rawState) return null;
+
+    let formattedCity: string | null = null;
+    if (rawCity) {
+      const lower = rawCity.toLowerCase();
+      formattedCity = lower
+        .split(' ')
+        .map((word, idx) => {
+          if (idx > 0 && ['de', 'da', 'do', 'das', 'dos', 'e'].includes(word)) {
+            return word;
+          }
+          return word.charAt(0).toUpperCase() + word.slice(1);
+        })
+        .join(' ');
+    }
+
+    const formattedState = rawState ? rawState.toUpperCase() : null;
+
+    if (formattedCity && formattedState) {
+      return `${formattedCity}, ${formattedState}`;
+    }
+    return formattedCity || formattedState || null;
+  }
+
   get distantStations(): NeighborStation[] {
     return this.neighbors.filter((n) => n.distance_km > 100);
   }
