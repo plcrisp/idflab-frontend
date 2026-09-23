@@ -95,3 +95,15 @@ export interface NeighborStationsFilter {
   limit?: number;
   max_distance_km?: number;
 }
+
+export interface EnsureStationDataRequest {
+  start_date: string;
+  end_date: string;
+  project_id?: string | null;
+}
+
+export interface EnsureStationDataResponse {
+  status: 'ready' | 'processing';
+  message?: string | null;
+  job_id?: string | null;
+}

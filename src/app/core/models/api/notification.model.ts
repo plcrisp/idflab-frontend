@@ -10,6 +10,7 @@ export interface ActiveJobItem {
   status: JobStatus;
   progress: number;
   details: JobDetails | null;
+  station_name?: string | null;
 }
 
 export interface Notification {
@@ -18,6 +19,7 @@ export interface Notification {
   job_id: string | null;
   project_id: string | null;
   project_name: string | null;
+  station_name?: string | null;
 
   type: NotificationType;
   task_type: TaskType;

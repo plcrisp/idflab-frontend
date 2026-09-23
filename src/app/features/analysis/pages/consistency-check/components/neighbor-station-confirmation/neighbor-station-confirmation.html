@@ -65,9 +65,8 @@
           [customTitle]="targetStation()?.name ? (targetStation()!.name | titlecase) : 'Estação Vizinha'"
           [customSource]="targetStation()?.source ?? null"
           [customDescription]="'Busca e processamento dos dados da estação em andamento.'"
-          [customMessage]="progress()?.message ?? 'Processando requisição de dados...'"
-          [customProgress]="progress()?.percentage ?? 0"
-          [extraWarning]="isCemaden() ? 'Buscas via CEMADEN podem levar mais tempo — em alguns casos, até alguns dias.' : null"
+          [customMessage]="!job() ? (progress()?.message ?? null) : null"
+          [customProgress]="!job() ? (progress()?.percentage ?? null) : null"
         />
       </div>
     }
@@ -102,10 +101,9 @@
             hlmBtn
             variant="outline"
             size="default"
-            (click)="onConfirm()"
+            (click)="onScrollToSelection()"
             class="cursor-pointer font-medium inline-flex items-center gap-1.5 shadow-xs transition-all shrink-0"
           >
-            
             <span>Trocar de estação</span>
             <ng-icon name="lucideArrowUp" class="text-xs" />
           </button>

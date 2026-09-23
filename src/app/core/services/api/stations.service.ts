@@ -1,7 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Marker, NeighborStation, NeighborStationsFilter, Station, StationBBoxRequest } from '../../models/api/station.model';
+import {
+  EnsureStationDataRequest,
+  EnsureStationDataResponse,
+  Marker,
+  NeighborStation,
+  NeighborStationsFilter,
+  Station,
+  StationBBoxRequest,
+} from '../../models/api/station.model';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -50,5 +58,15 @@ export class StationService {
     }
 
     return this.http.get<NeighborStation[]>(`${this.baseUrl}/${stationId}/neighbors`, { params });
+  }
+
+  ensureStationData(
+    stationId: string,
+    payload: EnsureStationDataRequest,
+  ): Observable<EnsureStationDataResponse> {
+    return this.http.post<EnsureStationDataResponse>(
+      `${this.baseUrl}/${stationId}/ensure-data`,
+      payload,
+    );
   }
 }

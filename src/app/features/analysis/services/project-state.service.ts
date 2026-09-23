@@ -13,6 +13,7 @@ export class ProjectStateService {
   private _project = signal<Project | null>(null);
   private _loading = signal(true);
   private _hasInsufficientData = signal(false);
+  private _neighborJobId = signal<string | null>(null);
 
   readonly projectSkeleton = new SkeletonLoadingCoordinator({ delayMs: 350, minDurationMs: 250 });
   readonly showProjectSkeleton = this.projectSkeleton.showSkeleton;
@@ -25,14 +26,22 @@ export class ProjectStateService {
     const p = this._project();
     if (!p) return null;
     const panel = this.notificationsService.panel();
+    const neighborJobId = this._neighborJobId();
     return (
       panel?.active_jobs.find(
-        (job) => job.project_id === p.id && job.task_type === 'DOWNLOAD_STATION_DATA',
+        (job) =>
+          job.project_id === p.id &&
+          job.task_type === 'DOWNLOAD_STATION_DATA' &&
+          (!neighborJobId || String(job.job_id).toLowerCase() !== String(neighborJobId).toLowerCase()),
       ) ?? null
     );
   });
 
   readonly isJobRunning = computed<boolean>(() => this.activeJob() !== null);
+
+  setNeighborJobId(value: string | null): void {
+    this._neighborJobId.set(value);
+  }
 
   setInsufficientData(value: boolean): void {
     this._hasInsufficientData.set(value);
@@ -42,6 +51,7 @@ export class ProjectStateService {
     if (this._project()?.id !== projectId) {
       this._project.set(null);
       this._hasInsufficientData.set(false);
+      this._neighborJobId.set(null);
       this.projectSkeleton.reset();
     }
     this._loading.set(true);

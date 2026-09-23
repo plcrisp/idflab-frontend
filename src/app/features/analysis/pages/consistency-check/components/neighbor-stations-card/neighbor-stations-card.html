@@ -1,7 +1,6 @@
 <div
   id="neighbor-stations-selection-card"
-  class="rounded-xl shadow-sm border border-border bg-popover text-foreground flex flex-col relative transition-opacity duration-200"
-  [class.opacity-65]="disabled"
+  class="rounded-xl shadow-sm border border-border bg-popover text-foreground flex flex-col relative"
 >
   <!-- Cabeçalho do Card -->
   <div class="flex flex-col border-b border-border p-4">
@@ -19,7 +18,8 @@
       <button
         type="button"
         (click)="onSkip()"
-        class="inline-flex items-center gap-1.5 text-xs text-primary hover:text-(--primary-700) transition-colors cursor-pointer group hover:underline"
+        [disabled]="disabled"
+        class="inline-flex items-center gap-1.5 text-xs text-primary hover:text-(--primary-700) transition-colors cursor-pointer group hover:underline disabled:opacity-50 disabled:pointer-events-none"
       >
         <span>Não pretende preencher falhas? Pule direto para a seleção de anos abaixo.</span>
         <ng-icon name="lucideChevronDown" class="text-xs transition-transform group-hover:translate-y-0.5" />
@@ -37,7 +37,8 @@
 
   <!-- Corpo com 2 Colunas: Mini-mapa (lg:col-span-7) e Lista de Candidatas (lg:col-span-5) -->
   <div
-    class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch p-4"
+    class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch p-4 transition-opacity duration-200"
+    [class.opacity-60]="disabled"
     [class.pointer-events-none]="disabled"
   >
     <!-- Coluna Esquerda: Mini-mapa (lg:col-span-5) -->

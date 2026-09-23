@@ -4,9 +4,17 @@
       <span
         class="w-3.5 h-3.5 mt-0.5 rounded-full border-2 border-(--primary-600) border-t-transparent animate-spin shrink-0"
       ></span>
-      <span class="text-[13px] font-semibold text-white leading-snug truncate">
-        {{ displayTitle() }}
-      </span>
+      <div class="flex-1 min-w-0 pr-2">
+        <span class="text-[13px] font-semibold text-white leading-snug truncate block">
+          {{ displayTitle() }}
+        </span>
+        @if (isNeighborJob() && stationName()) {
+          <span class="text-[11.5px] font-medium text-(--primary-200) flex items-center gap-1 mt-0.5 truncate" [title]="stationName()!">
+            <ng-icon name="lucideMapPin" class="text-xs shrink-0 text-(--primary-300)"></ng-icon>
+            <span class="truncate">Vizinha: {{ stationName() }}</span>
+          </span>
+        }
+      </div>
       <span class="ml-auto text-sm font-semibold text-white shrink-0">
         {{ progress() }}%
       </span>

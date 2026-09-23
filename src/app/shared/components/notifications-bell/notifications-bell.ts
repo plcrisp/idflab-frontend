@@ -69,13 +69,20 @@ export class NotificationsBell {
   openJob(job: ActiveJobItem): void {
     if (!job.project_id) return;
     this.menuTrigger.close();
-    this.router.navigateByUrl(`/app/analysis/${job.project_id}`);
+    if (job.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA') {
+      this.router.navigateByUrl(`/app/analysis/${job.project_id}/consistency-check`);
+    } else {
+      this.router.navigateByUrl(`/app/analysis/${job.project_id}`);
+    }
   }
 
   openNotification(notif: Notification): void {
     this.menuTrigger.close();
     if (notif.type === 'TIMEOUT') {
       this.retryTimeoutNotif(notif.job_id);
+      if (notif.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA' && notif.project_id) {
+        this.router.navigateByUrl(`/app/analysis/${notif.project_id}/consistency-check`);
+      }
     } else {
       this.openProject(notif);
     }
@@ -84,12 +91,23 @@ export class NotificationsBell {
   private openProject(notif: Notification): void {
     if (notif.type === 'SUCCESS') {
       if (notif.project_id) {
-        this.router.navigateByUrl(`/app/analysis/${notif.project_id}`);
+        if (notif.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA') {
+          this.router.navigateByUrl(`/app/analysis/${notif.project_id}/consistency-check`);
+        } else {
+          this.router.navigateByUrl(`/app/analysis/${notif.project_id}`);
+        }
       }
       return;
     }
 
     if (notif.type === 'FAILED') {
+      if (notif.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA') {
+        if (notif.project_id) {
+          this.router.navigateByUrl(`/app/analysis/${notif.project_id}/consistency-check`);
+        }
+        return;
+      }
+
       const detailsStationId = (notif.details as any)?.station_id;
 
       if (notif.project_id) {

@@ -22,6 +22,14 @@ export class JobProgressCard {
     return this.customTitle() ?? this.job()?.project_name ?? '';
   });
 
+  stationName = computed(() => {
+    return this.job()?.station_name ?? null;
+  });
+
+  isNeighborJob = computed(() => {
+    return this.job()?.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA';
+  });
+
   source = computed(() => {
     return this.customSource() ?? this.job()?.details?.source ?? null;
   });
