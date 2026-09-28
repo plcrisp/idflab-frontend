@@ -2,7 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { ProjectsService } from '../../../core/services/api/projects.service';
 import { Project } from '../../../core/models/api/project.model';
 import { NotificationsService } from '../../../core/services/api/notifications.service';
-import { ActiveJobItem } from '../../../core/models/api/notification.model';
+import { ActiveJobItem, Notification } from '../../../core/models/api/notification.model';
 import { SkeletonLoadingCoordinator } from '../../../core/utils/skeleton-loading-coordinator';
 
 @Injectable()
@@ -38,6 +38,20 @@ export class ProjectStateService {
   });
 
   readonly isJobRunning = computed<boolean>(() => this.activeJob() !== null);
+
+  readonly timeoutNotification = computed<Notification | null>(() => {
+    const p = this._project();
+    if (!p) return null;
+    const panel = this.notificationsService.panel();
+    return (
+      panel?.notifications.find(
+        (n) =>
+          n.project_id === p.id &&
+          n.type === 'TIMEOUT' &&
+          n.task_type === 'DOWNLOAD_STATION_DATA',
+      ) ?? null
+    );
+  });
 
   setNeighborJobId(value: string | null): void {
     this._neighborJobId.set(value);

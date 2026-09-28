@@ -26,10 +26,18 @@
         A consulta na fonte oficial foi finalizada, mas a estação não possui registros de precipitação válidos para o intervalo selecionado ou demorou demais para responder.
       </p>
 
-      <button hlmBtn variant="outline" size="default" (click)="onBackToMap()">
-        <ng-icon name="lucideMap" class="mr-2" />
-        Voltar ao Mapa e escolher outra estação/período
-      </button>
+      <div class="flex flex-wrap items-center justify-center gap-3">
+        @if (state.timeoutNotification(); as notif) {
+          <button hlmBtn variant="default" size="default" (click)="state.retryCemaden(notif.job_id)">
+            <ng-icon name="lucideRotateCw" class="mr-2" />
+            Verificar se o CEMADEN liberou os dados
+          </button>
+        }
+        <button hlmBtn variant="outline" size="default" (click)="onBackToMap()">
+          <ng-icon name="lucideMap" class="mr-2" />
+          Voltar ao Mapa e escolher outra estação/período
+        </button>
+      </div>
     </div>
   } @else {
     <app-time-series-panel

@@ -9,6 +9,8 @@ import { Project } from '../../../../../core/models/api/project.model';
 import { ProjectStateService } from '../../../services/project-state.service';
 import { InitialVisualizationService } from '../../../services/initial-visualization.service';
 import { FileDownloadService } from '../../../../../core/services/utils/file-download.service';
+import { JobsService } from '../../../../../core/services/api/jobs.service';
+import { NotificationsService } from '../../../../../core/services/api/notifications.service';
 import {
   DetailResponse,
   GlobalStats,
@@ -29,12 +31,16 @@ export class InitialVisualizationStateService {
   private projectState = inject(ProjectStateService);
   private initialVisualizationService = inject(InitialVisualizationService);
   private fileDownloadService = inject(FileDownloadService);
+  private jobsService = inject(JobsService);
+  private notificationsService = inject(NotificationsService);
   private destroyRef = inject(DestroyRef);
 
   readonly project: Signal<Project | null> = this.projectState.project;
   readonly activeJob = this.projectState.activeJob;
   readonly isJobRunning = this.projectState.isJobRunning;
   readonly hasInsufficientData = this.projectState.hasInsufficientData;
+
+  readonly timeoutNotification = this.projectState.timeoutNotification;
 
   readonly isDownloadingRawSeries = signal(false);
   readonly hasInitialLoaded = signal(false);
@@ -230,6 +236,16 @@ export class InitialVisualizationStateService {
     }
     return '';
   });
+
+  retryCemaden(jobId?: string | null): void {
+    const id = jobId ?? this.timeoutNotification()?.job_id;
+    if (!id) return;
+
+    this.jobsService.retryCemadenCheck(id).subscribe({
+      next: () => this.notificationsService.refetch(),
+      error: (err: unknown) => console.error('Erro ao verificar agendamento no CEMADEN:', err),
+    });
+  }
 
   constructor() {
     // Reset de estado quando o projeto muda

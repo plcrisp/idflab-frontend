@@ -58,7 +58,7 @@
 
     @case ('loading') {
       <!-- 3. Estado LOADING: Painel grande de progresso (JobProgressCard) -->
-      <div class="confirmation-card w-full py-1">
+      <div #loadingCard class="confirmation-card w-full py-1">
         <app-job-progress-card
           variant="full"
           [job]="job()"

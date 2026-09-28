@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, output } from '@angular/core';
+import { Component, computed, effect, ElementRef, input, output, ViewChild } from '@angular/core';
 import { NeighborStation } from '../../../../../../core/models/api/station.model';
 import { ActiveJobItem } from '../../../../../../core/models/api/notification.model';
 
@@ -25,6 +25,25 @@ export class NeighborStationConfirmation {
   confirmSelection = output<string>();
   lockSelection = output<boolean>();
   scrollToSelection = output<void>();
+
+  @ViewChild('loadingCard') set loadingCardRef(el: ElementRef<HTMLElement> | undefined) {
+    if (el?.nativeElement) {
+      setTimeout(() => {
+        const native = el.nativeElement;
+        const rect = native.getBoundingClientRect();
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+        const isFullyVisible = rect.top >= 20 && rect.bottom <= viewportHeight - 20;
+
+        if (!isFullyVisible) {
+          if (rect.height > viewportHeight - 40) {
+            native.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            native.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }, 100);
+    }
+  }
 
   constructor() {
     effect(() => {
