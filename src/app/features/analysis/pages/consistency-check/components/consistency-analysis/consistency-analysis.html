@@ -1,0 +1,26 @@
+<div class="consistency-analysis-wrapper w-full">
+  @if (isLoading()) {
+    <div class="flex items-center gap-2 text-xs text-muted-foreground py-2">
+      <ng-icon name="lucideLoader2" class="animate-spin text-primary text-sm shrink-0" />
+      <span>Carregando dados de consistência da estação...</span>
+    </div>
+  } @else if (error(); as err) {
+    <div class="flex items-center gap-2 text-xs text-destructive py-2">
+      <ng-icon name="lucideTriangleAlert" class="text-sm shrink-0" />
+      <span>{{ err }}</span>
+    </div>
+  } @else if (analysis(); as data) {
+    <div class="flex flex-col gap-1 text-xs text-muted-foreground p-3 rounded-lg bg-muted/30 border border-border/50">
+      <div class="flex items-center gap-2 text-foreground font-medium">
+        <ng-icon name="lucideActivity" class="text-primary text-sm" />
+        <span>Análise de consistência pronta (dados impressos no console)</span>
+      </div>
+      <p class="text-[11px] text-muted-foreground">
+        Dias sobrepostos: <strong class="text-foreground">{{ data.overlap_days }}</strong> |
+        Pearson: <strong class="text-foreground">{{ data.pearson.value | number:'1.2-2' }} ({{ data.pearson.label }})</strong> |
+        Pontos dupla massa: <strong class="text-foreground">{{ data.double_mass.total_points }}</strong> |
+        Cobertura preenchível: <strong class="text-foreground">{{ data.coverage.percentage != null ? (data.coverage.percentage | number:'1.1-1') + '%' : 'N/A' }}</strong>
+      </p>
+    </div>
+  }
+</div>

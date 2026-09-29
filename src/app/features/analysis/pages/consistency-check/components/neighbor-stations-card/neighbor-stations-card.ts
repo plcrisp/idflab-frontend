@@ -14,6 +14,7 @@ import {
   styleUrl: './neighbor-stations-card.scss',
 })
 export class NeighborStationsCard {
+  @Input() projectId: string | null = null;
   @Input() mainStation: StationSummary | null = null;
   @Input() neighbors: NeighborStation[] = [];
   @Input() selectedNeighbor: NeighborStation | null = null;

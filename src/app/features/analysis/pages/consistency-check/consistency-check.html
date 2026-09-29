@@ -9,6 +9,7 @@
 
   <!-- Card de Seleção e Confirmação da Estação Vizinha -->
   <app-neighbor-stations-card
+    [projectId]="state.project()?.id ?? null"
     [mainStation]="state.project()?.station ?? null"
     [neighbors]="state.neighbors()"
     [selectedNeighbor]="state.selectedNeighbor()"

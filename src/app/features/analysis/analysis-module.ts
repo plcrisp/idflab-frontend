@@ -53,6 +53,7 @@ import { StationSummaryBar } from './shared/components/station-summary-bar/stati
 import { NeighborStationsCard } from './pages/consistency-check/components/neighbor-stations-card/neighbor-stations-card';
 import { NeighborStationsMap } from './pages/consistency-check/components/neighbor-stations-map/neighbor-stations-map';
 import { NeighborStationConfirmation } from './pages/consistency-check/components/neighbor-station-confirmation/neighbor-station-confirmation';
+import { ConsistencyAnalysis } from './pages/consistency-check/components/consistency-analysis/consistency-analysis';
 
 registerLocaleData(localePt);
 
@@ -72,8 +73,15 @@ registerLocaleData(localePt);
     NeighborStationsCard,
     NeighborStationsMap,
     NeighborStationConfirmation,
+    ConsistencyAnalysis,
   ],
-  exports: [StationSummaryBar, NeighborStationsCard, NeighborStationsMap, NeighborStationConfirmation],
+  exports: [
+    StationSummaryBar,
+    NeighborStationsCard,
+    NeighborStationsMap,
+    NeighborStationConfirmation,
+    ConsistencyAnalysis,
+  ],
   imports: [
     CommonModule,
     ReactiveFormsModule,

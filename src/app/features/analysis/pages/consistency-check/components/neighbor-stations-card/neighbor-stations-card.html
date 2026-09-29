@@ -185,7 +185,7 @@
   </div>
 
   <!-- Divisória Sutil e Seção Inferior: Confirmação / Status da Estação Vizinha -->
-  <div class="border-t border-border px-5 py-2.5 rounded-b-xl">
+  <div class="border-t border-border px-5 py-2.5" [class.rounded-b-xl]="confirmationStatus !== 'ready' || !activeNeighborStation">
     <app-neighbor-station-confirmation
       [highlightedStation]="selectedNeighbor"
       [activeStation]="activeNeighborStation"
@@ -197,4 +197,14 @@
       (scrollToSelection)="scrollToSelection.emit()"
     />
   </div>
+
+  <!-- Análise de Consistência (Dupla Massa, Pearson, Cobertura) exibida quando pronta -->
+  @if (confirmationStatus === 'ready' && activeNeighborStation && projectId) {
+    <div class="border-t border-border p-5 rounded-b-xl">
+      <app-consistency-analysis
+        [projectId]="projectId"
+        [neighborStation]="activeNeighborStation"
+      />
+    </div>
+  }
 </div>
