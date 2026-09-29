@@ -50,6 +50,14 @@ export class ProjectsService {
       .pipe(tap((project) => this.currentProject.set(project)));
   }
 
+  updateFurthestStep(projectId: string, furthestStep: StepEnum): Observable<ProjectResponse> {
+    return this.http
+      .patch<ProjectResponse>(`${this.baseUrl}/${projectId}/furthest-step`, {
+        furthest_step: furthestStep,
+      })
+      .pipe(tap((project) => this.currentProject.set(project)));
+  }
+
   getRouteForStep(step: StepEnum): string {
     return getRouteForStep(step);
   }

@@ -85,7 +85,15 @@
       position="top"
       class="inline-flex"
     >
-      <button hlmBtn size="lg" [disabled]="state.isAdvanceDisabled()" (click)="onAdvance()">
+      <button
+        hlmBtn
+        size="lg"
+        [disabled]="state.isAdvanceDisabled() || isAdvancing()"
+        (click)="onAdvance()"
+      >
+        @if (isAdvancing()) {
+          <hlm-spinner class="mr-2" />
+        }
         Avançar
         <ng-icon name="lucideArrowRight" class="ml-2" />
       </button>

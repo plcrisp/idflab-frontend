@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
+import { Observable, tap, throwError } from 'rxjs';
 import { ProjectsService } from '../../../core/services/api/projects.service';
-import { Project } from '../../../core/models/api/project.model';
+import { Project, StepEnum } from '../../../core/models/api/project.model';
 import { NotificationsService } from '../../../core/services/api/notifications.service';
 import { ActiveJobItem, Notification } from '../../../core/models/api/notification.model';
 import { SkeletonLoadingCoordinator } from '../../../core/utils/skeleton-loading-coordinator';
@@ -65,6 +66,18 @@ export class ProjectStateService {
     this._project.set(project);
     this._loading.set(false);
     this.projectSkeleton.finish();
+  }
+
+  updateFurthestStep(furthestStep: StepEnum): Observable<Project> {
+    const project = this._project();
+    if (!project) {
+      return throwError(() => new Error('Nenhum projeto ativo para atualizar furthest_step'));
+    }
+    return this.projectsService.updateFurthestStep(project.id, furthestStep).pipe(
+      tap((updatedProject) => {
+        this.setProject(updatedProject);
+      }),
+    );
   }
 
   loadProject(projectId: string): void {
