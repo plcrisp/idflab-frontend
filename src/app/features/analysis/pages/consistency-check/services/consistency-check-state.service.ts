@@ -7,9 +7,14 @@ import { ProjectStateService } from '../../../services/project-state.service';
 import { InitialVisualizationService } from '../../../services/initial-visualization.service';
 import { StationService } from '../../../../../core/services/api/stations.service';
 import { NotificationsService } from '../../../../../core/services/api/notifications.service';
+import { ProjectStepsService } from '../../../../../core/services/api/project-steps.service';
 import { Project } from '../../../../../core/models/api/project.model';
 import { NeighborStation } from '../../../../../core/models/api/station.model';
 import { ActiveJobItem } from '../../../../../core/models/api/notification.model';
+import {
+  ConsistencyStepParams,
+  ProjectStepSaveRequest,
+} from '../../../../../core/models/api/project-step.model';
 import { GlobalStats } from '../../../shared/models/analysis.models';
 import {
   SkeletonLoadingCoordinator,
@@ -24,6 +29,7 @@ export class ConsistencyCheckStateService {
   private initialVisualizationService = inject(InitialVisualizationService);
   private stationService = inject(StationService);
   private notificationsService = inject(NotificationsService);
+  private projectStepsService = inject(ProjectStepsService);
   private destroyRef = inject(DestroyRef);
 
   readonly project: Signal<Project | null> = this.projectState.project;
@@ -40,37 +46,31 @@ export class ConsistencyCheckStateService {
   readonly confirmationStatus = signal<ConfirmationStatus>('idle');
   readonly neighborProgress = signal<NeighborProgressInfo | null>(null);
   readonly neighborJobId = signal<string | null>(null);
-  private hasSeenActiveJob = false;
-
-  readonly neighborJob = computed<ActiveJobItem | null>(() => {
-    const jobId = this.neighborJobId();
-    const panel = this.notificationsService.panel();
-    if (!panel) return null;
-
-    if (jobId) {
-      const found = panel.active_jobs.find(
-        (job) => String(job.job_id).toLowerCase() === String(jobId).toLowerCase(),
-      );
-      if (found) return found;
-    }
-
-    const p = this.project();
-    if (p) {
-      return (
-        panel.active_jobs.find(
-          (job) =>
-            job.project_id === p.id &&
-            job.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA',
-        ) ?? null
-      );
-    }
-
-    return null;
-  });
-
   readonly isSelectionLocked = signal<boolean>(false);
   readonly isLoadingNeighbors = signal<boolean>(true);
   readonly isLoadingNeighborData = signal<boolean>(false);
+
+  private hasSeenActiveJob = false;
+  private savedNeighborStationId: string | null = null;
+  private savedJobId: string | null = null;
+  private lastLoadedProjectId: string | null = null;
+  private lastLoadedStationId: string | null = null;
+  private lastLoadedStepProjectId: string | null = null;
+
+  private summarySub: Subscription | null = null;
+  private neighborsSub: Subscription | null = null;
+  private stepSub: Subscription | null = null;
+
+  readonly neighborJob = computed<ActiveJobItem | null>(() => {
+    const jobId = this.neighborJobId();
+    if (!jobId) return null;
+    const panel = this.notificationsService.panel();
+    return (
+      panel?.active_jobs.find(
+        (job) => String(job.job_id).toLowerCase() === String(jobId).toLowerCase(),
+      ) ?? null
+    );
+  });
 
   private readonly summarySkeleton = new SkeletonLoadingCoordinator({
     delayMs: 350,
@@ -86,40 +86,22 @@ export class ConsistencyCheckStateService {
     () => this.isJobRunning() || this.summarySkeleton.showSkeleton(),
   );
 
-  private lastLoadedProjectId: string | null = null;
-  private lastLoadedStationId: string | null = null;
-  private summarySub: Subscription | null = null;
-  private neighborsSub: Subscription | null = null;
-
   constructor() {
     this.destroyRef.onDestroy(() => {
       this.summarySub?.unsubscribe();
       this.neighborsSub?.unsubscribe();
+      this.stepSub?.unsubscribe();
       this.projectState.setNeighborJobId(null);
     });
 
-    // Resetar ou carregar dados conforme o projeto ou status do job mudam
+    // Reagir a mudanças no projeto ou estado de execução de job principal
     effect(() => {
       const project = this.project();
       const isJobRunning = this.isJobRunning();
 
       if (!project || isJobRunning) {
         untracked(() => {
-          this.summarySub?.unsubscribe();
-          this.neighborsSub?.unsubscribe();
-          this.lastLoadedProjectId = null;
-          this.lastLoadedStationId = null;
-          this.stats.set(null);
-          this.neighbors.set([]);
-          this.selectedNeighbor.set(null);
-          this.activeNeighborStation.set(null);
-          this.confirmationStatus.set('idle');
-          this.neighborProgress.set(null);
-          this.neighborJobId.set(null);
-          this.hasSeenActiveJob = false;
-          this.projectState.setNeighborJobId(null);
-          this.isSelectionLocked.set(false);
-          this.isLoadingNeighbors.set(true);
+          this.reset();
         });
         return;
       }
@@ -132,41 +114,11 @@ export class ConsistencyCheckStateService {
         if (stationId) {
           this.loadNeighbors(stationId);
         }
+        this.loadSavedStep(projectId);
       });
     });
 
-    // Quando o job real estiver presente nos active_jobs, sincroniza neighborJobId, status e seleção
-    effect(() => {
-      const job = this.neighborJob();
-      if (job) {
-        this.hasSeenActiveJob = true;
-        untracked(() => {
-          if (!this.neighborJobId()) {
-            this.neighborJobId.set(job.job_id);
-            this.projectState.setNeighborJobId(job.job_id);
-          }
-          if (this.confirmationStatus() !== 'loading') {
-            this.confirmationStatus.set('loading');
-          }
-          if (this.neighborProgress()) {
-            this.neighborProgress.set(null);
-          }
-          if (job.station_name && this.neighbors().length > 0) {
-            const currentSelected = this.selectedNeighbor();
-            if (!currentSelected || currentSelected.name.toLowerCase() !== job.station_name.toLowerCase()) {
-              const matched = this.neighbors().find(
-                (n) => n.name.toLowerCase() === job.station_name!.toLowerCase(),
-              );
-              if (matched) {
-                this.selectedNeighbor.set(matched);
-              }
-            }
-          }
-        });
-      }
-    });
-
-    // Observa o painel de notificações para detectar a conclusão ou falha do job da estação vizinha
+    // Monitoramento do job de download da estação vizinha (quando disparado ou recuperado do DB)
     effect(() => {
       const jobId = this.neighborJobId();
       if (!jobId) return;
@@ -174,86 +126,201 @@ export class ConsistencyCheckStateService {
       const panel = this.notificationsService.panel();
       if (!panel) return;
 
+      // 1. Marca se o job está ativo no momento
+      const isCurrentlyActive = panel.active_jobs.some(
+        (j) => String(j.job_id).toLowerCase() === String(jobId).toLowerCase(),
+      );
+      if (isCurrentlyActive) {
+        this.hasSeenActiveJob = true;
+      }
+
+      // 2. Verifica conclusão ou erro nas notificações
       const notification = panel.notifications.find(
         (n) => n.job_id && String(n.job_id).toLowerCase() === String(jobId).toLowerCase(),
       );
+
       if (notification) {
         if (notification.type === 'SUCCESS') {
-          let neighbor = this.selectedNeighbor() ?? this.activeNeighborStation();
-          if (notification.station_name && this.neighbors().length > 0) {
-            const matched = this.neighbors().find(
-              (n) => n.name.toLowerCase() === notification.station_name!.toLowerCase(),
-            );
-            if (matched) {
-              neighbor = matched;
-              this.selectedNeighbor.set(matched);
-            }
-          }
-          if (neighbor) {
-            this.activeNeighborStation.set(neighbor);
-          }
-          this.confirmationStatus.set('ready');
-          this.neighborProgress.set(null);
-          this.neighborJobId.set(null);
-          this.hasSeenActiveJob = false;
-          this.projectState.setNeighborJobId(null);
+          this.onJobSuccess();
         } else if (notification.type === 'FAILED' || notification.type === 'TIMEOUT') {
-          this.confirmationStatus.set('error');
-          this.neighborProgress.set(null);
-          this.neighborJobId.set(null);
-          this.hasSeenActiveJob = false;
-          this.projectState.setNeighborJobId(null);
+          this.onJobError();
         }
         return;
       }
 
-      // Se o job já esteve ativo e agora não está mais em active_jobs, concluiu com sucesso!
-      const isStillActive = panel.active_jobs.some(
-        (j) => String(j.job_id).toLowerCase() === String(jobId).toLowerCase(),
-      );
-      if (this.hasSeenActiveJob && !isStillActive) {
-        const neighbor = this.selectedNeighbor() ?? this.activeNeighborStation();
-        if (neighbor) {
-          this.activeNeighborStation.set(neighbor);
-        }
-        this.confirmationStatus.set('ready');
-        this.neighborProgress.set(null);
-        this.neighborJobId.set(null);
-        this.hasSeenActiveJob = false;
-        this.projectState.setNeighborJobId(null);
+      // 3. Caso o job já tenha sido visto ativo e agora não está mais em active_jobs (conclusão silenciosa)
+      if (this.hasSeenActiveJob && !isCurrentlyActive) {
+        this.onJobSuccess();
       }
     });
+  }
 
-    // Se o usuário navegou após notificação de conclusão, pré-seleciona a estação correspondente
-    effect(() => {
-      const neighbors = this.neighbors();
-      if (neighbors.length === 0 || this.activeNeighborStation() || this.neighborJob()) return;
+  private reset(): void {
+    this.summarySub?.unsubscribe();
+    this.neighborsSub?.unsubscribe();
+    this.stepSub?.unsubscribe();
+    this.lastLoadedProjectId = null;
+    this.lastLoadedStationId = null;
+    this.lastLoadedStepProjectId = null;
+    this.savedNeighborStationId = null;
+    this.savedJobId = null;
+    this.stats.set(null);
+    this.neighbors.set([]);
+    this.selectedNeighbor.set(null);
+    this.activeNeighborStation.set(null);
+    this.confirmationStatus.set('idle');
+    this.neighborProgress.set(null);
+    this.neighborJobId.set(null);
+    this.hasSeenActiveJob = false;
+    this.projectState.setNeighborJobId(null);
+    this.isSelectionLocked.set(false);
+    this.isLoadingNeighbors.set(true);
+    this.isLoadingNeighborData.set(false);
+  }
 
-      const panel = this.notificationsService.panel();
+  private onJobSuccess(): void {
+    const neighbor = this.selectedNeighbor() ?? this.activeNeighborStation();
+    const project = this.project();
+    if (neighbor) {
+      this.activeNeighborStation.set(neighbor);
+      if (project) {
+        this.saveStep(project.id, neighbor.id, null);
+      }
+    }
+    this.confirmationStatus.set('ready');
+    this.isLoadingNeighborData.set(false);
+    this.isSelectionLocked.set(false);
+    this.neighborProgress.set(null);
+    this.neighborJobId.set(null);
+    this.hasSeenActiveJob = false;
+    this.projectState.setNeighborJobId(null);
+  }
+
+  private onJobError(): void {
+    this.confirmationStatus.set('error');
+    this.isLoadingNeighborData.set(false);
+    this.isSelectionLocked.set(false);
+    this.neighborProgress.set(null);
+    this.neighborJobId.set(null);
+    this.hasSeenActiveJob = false;
+    this.projectState.setNeighborJobId(null);
+  }
+
+  loadSavedStep(projectId: string): void {
+    if (this.lastLoadedStepProjectId === projectId) {
+      return;
+    }
+    this.lastLoadedStepProjectId = projectId;
+    this.stepSub?.unsubscribe();
+
+    this.stepSub = this.projectStepsService
+      .getProjectStep<ConsistencyStepParams>(projectId, 'CONSISTENCY')
+      .subscribe({
+        next: (step) => {
+          const neighborStationId = step?.params?.neighbor_station_id;
+          const stepJobId = step?.job_id;
+          if (neighborStationId) {
+            this.savedNeighborStationId = neighborStationId;
+            this.savedJobId = stepJobId ?? null;
+            this.applySavedNeighbor(neighborStationId, this.savedJobId);
+          }
+        },
+        error: (err) => {
+          // 404: etapa ainda não salva para este projeto
+          if (err.status !== 404) {
+            console.error('Erro ao buscar etapa de consistência salva:', err);
+          }
+        },
+      });
+  }
+
+  private applySavedNeighbor(stationId: string, savedJobId?: string | null): void {
+    const found = this.neighbors().find((n) => n.id === stationId);
+    if (found) {
+      this.activateSavedNeighbor(found, savedJobId);
+      return;
+    }
+
+    // Se ainda estiver carregando a lista de vizinhos, aguarda a resposta
+    if (this.isLoadingNeighbors()) {
+      return;
+    }
+
+    // Se a estação salva não veio na lista padrão (ex: fora do raio/limite), busca diretamente
+    this.stationService.getStationById(stationId).subscribe({
+      next: (st) => {
+        const neighbor: NeighborStation = {
+          id: st.id,
+          code: st.code,
+          name: st.name,
+          source: st.source,
+          latitude: st.latitude,
+          longitude: st.longitude,
+          distance_km: (st as any).distance_km ?? 0,
+          temporal_resolution: (st as any).resolution ?? (st as any).temporal_resolution ?? 'daily',
+          operation_start_date: st.operation_start_date,
+          last_data_date: st.last_data_date ?? '',
+          city: st.city,
+          state: st.state,
+        };
+
+        this.neighbors.update((list) => {
+          if (list.some((n) => n.id === neighbor.id)) return list;
+          return [neighbor, ...list];
+        });
+        this.activateSavedNeighbor(neighbor, savedJobId);
+      },
+      error: (err) => {
+        console.error('Erro ao buscar detalhes da estação salva:', err);
+      },
+    });
+  }
+
+  private activateSavedNeighbor(neighbor: NeighborStation, savedJobId?: string | null): void {
+    this.selectedNeighbor.set(neighbor);
+
+    if (savedJobId) {
+      // O step tem um job_id ativo gravado no banco!
+      this.neighborJobId.set(savedJobId);
+      this.projectState.setNeighborJobId(savedJobId);
+      this.confirmationStatus.set('loading');
+      this.isLoadingNeighborData.set(true);
+      this.isSelectionLocked.set(true);
+
+      const formattedNeighborName = new TitleCasePipe().transform(neighbor.name) || neighbor.name;
+      this.neighborProgress.set({
+        message: `Processando registros da estação ${formattedNeighborName}...`,
+        percentage: 15,
+      });
+
+      this.notificationsService.refetch();
+
       const project = this.project();
-      if (!panel || !project) return;
-
-      const latestNeighborNotif = panel.notifications.find(
-        (n) =>
-          n.project_id === project.id &&
-          n.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA' &&
-          n.type === 'SUCCESS' &&
-          n.station_name,
-      );
-
-      if (latestNeighborNotif?.station_name) {
-        const found = neighbors.find(
-          (n) => n.name.toLowerCase() === latestNeighborNotif.station_name!.toLowerCase(),
-        );
-        if (found) {
-          untracked(() => {
-            this.selectedNeighbor.set(found);
-            this.activeNeighborStation.set(found);
-            this.confirmationStatus.set('ready');
-          });
-        }
+      if (project) {
+        const payload = buildEnsureStationDataPayload(neighbor, project.id);
+        this.stationService.ensureStationData(neighbor.id, payload).subscribe({
+          next: (res) => {
+            if (res.status === 'ready') {
+              this.onJobSuccess();
+            } else if (res.status === 'processing') {
+              const currentJobId = res.job_id ?? savedJobId;
+              this.neighborJobId.set(currentJobId);
+              this.projectState.setNeighborJobId(currentJobId);
+              this.hasSeenActiveJob = true;
+            }
+          },
+          error: (err) => {
+            console.error('Erro ao verificar status dos dados da estação salva:', err);
+          },
+        });
       }
-    });
+    } else {
+      // Sem job pendente, a estação já está confirmada e pronta
+      this.activeNeighborStation.set(neighbor);
+      this.confirmationStatus.set('ready');
+      this.isLoadingNeighborData.set(false);
+      this.isSelectionLocked.set(false);
+    }
   }
 
   private loadSummary(projectId: string): void {
@@ -290,7 +357,9 @@ export class ConsistencyCheckStateService {
         this.neighbors.set(neighbors);
         this.isLoadingNeighbors.set(false);
 
-        if (neighbors.length > 0 && !this.selectedNeighbor()) {
+        if (this.savedNeighborStationId) {
+          this.applySavedNeighbor(this.savedNeighborStationId, this.savedJobId);
+        } else if (neighbors.length > 0 && !this.selectedNeighbor()) {
           this.selectNeighbor(neighbors[0]);
         }
       },
@@ -316,6 +385,8 @@ export class ConsistencyCheckStateService {
     const formattedNeighborName = new TitleCasePipe().transform(neighbor.name) || neighbor.name;
 
     this.confirmationStatus.set('loading');
+    this.isLoadingNeighborData.set(true);
+    this.isSelectionLocked.set(true);
     this.neighborProgress.set({
       message: `Verificando registros da estação ${formattedNeighborName}...`,
       percentage: 5,
@@ -330,9 +401,15 @@ export class ConsistencyCheckStateService {
         if (response.status === 'ready') {
           this.activeNeighborStation.set(neighbor);
           this.confirmationStatus.set('ready');
+          this.isLoadingNeighborData.set(false);
+          this.isSelectionLocked.set(false);
           this.neighborProgress.set(null);
           this.neighborJobId.set(null);
           this.projectState.setNeighborJobId(null);
+
+          // Salva o step sem job_id (dados já prontos)
+          this.saveStep(project.id, stationId, null);
+
           toast.success(
             response.message || `Os dados da estação ${formattedNeighborName} já estão disponíveis.`,
             { duration: 5000, position: 'bottom-center' },
@@ -342,6 +419,8 @@ export class ConsistencyCheckStateService {
           if (jobId) {
             this.neighborJobId.set(jobId);
             this.projectState.setNeighborJobId(jobId);
+            // Salva o step associando o job_id em andamento!
+            this.saveStep(project.id, stationId, jobId);
           }
           this.neighborProgress.set({
             message: response.message || `Iniciando coleta de dados da estação ${formattedNeighborName}...`,
@@ -357,6 +436,8 @@ export class ConsistencyCheckStateService {
       error: (err) => {
         console.error('Erro ao verificar/buscar dados da estação vizinha:', err);
         this.confirmationStatus.set('error');
+        this.isLoadingNeighborData.set(false);
+        this.isSelectionLocked.set(false);
         this.neighborProgress.set(null);
         this.neighborJobId.set(null);
         this.projectState.setNeighborJobId(null);
@@ -364,6 +445,28 @@ export class ConsistencyCheckStateService {
           duration: 8000,
           position: 'bottom-center',
         });
+      },
+    });
+  }
+
+  private saveStep(projectId: string, stationId: string, jobId: string | null): void {
+    const request: ProjectStepSaveRequest<ConsistencyStepParams> = {
+      step: 'CONSISTENCY',
+      status: 'PENDING',
+      params: {
+        neighbor_station_id: stationId,
+        excluded_years: [],
+      },
+      job_id: jobId,
+    };
+
+    this.projectStepsService.saveProjectStep(projectId, request).subscribe({
+      next: () => {
+        this.savedNeighborStationId = stationId;
+        this.savedJobId = jobId;
+      },
+      error: (err) => {
+        console.error('Erro ao salvar etapa de consistência com job_id:', err);
       },
     });
   }

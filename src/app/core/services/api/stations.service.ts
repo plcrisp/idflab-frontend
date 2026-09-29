@@ -36,6 +36,10 @@ export class StationService {
     return this.http.get<Station>(`${this.baseUrl}/${id}/realtime`);
   }
 
+  getStationById(stationId: string): Observable<Station> {
+    return this.http.get<Station>(`${environment.apiUrl}/stations/${stationId}`);
+  }
+
   searchStations(state: string, search: string): Observable<Station[]> {
     let params = new HttpParams();
 
