@@ -1,11 +1,7 @@
 import { Component, computed, effect, ElementRef, input, output, ViewChild } from '@angular/core';
-import { NeighborStation } from '../../../../../../core/models/api/station.model';
-import { ActiveJobItem } from '../../../../../../core/models/api/notification.model';
-
-import {
-  ConfirmationStatus,
-  NeighborProgressInfo,
-} from '../../models/consistency-check.model';
+import { NeighborStation } from '../../../../../../../core/models/api/station.model';
+import { ActiveJobItem } from '../../../../../../../core/models/api/notification.model';
+import { ConfirmationStatus, NeighborProgressInfo } from '../../../../models/analysis.models';
 
 export type { ConfirmationStatus, NeighborProgressInfo };
 
@@ -21,6 +17,14 @@ export class NeighborStationConfirmation {
   status = input<ConfirmationStatus>('idle');
   progress = input<NeighborProgressInfo | null>(null);
   job = input<ActiveJobItem | null>(null);
+
+  // Textos parametrizáveis para desacoplamento
+  idleMessage = input<string>(
+    'Selecione uma estação vizinha na lista ou no mapa para verificar a consistência.',
+  );
+  confirmActionPrefix = input<string>('Analisar a consistência da série com a estação');
+  confirmButtonText = input<string>('Buscar dados desta estação');
+  activeMessagePrefix = input<string>('Analisando consistência com');
 
   confirmSelection = output<string>();
   lockSelection = output<boolean>();

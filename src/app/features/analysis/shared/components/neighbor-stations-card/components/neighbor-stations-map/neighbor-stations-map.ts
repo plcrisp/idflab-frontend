@@ -13,11 +13,11 @@ import {
 import { TitleCasePipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import * as mapboxgl from 'mapbox-gl';
-import { NeighborStation, StationSummary } from '../../../../../../core/models/api/station.model';
-import { ThemeService } from '../../../../../../core/services/utils/theme.service';
-import { environment } from '../../../../../../../environments/environment';
-import { BRAZIL_STATES } from '../../../../../../shared/utils/brazil-states.constants';
-import { MAP_COLORS, getHoverPopupHtml } from '../../../../../../core/utils/map.utils';
+import { NeighborStation, StationSummary } from '../../../../../../../core/models/api/station.model';
+import { ThemeService } from '../../../../../../../core/services/utils/theme.service';
+import { environment } from '../../../../../../../../environments/environment';
+import { BRAZIL_STATES } from '../../../../../../../shared/utils/brazil-states.constants';
+import { MAP_COLORS, getHoverPopupHtml } from '../../../../../../../core/utils/map.utils';
 
 interface MarkerEntry {
   marker: mapboxgl.Marker;
@@ -120,9 +120,7 @@ export class NeighborStationsMap implements AfterViewInit, OnChanges, OnDestroy 
       attributionControl: false,
     });
 
-    // Controles de zoom nativos
     this.map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
-    this.map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-left');
 
     this.map.on('load', () => {
       this.isMapReady = true;

@@ -16,9 +16,7 @@ export class InitialVisualizationService {
   getSummary(projectId: string): Observable<SummaryResponse> {
     const params = new HttpParams().set('project_id', projectId);
 
-    return this.http
-      .get<SummaryResponse>(`${this.baseUrl}/summary`, { params })
-      .pipe(tap((response) => console.log('Summary Response:', response)));
+    return this.http.get<SummaryResponse>(`${this.baseUrl}/summary`, { params });
   }
 
   getDetail(projectId: string, start: string, end: string): Observable<DetailResponse> {

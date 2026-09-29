@@ -67,7 +67,6 @@
     <button
       hlmBtn
       variant="outline"
-      size="lg"
       (click)="onDownloadRawSeries()"
       [disabled]="state.isJobRunning() || state.hasInsufficientData() || state.isDownloadingRawSeries()"
     >
@@ -87,7 +86,6 @@
     >
       <button
         hlmBtn
-        size="lg"
         [disabled]="state.isAdvanceDisabled() || isAdvancing()"
         (click)="onAdvance()"
       >

@@ -1,11 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NeighborStation, StationSummary } from '../../../../../../core/models/api/station.model';
-import { ActiveJobItem } from '../../../../../../core/models/api/notification.model';
-import { BRAZIL_STATES } from '../../../../../../shared/utils/brazil-states.constants';
-import {
-  ConfirmationStatus,
-  NeighborProgressInfo,
-} from '../../models/consistency-check.model';
+import { NeighborStation, StationSummary } from '../../../../../core/models/api/station.model';
+import { ActiveJobItem } from '../../../../../core/models/api/notification.model';
+import { BRAZIL_STATES } from '../../../../../shared/utils/brazil-states.constants';
+import { ConfirmationStatus, NeighborProgressInfo } from '../../models/analysis.models';
 
 @Component({
   selector: 'app-neighbor-stations-card',
@@ -25,6 +22,14 @@ export class NeighborStationsCard {
   @Input() loading: boolean = false;
   @Input() isLoadingData: boolean = false;
   @Input() disabled: boolean = false;
+
+  // Textos parametrizáveis via inputs
+  @Input() subtitle: string = 'Escolha uma estação para comparar com a série principal';
+  @Input() highDistanceWarningText: string = 'Distância elevada pode reduzir a confiabilidade da análise.';
+  @Input() idleMessage?: string;
+  @Input() confirmActionPrefix?: string;
+  @Input() confirmButtonText?: string;
+  @Input() activeMessagePrefix?: string;
 
   @Output() stationSelected = new EventEmitter<NeighborStation>();
   @Output() confirmSelection = new EventEmitter<string>();
@@ -116,4 +121,3 @@ export class NeighborStationsCard {
     return true;
   }
 }
-

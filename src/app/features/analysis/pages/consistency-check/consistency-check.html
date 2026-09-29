@@ -20,13 +20,16 @@
     [loading]="state.isLoadingNeighbors()"
     [isLoadingData]="state.isLoadingNeighborData()"
     [disabled]="state.isSelectionLocked()"
+    [subtitle]="'Escolha uma estação para comparar com a série principal'"
+    [confirmActionPrefix]="'Analisar a consistência da série com a estação'"
+    [idleMessage]="'Selecione uma estação vizinha na lista ou no mapa para verificar a consistência.'"
     (stationSelected)="state.selectNeighbor($event)"
     (confirmSelection)="state.confirmNeighbor($event)"
     (lockSelection)="state.lockSelection($event)"
     (scrollToSelection)="onScrollToNeighborCard()"
   />
 
-  <!-- Card Independente: Análise de Consistência (Dupla Massa + Indicadores ou Progresso de Busca) -->
+  <!-- Card Independente: Análise de Consistência (Dupla Massa em Largura Total) -->
   @if (shouldShowAnalysisCard) {
     <app-neighbor-analysis-card
       id="neighbor-analysis-card"
@@ -40,4 +43,29 @@
       (changeStation)="onScrollToNeighborCard()"
     />
   }
+
+  <!-- Rodapé com Ações -->
+  <div class="flex w-full items-center justify-between gap-3">
+    <button
+      hlmBtn
+      variant="outline"
+      (click)="onBack()"
+      [disabled]="isAdvanceDisabled() || isAdvancing()"
+    >
+      <ng-icon name="lucideArrowLeft" class="mr-2" />
+      Voltar
+    </button>
+
+    <button
+      hlmBtn
+      (click)="onAdvance()"
+      [disabled]="isAdvanceDisabled() || isAdvancing()"
+    >
+      @if (isAdvancing()) {
+        <hlm-spinner class="mr-2" />
+      }
+      {{ advanceButtonText() }}
+      <ng-icon name="lucideArrowRight" class="ml-2" />
+    </button>
+  </div>
 </div>

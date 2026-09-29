@@ -18,6 +18,13 @@ export interface AnalysisStep {
 
 export type StatCardSemanticVariant = 'default' | 'success' | 'warning' | 'destructive';
 
+export type ConfirmationStatus = 'idle' | 'loading' | 'ready' | 'error';
+
+export interface NeighborProgressInfo {
+  message?: string;
+  percentage?: number;
+}
+
 export type StatCardFooter =
   | { type: 'text'; content: string; variant?: StatCardSemanticVariant }
   | {
@@ -30,4 +37,5 @@ export type StatCardFooter =
       description?: string;
     }
   | null;
+
 

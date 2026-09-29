@@ -61,10 +61,34 @@
         />
       </div>
     } @else if (status() === 'ready' && activeStation() && projectId()) {
-      <app-consistency-analysis
-        [projectId]="projectId()"
-        [neighborStation]="activeStation()"
-      />
+      @if (analysisError(); as err) {
+        <!-- Estado de Erro da Requisição de Consistência -->
+        <div class="flex items-center justify-between gap-3 p-4 rounded-xl border border-destructive/20 bg-destructive/5 text-destructive">
+          <div class="flex items-center gap-2.5 text-sm">
+            <ng-icon name="lucideTriangleAlert" class="text-base shrink-0" />
+            <span>{{ err }}</span>
+          </div>
+
+          <button
+            hlmBtn
+            variant="outline"
+            size="sm"
+            (click)="retryAnalysis()"
+            class="cursor-pointer font-medium inline-flex items-center gap-1.5 border-destructive/30 hover:bg-destructive/10 text-destructive text-xs shrink-0"
+          >
+            <ng-icon name="lucideRotateCw" class="text-xs" />
+            <span>Tentar novamente</span>
+          </button>
+        </div>
+      } @else {
+        <!-- Gráfico de Dupla Massa em Largura Total -->
+        <app-double-mass-chart
+          [points]="analysis()?.double_mass?.points ?? []"
+          [principalStationName]="principalStationName() | titlecase"
+          [neighborStationName]="activeStation()?.name ? (activeStation()!.name | titlecase) : 'Estação Vizinha'"
+          [loading]="isAnalysisLoading()"
+        />
+      }
     }
   </div>
 </div>

@@ -50,12 +50,12 @@ import { provideNativeDateAdapter } from '@spartan-ng/brain/date-time';
 import { provideBrnCalendarI18n } from '@spartan-ng/brain/calendar';
 import { ConsistencyCheck } from './pages/consistency-check/consistency-check';
 import { StationSummaryBar } from './shared/components/station-summary-bar/station-summary-bar';
-import { NeighborStationsCard } from './pages/consistency-check/components/neighbor-stations-card/neighbor-stations-card';
-import { NeighborStationsMap } from './pages/consistency-check/components/neighbor-stations-map/neighbor-stations-map';
-import { NeighborStationConfirmation } from './pages/consistency-check/components/neighbor-station-confirmation/neighbor-station-confirmation';
-import { ConsistencyAnalysis } from './pages/consistency-check/components/consistency-analysis/consistency-analysis';
+import { NeighborStationsCard } from './shared/components/neighbor-stations-card/neighbor-stations-card';
+import { NeighborStationsMap } from './shared/components/neighbor-stations-card/components/neighbor-stations-map/neighbor-stations-map';
+import { NeighborStationConfirmation } from './shared/components/neighbor-stations-card/components/neighbor-station-confirmation/neighbor-station-confirmation';
 import { DoubleMassChart } from './pages/consistency-check/components/double-mass-chart/double-mass-chart';
 import { NeighborAnalysisCard } from './pages/consistency-check/components/neighbor-analysis-card/neighbor-analysis-card';
+import { ConsistencyAnalysis } from './pages/consistency-check/components/consistency-analysis/consistency-analysis';
 
 registerLocaleData(localePt);
 
@@ -75,16 +75,15 @@ registerLocaleData(localePt);
     NeighborStationsCard,
     NeighborStationsMap,
     NeighborStationConfirmation,
-    ConsistencyAnalysis,
     DoubleMassChart,
     NeighborAnalysisCard,
+    ConsistencyAnalysis,
   ],
   exports: [
     StationSummaryBar,
     NeighborStationsCard,
     NeighborStationsMap,
     NeighborStationConfirmation,
-    ConsistencyAnalysis,
     DoubleMassChart,
     NeighborAnalysisCard,
   ],

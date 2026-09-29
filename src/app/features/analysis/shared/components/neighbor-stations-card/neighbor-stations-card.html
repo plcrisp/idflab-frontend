@@ -9,7 +9,7 @@
         Estação Vizinha
       </h3>
       <span class="text-sm font-normal text-muted-foreground">
-        · Escolha uma estação para comparar com a série principal
+        · {{ subtitle }}
       </span>
     </div>
   </div>
@@ -28,7 +28,7 @@
     [class.opacity-60]="disabled"
     [class.pointer-events-none]="disabled"
   >
-    <!-- Coluna Esquerda: Mini-mapa (lg:col-span-5) -->
+    <!-- Coluna Esquerda: Mini-mapa (lg:col-span-7) -->
     <div class="lg:col-span-7 min-h-115 h-full flex flex-col">
       <app-neighbor-stations-map
         class="w-full h-full flex-1 flex flex-col"
@@ -40,7 +40,7 @@
       />
     </div>
 
-    <!-- Coluna Direita: Lista de Candidatas (lg:col-span-7) -->
+    <!-- Coluna Direita: Lista de Candidatas (lg:col-span-5) -->
     <div class="lg:col-span-5 flex flex-col justify-between">
       <div class="flex-1 min-h-115 max-h-115 overflow-y-auto pr-1.5 space-y-2.5">
         @if (loading) {
@@ -160,7 +160,7 @@
                 @if (neighbor.distance_km > 100) {
                   <div class="flex items-center gap-1.5 text-xs text-warning mt-2 font-medium">
                     <ng-icon name="lucideTriangleAlert" class="shrink-0 text-sm" />
-                    <span>Distância elevada pode reduzir a confiabilidade do preenchimento.</span>
+                    <span>{{ highDistanceWarningText }}</span>
                   </div>
                 }
               </div>
@@ -171,7 +171,7 @@
     </div>
   </div>
 
-  <!-- Divisória Sutil e Seção Inferior: Confirmação / Status da Estação Vizinha (apenas quando escolhendo / troca pendente / erro) -->
+  <!-- Divisória Sutil e Seção Inferior: Confirmação / Status da Estação Vizinha -->
   @if (isChoosingStation) {
     <div class="border-t border-border px-5 py-2.5">
       <app-neighbor-station-confirmation
@@ -180,6 +180,10 @@
         [status]="confirmationStatus"
         [progress]="neighborProgress"
         [job]="neighborJob"
+        [idleMessage]="idleMessage ?? 'Selecione uma estação vizinha na lista ou no mapa para verificar a consistência.'"
+        [confirmActionPrefix]="confirmActionPrefix ?? 'Analisar a consistência da série com a estação'"
+        [confirmButtonText]="confirmButtonText ?? 'Buscar dados desta estação'"
+        [activeMessagePrefix]="activeMessagePrefix ?? 'Analisando consistência com'"
         (confirmSelection)="confirmSelection.emit($event)"
         (lockSelection)="lockSelection.emit($event)"
         (scrollToSelection)="scrollToSelection.emit()"

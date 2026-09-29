@@ -55,11 +55,14 @@ export class DoubleMassChart implements OnDestroy {
     neighborName: string;
   }>;
 
-  private readonly chartData = computed(() => ({
-    points: this.points(),
-    principalName: this.principalStationName(),
-    neighborName: this.neighborStationName(),
-  }));
+  private readonly chartData = computed(() => {
+    if (this.loading()) return null;
+    return {
+      points: this.points(),
+      principalName: this.principalStationName(),
+      neighborName: this.neighborStationName(),
+    };
+  });
 
   constructor() {
     this.echarts.setup({

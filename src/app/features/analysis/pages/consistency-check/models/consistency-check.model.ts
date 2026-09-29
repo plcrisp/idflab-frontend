@@ -1,9 +1,8 @@
-export type ConfirmationStatus = 'idle' | 'loading' | 'ready' | 'error';
+import { ConfirmationStatus, NeighborProgressInfo } from '../../../shared/models/analysis.models';
+import { PearsonResult, CoverageResult } from './gap-filling.model';
 
-export interface NeighborProgressInfo {
-  message?: string;
-  percentage?: number;
-}
+export type { ConfirmationStatus, NeighborProgressInfo };
+export type { PearsonResult, CoverageResult };
 
 export interface ConsistencyPeriod {
   start: string; // ISO date 'YYYY-MM-DD'
@@ -20,18 +19,11 @@ export interface DoubleMassResult {
   total_points: number;
 }
 
-export interface PearsonResult {
-  value: number;
-  label: 'weak' | 'moderate' | 'strong';
-  n_days: number;
-}
-
-export interface CoverageResult {
-  percentage: number | null;
-  principal_failure_days: number;
-  fillable_days: number;
-}
-
+/**
+ * Contrato da rota de consistência: retorna exclusivamente a dupla massa.
+ * pearson e coverage são marcados como opcionais para compatibilidade retroativa
+ * caso o backend ainda esteja em transição.
+ */
 export interface ConsistencyCheckResponse {
   principal_station_id: string;
   neighbor_station_id: string;
@@ -39,6 +31,6 @@ export interface ConsistencyCheckResponse {
   resolution: string;
   overlap_days: number;
   double_mass: DoubleMassResult;
-  pearson: PearsonResult;
-  coverage: CoverageResult;
+  pearson?: PearsonResult;
+  coverage?: CoverageResult;
 }
