@@ -3,27 +3,14 @@
   class="rounded-xl shadow-sm border border-border bg-popover text-foreground flex flex-col relative"
 >
   <!-- Cabeçalho do Card -->
-  <div class="flex flex-col border-b border-border p-4">
-    <div class="flex items-center justify-between">
+  <div class="flex items-center justify-start border-b border-border p-4">
+    <div class="flex items-center gap-1">
       <h3 class="text-sm font-semibold uppercase tracking-wide text-foreground">
         Estação Vizinha
       </h3>
-    </div>
-
-    <p class="text-sm text-muted-foreground leading-relaxed">
-      Selecione uma estação próxima para verificar a consistência da série principal e avaliar a viabilidade do preenchimento de falhas.
-    </p>
-
-    <div class="mt-2">
-      <button
-        type="button"
-        (click)="onSkip()"
-        [disabled]="disabled"
-        class="inline-flex items-center gap-1.5 text-xs text-primary hover:text-(--primary-700) transition-colors cursor-pointer group hover:underline disabled:opacity-50 disabled:pointer-events-none"
-      >
-        <span>Não pretende preencher falhas? Pule direto para a seleção de anos abaixo.</span>
-        <ng-icon name="lucideChevronDown" class="text-xs transition-transform group-hover:translate-y-0.5" />
-      </button>
+      <span class="text-sm font-normal text-muted-foreground">
+        · Escolha uma estação para comparar com a série principal
+      </span>
     </div>
   </div>
 

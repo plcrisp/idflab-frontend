@@ -21,7 +21,6 @@
     [isLoadingData]="state.isLoadingNeighborData()"
     [disabled]="state.isSelectionLocked()"
     (stationSelected)="state.selectNeighbor($event)"
-    (skipClicked)="onSkipToYears()"
     (confirmSelection)="state.confirmNeighbor($event)"
     (lockSelection)="state.lockSelection($event)"
     (scrollToSelection)="onScrollToNeighborCard()"

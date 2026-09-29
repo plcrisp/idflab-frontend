@@ -38,13 +38,6 @@ export class ConsistencyCheck {
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  onSkipToYears(): void {
-    const el = document.getElementById('year-selection') || document.querySelector('app-data-availability-ribbon');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }
-
   onBack(): void {
     const project = this.state.project();
     if (!project) return;

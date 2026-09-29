@@ -27,7 +27,6 @@ export class NeighborStationsCard {
   @Input() disabled: boolean = false;
 
   @Output() stationSelected = new EventEmitter<NeighborStation>();
-  @Output() skipClicked = new EventEmitter<void>();
   @Output() confirmSelection = new EventEmitter<string>();
   @Output() lockSelection = new EventEmitter<boolean>();
   @Output() scrollToSelection = new EventEmitter<void>();
@@ -80,10 +79,6 @@ export class NeighborStationsCard {
 
     const cardEl = document.getElementById(`neighbor-card-${station.id}`);
     cardEl?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  onSkip(): void {
-    this.skipClicked.emit();
   }
 
   formatTemporalResolution(res?: string | null): string {
