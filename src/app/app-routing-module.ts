@@ -4,6 +4,7 @@ import { AuthLayout } from './layout/auth-layout/auth-layout';
 import { MainLayout } from './layout/main-layout/main-layout';
 import { guestGuard } from './core/guards/guest.guard';
 import { authGuard } from './core/guards/auth.guard';
+import { projectAccessGuard } from './core/guards/project-access.guard';
 import { NotFound } from './shared/components/not-found/not-found';
 
 const routes: Routes = [
@@ -36,6 +37,7 @@ const routes: Routes = [
 
       {
         path: 'analysis/:projectId',
+        canActivate: [projectAccessGuard],
         loadChildren: () =>
           import('./features/analysis/analysis-module').then((m) => m.AnalysisModule),
       },

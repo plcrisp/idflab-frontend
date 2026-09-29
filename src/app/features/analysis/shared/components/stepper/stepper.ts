@@ -4,6 +4,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs';
 import { MapService } from '../../../../../core/services/utils/map.service';
 import { AnalysisStep } from '../../models/analysis.models';
+import { StepEnum } from '../../../../../core/models/api/project.model';
+import { getStepForRoute, isStepBeyond } from '../../../../../core/utils/project-step.utils';
 
 @Component({
   selector: 'app-stepper',
@@ -17,6 +19,7 @@ export class Stepper {
 
   @Input({ required: true }) steps: AnalysisStep[] = [];
   @Input({ required: true }) station_id: string | undefined = '';
+  @Input() furthestStep?: StepEnum;
 
   private currentUrl = toSignal(
     this.router.events.pipe(
@@ -39,6 +42,19 @@ export class Stepper {
     return (index / (total - 1)) * 100;
   });
 
+  isStepClickable(step: AnalysisStep, index: number): boolean {
+    if (step.path === 'interactive-map') return true;
+    const active = this.activeIndex();
+    if (index <= active) return true;
+    if (this.furthestStep) {
+      const stepEnum = getStepForRoute(step.path);
+      if (stepEnum && !isStepBeyond(stepEnum, this.furthestStep)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   stepState(index: number): 'completed' | 'active' | 'upcoming' {
     const active = this.activeIndex();
     if (index < active) return 'completed';
@@ -47,10 +63,18 @@ export class Stepper {
   }
 
   getStepLink(step: AnalysisStep, state: 'completed' | 'active' | 'upcoming'): any[] | null {
-    if (state === 'upcoming') return null;
-
     if (step.path === 'interactive-map') {
       return ['/app/interactive-map'];
+    }
+
+    if (state === 'upcoming') {
+      if (this.furthestStep) {
+        const stepEnum = getStepForRoute(step.path);
+        if (stepEnum && !isStepBeyond(stepEnum, this.furthestStep)) {
+          return [step.path];
+        }
+      }
+      return null;
     }
 
     return [step.path];

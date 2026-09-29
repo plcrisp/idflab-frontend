@@ -2,16 +2,37 @@ import { Routes } from '@angular/router';
 import { InitialVisualization } from './pages/initial-visualization/initial-visualization';
 import { AnalysisLayout } from './analysis-layout/analysis-layout';
 import { ConsistencyCheck } from './pages/consistency-check/consistency-check';
+import { projectAccessGuard } from '../../core/guards/project-access.guard';
 
 export const ANALYSIS_ROUTES: Routes = [
   {
     path: '',
     component: AnalysisLayout,
+    canActivateChild: [projectAccessGuard],
     title: 'Análise | IDFLab',
     children: [
-      { path: '', redirectTo: 'initial-view', pathMatch: 'full' },
-      { path: 'initial-view', component: InitialVisualization, title: 'Visualização Inicial | IDFLab' },
-      { path: 'consistency-check', component: ConsistencyCheck, title: 'Verificação de Consistência | IDFLab' },
+      {
+        path: '',
+        pathMatch: 'full',
+        canActivate: [projectAccessGuard],
+        component: InitialVisualization,
+      },
+      {
+        path: 'initial-view',
+        component: InitialVisualization,
+        title: 'Visualização Inicial | IDFLab',
+      },
+      {
+        path: 'initial-visualization',
+        redirectTo: 'initial-view',
+        pathMatch: 'full',
+      },
+      {
+        path: 'consistency-check',
+        component: ConsistencyCheck,
+        title: 'Verificação de Consistência | IDFLab',
+      },
     ],
   },
 ];
+

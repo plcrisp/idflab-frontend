@@ -1,14 +1,23 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { catchError, Observable, of } from 'rxjs';
+import { catchError, Observable, of, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   Project,
   ProjectCreateRequest,
   ProjectCreateResponse,
+  ProjectResponse,
   SidebarProject,
   SidebarState,
+  StepEnum,
 } from '../../models/api/project.model';
+import {
+  getRouteForStep,
+  getStepForRoute,
+  isStepBeyond,
+  STEP_ORDER,
+  STEP_ROUTE_MAP,
+} from '../../utils/project-step.utils';
 
 @Injectable({
   providedIn: 'root',
@@ -20,9 +29,39 @@ export class ProjectsService {
   private state = signal<SidebarState>({ loading: true, projects: [] });
   readonly state$ = this.state.asReadonly();
 
-  getProjectById(id: string): Observable<Project> {
-    return this.http.get<Project>(`${this.baseUrl}/${id}`);
+  private currentProject = signal<ProjectResponse | null>(null);
+  readonly currentProject$ = this.currentProject.asReadonly();
+
+  setCurrentProject(project: ProjectResponse | null): void {
+    this.currentProject.set(project);
   }
+
+  getCurrentProject(): ProjectResponse | null {
+    return this.currentProject();
+  }
+
+  getProjectById(id: string, force = false): Observable<ProjectResponse> {
+    const cached = this.currentProject();
+    if (!force && cached && cached.id === id) {
+      return of(cached);
+    }
+    return this.http
+      .get<ProjectResponse>(`${this.baseUrl}/${id}`)
+      .pipe(tap((project) => this.currentProject.set(project)));
+  }
+
+  getRouteForStep(step: StepEnum): string {
+    return getRouteForStep(step);
+  }
+
+  getStepForRoute(routeSegment: string): StepEnum | null {
+    return getStepForRoute(routeSegment);
+  }
+
+  isStepBeyond(targetStep: StepEnum, furthestStep: StepEnum): boolean {
+    return isStepBeyond(targetStep, furthestStep);
+  }
+
 
   getProjects(): Observable<Project[]> {
     return this.http.get<Project[]>(`${this.baseUrl}/`);

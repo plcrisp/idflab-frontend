@@ -1,5 +1,15 @@
 import { StationSummary } from './station.model';
 
+export type StepEnum =
+  | 'INITIAL_VISUALIZATION'
+  | 'CONSISTENCY'
+  | 'GAP_FILLING'
+  | 'TEMPORAL_RESOLUTION'
+  | 'DISTRIBUTION'
+  | 'HISTORICAL_IDF'
+  | 'FUTURE_SCENARIOS'
+  | 'RESULTS';
+
 export interface Project {
   id: string;
   user_id: string;
@@ -9,9 +19,13 @@ export interface Project {
   end_date: string;
   created_at: string;
   updated_at: string;
+  furthest_step: StepEnum;
 
   station: StationSummary;
 }
+
+export type ProjectResponse = Project;
+
 
 export interface ProjectCreateRequest {
   station_id: string;

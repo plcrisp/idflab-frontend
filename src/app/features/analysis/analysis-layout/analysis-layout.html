@@ -5,7 +5,11 @@
     [hasInsufficientData]="hasInsufficientData()"
   ></app-params-header>
 
-  <app-stepper [steps]="steps" [station_id]="project()?.station?.id"></app-stepper>
+  <app-stepper
+    [steps]="steps"
+    [station_id]="project()?.station?.id"
+    [furthestStep]="project()?.furthest_step"
+  ></app-stepper>
 
   <main class="w-full min-w-0 flex-1">
     <router-outlet></router-outlet>

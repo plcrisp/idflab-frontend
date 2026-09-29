@@ -17,25 +17,24 @@
       [routerLink]="getStepLink(step, stepState(i))"
       (click)="onStepClick(step)"
       class="relative z-10 flex flex-col items-center gap-1.5 outline-none group"
-      [class.cursor-default]="stepState(i) === 'upcoming'"
-      [class.pointer-events-none]="stepState(i)
-      === 'upcoming'"
+      [class.cursor-default]="!isStepClickable(step, i)"
+      [class.pointer-events-none]="!isStepClickable(step, i)"
     >
       <span
         class="flex h-2.5 w-2.5 mt-px items-center justify-center rounded-full transition-all duration-300 origin-center"
         [ngClass]="{
           'bg-primary': (stepState(i) === 'active') || (stepState(i) === 'completed'),
           'ring-[3px] ring-primary/20 h-3 w-3': (stepState(i) === 'active'),
-          'bg-background border border-muted-foreground/40 group-hover:border-primary/50': stepState(i) === 'upcoming'
+          'bg-background border border-muted-foreground/40 group-hover:border-primary/50': !((stepState(i) === 'active') || (stepState(i) === 'completed'))
         }"
       ></span>
 
       <span
         class="text-sm whitespace-nowrap transition-colors duration-300"
         [ngClass]="{
-          'text-primary font-medium': stepState(i) === 'completed',
+          'text-primary font-medium': stepState(i) === 'completed' || (isStepClickable(step, i) && stepState(i) !== 'active'),
           'text-primary font-bold': stepState(i) === 'active',
-          'text-muted-foreground font-normal': stepState(i) === 'upcoming'
+          'text-muted-foreground font-normal': !isStepClickable(step, i)
         }"
       >
         {{ step.label }}

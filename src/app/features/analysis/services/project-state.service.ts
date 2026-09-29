@@ -61,7 +61,21 @@ export class ProjectStateService {
     this._hasInsufficientData.set(value);
   }
 
+  setProject(project: Project): void {
+    this._project.set(project);
+    this._loading.set(false);
+    this.projectSkeleton.finish();
+  }
+
   loadProject(projectId: string): void {
+    const cached = this.projectsService.getCurrentProject();
+    if (cached && cached.id === projectId) {
+      this._project.set(cached);
+      this._loading.set(false);
+      this.projectSkeleton.finish();
+      return;
+    }
+
     if (this._project()?.id !== projectId) {
       this._project.set(null);
       this._hasInsufficientData.set(false);
