@@ -54,6 +54,7 @@ import { NeighborStationsCard } from './pages/consistency-check/components/neigh
 import { NeighborStationsMap } from './pages/consistency-check/components/neighbor-stations-map/neighbor-stations-map';
 import { NeighborStationConfirmation } from './pages/consistency-check/components/neighbor-station-confirmation/neighbor-station-confirmation';
 import { ConsistencyAnalysis } from './pages/consistency-check/components/consistency-analysis/consistency-analysis';
+import { DoubleMassChart } from './pages/consistency-check/components/double-mass-chart/double-mass-chart';
 
 registerLocaleData(localePt);
 
@@ -74,6 +75,7 @@ registerLocaleData(localePt);
     NeighborStationsMap,
     NeighborStationConfirmation,
     ConsistencyAnalysis,
+    DoubleMassChart,
   ],
   exports: [
     StationSummaryBar,
@@ -81,6 +83,7 @@ registerLocaleData(localePt);
     NeighborStationsMap,
     NeighborStationConfirmation,
     ConsistencyAnalysis,
+    DoubleMassChart,
   ],
   imports: [
     CommonModule,

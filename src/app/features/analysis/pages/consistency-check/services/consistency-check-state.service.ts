@@ -1,4 +1,5 @@
 import { computed, DestroyRef, effect, inject, Injectable, signal, Signal, untracked } from '@angular/core';
+import { TitleCasePipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { toast } from '@spartan-ng/brain/sonner';
 
@@ -312,9 +313,11 @@ export class ConsistencyCheckStateService {
     const project = this.project();
     if (!project) return;
 
+    const formattedNeighborName = new TitleCasePipe().transform(neighbor.name) || neighbor.name;
+
     this.confirmationStatus.set('loading');
     this.neighborProgress.set({
-      message: `Verificando registros da estação ${neighbor.name}...`,
+      message: `Verificando registros da estação ${formattedNeighborName}...`,
       percentage: 5,
     });
     this.neighborJobId.set(null);
@@ -331,7 +334,7 @@ export class ConsistencyCheckStateService {
           this.neighborJobId.set(null);
           this.projectState.setNeighborJobId(null);
           toast.success(
-            response.message || `Os dados da estação ${neighbor.name} já estão disponíveis.`,
+            response.message || `Os dados da estação ${formattedNeighborName} já estão disponíveis.`,
             { duration: 5000, position: 'bottom-center' },
           );
         } else if (response.status === 'processing') {
@@ -341,12 +344,12 @@ export class ConsistencyCheckStateService {
             this.projectState.setNeighborJobId(jobId);
           }
           this.neighborProgress.set({
-            message: response.message || `Iniciando coleta de dados da estação ${neighbor.name}...`,
+            message: response.message || `Iniciando coleta de dados da estação ${formattedNeighborName}...`,
             percentage: 10,
           });
           this.notificationsService.refetch();
           toast.info(
-            `A busca por dados da estação ${neighbor.name} foi iniciada em segundo plano.`,
+            `A busca por dados da estação ${formattedNeighborName} foi iniciada em segundo plano.`,
             { duration: 6000, position: 'bottom-center' },
           );
         }

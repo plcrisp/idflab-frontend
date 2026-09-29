@@ -16,7 +16,18 @@ export interface AnalysisStep {
   path: string;
 }
 
+export type StatCardSemanticVariant = 'default' | 'success' | 'warning' | 'destructive';
+
 export type StatCardFooter =
-  | { type: 'text'; content: string }
-  | { type: 'progress'; value: number; max: number }
+  | { type: 'text'; content: string; variant?: StatCardSemanticVariant }
+  | {
+      type: 'progress';
+      value: number;
+      max: number;
+      variant?: StatCardSemanticVariant;
+      label?: string;
+      subtext?: string;
+      description?: string;
+    }
   | null;
+

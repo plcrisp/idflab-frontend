@@ -1,26 +1,69 @@
 <div class="consistency-analysis-wrapper w-full">
-  @if (isLoading()) {
-    <div class="flex items-center gap-2 text-xs text-muted-foreground py-2">
-      <ng-icon name="lucideLoader2" class="animate-spin text-primary text-sm shrink-0" />
-      <span>Carregando dados de consistência da estação...</span>
-    </div>
-  } @else if (error(); as err) {
-    <div class="flex items-center gap-2 text-xs text-destructive py-2">
-      <ng-icon name="lucideTriangleAlert" class="text-sm shrink-0" />
+  @if (error(); as err) {
+    <!-- Estado de Erro -->
+    <div class="flex items-center gap-2.5 text-xs text-destructive p-3.5 rounded-xl border border-destructive/20 bg-destructive/5">
+      <ng-icon name="lucideTriangleAlert" class="text-base shrink-0" />
       <span>{{ err }}</span>
     </div>
-  } @else if (analysis(); as data) {
-    <div class="flex flex-col gap-1 text-xs text-muted-foreground p-3 rounded-lg bg-muted/30 border border-border/50">
-      <div class="flex items-center gap-2 text-foreground font-medium">
-        <ng-icon name="lucideActivity" class="text-primary text-sm" />
-        <span>Análise de consistência pronta (dados impressos no console)</span>
+  } @else {
+    <!-- Layout em Duas Colunas: Gráfico de Dupla Massa (~65%) e Indicadores Pearson/Cobertura (~35%) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-stretch">
+      <!-- Coluna Esquerda: Gráfico de Dupla Massa (~65%) -->
+      <div class="lg:col-span-8 flex flex-col rounded-xl border border-border bg-card/60 p-3 sm:p-3.5">
+        <app-double-mass-chart
+          [points]="analysis()?.double_mass?.points ?? []"
+          [principalStationName]="principalStationName() | titlecase"
+          [neighborStationName]="neighborStationName() | titlecase"
+          [loading]="isLoading()"
+        />
       </div>
-      <p class="text-[11px] text-muted-foreground">
-        Dias sobrepostos: <strong class="text-foreground">{{ data.overlap_days }}</strong> |
-        Pearson: <strong class="text-foreground">{{ data.pearson.value | number:'1.2-2' }} ({{ data.pearson.label }})</strong> |
-        Pontos dupla massa: <strong class="text-foreground">{{ data.double_mass.total_points }}</strong> |
-        Cobertura preenchível: <strong class="text-foreground">{{ data.coverage.percentage != null ? (data.coverage.percentage | number:'1.1-1') + '%' : 'N/A' }}</strong>
-      </p>
+
+      <!-- Coluna Direita: Indicadores de Consistência (~35%) -->
+      <div class="lg:col-span-4 flex flex-col justify-between gap-3 rounded-xl border border-border bg-card/60 p-3.5 sm:p-4">
+        <!-- Cabeçalho com Título e Contexto Discreto -->
+        <div class="flex items-center justify-between pb-2 border-b border-border/40">
+          <h3 class="text-xs sm:text-sm font-semibold uppercase tracking-wide text-foreground">
+            Indicadores
+          </h3>
+          <span
+            class="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground bg-secondary/60 border border-border/60 px-2 py-0.5 rounded-md"
+            title="Métricas utilizadas para orientar o preenchimento de falhas"
+          >
+            <ng-icon name="lucideInfo" class="text-xs text-primary shrink-0" />
+            <span>Para preenchimento de falhas</span>
+          </span>
+        </div>
+
+        <!-- Indicadores em Layout Wide Distribuídos Uniformemente -->
+        <div class="flex flex-col justify-between flex-1 gap-3 py-1">
+          <!-- Card 1: Correlação de Pearson -->
+          <app-stat-card
+            variant="plain"
+            layout="wide"
+            label="Correlação de Pearson"
+            icon="lucideTrendingUp"
+            [iconVariant]="pearsonVariant()"
+            [value]="pearsonValueFormatted()"
+            [footer]="pearsonFooter()"
+            [loading]="isLoading()"
+          />
+
+          <!-- Divisória Sutil Interna -->
+          <div class="border-t border-border/40 w-full my-0.5"></div>
+
+          <!-- Card 2: Cobertura Preenchível -->
+          <app-stat-card
+            variant="plain"
+            layout="wide"
+            label="Cobertura preenchível"
+            icon="lucideShieldCheck"
+            [iconVariant]="coverageVariant()"
+            [value]="coverageValueFormatted()"
+            [footer]="coverageFooter()"
+            [loading]="isLoading()"
+          />
+        </div>
+      </div>
     </div>
   }
 </div>

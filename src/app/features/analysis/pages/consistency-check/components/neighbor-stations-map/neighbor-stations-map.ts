@@ -10,6 +10,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
+import { TitleCasePipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import * as mapboxgl from 'mapbox-gl';
 import { NeighborStation, StationSummary } from '../../../../../../core/models/api/station.model';
@@ -33,6 +34,7 @@ interface MarkerEntry {
 export class NeighborStationsMap implements AfterViewInit, OnChanges, OnDestroy {
   private themeService = inject(ThemeService);
   private elementRef = inject(ElementRef);
+  private readonly titleCasePipe = new TitleCasePipe();
 
   @Input() mainStation: StationSummary | null = null;
   @Input() neighbors: NeighborStation[] = [];
@@ -197,7 +199,7 @@ export class NeighborStationsMap implements AfterViewInit, OnChanges, OnDestroy 
     const sourceColor = this.getMainStationColor();
     el.innerHTML = `
       <div class="relative flex items-center justify-center">
-        <div class="main-pin" style="background-color: ${sourceColor};" title="Estação Principal: ${station.name}">
+        <div class="main-pin" style="background-color: ${sourceColor};" title="Estação Principal: ${this.titleCasePipe.transform(station.name)}">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/>
             <circle cx="12" cy="10" r="3"/>
@@ -207,7 +209,7 @@ export class NeighborStationsMap implements AfterViewInit, OnChanges, OnDestroy 
     `;
 
     const props = {
-      name: station.name,
+      name: this.titleCasePipe.transform(station.name),
       source: station.source,
       status: 'operante',
       city: station.city,
@@ -247,7 +249,7 @@ export class NeighborStationsMap implements AfterViewInit, OnChanges, OnDestroy 
     `;
 
     const props = {
-      name: neighbor.name,
+      name: this.titleCasePipe.transform(neighbor.name),
       source: neighbor.source,
       status: 'operante',
       city: neighbor.city,

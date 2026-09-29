@@ -1,0 +1,27 @@
+:host {
+  display: block;
+}
+
+:host.h-full {
+  height: 100%;
+}
+
+::ng-deep {
+  hlm-progress-indicator.indicator-success,
+  [hlmProgressIndicator].indicator-success,
+  .indicator-success hlm-progress-indicator {
+    background-color: var(--success) !important;
+  }
+
+  hlm-progress-indicator.indicator-warning,
+  [hlmProgressIndicator].indicator-warning,
+  .indicator-warning hlm-progress-indicator {
+    background-color: var(--warning) !important;
+  }
+
+  hlm-progress-indicator.indicator-destructive,
+  [hlmProgressIndicator].indicator-destructive,
+  .indicator-destructive hlm-progress-indicator {
+    background-color: var(--destructive) !important;
+  }
+}

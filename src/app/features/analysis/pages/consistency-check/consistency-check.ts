@@ -1,4 +1,5 @@
 import { Component, effect, inject } from '@angular/core';
+import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
@@ -22,9 +23,11 @@ export class ConsistencyCheck {
       const project = this.state.project();
       if (!project) return;
 
+      const projectName = new TitleCasePipe().transform(project.name) || project.name;
+
       this.mainLayoutService.setBreadcrumbs([
         { label: 'Nova Análise', url: '/app/interactive-map' },
-        { label: project.name, url: `/app/project/${project.id}` },
+        { label: projectName, url: `/app/project/${project.id}` },
         { label: 'Verificação de Consistência', url: `/app/analysis/${project.id}/consistency-check` },
       ]);
     });

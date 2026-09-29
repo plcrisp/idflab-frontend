@@ -200,7 +200,7 @@
 
   <!-- Análise de Consistência (Dupla Massa, Pearson, Cobertura) exibida quando pronta -->
   @if (confirmationStatus === 'ready' && activeNeighborStation && projectId) {
-    <div class="border-t border-border p-5 rounded-b-xl">
+    <div class="pb-4 px-4 rounded-b-xl">
       <app-consistency-analysis
         [projectId]="projectId"
         [neighborStation]="activeNeighborStation"
