@@ -2,12 +2,12 @@ import { Component, computed, effect, ElementRef, input, output, ViewChild } fro
 import { NeighborStation } from '../../../../../../core/models/api/station.model';
 import { ActiveJobItem } from '../../../../../../core/models/api/notification.model';
 
-export type ConfirmationStatus = 'idle' | 'loading' | 'ready' | 'error';
+import {
+  ConfirmationStatus,
+  NeighborProgressInfo,
+} from '../../models/consistency-check.model';
 
-export interface NeighborProgressInfo {
-  message?: string;
-  percentage?: number;
-}
+export type { ConfirmationStatus, NeighborProgressInfo };
 
 @Component({
   selector: 'app-neighbor-station-confirmation',

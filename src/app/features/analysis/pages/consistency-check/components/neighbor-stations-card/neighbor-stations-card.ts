@@ -5,7 +5,7 @@ import { BRAZIL_STATES } from '../../../../../../shared/utils/brazil-states.cons
 import {
   ConfirmationStatus,
   NeighborProgressInfo,
-} from '../neighbor-station-confirmation/neighbor-station-confirmation';
+} from '../../models/consistency-check.model';
 
 @Component({
   selector: 'app-neighbor-stations-card',

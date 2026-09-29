@@ -1,28 +1,28 @@
 <div class="flex flex-col gap-4 overflow-x-hidden">
   <!-- Barra de Resumo Compacta da Estação -->
   <app-station-summary-bar
-    [stats]="stats()"
-    [loading]="isLoading()"
-    [muted]="hasInsufficientData()"
-    [isHourly]="isHourly()"
+    [stats]="state.stats()"
+    [loading]="state.isLoading()"
+    [muted]="state.hasInsufficientData()"
+    [isHourly]="state.isHourly()"
   />
 
   <!-- Card de Seleção e Confirmação da Estação Vizinha -->
   <app-neighbor-stations-card
-    [mainStation]="project()?.station ?? null"
-    [neighbors]="neighbors()"
-    [selectedNeighbor]="selectedNeighbor()"
-    [activeNeighborStation]="activeNeighborStation()"
-    [confirmationStatus]="confirmationStatus()"
-    [neighborProgress]="neighborProgress()"
-    [neighborJob]="neighborJob()"
-    [loading]="isLoadingNeighbors()"
-    [isLoadingData]="isLoadingNeighborData()"
-    [disabled]="isSelectionLocked()"
-    (stationSelected)="onNeighborSelected($event)"
+    [mainStation]="state.project()?.station ?? null"
+    [neighbors]="state.neighbors()"
+    [selectedNeighbor]="state.selectedNeighbor()"
+    [activeNeighborStation]="state.activeNeighborStation()"
+    [confirmationStatus]="state.confirmationStatus()"
+    [neighborProgress]="state.neighborProgress()"
+    [neighborJob]="state.neighborJob()"
+    [loading]="state.isLoadingNeighbors()"
+    [isLoadingData]="state.isLoadingNeighborData()"
+    [disabled]="state.isSelectionLocked()"
+    (stationSelected)="state.selectNeighbor($event)"
     (skipClicked)="onSkipToYears()"
-    (confirmSelection)="onConfirmNeighbor($event)"
-    (lockSelection)="onLockSelection($event)"
+    (confirmSelection)="state.confirmNeighbor($event)"
+    (lockSelection)="state.lockSelection($event)"
     (scrollToSelection)="onScrollToNeighborCard()"
   />
 </div>
