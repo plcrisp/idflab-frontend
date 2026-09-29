@@ -25,4 +25,19 @@
     (lockSelection)="state.lockSelection($event)"
     (scrollToSelection)="onScrollToNeighborCard()"
   />
+
+  <!-- Card Independente: Análise de Consistência (Dupla Massa + Indicadores ou Progresso de Busca) -->
+  @if (shouldShowAnalysisCard) {
+    <app-neighbor-analysis-card
+      id="neighbor-analysis-card"
+      [projectId]="state.project()?.id ?? null"
+      [activeStation]="state.activeNeighborStation()"
+      [selectedStation]="state.selectedNeighbor()"
+      [status]="state.confirmationStatus()"
+      [job]="state.neighborJob()"
+      [progress]="state.neighborProgress()"
+      [isSelectionLocked]="state.isSelectionLocked()"
+      (changeStation)="onScrollToNeighborCard()"
+    />
+  }
 </div>

@@ -103,5 +103,17 @@ export class NeighborStationsCard {
     }
     return '-';
   }
+
+  get isChoosingStation(): boolean {
+    if (this.confirmationStatus === 'loading') return false;
+    if (this.confirmationStatus === 'ready') {
+      return !!(
+        this.selectedNeighbor &&
+        this.activeNeighborStation &&
+        this.selectedNeighbor.id !== this.activeNeighborStation.id
+      );
+    }
+    return true;
+  }
 }
 

@@ -1,6 +1,6 @@
 <div
   id="neighbor-stations-selection-card"
-  class="rounded-xl shadow-sm border border-border bg-popover text-foreground flex flex-col relative"
+  class="rounded-xl shadow-sm border border-border bg-popover text-foreground flex flex-col relative overflow-hidden"
 >
   <!-- Cabeçalho do Card -->
   <div class="flex items-center justify-start border-b border-border p-4">
@@ -171,26 +171,18 @@
     </div>
   </div>
 
-  <!-- Divisória Sutil e Seção Inferior: Confirmação / Status da Estação Vizinha -->
-  <div class="border-t border-border px-5 py-2.5" [class.rounded-b-xl]="confirmationStatus !== 'ready' || !activeNeighborStation">
-    <app-neighbor-station-confirmation
-      [highlightedStation]="selectedNeighbor"
-      [activeStation]="activeNeighborStation"
-      [status]="confirmationStatus"
-      [progress]="neighborProgress"
-      [job]="neighborJob"
-      (confirmSelection)="confirmSelection.emit($event)"
-      (lockSelection)="lockSelection.emit($event)"
-      (scrollToSelection)="scrollToSelection.emit()"
-    />
-  </div>
-
-  <!-- Análise de Consistência (Dupla Massa, Pearson, Cobertura) exibida quando pronta -->
-  @if (confirmationStatus === 'ready' && activeNeighborStation && projectId) {
-    <div class="pb-4 px-4 rounded-b-xl">
-      <app-consistency-analysis
-        [projectId]="projectId"
-        [neighborStation]="activeNeighborStation"
+  <!-- Divisória Sutil e Seção Inferior: Confirmação / Status da Estação Vizinha (apenas quando escolhendo / troca pendente / erro) -->
+  @if (isChoosingStation) {
+    <div class="border-t border-border px-5 py-2.5">
+      <app-neighbor-station-confirmation
+        [highlightedStation]="selectedNeighbor"
+        [activeStation]="activeNeighborStation"
+        [status]="confirmationStatus"
+        [progress]="neighborProgress"
+        [job]="neighborJob"
+        (confirmSelection)="confirmSelection.emit($event)"
+        (lockSelection)="lockSelection.emit($event)"
+        (scrollToSelection)="scrollToSelection.emit()"
       />
     </div>
   }

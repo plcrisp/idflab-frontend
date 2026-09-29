@@ -31,10 +31,37 @@ export class ConsistencyCheck {
         { label: 'Verificação de Consistência', url: `/app/analysis/${project.id}/consistency-check` },
       ]);
     });
+
+    let prevStatus = this.state.confirmationStatus();
+    effect(() => {
+      const currentStatus = this.state.confirmationStatus();
+      if (currentStatus === 'loading' && prevStatus !== 'loading') {
+        setTimeout(() => {
+          this.scrollToAnalysisCard();
+        }, 80);
+      }
+      prevStatus = currentStatus;
+    });
+  }
+
+  get shouldShowAnalysisCard(): boolean {
+    const status = this.state.confirmationStatus();
+    if (status === 'loading') {
+      return !!(this.state.selectedNeighbor() || this.state.activeNeighborStation());
+    }
+    if (status === 'ready') {
+      return !!this.state.activeNeighborStation();
+    }
+    return false;
   }
 
   onScrollToNeighborCard(): void {
     const el = document.getElementById('neighbor-stations-selection-card');
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  scrollToAnalysisCard(): void {
+    const el = document.getElementById('neighbor-analysis-card');
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
