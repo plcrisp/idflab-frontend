@@ -29,7 +29,7 @@
     [class.pointer-events-none]="disabled"
   >
     <!-- Coluna Esquerda: Mini-mapa (lg:col-span-7) -->
-    <div class="lg:col-span-7 min-h-115 h-full flex flex-col">
+    <div class="lg:col-span-7 min-h-92 h-full flex flex-col">
       <app-neighbor-stations-map
         class="w-full h-full flex-1 flex flex-col"
         [mainStation]="mainStation"
@@ -42,7 +42,7 @@
 
     <!-- Coluna Direita: Lista de Candidatas (lg:col-span-5) -->
     <div class="lg:col-span-5 flex flex-col justify-between">
-      <div class="flex-1 min-h-115 max-h-115 overflow-y-auto pr-1.5 space-y-2.5">
+      <div class="flex-1 min-h-92 max-h-92 overflow-y-auto pr-1.5 space-y-2.5">
         @if (loading) {
           <!-- Skeletons enquanto busca as vizinhas (5 itens para preencher a altura compacta) -->
           @for (item of [1, 2, 3, 4, 5]; track item) {

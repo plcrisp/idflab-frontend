@@ -7,6 +7,11 @@ export interface ConsistencyStepParams {
   excluded_years?: number[];
 }
 
+export interface GapFillingStepParams {
+  neighbor_station_id?: string | null;
+  excluded_years?: number[];
+}
+
 export interface ProjectStepSaveRequest<T = Record<string, any>> {
   step: StepEnum;
   status?: StepStatus;

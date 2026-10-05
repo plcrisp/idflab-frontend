@@ -3,33 +3,27 @@ import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
-import { ConsistencyCheckStateService } from './services/consistency-check-state.service';
 import { ProjectStateService } from '../../services/project-state.service';
+import { GapFillingStateService } from './services/gap-filling-state.service';
 import { NeighborStationsManagerService } from '../../shared/services/neighbor-stations-manager.service';
 
 @Component({
-  selector: 'app-consistency-check',
+  selector: 'app-gap-filling',
   standalone: false,
-  templateUrl: './consistency-check.html',
-  styleUrl: './consistency-check.scss',
-  providers: [NeighborStationsManagerService, ConsistencyCheckStateService],
+  templateUrl: './gap-filling.html',
+  styleUrl: './gap-filling.scss',
+  providers: [NeighborStationsManagerService, GapFillingStateService],
 })
-export class ConsistencyCheck {
+export class GapFilling {
   private mainLayoutService = inject(MainLayoutService);
   private projectState = inject(ProjectStateService);
   private router = inject(Router);
 
-  readonly state = inject(ConsistencyCheckStateService);
+  readonly state = inject(GapFillingStateService);
   readonly isAdvancing = signal<boolean>(false);
 
   readonly hasAnalyzedStation = computed<boolean>(() => {
     return this.state.confirmationStatus() === 'ready' && !!this.state.activeNeighborStation();
-  });
-
-  readonly advanceButtonText = computed<string>(() => {
-    return this.hasAnalyzedStation()
-      ? 'Prosseguir'
-      : 'Prosseguir sem verificar consistência';
   });
 
   readonly isAdvanceDisabled = computed<boolean>(() => {
@@ -49,31 +43,9 @@ export class ConsistencyCheck {
       this.mainLayoutService.setBreadcrumbs([
         { label: 'Nova Análise', url: '/app/interactive-map' },
         { label: projectName, url: `/app/project/${project.id}` },
-        { label: 'Verificação de Consistência', url: `/app/analysis/${project.id}/consistency-check` },
+        { label: 'Tratamento de falhas', url: `/app/analysis/${project.id}/tratamento-de-falhas` },
       ]);
     });
-
-    let prevStatus = this.state.confirmationStatus();
-    effect(() => {
-      const currentStatus = this.state.confirmationStatus();
-      if (currentStatus === 'loading' && prevStatus !== 'loading') {
-        setTimeout(() => {
-          this.scrollToAnalysisCard();
-        }, 80);
-      }
-      prevStatus = currentStatus;
-    });
-  }
-
-  get shouldShowAnalysisCard(): boolean {
-    const status = this.state.confirmationStatus();
-    if (status === 'loading') {
-      return !!(this.state.selectedNeighbor() || this.state.activeNeighborStation());
-    }
-    if (status === 'ready') {
-      return !!this.state.activeNeighborStation();
-    }
-    return false;
   }
 
   onScrollToNeighborCard(): void {
@@ -81,15 +53,10 @@ export class ConsistencyCheck {
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  scrollToAnalysisCard(): void {
-    const el = document.getElementById('neighbor-analysis-card');
-    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
   onBack(): void {
     const project = this.state.project();
     if (!project || this.isAdvancing() || this.isAdvanceDisabled()) return;
-    this.router.navigate(['/app/analysis', project.id, 'initial-view']);
+    this.router.navigate(['/app/analysis', project.id, 'consistency-check']);
   }
 
   onAdvance(): void {
@@ -97,15 +64,15 @@ export class ConsistencyCheck {
     if (!project || this.isAdvancing() || this.isAdvanceDisabled()) return;
 
     this.isAdvancing.set(true);
-    this.projectState.updateFurthestStep('GAP_FILLING').subscribe({
+    this.projectState.updateFurthestStep('TEMPORAL_RESOLUTION').subscribe({
       next: () => {
         this.isAdvancing.set(false);
-        this.router.navigate(['/app/analysis', project.id, 'tratamento-de-falhas']);
+        this.router.navigate(['/app/analysis', project.id, 'resolucao-temporal']);
       },
       error: (err) => {
         console.error('Erro ao atualizar etapa do projeto:', err);
         this.isAdvancing.set(false);
-        this.router.navigate(['/app/analysis', project.id, 'tratamento-de-falhas']);
+        this.router.navigate(['/app/analysis', project.id, 'resolucao-temporal']);
       },
     });
   }

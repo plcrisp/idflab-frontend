@@ -56,6 +56,7 @@ import { NeighborStationConfirmation } from './shared/components/neighbor-statio
 import { DoubleMassChart } from './pages/consistency-check/components/double-mass-chart/double-mass-chart';
 import { NeighborAnalysisCard } from './pages/consistency-check/components/neighbor-analysis-card/neighbor-analysis-card';
 import { ConsistencyAnalysis } from './pages/consistency-check/components/consistency-analysis/consistency-analysis';
+import { GapFilling } from './pages/gap-filling/gap-filling';
 
 registerLocaleData(localePt);
 
@@ -78,6 +79,7 @@ registerLocaleData(localePt);
     DoubleMassChart,
     NeighborAnalysisCard,
     ConsistencyAnalysis,
+    GapFilling,
   ],
   exports: [
     StationSummaryBar,
@@ -86,6 +88,7 @@ registerLocaleData(localePt);
     NeighborStationConfirmation,
     DoubleMassChart,
     NeighborAnalysisCard,
+    GapFilling,
   ],
   imports: [
     CommonModule,
