@@ -57,6 +57,7 @@ import { DoubleMassChart } from './pages/consistency-check/components/double-mas
 import { NeighborAnalysisCard } from './pages/consistency-check/components/neighbor-analysis-card/neighbor-analysis-card';
 import { ConsistencyAnalysis } from './pages/consistency-check/components/consistency-analysis/consistency-analysis';
 import { GapFilling } from './pages/gap-filling/gap-filling';
+import { PathSelector } from './pages/gap-filling/components/path-selector/path-selector';
 
 registerLocaleData(localePt);
 
@@ -89,12 +90,14 @@ registerLocaleData(localePt);
     DoubleMassChart,
     NeighborAnalysisCard,
     GapFilling,
+    PathSelector,
   ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     RouterModule.forChild(ANALYSIS_ROUTES),
     SharedModule,
+    PathSelector,
     NgIconsModule.withIcons({
       lucideDatabase,
       lucideTriangleAlert,

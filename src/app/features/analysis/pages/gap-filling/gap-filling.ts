@@ -22,6 +22,22 @@ export class GapFilling {
   readonly state = inject(GapFillingStateService);
   readonly isAdvancing = signal<boolean>(false);
 
+  readonly selectedPath = signal<'fill' | 'filter'>('fill');
+  readonly filterStatus = signal<'default' | 'configured'>('default');
+  readonly filterThreshold = signal<number>(90);
+
+  readonly fillStatus = computed<'idle' | 'running' | 'done' | 'error'>(() => {
+    const status = this.state.confirmationStatus();
+    if (status === 'loading') return 'running';
+    if (status === 'ready' && this.state.activeNeighborStation()) return 'done';
+    if (status === 'error') return 'error';
+    return 'idle';
+  });
+
+  readonly isPathSelectorDisabled = computed<boolean>(() => {
+    return this.state.isSelectionLocked() || this.fillStatus() === 'running';
+  });
+
   readonly hasAnalyzedStation = computed<boolean>(() => {
     return this.state.confirmationStatus() === 'ready' && !!this.state.activeNeighborStation();
   });

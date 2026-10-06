@@ -1,54 +1,41 @@
 <div class="flex flex-col gap-4 overflow-x-hidden">
   <!-- 1. Barra de Resumo Compacta da Estação -->
-  <app-station-summary-bar
-    [stats]="state.stats()"
-    [loading]="state.isLoading()"
-    [muted]="state.hasInsufficientData()"
-    [isHourly]="state.isHourly()"
-  />
+  <app-station-summary-bar [stats]="state.stats()" [loading]="state.isLoading()" [muted]="state.hasInsufficientData()"
+    [isHourly]="state.isHourly()" />
 
-  <!-- 2. Card: Estação de Referência para Preenchimento -->
-  <app-neighbor-stations-card
-    [projectId]="state.project()?.id ?? null"
-    [mainStation]="state.project()?.station ?? null"
-    [neighbors]="state.neighbors()"
-    [selectedNeighbor]="state.selectedNeighbor()"
-    [activeNeighborStation]="state.activeNeighborStation()"
-    [confirmationStatus]="state.confirmationStatus()"
-    [neighborProgress]="state.neighborProgress()"
-    [neighborJob]="state.neighborJob()"
-    [loading]="state.isLoadingNeighbors()"
-    [isLoadingData]="state.isLoadingNeighborData()"
-    [disabled]="state.isSelectionLocked()"
-    [subtitle]="'Escolha uma estação de referência para preenchimento de falhas'"
+  <!-- 2. Seletor de Caminho do Tratamento de Falhas -->
+  <app-path-selector [(selected)]="selectedPath" [fillStatus]="fillStatus()" [filterStatus]="filterStatus()"
+    [filterThreshold]="filterThreshold()" [disabled]="isPathSelectorDisabled()" />
+
+  <!-- 3. Painel do Caminho Selecionado -->
+  @if (selectedPath() === 'fill') {
+  <!-- Painel de Preenchimento: Estação de Referência para Preenchimento -->
+  <app-neighbor-stations-card [projectId]="state.project()?.id ?? null" [mainStation]="state.project()?.station ?? null"
+    [neighbors]="state.neighbors()" [selectedNeighbor]="state.selectedNeighbor()"
+    [activeNeighborStation]="state.activeNeighborStation()" [confirmationStatus]="state.confirmationStatus()"
+    [neighborProgress]="state.neighborProgress()" [neighborJob]="state.neighborJob()"
+    [loading]="state.isLoadingNeighbors()" [isLoadingData]="state.isLoadingNeighborData()"
+    [disabled]="state.isSelectionLocked()" [subtitle]="'Escolha uma estação de referência para preenchimento de falhas'"
     [confirmActionPrefix]="'Usar para preenchimento de falhas a estação'"
     [idleMessage]="'Selecione uma estação vizinha na lista ou no mapa para preenchimento de falhas.'"
-    [activeMessagePrefix]="'Preenchendo falhas com a estação'"
-    (stationSelected)="state.selectNeighbor($event)"
-    (confirmSelection)="state.confirmNeighbor($event)"
-    (lockSelection)="state.lockSelection($event)"
-    (scrollToSelection)="onScrollToNeighborCard()"
-  />
+    [activeMessagePrefix]="'Preenchendo falhas com a estação'" (stationSelected)="state.selectNeighbor($event)"
+    (confirmSelection)="state.confirmNeighbor($event)" (lockSelection)="state.lockSelection($event)"
+    (scrollToSelection)="onScrollToNeighborCard()" />
+  } @else {
+  <!-- Painel de Filtro: Desconsiderar Anos Incompletos -->
+
+  }
 
   <!-- Rodapé com Ações -->
   <div class="flex w-full items-center justify-between gap-3">
-    <button
-      hlmBtn
-      variant="outline"
-      (click)="onBack()"
-      [disabled]="isAdvanceDisabled() || isAdvancing()"
-    >
+    <button hlmBtn variant="outline" (click)="onBack()" [disabled]="isAdvanceDisabled() || isAdvancing()">
       <ng-icon name="lucideArrowLeft" class="mr-2" />
       Voltar
     </button>
 
-    <button
-      hlmBtn
-      (click)="onAdvance()"
-      [disabled]="isAdvanceDisabled() || isAdvancing()"
-    >
+    <button hlmBtn (click)="onAdvance()" [disabled]="isAdvanceDisabled() || isAdvancing()">
       @if (isAdvancing()) {
-        <hlm-spinner class="mr-2" />
+      <hlm-spinner class="mr-2" />
       }
       Prosseguir
       <ng-icon name="lucideArrowRight" class="ml-2" />

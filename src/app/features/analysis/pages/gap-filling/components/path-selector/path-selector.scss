@@ -1,0 +1,31 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.path-card {
+  background-color: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  box-shadow: none;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    opacity 150ms ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
+  &--selected {
+    border-color: var(--primary);
+  }
+
+  &--unselected:not(.cursor-not-allowed):hover {
+    border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
+  }
+}
+
+.status-slot {
+  min-height: 1.375rem; /* 22px para garantir alinhamento vertical idêntico mesmo sem selo */
+}
