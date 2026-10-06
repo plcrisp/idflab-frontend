@@ -1,11 +1,11 @@
-<div class="flex w-full items-start">
+<div class="flex w-full items-start overflow-x-auto sm:overflow-x-visible pb-1 sm:pb-0 scrollbar-none">
   @for (step of steps; track step.path; let i = $index; let isLast = $last) {
-  <div class="relative flex flex-1 flex-col items-center">
+  <div class="relative flex flex-1 min-w-[72px] sm:min-w-0 flex-col items-center">
     @if (!isLast) {
-    <div class="absolute left-1/2 top-1.5 z-0 h-px w-full bg-border"></div>
+    <div class="absolute left-1/2 top-[7px] z-0 h-px w-full bg-border"></div>
 
     <div
-      class="absolute left-1/2 top-1.5 z-0 h-px bg-primary origin-left transition-all duration-300 ease-out"
+      class="absolute left-1/2 top-[7px] z-0 h-px bg-primary origin-left transition-all duration-300 ease-out"
       [ngClass]="{
           'w-full': stepState(i) === 'completed',
           'w-0': stepState(i) !== 'completed'
@@ -16,21 +16,30 @@
     <a
       [routerLink]="getStepLink(step, stepState(i))"
       (click)="onStepClick(step)"
-      class="relative z-10 flex flex-col items-center gap-1.5 outline-none group"
+      [title]="step.label"
+      class="relative z-10 flex flex-col items-center gap-1.5 outline-none group w-full px-1"
       [class.cursor-default]="!isStepClickable(step, i)"
       [class.pointer-events-none]="!isStepClickable(step, i)"
     >
-      <span
-        class="flex h-2.5 w-2.5 mt-px items-center justify-center rounded-full transition-all duration-300 origin-center"
-        [ngClass]="{
-          'bg-primary': (stepState(i) === 'active') || (stepState(i) === 'completed'),
-          'ring-[3px] ring-primary/20 h-3 w-3': (stepState(i) === 'active'),
-          'bg-background border border-muted-foreground/40 group-hover:border-primary/50': !((stepState(i) === 'active') || (stepState(i) === 'completed'))
-        }"
-      ></span>
+      <div class="flex h-3.5 w-full items-center justify-center">
+        <span
+          class="flex items-center justify-center rounded-full transition-all duration-300 origin-center"
+          [class.h-2.5]="stepState(i) !== 'active'"
+          [class.w-2.5]="stepState(i) !== 'active'"
+          [class.h-3]="stepState(i) === 'active'"
+          [class.w-3]="stepState(i) === 'active'"
+          [class.bg-primary]="stepState(i) === 'active' || stepState(i) === 'completed'"
+          [class.ring-[3px]]="stepState(i) === 'active'"
+          [class.ring-primary/20]="stepState(i) === 'active'"
+          [class.bg-background]="stepState(i) === 'upcoming'"
+          [class.border]="stepState(i) === 'upcoming'"
+          [class.border-muted-foreground/40]="stepState(i) === 'upcoming'"
+          [class.group-hover:border-primary/50]="stepState(i) === 'upcoming'"
+        ></span>
+      </div>
 
       <span
-        class="text-sm whitespace-nowrap transition-colors duration-300"
+        class="text-xs sm:text-[13px] text-center leading-tight transition-colors duration-300 break-words line-clamp-2 select-none"
         [ngClass]="{
           'text-primary font-medium': stepState(i) === 'completed' || (isStepClickable(step, i) && stepState(i) !== 'active'),
           'text-primary font-bold': stepState(i) === 'active',

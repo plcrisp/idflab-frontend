@@ -1,187 +1,157 @@
 @if (layout() === 'wide') {
-  <div
-    class="flex flex-col w-full transition-all"
-    [class.rounded-xl]="variant() === 'card'"
-    [class.border]="variant() === 'card'"
-    [class.border-border]="variant() === 'card'"
-    [class.bg-popover]="variant() === 'card'"
-    [class.p-3.5]="variant() === 'card'"
-    [class.shadow-sm]="variant() === 'card'"
-    [class.bg-transparent]="variant() === 'plain'"
-    [class.p-0]="variant() === 'plain'"
-    [class.opacity-50]="muted()"
-    [class.grayscale-50]="muted()"
-  >
-    @if (loading()) {
-      <div class="flex flex-col gap-2 w-full animate-pulse">
-        <div class="flex items-center gap-2">
-          <div hlmSkeleton class="h-6 w-6 rounded-md"></div>
-          <div hlmSkeleton class="h-4 w-32 rounded"></div>
-        </div>
-        <div class="flex items-baseline justify-between mt-1">
-          <div hlmSkeleton class="h-8 w-20 rounded"></div>
-          <div hlmSkeleton class="h-5 w-24 rounded-full"></div>
-        </div>
-        <div hlmSkeleton class="h-1.5 w-full rounded-full"></div>
-        <div hlmSkeleton class="h-3.5 w-48 rounded"></div>
-      </div>
-    } @else {
-      <!-- Linha 1: Ícone + Rótulo -->
-      <div class="flex items-center gap-2">
-        <div
-          class="flex shrink-0 items-center justify-center rounded-md h-6 w-6 sm:h-6.5 sm:w-6.5"
-          [ngStyle]="iconContainerStyle()"
-          [class.opacity-70]="muted()"
-        >
-          <ng-icon name="{{ icon() }}" size="14"></ng-icon>
-        </div>
-        <span class="text-xs sm:text-sm font-medium text-muted-foreground truncate">
-          {{ label() }}
-        </span>
-      </div>
-
-      <!-- Linha 2: Valor grande à esquerda + Status / Selo à direita -->
-      <div class="flex items-baseline justify-between gap-2 mt-2 mb-1.5">
-        <div class="flex items-baseline gap-1">
-          @if (value() != null) {
-            <span class="text-2xl sm:text-[22px] font-semibold text-foreground tracking-tight leading-none">
-              {{ value() }}
-            </span>
-          } @else {
-            <span class="text-2xl sm:text-[22px] font-semibold text-muted-foreground/50 tracking-tight leading-none">
-              -
-            </span>
-          }
-          @if (value() != null && unit()) {
-            <span class="text-xs font-medium text-muted-foreground">
-              {{ unit() }}
-            </span>
-          }
-        </div>
-
-        @if ($any(footer())?.label) {
-          <span
-            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0"
-            [ngStyle]="footerBadgeStyle()"
-          >
-            {{ $any(footer()).label }}
-          </span>
-        }
-      </div>
-
-      <!-- Linha 3: Barra de progresso em largura total -->
-      @if (footer()?.type === 'progress') {
-        <div class="w-full">
-          <hlm-progress [value]="progressPercent()" class="h-1.5 w-full">
-            <hlm-progress-indicator
-              [ngClass]="progressIndicatorClass()"
-              [style.background-color]="progressColorStyle()"
-            />
-          </hlm-progress>
-        </div>
-      }
-
-      <!-- Linha 4: Legenda curta em uma linha com o contexto da base de cálculo -->
-      @if ($any(footer())?.subtext || $any(footer())?.description || $any(footer())?.content) {
-        <p class="text-xs text-muted-foreground mt-1.5 truncate leading-relaxed">
-          {{ $any(footer())?.subtext || $any(footer())?.description || $any(footer())?.content }}
-        </p>
-      }
-
-      <ng-content select="[card-footer]" />
-    }
+<div class="flex flex-col w-full transition-all" [class.rounded-xl]="variant() === 'card'"
+  [class.border]="variant() === 'card'" [class.border-border]="variant() === 'card'"
+  [class.bg-popover]="variant() === 'card'" [class.p-3.5]="variant() === 'card'"
+  [class.shadow-sm]="variant() === 'card'" [class.bg-transparent]="variant() === 'plain'"
+  [class.p-0]="variant() === 'plain'" [class.opacity-50]="muted()" [class.grayscale-50]="muted()">
+  @if (loading()) {
+  <div class="flex flex-col gap-2 w-full animate-pulse">
+    <div class="flex items-center gap-2">
+      <div hlmSkeleton class="h-6 w-6 rounded-md"></div>
+      <div hlmSkeleton class="h-4 w-32 rounded"></div>
+    </div>
+    <div class="flex items-baseline justify-between mt-1">
+      <div hlmSkeleton class="h-8 w-20 rounded"></div>
+      <div hlmSkeleton class="h-5 w-24 rounded-full"></div>
+    </div>
+    <div hlmSkeleton class="h-1.5 w-full rounded-full"></div>
+    <div hlmSkeleton class="h-3.5 w-48 rounded"></div>
   </div>
-} @else {
-  <!-- Layout default original mantido intacto para initial-kpi-cards -->
-  <div
-    class="h-full flex flex-col justify-between transition-all"
-    [class.rounded-xl]="variant() === 'card'"
-    [class.border]="variant() === 'card'"
-    [class.border-border]="variant() === 'card'"
-    [class.bg-popover]="variant() === 'card'"
-    [class.p-3]="variant() === 'card'"
-    [class.shadow-sm]="variant() === 'card'"
-    [class.bg-transparent]="variant() === 'plain'"
-    [class.p-0]="variant() === 'plain'"
-    [class.opacity-50]="muted()"
-    [class.grayscale-50]="muted()"
-  >
-    <div class="flex items-center gap-1.5 mb-2">
-      <div
-        class="flex shrink-0 items-center justify-center rounded-md h-7 w-7 sm:h-8 sm:w-8"
-        [ngStyle]="iconContainerStyle()"
-        [class.opacity-70]="muted()"
-      >
-        <ng-icon name="{{ icon() }}" size="16"></ng-icon>
-      </div>
-      <p class="font-medium text-muted-foreground text-xs sm:text-sm">
-        {{ label() }}
-      </p>
+  } @else {
+  <!-- Linha 1: Ícone + Rótulo -->
+  <div class="flex items-center gap-2">
+    <div class="flex shrink-0 items-center justify-center rounded-md h-6 w-6 sm:h-6.5 sm:w-6.5"
+      [ngStyle]="iconContainerStyle()" [class.opacity-70]="muted()">
+      <ng-icon name="{{ icon() }}" size="14"></ng-icon>
+    </div>
+    <span class="text-xs sm:text-sm font-medium text-muted-foreground truncate">
+      {{ label() }}
+    </span>
+  </div>
+
+  <!-- Linha 2: Valor grande à esquerda + Status / Selo à direita -->
+  <div class="flex items-baseline justify-between gap-2 mt-2 mb-1.5">
+    <div class="flex items-baseline gap-1">
+      @if (value() != null) {
+      <span class="text-2xl sm:text-[22px] font-semibold text-foreground tracking-tight leading-none">
+        {{ value() }}
+      </span>
+      } @else {
+      <span class="text-2xl sm:text-[22px] font-semibold text-muted-foreground/50 tracking-tight leading-none">
+        -
+      </span>
+      }
+      @if (value() != null && unit()) {
+      <span class="text-xs font-medium text-muted-foreground">
+        {{ unit() }}
+      </span>
+      }
     </div>
 
-    @if (loading()) {
-      <div class="flex flex-col flex-1 justify-between">
-        <div hlmSkeleton class="h-7 w-24 rounded-md"></div>
-        <div class="mt-1.5 pt-1">
-          <div hlmSkeleton class="h-3 w-28 rounded-md"></div>
-        </div>
-      </div>
-    } @else {
-      <div class="flex items-baseline gap-1">
-        @if (value() != null) {
-          <span class="font-bold text-foreground tracking-tight text-xl sm:text-2xl">
-            {{ value() }}
-          </span>
-        } @else {
-          <span class="font-bold text-muted-foreground/50 text-xl sm:text-2xl">
-            -
-          </span>
-        }
-        @if (value() != null && unit()) {
-          <span class="text-muted-foreground font-medium text-xs sm:text-sm">
-            {{ unit() }}
-          </span>
-        }
-      </div>
-
-      @switch (footer()?.type) {
-        @case ('text') {
-          <p class="text-xs text-muted-foreground mt-1.5 pt-1">
-            {{ $any(footer()).content != null ? $any(footer()).content : '-' }}
-          </p>
-        }
-        @case ('progress') {
-          <div class="space-y-1 mt-1.5 pt-1">
-            <hlm-progress [value]="progressPercent()" class="h-1.5">
-              <hlm-progress-indicator
-                [ngClass]="progressIndicatorClass()"
-                [style.background-color]="progressColorStyle()"
-              />
-            </hlm-progress>
-
-            @if ($any(footer()).label || $any(footer()).subtext) {
-              <div class="flex items-center justify-between text-xs pt-0.5">
-                <span class="font-medium" [ngStyle]="footerLabelStyle()">
-                  {{ $any(footer()).label }}
-                </span>
-                @if ($any(footer()).subtext) {
-                  <span class="text-muted-foreground text-[11px] sm:text-xs">
-                    {{ $any(footer()).subtext }}
-                  </span>
-                }
-              </div>
-            }
-
-            @if ($any(footer()).description) {
-              <p class="text-xs text-muted-foreground leading-relaxed pt-0.5">
-                {{ $any(footer()).description }}
-              </p>
-            }
-          </div>
-        }
-      }
-
-      <ng-content select="[card-footer]" />
+    @if ($any(footer())?.label) {
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0"
+      [ngStyle]="footerBadgeStyle()">
+      {{ $any(footer()).label }}
+    </span>
     }
   </div>
+
+  <!-- Linha 3: Barra de progresso em largura total -->
+  @if (footer()?.type === 'progress') {
+  <div class="w-full">
+    <hlm-progress [value]="progressPercent()" class="h-1.5 w-full">
+      <hlm-progress-indicator [ngClass]="progressIndicatorClass()" [style.background-color]="progressColorStyle()" />
+    </hlm-progress>
+  </div>
+  }
+
+  <!-- Linha 4: Legenda curta em uma linha com o contexto da base de cálculo -->
+  @if ($any(footer())?.subtext || $any(footer())?.description || $any(footer())?.content) {
+  <p class="text-xs text-muted-foreground mt-1.5 truncate leading-relaxed">
+    {{ $any(footer())?.subtext || $any(footer())?.description || $any(footer())?.content }}
+  </p>
+  }
+
+  <ng-content select="[card-footer]" />
+  }
+</div>
+} @else {
+<!-- Layout default original mantido intacto para initial-kpi-cards -->
+<div class="h-full flex flex-col justify-between transition-all" [class.rounded-xl]="variant() === 'card'"
+  [class.border]="variant() === 'card'" [class.border-border]="variant() === 'card'"
+  [class.bg-popover]="variant() === 'card'" [class.p-3]="variant() === 'card'" [class.shadow-sm]="variant() === 'card'"
+  [class.bg-transparent]="variant() === 'plain'" [class.p-0]="variant() === 'plain'" [class.opacity-50]="muted()"
+  [class.grayscale-50]="muted()">
+  <div class="flex items-center gap-1.5 mb-2">
+    <div class="flex shrink-0 items-center justify-center rounded-md h-7 w-7 sm:h-8 sm:w-8"
+      [ngStyle]="iconContainerStyle()" [class.opacity-70]="muted()">
+      <ng-icon name="{{ icon() }}" size="16"></ng-icon>
+    </div>
+    <p class="font-medium text-muted-foreground text-xs sm:text-sm">
+      {{ label() }}
+    </p>
+  </div>
+
+  @if (loading()) {
+  <div class="flex flex-col flex-1 justify-between">
+    <div hlmSkeleton class="h-7 w-24 rounded-md"></div>
+    <div class="mt-1.5 pt-1">
+      <div hlmSkeleton class="h-3 w-28 rounded-md"></div>
+    </div>
+  </div>
+  } @else {
+  <div class="flex items-baseline gap-1">
+    @if (value() != null) {
+    <span class="font-bold text-foreground tracking-tight text-xl sm:text-2xl">
+      {{ value() }}
+    </span>
+    } @else {
+    <span class="font-bold text-muted-foreground/50 text-xl sm:text-2xl">
+      -
+    </span>
+    }
+    @if (value() != null && unit()) {
+    <span class="text-muted-foreground font-medium text-xs sm:text-sm">
+      {{ unit() }}
+    </span>
+    }
+  </div>
+
+  @switch (footer()?.type) {
+  @case ('text') {
+  <p class="text-xs text-muted-foreground mt-3.5 pt-1">
+    {{ $any(footer()).content != null ? $any(footer()).content : '-' }}
+  </p>
+  }
+  @case ('progress') {
+  <div class="space-y-1 mt-1.5 pt-1">
+    <hlm-progress [value]="progressPercent()" class="h-1.5">
+      <hlm-progress-indicator [ngClass]="progressIndicatorClass()" [style.background-color]="progressColorStyle()" />
+    </hlm-progress>
+
+    @if ($any(footer()).label || $any(footer()).subtext) {
+    <div class="flex items-center justify-between text-xs pt-0.5">
+      <span class="font-medium" [ngStyle]="footerLabelStyle()">
+        {{ $any(footer()).label }}
+      </span>
+      @if ($any(footer()).subtext) {
+      <span class="text-muted-foreground text-[11px] sm:text-xs">
+        {{ $any(footer()).subtext }}
+      </span>
+      }
+    </div>
+    }
+
+    @if ($any(footer()).description) {
+    <p class="text-xs text-muted-foreground leading-relaxed pt-0.5">
+      {{ $any(footer()).description }}
+    </p>
+    }
+  </div>
+  }
+  }
+
+  <ng-content select="[card-footer]" />
+  }
+</div>
 }
