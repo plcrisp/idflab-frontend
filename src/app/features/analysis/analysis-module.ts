@@ -20,6 +20,7 @@ import {
   lucideChevronDown,
   lucideChevronUp,
   lucideClock,
+  lucideCpu,
   lucideDatabase,
   lucideDownload,
   lucideInfo,
@@ -32,6 +33,7 @@ import {
   lucideSparkles,
   lucideTrendingUp,
   lucideTriangleAlert,
+  lucideWrench,
 } from '@ng-icons/lucide';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
@@ -129,6 +131,7 @@ registerLocaleData(localePt);
       lucideScan,
       lucideRotateCw,
       lucideInfo,
+      lucideWrench
     }),
     ...HlmBadgeImports,
     ...HlmProgressImports,
@@ -192,4 +195,4 @@ registerLocaleData(localePt);
     }),
   ],
 })
-export class AnalysisModule {}
+export class AnalysisModule { }

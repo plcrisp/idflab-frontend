@@ -4,11 +4,13 @@ import {
   computed,
   DestroyRef,
   effect,
+  ElementRef,
   inject,
   input,
   output,
   signal,
   untracked,
+  ViewChild,
 } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { Subscription } from 'rxjs';
@@ -18,7 +20,9 @@ import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 
 import { NeighborStation } from '../../../../../../core/models/api/station.model';
-import { ConfirmationStatus } from '../../../../shared/models/analysis.models';
+import { ActiveJobItem } from '../../../../../../core/models/api/notification.model';
+import { ConfirmationStatus, NeighborProgressInfo } from '../../../../shared/models/analysis.models';
+import { SharedModule } from '../../../../../../shared/shared-module';
 import { GapFillingService } from '../../../../services/gap-filling.service';
 import {
   GapFillingPreMetrics,
@@ -34,6 +38,7 @@ import { GapFillingPreMetricsPanel } from '../gap-filling-pre-metrics-panel/gap-
     CommonModule,
     TitleCasePipe,
     NgIcon,
+    SharedModule,
     ...HlmBadgeImports,
     ...HlmButtonImports,
     GapFillingPreMetricsPanel,
@@ -56,6 +61,8 @@ export class GapFillingMetricsCard {
   readonly activeStation = input<NeighborStation | null>(null);
   readonly selectedStation = input<NeighborStation | null>(null);
   readonly status = input<ConfirmationStatus>('idle');
+  readonly job = input<ActiveJobItem | null>(null);
+  readonly progress = input<NeighborProgressInfo | null>(null);
   readonly totalYears = input<number | null>(null);
   readonly disabled = input<boolean>(false);
 
@@ -71,6 +78,15 @@ export class GapFillingMetricsCard {
   private metricsSub: Subscription | null = null;
   private lastFetchedKey: string | null = null;
 
+  @ViewChild('loadingContainer') set loadingContainerRef(el: ElementRef<HTMLElement> | undefined) {
+    if (el?.nativeElement) {
+      setTimeout(() => {
+        const card = document.getElementById('gap-filling-metrics-card') || el.nativeElement;
+        card?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
+  }
+
   /**
    * Estação alvo a ser exibida no cabeçalho do card:
    * Durante 'loading', exibe a candidata em processamento (selectedStation).
@@ -81,14 +97,6 @@ export class GapFillingMetricsCard {
       return this.selectedStation() ?? this.activeStation();
     }
     return this.activeStation();
-  });
-
-  /**
-   * Indica se o painel está em estado de carregamento global
-   * (seja download da estação vizinha ou busca das métricas).
-   */
-  readonly isPanelLoading = computed<boolean>(() => {
-    return this.status() === 'loading' || this.isLoadingMetrics();
   });
 
   constructor() {

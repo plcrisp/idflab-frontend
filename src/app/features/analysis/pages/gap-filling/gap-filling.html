@@ -26,7 +26,8 @@
   @if (shouldShowMetricsCard) {
   <app-gap-filling-metrics-card id="gap-filling-metrics-card" [projectId]="state.project()?.id ?? null"
     [activeStation]="state.activeNeighborStation()" [selectedStation]="state.selectedNeighbor()"
-    [status]="state.confirmationStatus()" [totalYears]="state.stats()?.total_years ?? null"
+    [status]="state.confirmationStatus()" [job]="state.neighborJob()" [progress]="state.neighborProgress()"
+    [totalYears]="state.stats()?.total_years ?? null"
     [disabled]="state.isSelectionLocked()" (changeStation)="onScrollToNeighborCard()"
     (fillGapsRequested)="onFillGaps()" (skipStepRequested)="onSkipStep()" />
   }

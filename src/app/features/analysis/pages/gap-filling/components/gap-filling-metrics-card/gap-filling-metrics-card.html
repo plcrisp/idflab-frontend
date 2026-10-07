@@ -45,19 +45,34 @@
     </div>
   }
 
-  <!-- Corpo do Card: Painel de Métricas Apresentacional -->
+  <!-- Corpo do Card -->
   <div class="p-4 sm:p-5">
-    <app-gap-filling-pre-metrics-panel
-      [metrics]="metrics()"
-      [warnings]="warnings()"
-      [neighborStation]="targetStation()"
-      [totalYears]="totalYears()"
-      [loading]="isPanelLoading()"
-      [error]="metricsError()"
-      [disabled]="disabled()"
-      (retry)="retryMetrics()"
-      (fillGaps)="fillGapsRequested.emit()"
-      (skipStep)="skipStepRequested.emit()"
-    />
+    @if (status() === 'loading') {
+      <div #loadingContainer class="analysis-loading-wrapper w-full flex flex-col">
+        <app-job-progress-card
+          variant="full"
+          [job]="job()"
+          [customTitle]="targetStation()?.name ? (targetStation()!.name | titlecase) : 'Estação Vizinha'"
+          [customSource]="targetStation()?.source ?? null"
+          [customDescription]="'Busca e processamento dos dados da estação em andamento.'"
+          [customMessage]="!job() ? (progress()?.message ?? null) : null"
+          [customProgress]="!job() ? (progress()?.percentage ?? null) : null"
+          class="block [&>div]:border-none [&>div]:shadow-none [&>div]:bg-transparent"
+        />
+      </div>
+    } @else if (status() === 'ready' && activeStation() && projectId()) {
+      <app-gap-filling-pre-metrics-panel
+        [metrics]="metrics()"
+        [warnings]="warnings()"
+        [neighborStation]="targetStation()"
+        [totalYears]="totalYears()"
+        [loading]="isLoadingMetrics()"
+        [error]="metricsError()"
+        [disabled]="disabled()"
+        (retry)="retryMetrics()"
+        (fillGaps)="fillGapsRequested.emit()"
+        (skipStep)="skipStepRequested.emit()"
+      />
+    }
   </div>
 </div>

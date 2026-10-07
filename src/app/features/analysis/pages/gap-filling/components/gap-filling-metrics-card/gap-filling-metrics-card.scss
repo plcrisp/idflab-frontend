@@ -17,3 +17,60 @@
   background-color: color-mix(in srgb, var(--ana) 12%, transparent);
   color: var(--ana);
 }
+
+// Compactação do JobProgressCard para manter a mesma altura e proporção do estado 'ready' (~300px)
+.analysis-loading-wrapper {
+  ::ng-deep app-job-progress-card {
+    // Reduz padding do container principal
+    > div {
+      padding: 1.25rem 1rem !important;
+      min-height: auto !important;
+    }
+
+    // Spinner compacto proporcional (44px)
+    .h-16.w-16 {
+      height: 2.75rem !important;
+      width: 2.75rem !important;
+      margin-bottom: 0.625rem !important;
+
+      ng-icon {
+        font-size: 1.15rem !important;
+      }
+    }
+
+    // Oculta o título da estação repetido (já exibido no cabeçalho do card)
+    h3.text-xl {
+      display: none !important;
+    }
+
+    // Oculta badge duplicado se presente no corpo
+    div.flex-wrap.items-center.justify-center.gap-2.mb-2 {
+      display: none !important;
+    }
+
+    // Descrição mais compacta e discreta
+    p.text-sm {
+      font-size: 0.8125rem !important;
+      margin-bottom: 1rem !important;
+      max-width: 28rem !important;
+    }
+
+    // Barra de progresso com margem inferior reduzida
+    .mb-8 {
+      margin-bottom: 1rem !important;
+      max-width: 32rem !important;
+    }
+
+    // Caixa de aviso de segundo plano mais compacta
+    .max-w-xl {
+      max-width: 32rem !important;
+    }
+
+    .px-5.py-3\.5 {
+      padding: 0.625rem 0.875rem !important;
+      font-size: 0.75rem !important;
+      line-height: 1.25rem !important;
+    }
+  }
+}
+

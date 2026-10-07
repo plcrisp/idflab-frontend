@@ -157,11 +157,8 @@
                 <span class="text-xs text-muted-foreground">{{ i18n.labels.pearson }}</span>
                 <span
                   class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
-                  [hlmTooltip]="i18n.tooltips.pearson"
-                  tabindex="0"
-                  role="note"
-                  aria-label="Informação sobre Correlação de Pearson"
-                >
+                  [hlmTooltip]="i18n.tooltips.pearson" tabindex="0" role="note"
+                  aria-label="Informação sobre Correlação de Pearson">
                   <ng-icon name="lucideInfo" class="text-[11px]" />
                 </span>
               </div>
@@ -193,11 +190,8 @@
                 <span class="text-muted-foreground">{{ i18n.labels.validPairs }}</span>
                 <span
                   class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
-                  [hlmTooltip]="i18n.tooltips.validPairs"
-                  tabindex="0"
-                  role="note"
-                  aria-label="Informação sobre Pares Válidos"
-                >
+                  [hlmTooltip]="i18n.tooltips.validPairs" tabindex="0" role="note"
+                  aria-label="Informação sobre Pares Válidos">
                   <ng-icon name="lucideInfo" class="text-[11px]" />
                 </span>
               </div>
@@ -211,11 +205,8 @@
                 <span class="text-muted-foreground">{{ i18n.labels.overlapYears }}</span>
                 <span
                   class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
-                  [hlmTooltip]="i18n.tooltips.overlapYears"
-                  tabindex="0"
-                  role="note"
-                  aria-label="Informação sobre Sobreposição"
-                >
+                  [hlmTooltip]="i18n.tooltips.overlapYears" tabindex="0" role="note"
+                  aria-label="Informação sobre Sobreposição">
                   <ng-icon name="lucideInfo" class="text-[11px]" />
                 </span>
               </div>
@@ -236,11 +227,8 @@
             <span class="text-muted-foreground">{{ i18n.labels.accumulatedRatio }}</span>
             <span
               class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
-              [hlmTooltip]="i18n.tooltips.accumulatedRatio"
-              tabindex="0"
-              role="note"
-              aria-label="Informação sobre Razão entre Acumulados"
-            >
+              [hlmTooltip]="i18n.tooltips.accumulatedRatio" tabindex="0" role="note"
+              aria-label="Informação sobre Razão entre Acumulados">
               <ng-icon name="lucideInfo" class="text-[11px]" />
             </span>
           </div>
@@ -333,7 +321,7 @@
     <div class="flex items-center justify-end pt-1">
       <button hlmBtn size="default" (click)="onFillGaps()" [disabled]="isFillButtonDisabled()"
         class="cursor-pointer font-medium inline-flex items-center gap-2 shadow-xs transition-all shrink-0">
-        <ng-icon name="lucideSparkles" class="text-sm" />
+        <ng-icon name="lucideWrench" class="text-sm" />
         <span>{{ fillButtonText() }}</span>
       </button>
     </div>
