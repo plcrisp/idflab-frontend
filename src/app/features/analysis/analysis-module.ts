@@ -18,6 +18,7 @@ import {
   lucideCheck,
   lucideCheckCircle2,
   lucideChevronDown,
+  lucideChevronUp,
   lucideClock,
   lucideDatabase,
   lucideDownload,
@@ -58,6 +59,8 @@ import { NeighborAnalysisCard } from './pages/consistency-check/components/neigh
 import { ConsistencyAnalysis } from './pages/consistency-check/components/consistency-analysis/consistency-analysis';
 import { GapFilling } from './pages/gap-filling/gap-filling';
 import { PathSelector } from './pages/gap-filling/components/path-selector/path-selector';
+import { GapFillingMetricsCard } from './pages/gap-filling/components/gap-filling-metrics-card/gap-filling-metrics-card';
+import { GapFillingPreMetricsPanel } from './pages/gap-filling/components/gap-filling-pre-metrics-panel/gap-filling-pre-metrics-panel';
 
 registerLocaleData(localePt);
 
@@ -91,6 +94,8 @@ registerLocaleData(localePt);
     NeighborAnalysisCard,
     GapFilling,
     PathSelector,
+    GapFillingMetricsCard,
+    GapFillingPreMetricsPanel,
   ],
   imports: [
     CommonModule,
@@ -98,11 +103,14 @@ registerLocaleData(localePt);
     RouterModule.forChild(ANALYSIS_ROUTES),
     SharedModule,
     PathSelector,
+    GapFillingMetricsCard,
+    GapFillingPreMetricsPanel,
     NgIconsModule.withIcons({
       lucideDatabase,
       lucideTriangleAlert,
       lucideCalendar,
       lucideChevronDown,
+      lucideChevronUp,
       lucideTrendingUp,
       lucideDownload,
       lucideArrowRight,

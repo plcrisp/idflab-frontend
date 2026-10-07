@@ -1,0 +1,342 @@
+<div id="gap-filling-pre-metrics-panel" aria-live="polite" aria-atomic="false" class="w-full flex flex-col gap-4">
+  @if (!neighborStation() && !loading()) {
+  <!-- 1. Estado Vazio (Sem vizinha selecionada) -->
+  <div
+    class="flex flex-col items-center justify-center p-8 rounded-xl border border-dashed border-border bg-card/40 text-center">
+    <div class="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-muted-foreground mb-3">
+      <ng-icon name="lucideActivity" class="text-xl" />
+    </div>
+    <h4 class="text-sm font-semibold text-foreground">
+      Nenhuma estação vizinha selecionada
+    </h4>
+    <p class="text-xs text-muted-foreground max-w-md mt-1 leading-relaxed">
+      {{ i18n.messages.empty }}
+    </p>
+  </div>
+  } @else if (loading()) {
+  <!-- 2. Estado Loading (Skeleton sem pulo de layout, formato fiel ao painel) -->
+  <div class="w-full flex flex-col gap-4" aria-busy="true" aria-label="Carregando métricas pré-preenchimento">
+    <!-- Grid de 2 Grupos de Cards Skeleton -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 items-stretch">
+      <!-- Skeleton Grupo 1: Relação entre estações -->
+      <div class="rounded-xl border border-border bg-card/60 p-4 flex flex-col justify-between min-h-60">
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <div hlmSkeleton class="h-4.5 w-4.5 rounded-sm"></div>
+            <div hlmSkeleton class="h-4 w-36 rounded-md"></div>
+          </div>
+          <div class="pt-2 flex items-baseline justify-between">
+            <div hlmSkeleton class="h-8 w-20 rounded-md"></div>
+            <div hlmSkeleton class="h-5 w-16 rounded-full"></div>
+          </div>
+          <div class="h-px bg-border/40 w-full my-1"></div>
+          <div class="space-y-2 pt-1">
+            <div class="flex justify-between items-center">
+              <div hlmSkeleton class="h-3 w-20 rounded"></div>
+              <div hlmSkeleton class="h-3.5 w-16 rounded"></div>
+            </div>
+            <div class="flex justify-between items-center">
+              <div hlmSkeleton class="h-3 w-24 rounded"></div>
+              <div hlmSkeleton class="h-3.5 w-14 rounded"></div>
+            </div>
+          </div>
+        </div>
+        <div class="pt-2 border-t border-border/40 flex justify-between items-center">
+          <div hlmSkeleton class="h-3 w-32 rounded"></div>
+          <div hlmSkeleton class="h-3.5 w-12 rounded"></div>
+        </div>
+      </div>
+
+      <!-- Skeleton Grupo 2: O que será preenchido -->
+      <div class="rounded-xl border border-border bg-card/60 p-4 flex flex-col justify-between min-h-60">
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <div hlmSkeleton class="h-4.5 w-4.5 rounded-sm"></div>
+            <div hlmSkeleton class="h-4 w-36 rounded-md"></div>
+          </div>
+          <div class="pt-2 flex items-baseline justify-between">
+            <div hlmSkeleton class="h-8 w-24 rounded-md"></div>
+          </div>
+          <div hlmSkeleton class="h-2 w-full rounded-full"></div>
+          <div class="h-px bg-border/40 w-full my-1"></div>
+          <div class="flex items-center justify-between gap-1 pt-1">
+            <div hlmSkeleton class="h-3.5 w-16 rounded"></div>
+            <div hlmSkeleton class="h-3.5 w-16 rounded"></div>
+            <div hlmSkeleton class="h-3.5 w-16 rounded"></div>
+          </div>
+        </div>
+        <div class="pt-2 border-t border-border/40 flex justify-between items-center">
+          <div hlmSkeleton class="h-3 w-28 rounded"></div>
+          <div hlmSkeleton class="h-3.5 w-24 rounded"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skeleton CTA Rodapé -->
+    <div class="flex items-center justify-end pt-2">
+      <div hlmSkeleton class="h-9 w-64 rounded-md"></div>
+    </div>
+  </div>
+  } @else if (error(); as err) {
+  <!-- 3. Estado de Erro -->
+  <div role="alert"
+    class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl border border-destructive/20 bg-destructive/10 text-destructive">
+    <div class="flex items-center gap-2.5 text-sm">
+      <ng-icon name="lucideTriangleAlert" class="text-base shrink-0" />
+      <span>{{ err }}</span>
+    </div>
+
+    <button hlmBtn variant="outline" size="sm" (click)="onRetry()"
+      class="cursor-pointer font-medium inline-flex items-center gap-1.5 border-destructive/30 hover:bg-destructive/20 text-destructive text-xs shrink-0">
+      <ng-icon name="lucideRotateCw" class="text-xs" />
+      <span>{{ i18n.actions.retry }}</span>
+    </button>
+  </div>
+  } @else if (metrics(); as m) {
+  <!-- 4. Estado de Sucesso: Avisos + 2 Grupos em Grade + CTA -->
+  <div class="w-full flex flex-col gap-4">
+    <!-- Seção de Avisos (Ordenados: erro, aviso, informativo) -->
+    @if (processedWarnings().length > 0) {
+    <div class="flex flex-col gap-2" aria-label="Avisos sobre o preenchimento">
+      @for (warn of visibleWarnings(); track warn.code) {
+      <div [attr.role]="warn.severity === 'destructive' ? 'alert' : 'status'"
+        class="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg border text-xs transition-colors"
+        [ngClass]="{
+                'border-destructive/30 bg-destructive/10 text-destructive': warn.severity === 'destructive',
+                'border-warning/30 bg-warning/10 text-warning-foreground dark:text-warning': warn.severity === 'warning',
+                'border-border/80 bg-secondary/60 text-foreground': warn.severity === 'info'
+              }">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <ng-icon [name]="warn.icon" class="text-sm shrink-0" />
+          <span class="leading-relaxed">{{ warn.message }}</span>
+        </div>
+
+        <!-- Ação contextual do aviso NO_GAPS: Botão 'Pular etapa' -->
+        @if (warn.isNoGaps) {
+        <button hlmBtn variant="outline" size="sm" (click)="onSkipStep()"
+          class="cursor-pointer font-medium inline-flex items-center gap-1.5 text-xs h-7 px-2.5 shrink-0">
+          <span>{{ i18n.actions.skipStep }}</span>
+          <ng-icon name="lucideArrowRight" class="text-xs" />
+        </button>
+        }
+      </div>
+      }
+
+      <!-- Botão expansor caso haja mais de 3 avisos -->
+      @if (hiddenWarningsCount() > 0 || showAllWarnings()) {
+      <div class="flex justify-end pt-0.5">
+        <button type="button" (click)="toggleWarningsExpanded()"
+          class="cursor-pointer inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <span>
+            {{ showAllWarnings() ? i18n.actions.seeLess : i18n.actions.seeMore + ' (' + hiddenWarningsCount() + ')' }}
+          </span>
+          <ng-icon [name]="showAllWarnings() ? 'lucideChevronUp' : 'lucideChevronDown'" class="text-xs" />
+        </button>
+      </div>
+      }
+    </div>
+    }
+
+    <!-- Grade dos 2 Grupos de Métricas (Responsivo: 1 col mobile, 2 col md/lg) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 items-stretch">
+      <!-- GRUPO 1: Relação entre estações -->
+      <div
+        class="rounded-xl border border-border bg-card/60 p-4.5 flex flex-col justify-between shadow-xs transition-all">
+        <div>
+          <!-- Cabeçalho do Grupo -->
+          <div
+            class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+            <ng-icon name="lucideTrendingUp" class="text-primary text-sm shrink-0" />
+            <span>{{ i18n.groups.relationship }}</span>
+          </div>
+
+          <!-- Destaque: Correlação de Pearson + Selo -->
+          <div class="flex items-baseline justify-between gap-2 mt-1 mb-3">
+            <div>
+              <div class="flex items-center gap-1.5 mb-0.5">
+                <span class="text-xs text-muted-foreground">{{ i18n.labels.pearson }}</span>
+                <span
+                  class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
+                  [hlmTooltip]="i18n.tooltips.pearson"
+                  tabindex="0"
+                  role="note"
+                  aria-label="Informação sobre Correlação de Pearson"
+                >
+                  <ng-icon name="lucideInfo" class="text-[11px]" />
+                </span>
+              </div>
+              <span class="text-2xl font-bold tracking-tight text-foreground">
+                {{ formatDecimal(m.pearson_r, 2) }}
+              </span>
+            </div>
+
+            <!-- Selo de Confiabilidade (Boa / Moderada / Fraca) -->
+            @if (reliabilityBadge(); as badge) {
+            <span class="font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center shrink-0 border"
+              [ngClass]="{
+                    'bg-success/15 text-success border-success/30': badge.variant === 'success',
+                    'bg-warning/15 text-warning border-warning/30': badge.variant === 'warning',
+                    'bg-destructive/15 text-destructive border-destructive/30': badge.variant === 'destructive'
+                  }">
+              {{ badge.label }}
+            </span>
+            }
+          </div>
+
+          <!-- Divisor sutil -->
+          <div class="border-t border-border/40 w-full my-2.5"></div>
+
+          <!-- Metadados da Relação: Pares Válidos & Sobreposição -->
+          <div class="space-y-2 text-xs">
+            <div class="flex items-center justify-between">
+              <div class="inline-flex items-center gap-1.5">
+                <span class="text-muted-foreground">{{ i18n.labels.validPairs }}</span>
+                <span
+                  class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
+                  [hlmTooltip]="i18n.tooltips.validPairs"
+                  tabindex="0"
+                  role="note"
+                  aria-label="Informação sobre Pares Válidos"
+                >
+                  <ng-icon name="lucideInfo" class="text-[11px]" />
+                </span>
+              </div>
+              <span class="font-semibold text-foreground">
+                {{ formatInteger(m.valid_pairs) }}
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div class="inline-flex items-center gap-1.5">
+                <span class="text-muted-foreground">{{ i18n.labels.overlapYears }}</span>
+                <span
+                  class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
+                  [hlmTooltip]="i18n.tooltips.overlapYears"
+                  tabindex="0"
+                  role="note"
+                  aria-label="Informação sobre Sobreposição"
+                >
+                  <ng-icon name="lucideInfo" class="text-[11px]" />
+                </span>
+              </div>
+              <span class="font-semibold text-foreground">
+                @if (hasNoOverlap()) {
+                {{ i18n.messages.noOverlapMetricPlaceholder }}
+                } @else {
+                {{ m.overlap_years }} {{ m.overlap_years === 1 ? 'ano' : 'anos' }}
+                }
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rodapé do Card: Razão entre acumulados -->
+        <div class="pt-3 mt-3 border-t border-border/40 flex items-center justify-between text-xs">
+          <div class="inline-flex items-center gap-1.5">
+            <span class="text-muted-foreground">{{ i18n.labels.accumulatedRatio }}</span>
+            <span
+              class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
+              [hlmTooltip]="i18n.tooltips.accumulatedRatio"
+              tabindex="0"
+              role="note"
+              aria-label="Informação sobre Razão entre Acumulados"
+            >
+              <ng-icon name="lucideInfo" class="text-[11px]" />
+            </span>
+          </div>
+          <span class="font-semibold text-foreground">
+            {{ formatDecimal(m.accumulated_ratio, 2) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- GRUPO 2: O que será preenchido -->
+      <div
+        class="rounded-xl border border-border bg-card/60 p-4.5 flex flex-col justify-between shadow-xs transition-all">
+        <div>
+          <!-- Cabeçalho do Grupo -->
+          <div
+            class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+            <ng-icon name="lucideShieldCheck" class="text-primary text-sm shrink-0" />
+            <span>{{ i18n.groups.fillingScope }}</span>
+          </div>
+
+          <!-- Destaque Grande: Cobertura Preenchível com barra de progresso -->
+          <div class="space-y-2 mt-1 mb-3">
+            <div class="flex items-baseline justify-between">
+              <span class="text-xs text-muted-foreground">{{ i18n.labels.fillableCoverage }}</span>
+              <span class="text-2xl font-bold tracking-tight text-foreground">
+                @if (hasNoOverlap()) {
+                {{ i18n.messages.noOverlapMetricPlaceholder }}
+                } @else {
+                {{ formatDecimal(m.fillable_coverage_pct, 1) }}%
+                }
+              </span>
+            </div>
+
+            <!-- Barra de Progresso Spartan -->
+            <hlm-progress [value]="hasNoOverlap() ? 0 : m.fillable_coverage_pct" class="h-2 w-full bg-secondary">
+              <hlm-progress-indicator class="bg-primary rounded-full transition-all duration-300" />
+            </hlm-progress>
+          </div>
+
+          <!-- Divisor sutil -->
+          <div class="border-t border-border/40 w-full my-2.5"></div>
+
+          <!-- Mini-Valores: Falhas Totais · Preenchíveis · Permanecerão -->
+          <div class="grid grid-cols-3 gap-1 py-1 text-center bg-secondary/30 rounded-lg p-2 border border-border/50">
+            <div class="flex flex-col">
+              <span class="text-[10px] text-muted-foreground uppercase tracking-tight">{{ i18n.labels.totalGaps
+                }}</span>
+              <span class="text-xs font-bold text-foreground mt-0.5">{{ formatInteger(m.total_gaps) }}</span>
+            </div>
+            <div class="flex flex-col border-x border-border/40">
+              <span class="text-[10px] text-muted-foreground uppercase tracking-tight">{{ i18n.labels.fillableGaps
+                }}</span>
+              <span class="text-xs font-bold text-primary mt-0.5">{{ formatInteger(m.fillable_gaps) }}</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-[10px] text-muted-foreground uppercase tracking-tight">{{ i18n.labels.remainingGaps
+                }}</span>
+              <span class="text-xs font-bold text-muted-foreground mt-0.5">{{ formatInteger(m.remaining_gaps) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rodapé do Card: Anos completos before -> predicted de total -->
+        <div class="pt-3 mt-3 border-t border-border/40 flex items-center justify-between text-xs">
+          <span class="text-muted-foreground">{{ i18n.labels.completeYears }}</span>
+          <div class="inline-flex items-center gap-1.5 font-medium">
+            <span class="text-foreground font-semibold">{{ m.complete_years_before }}</span>
+            <ng-icon name="lucideArrowRight" class="text-xs text-muted-foreground shrink-0" />
+
+            @if (hasYearsGain()) {
+            <span class="text-success font-bold inline-flex items-center gap-1">
+              {{ m.complete_years_predicted }}
+              <span class="text-[10px] font-semibold bg-success/15 text-success px-1.5 py-0.2 rounded">
+                +{{ yearsGain() }}
+              </span>
+            </span>
+            } @else {
+            <span class="text-foreground font-semibold">{{ m.complete_years_predicted }}</span>
+            }
+
+            @if (totalYears(); as total) {
+            <span class="text-muted-foreground">de {{ total }}</span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rodapé com Ação Principal (CTA) -->
+    <div class="flex items-center justify-end pt-1">
+      <button hlmBtn size="default" (click)="onFillGaps()" [disabled]="isFillButtonDisabled()"
+        class="cursor-pointer font-medium inline-flex items-center gap-2 shadow-xs transition-all shrink-0">
+        <ng-icon name="lucideSparkles" class="text-sm" />
+        <span>{{ fillButtonText() }}</span>
+      </button>
+    </div>
+  </div>
+  }
+</div>
