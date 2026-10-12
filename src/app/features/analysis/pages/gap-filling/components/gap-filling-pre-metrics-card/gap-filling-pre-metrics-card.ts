@@ -18,6 +18,7 @@ import {
   lucideInfo,
   lucideMapPin,
   lucideRotateCw,
+  lucideScale,
   lucideShieldCheck,
   lucideTrendingUp,
   lucideTriangleAlert,
@@ -27,7 +28,6 @@ import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmProgressImports } from '@spartan-ng/helm/progress';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
-import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
 import { SharedModule } from '../../../../../../shared/shared-module';
@@ -42,7 +42,7 @@ import {
 } from '../../models/gap-filling-pre-metrics.model';
 import {
   MAX_VISIBLE_WARNINGS,
-  METRIC_TOOLTIPS,
+  getAccumulatedRatioBadge,
   getReliabilityBadge,
   mapGapFillingWarnings,
 } from '../../constants/gap-filling-pre-metrics.constants';
@@ -59,7 +59,6 @@ import {
     ...HlmButtonImports,
     ...HlmProgressImports,
     ...HlmSkeletonImports,
-    ...HlmTooltipImports,
     ...HlmSpinnerImports,
   ],
   providers: [
@@ -73,6 +72,7 @@ import {
       lucideInfo,
       lucideMapPin,
       lucideRotateCw,
+      lucideScale,
       lucideShieldCheck,
       lucideTrendingUp,
       lucideTriangleAlert,
@@ -103,8 +103,6 @@ export class GapFillingPreMetricsCard {
   readonly skipStep = output<void>();
 
   readonly showAllWarnings = signal<boolean>(false);
-  readonly showTechnicalDetails = signal<boolean>(false);
-  readonly metricTooltips = METRIC_TOOLTIPS;
 
   readonly targetStation = computed<NeighborStation | null>(() => {
     if (this.status() === 'loading') {
@@ -148,6 +146,13 @@ export class GapFillingPreMetricsCard {
     return getReliabilityBadge(m?.pearson_r, m?.overlap_years);
   });
 
+  readonly accumulatedRatioBadge = computed<ReliabilityBadge | null>(() => {
+    if (this.hasNoOverlap()) {
+      return null;
+    }
+    return getAccumulatedRatioBadge(this.metrics()?.accumulated_ratio);
+  });
+
   readonly hasNoFillableGaps = computed<boolean>(() => {
     const m = this.metrics();
     return m != null && (m.fillable_gaps ?? 0) <= 0;
@@ -180,10 +185,6 @@ export class GapFillingPreMetricsCard {
 
   toggleWarningsExpanded(): void {
     this.showAllWarnings.update((v) => !v);
-  }
-
-  toggleTechnicalDetails(): void {
-    this.showTechnicalDetails.update((v) => !v);
   }
 
   formatDistance(distanceKm?: number | null): string {

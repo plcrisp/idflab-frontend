@@ -73,16 +73,30 @@ export const UNKNOWN_WARNING_FALLBACK: { severity: WarningSeverity; icon: string
 
 export const MAX_VISIBLE_WARNINGS = 3;
 
-export const METRIC_TOOLTIPS = {
-  validPairs:
-    'Total de dias com medições simultâneas em ambas as estações no mesmo intervalo temporal, base para os cálculos estatísticos.',
-  accumulatedRatio:
-    'Razão da precipitação acumulada (Principal ÷ Vizinha) no período comum. Valores próximos a 1,0 indicam volumes anuais equilibrados entre as bacias.',
-  totalGaps:
-    'Total de falhas diárias identificadas na estação principal no período analisado.',
-  remainingGaps:
-    'Falhas que não possuem dados simultâneos na estação vizinha e permanecerão não preenchidas.',
-} as const;
+export function getAccumulatedRatioBadge(ratio: number | null | undefined): ReliabilityBadge | null {
+  if (ratio == null || Number.isNaN(ratio)) {
+    return null;
+  }
+
+  if (ratio >= 0.8 && ratio <= 1.2) {
+    return {
+      label: 'Equilibrada',
+      variant: 'success',
+    };
+  }
+
+  if ((ratio >= 0.6 && ratio < 0.8) || (ratio > 1.2 && ratio <= 1.4)) {
+    return {
+      label: 'Moderada',
+      variant: 'warning',
+    };
+  }
+
+  return {
+    label: 'Discrepante',
+    variant: 'destructive',
+  };
+}
 
 export function getReliabilityBadge(
   pearsonR: number | null | undefined,

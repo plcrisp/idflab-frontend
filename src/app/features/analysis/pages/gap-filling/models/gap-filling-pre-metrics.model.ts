@@ -25,10 +25,10 @@ export interface GapFillingPreMetricsResponse {
   warnings: GapFillingWarning[];
 }
 
-export type ReliabilityLevel = 'Boa' | 'Moderada' | 'Fraca';
+export type ReliabilityLevel = 'Boa' | 'Moderada' | 'Fraca' | 'Equilibrada' | 'Discrepante';
 
 export interface ReliabilityBadge {
-  label: ReliabilityLevel;
+  label: string;
   variant: 'success' | 'warning' | 'destructive';
 }
 

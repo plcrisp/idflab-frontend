@@ -88,13 +88,6 @@ export class GapFilling {
       prevStatus = currentStatus;
     });
 
-    effect(() => {
-      if (this.shouldShowPostMetrics()) {
-        setTimeout(() => {
-          this.scrollToPostMetricsCard();
-        }, 80);
-      }
-    });
   }
 
   get shouldShowMetricsCard(): boolean {
@@ -125,6 +118,9 @@ export class GapFilling {
 
   onFillGaps(): void {
     this.state.executeGapFilling();
+    setTimeout(() => {
+      this.scrollToPostMetricsCard();
+    }, 100);
   }
 
   onSkipStep(): void {
