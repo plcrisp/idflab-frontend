@@ -1,3 +1,4 @@
+import { TitleCasePipe } from '@angular/common';
 import { JobDetails, TaskType } from '../models/api/job.model';
 import { Notification } from '../models/api/notification.model';
 
@@ -112,13 +113,15 @@ const renderDownloadStationData: Renderer = (notification) => {
 
 const renderDownloadNeighborStationData: Renderer = (notification) => {
   const project = projectName(notification);
-  const station = notification.station_name || 'selecionada';
+  const station = notification.station_name
+    ? (titleCasePipe.transform(notification.station_name.trim()) || notification.station_name)
+    : 'selecionada';
   const details = notification.details as JobDetails;
 
   if (notification.type === 'SUCCESS') {
     return {
       title: 'Estação vizinha pronta para análise',
-      message: `Os dados da estação vizinha ${notification.station_name || 'selecionada'} do projeto ${project} foram baixados.`,
+      message: `Os dados da estação vizinha ${station} do projeto ${project} foram baixados.`,
       tone: 'success',
       icon: 'lucideCircleCheck',
     };
@@ -188,9 +191,56 @@ const renderDownloadNeighborStationData: Renderer = (notification) => {
   }
 };
 
+const titleCasePipe = new TitleCasePipe();
+
+const renderGapFilling: Renderer = (notification) => {
+  const project = projectName(notification);
+  const details = notification.details as JobDetails;
+  const rawStation = (details as any)?.station_name || notification.station_name;
+  const station = rawStation ? (titleCasePipe.transform(rawStation.trim()) || rawStation) : '';
+
+  if (notification.type === 'SUCCESS') {
+    const countMatch = details?.message?.match(/(\d+)\s+dias\s+preenchidos/i);
+    const countInfo = countMatch ? ` (${countMatch[1]} dias preenchidos)` : '';
+
+    return {
+      title: 'Preenchimento concluído',
+      message: station
+        ? `Preenchimento concluído no projeto ${project} com ${station}${countInfo}.`
+        : `Preenchimento concluído no projeto ${project}${countInfo}.`,
+      tone: 'success',
+      icon: 'lucideCircleCheck',
+    };
+  }
+
+  if (notification.type === 'TIMEOUT') {
+    return {
+      title: 'Tempo esgotado',
+      message: station
+        ? `O preenchimento com ${station} no projeto ${project} não respondeu a tempo.`
+        : `O preenchimento de falhas do projeto ${project} não respondeu a tempo.`,
+      tone: 'warning',
+      icon: 'lucideClock',
+    };
+  }
+
+  // FAILED
+  return {
+    title: 'Falha no preenchimento',
+    message: details?.error_log
+      ? `Falha ao preencher dados do projeto ${project}: ${details.error_log}`
+      : station
+        ? `Não foi possível preencher as falhas do projeto ${project} com ${station}.`
+        : `Não foi possível preencher as falhas do projeto ${project}.`,
+    tone: 'error',
+    icon: 'lucideCircleX',
+  };
+};
+
 const RENDERERS: Partial<Record<TaskType, Renderer>> = {
   DOWNLOAD_STATION_DATA: renderDownloadStationData,
   DOWNLOAD_NEIGHBOR_STATION_DATA: renderDownloadNeighborStationData,
+  GAP_FILLING: renderGapFilling,
 };
 
 export function renderNotification(notification: Notification): RenderedNotification {

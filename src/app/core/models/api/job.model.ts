@@ -41,7 +41,13 @@ export type JobDetails =
       total_chunks: number;
       error_log?: string | null;
     }
-  | { source: 'SYSTEM'; message: string; error_log?: string | null };
+  | {
+      source: 'SYSTEM';
+      message: string;
+      error_log?: string | null;
+      station_id?: string;
+      station_name?: string | null;
+    };
 
 export interface Job {
   id: string;

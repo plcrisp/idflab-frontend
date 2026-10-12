@@ -71,6 +71,8 @@ export class NotificationsBell {
     this.menuTrigger.close();
     if (job.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA') {
       this.router.navigateByUrl(`/app/analysis/${job.project_id}/consistency-check`);
+    } else if (job.task_type === 'GAP_FILLING') {
+      this.router.navigateByUrl(`/app/analysis/${job.project_id}/gap-filling`);
     } else {
       this.router.navigateByUrl(`/app/analysis/${job.project_id}`);
     }
@@ -82,6 +84,8 @@ export class NotificationsBell {
       this.retryTimeoutNotif(notif.job_id);
       if (notif.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA' && notif.project_id) {
         this.router.navigateByUrl(`/app/analysis/${notif.project_id}/consistency-check`);
+      } else if (notif.task_type === 'GAP_FILLING' && notif.project_id) {
+        this.router.navigateByUrl(`/app/analysis/${notif.project_id}/gap-filling`);
       }
     } else {
       this.openProject(notif);
@@ -93,6 +97,8 @@ export class NotificationsBell {
       if (notif.project_id) {
         if (notif.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA') {
           this.router.navigateByUrl(`/app/analysis/${notif.project_id}/consistency-check`);
+        } else if (notif.task_type === 'GAP_FILLING') {
+          this.router.navigateByUrl(`/app/analysis/${notif.project_id}/gap-filling`);
         } else {
           this.router.navigateByUrl(`/app/analysis/${notif.project_id}`);
         }
@@ -104,6 +110,13 @@ export class NotificationsBell {
       if (notif.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA') {
         if (notif.project_id) {
           this.router.navigateByUrl(`/app/analysis/${notif.project_id}/consistency-check`);
+        }
+        return;
+      }
+
+      if (notif.task_type === 'GAP_FILLING') {
+        if (notif.project_id) {
+          this.router.navigateByUrl(`/app/analysis/${notif.project_id}/gap-filling`);
         }
         return;
       }
