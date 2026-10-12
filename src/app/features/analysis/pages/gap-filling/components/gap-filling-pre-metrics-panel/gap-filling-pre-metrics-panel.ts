@@ -37,7 +37,10 @@ import {
   ProcessedWarning,
   ReliabilityBadge,
 } from '../../models/gap-filling-pre-metrics.model';
-import { GAP_FILLING_I18N } from '../../constants/gap-filling-pre-metrics.constants';
+import {
+  MAX_VISIBLE_WARNINGS,
+  METRIC_TOOLTIPS,
+} from '../../constants/gap-filling-pre-metrics.constants';
 import { getReliabilityBadge } from '../../utils/gap-filling-reliability.utils';
 import { mapGapFillingWarnings } from '../../utils/gap-filling-warnings.utils';
 
@@ -92,7 +95,7 @@ export class GapFillingPreMetricsPanel {
 
   readonly showAllWarnings = signal<boolean>(false);
   readonly showTechnicalDetails = signal<boolean>(false);
-  readonly i18n = GAP_FILLING_I18N;
+  readonly metricTooltips = METRIC_TOOLTIPS;
 
   readonly processedWarnings = computed<ProcessedWarning[]>(() => {
     return mapGapFillingWarnings(this.warnings(), {
@@ -110,15 +113,15 @@ export class GapFillingPreMetricsPanel {
 
   readonly visibleWarnings = computed<ProcessedWarning[]>(() => {
     const all = this.processedWarnings();
-    if (this.showAllWarnings() || all.length <= GAP_FILLING_I18N.maxVisibleWarnings) {
+    if (this.showAllWarnings() || all.length <= MAX_VISIBLE_WARNINGS) {
       return all;
     }
-    return all.slice(0, GAP_FILLING_I18N.maxVisibleWarnings);
+    return all.slice(0, MAX_VISIBLE_WARNINGS);
   });
 
   readonly hiddenWarningsCount = computed<number>(() => {
     const total = this.processedWarnings().length;
-    return Math.max(0, total - GAP_FILLING_I18N.maxVisibleWarnings);
+    return Math.max(0, total - MAX_VISIBLE_WARNINGS);
   });
 
   readonly reliabilityBadge = computed<ReliabilityBadge | null>(() => {
@@ -149,14 +152,14 @@ export class GapFillingPreMetricsPanel {
 
   readonly fillButtonText = computed<string>(() => {
     if (this.hasNoFillableGaps()) {
-      return GAP_FILLING_I18N.actions.noFillableGaps;
+      return 'Nenhuma falha preenchível';
     }
     const station = this.neighborStation();
     if (!station?.name) {
-      return GAP_FILLING_I18N.actions.fillGapsFallback;
+      return 'Preencher falhas com a estação selecionada';
     }
     const formatted = new TitleCasePipe().transform(station.name) || station.name;
-    return `${GAP_FILLING_I18N.actions.fillGapsPrefix} ${formatted}`;
+    return `Preencher falhas com ${formatted}`;
   });
 
   toggleWarningsExpanded(): void {
@@ -182,7 +185,7 @@ export class GapFillingPreMetricsPanel {
 
   formatDecimal(val: number | null | undefined, decimals = 2): string {
     if (val == null || Number.isNaN(val) || this.hasNoOverlap()) {
-      return GAP_FILLING_I18N.messages.noOverlapMetricPlaceholder;
+      return '—';
     }
     return val.toLocaleString('pt-BR', {
       minimumFractionDigits: decimals,
@@ -192,7 +195,7 @@ export class GapFillingPreMetricsPanel {
 
   formatInteger(val: number | null | undefined): string {
     if (val == null || Number.isNaN(val) || this.hasNoOverlap()) {
-      return GAP_FILLING_I18N.messages.noOverlapMetricPlaceholder;
+      return '—';
     }
     return val.toLocaleString('pt-BR');
   }

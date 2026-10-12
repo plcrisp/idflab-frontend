@@ -66,51 +66,15 @@ export const UNKNOWN_WARNING_FALLBACK: { severity: WarningSeverity; icon: string
   messagePrefix: 'Aviso da série:',
 };
 
-export const GAP_FILLING_I18N = {
-  groups: {
-    relationship: 'Relação entre estações',
-    fillingScope: 'O que será preenchido',
-  },
-  labels: {
-    pearson: 'Correlação de Pearson',
-    validPairs: 'Pares válidos',
-    overlapYears: 'Sobreposição',
-    accumulatedRatio: 'Razão entre acumulados',
-    fillableCoverage: 'Cobertura preenchível',
-    totalGaps: 'Falhas totais',
-    fillableGaps: 'Dados Preenchíveis',
-    remainingGaps: 'Permanecerão',
-    completeYears: 'Anos completos',
-  },
-  tooltips: {
-    pearson:
-      'Grau de associação linear diária entre as chuvas das duas estações (-1 a +1). Valores mais altos indicam maior sincronia pluviométrica.',
-    validPairs:
-      'Total de dias com medições simultâneas em ambas as estações no mesmo intervalo temporal, base para os cálculos estatísticos.',
-    overlapYears:
-      'Número de anos em que ambas as estações operaram concomitantemente com dados válidos.',
-    accumulatedRatio:
-      'Razão da precipitação acumulada (Principal ÷ Vizinha) no período comum. Valores próximos a 1,0 indicam volumes anuais equilibrados entre as bacias.',
-    totalGaps:
-      'Total de falhas diárias identificadas na estação principal no período analisado.',
-    remainingGaps:
-      'Falhas que não possuem dados simultâneos na estação vizinha e permanecerão não preenchidas.',
-  },
-  actions: {
-    retry: 'Tentar novamente',
-    skipStep: 'Pular etapa',
-    seeMore: 'Ver mais',
-    seeLess: 'Ver menos',
-    seeTechnicalDetails: 'Ver detalhes técnicos',
-    hideTechnicalDetails: 'Ocultar detalhes técnicos',
-    fillGapsPrefix: 'Preencher falhas com',
-    fillGapsFallback: 'Preencher falhas com a estação selecionada',
-    noFillableGaps: 'Nenhuma falha preenchível',
-  },
-  messages: {
-    empty: 'Nenhuma estação vizinha selecionada. Selecione uma estação acima para visualizar as métricas de pré-preenchimento.',
-    errorPrefix: 'Não foi possível carregar as métricas pré-preenchimento.',
-    noOverlapMetricPlaceholder: '—',
-  },
-  maxVisibleWarnings: 3,
+export const MAX_VISIBLE_WARNINGS = 3;
+
+export const METRIC_TOOLTIPS = {
+  validPairs:
+    'Total de dias com medições simultâneas em ambas as estações no mesmo intervalo temporal, base para os cálculos estatísticos.',
+  accumulatedRatio:
+    'Razão da precipitação acumulada (Principal ÷ Vizinha) no período comum. Valores próximos a 1,0 indicam volumes anuais equilibrados entre as bacias.',
+  totalGaps:
+    'Total de falhas diárias identificadas na estação principal no período analisado.',
+  remainingGaps:
+    'Falhas que não possuem dados simultâneos na estação vizinha e permanecerão não preenchidas.',
 } as const;

@@ -29,7 +29,6 @@ import {
   GapFillingPreMetrics,
   GapFillingWarning,
 } from '../../models/gap-filling-pre-metrics.model';
-import { GAP_FILLING_I18N } from '../../constants/gap-filling-pre-metrics.constants';
 import { GapFillingPreMetricsPanel } from '../gap-filling-pre-metrics-panel/gap-filling-pre-metrics-panel';
 
 @Component({
@@ -155,9 +154,7 @@ export class GapFillingMetricsCard {
         },
         error: (err) => {
           console.error('[GapFillingMetricsCard] Erro ao carregar métricas pré-preenchimento:', err);
-          this.metricsError.set(
-            GAP_FILLING_I18N.messages.errorPrefix,
-          );
+          this.metricsError.set('Não foi possível carregar as métricas pré-preenchimento.');
           this.isLoadingMetrics.set(false);
         },
       });

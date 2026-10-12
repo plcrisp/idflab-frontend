@@ -10,7 +10,7 @@
       Nenhuma estação vizinha selecionada
     </h4>
     <p class="text-xs text-muted-foreground max-w-md mt-1 leading-relaxed">
-      {{ i18n.messages.empty }}
+      Nenhuma estação vizinha selecionada. Selecione uma estação acima para visualizar as métricas de pré-preenchimento.
     </p>
   </div>
   } @else if (loading()) {
@@ -41,7 +41,7 @@
     <button hlmBtn variant="outline" size="sm" (click)="onRetry()"
       class="cursor-pointer font-medium inline-flex items-center gap-1.5 border-destructive/30 hover:bg-destructive/20 text-destructive text-xs shrink-0">
       <ng-icon name="lucideRotateCw" class="text-xs" />
-      <span>{{ i18n.actions.retry }}</span>
+      <span>Tentar novamente</span>
     </button>
   </div>
   } @else if (metrics(); as m) {
@@ -67,7 +67,7 @@
         @if (warn.isNoGaps) {
         <button hlmBtn variant="outline" size="sm" (click)="onSkipStep()"
           class="cursor-pointer font-medium inline-flex items-center gap-1.5 text-xs h-7 px-2.5 shrink-0">
-          <span>{{ i18n.actions.skipStep }}</span>
+          <span>Pular etapa</span>
           <ng-icon name="lucideArrowRight" class="text-xs" />
         </button>
         }
@@ -80,7 +80,7 @@
         <button type="button" (click)="toggleWarningsExpanded()"
           class="cursor-pointer inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
           <span>
-            {{ showAllWarnings() ? i18n.actions.seeLess : i18n.actions.seeMore + ' (' + hiddenWarningsCount() + ')' }}
+            {{ showAllWarnings() ? 'Ver menos' : 'Ver mais (' + hiddenWarningsCount() + ')' }}
           </span>
           <ng-icon [name]="showAllWarnings() ? 'lucideChevronUp' : 'lucideChevronDown'" class="text-xs" />
         </button>
@@ -93,7 +93,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 items-stretch">
       <!-- Card 1: Correlação de Pearson -->
       <app-stat-card
-        [label]="i18n.labels.pearson"
+        label="Correlação de Pearson"
         [value]="formatDecimal(m.pearson_r, 2)"
         icon="lucideTrendingUp"
         [badge]="reliabilityBadge()"
@@ -102,8 +102,8 @@
 
       <!-- Card 2: Cobertura preenchível -->
       <app-stat-card
-        [label]="i18n.labels.fillableCoverage"
-        [value]="hasNoOverlap() ? i18n.messages.noOverlapMetricPlaceholder : formatDecimal(m.fillable_coverage_pct, 1)"
+        label="Cobertura preenchível"
+        [value]="hasNoOverlap() ? '—' : formatDecimal(m.fillable_coverage_pct, 1)"
         [unit]="hasNoOverlap() ? undefined : '%'"
         icon="lucideShieldCheck"
         [footer]="{
@@ -116,7 +116,7 @@
 
       <!-- Card 3: Falhas preenchíveis -->
       <app-stat-card
-        [label]="i18n.labels.fillableGaps"
+        label="Dados Preenchíveis"
         [value]="formatInteger(m.fillable_gaps)"
         [unit]="'de ' + formatInteger(m.total_gaps)"
         icon="lucideWrench"
@@ -125,8 +125,8 @@
 
       <!-- Card 4: Sobreposição -->
       <app-stat-card
-        [label]="i18n.labels.overlapYears"
-        [value]="hasNoOverlap() ? i18n.messages.noOverlapMetricPlaceholder : m.overlap_years"
+        label="Sobreposição"
+        [value]="hasNoOverlap() ? '—' : m.overlap_years"
         [unit]="hasNoOverlap() ? undefined : (m.overlap_years === 1 ? 'ano' : 'anos')"
         icon="lucideCalendar"
         [footer]="{ type: 'text', content: 'Pares válidos: ' + formatInteger(m.valid_pairs) }"
@@ -141,17 +141,17 @@
         class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors w-fit"
       >
         <ng-icon [name]="showTechnicalDetails() ? 'lucideChevronUp' : 'lucideChevronDown'" class="text-xs" />
-        <span>{{ showTechnicalDetails() ? i18n.actions.hideTechnicalDetails : i18n.actions.seeTechnicalDetails }}</span>
+        <span>{{ showTechnicalDetails() ? 'Ocultar detalhes técnicos' : 'Ver detalhes técnicos' }}</span>
       </button>
 
       @if (showTechnicalDetails()) {
       <div class="rounded-xl border border-border bg-card/40 p-3.5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
         <div class="flex flex-col gap-1 p-2.5 rounded-lg bg-secondary/30 border border-border/40">
           <div class="inline-flex items-center gap-1.5 text-muted-foreground">
-            <span>{{ i18n.labels.validPairs }}</span>
+            <span>Pares válidos</span>
             <span
               class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
-              [hlmTooltip]="i18n.tooltips.validPairs"
+              [hlmTooltip]="metricTooltips.validPairs"
               tabindex="0"
               role="note"
               aria-label="Informação sobre Pares Válidos"
@@ -166,10 +166,10 @@
 
         <div class="flex flex-col gap-1 p-2.5 rounded-lg bg-secondary/30 border border-border/40">
           <div class="inline-flex items-center gap-1.5 text-muted-foreground">
-            <span>{{ i18n.labels.accumulatedRatio }}</span>
+            <span>Razão entre acumulados</span>
             <span
               class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
-              [hlmTooltip]="i18n.tooltips.accumulatedRatio"
+              [hlmTooltip]="metricTooltips.accumulatedRatio"
               tabindex="0"
               role="note"
               aria-label="Informação sobre Razão entre Acumulados"
@@ -184,10 +184,10 @@
 
         <div class="flex flex-col gap-1 p-2.5 rounded-lg bg-secondary/30 border border-border/40">
           <div class="inline-flex items-center gap-1.5 text-muted-foreground">
-            <span>{{ i18n.labels.totalGaps }}</span>
+            <span>Falhas totais</span>
             <span
               class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
-              [hlmTooltip]="i18n.tooltips.totalGaps"
+              [hlmTooltip]="metricTooltips.totalGaps"
               tabindex="0"
               role="note"
               aria-label="Informação sobre Total de Falhas"
@@ -202,10 +202,10 @@
 
         <div class="flex flex-col gap-1 p-2.5 rounded-lg bg-secondary/30 border border-border/40">
           <div class="inline-flex items-center gap-1.5 text-muted-foreground">
-            <span>{{ i18n.labels.remainingGaps }}</span>
+            <span>Permanecerão</span>
             <span
               class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
-              [hlmTooltip]="i18n.tooltips.remainingGaps"
+              [hlmTooltip]="metricTooltips.remainingGaps"
               tabindex="0"
               role="note"
               aria-label="Informação sobre Falhas que permanecerão"
