@@ -6,6 +6,7 @@ import { GapFillingPreMetricsResponse } from '../pages/gap-filling/models/gap-fi
 import {
   GapFillingExecuteRequest,
   GapFillingJobResponse,
+  GapFillingVisualizationResponse,
 } from '../pages/gap-filling/models/gap-filling.model';
 
 @Injectable({
@@ -44,6 +45,21 @@ export class GapFillingService {
       method: 'random_forest',
     };
     return this.http.post<GapFillingJobResponse>(`${this.baseUrl}/${projectId}/fill`, payload);
+  }
+
+  getVisualization(
+    projectId: string,
+    params?: { start?: string; end?: string; year?: number },
+  ): Observable<GapFillingVisualizationResponse> {
+    let httpParams = new HttpParams();
+    if (params?.year) httpParams = httpParams.set('year', params.year);
+    if (params?.start) httpParams = httpParams.set('start', params.start);
+    if (params?.end) httpParams = httpParams.set('end', params.end);
+
+    return this.http.get<GapFillingVisualizationResponse>(
+      `${this.baseUrl}/${projectId}/visualization`,
+      { params: httpParams },
+    );
   }
 
   setCachedPreMetrics(

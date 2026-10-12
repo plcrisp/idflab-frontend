@@ -9,6 +9,7 @@ import {
   buildAxisLabelBase,
   buildAxisLineStyle,
   buildFalhaLegendSeries,
+  buildFilledDataLegendSeries,
   buildGrid,
   buildHistoricalMaxMarkLine,
   buildLegend,
@@ -51,7 +52,7 @@ function isSameUTCDate(a: Date, b: Date): boolean {
 
 @Component({
   selector: 'app-time-series-detail-chart',
-  standalone: false,
+  standalone: true,
   templateUrl: './time-series-detail-chart.html',
   styleUrl: './time-series-detail-chart.scss',
   providers: [EchartsService],
@@ -108,8 +109,8 @@ export class TimeSeriesDetailChart implements OnDestroy {
       data.aggregation_level === 'hour'
         ? 'Precipitação horária'
         : data.aggregation_level === 'month'
-        ? 'Precipitação mensal'
-        : 'Precipitação diária';
+          ? 'Precipitação mensal'
+          : 'Precipitação diária';
     const seriesName =
       this.seriesName() !== 'Precipitação diária' ? this.seriesName() : defaultSeriesName;
 
@@ -117,25 +118,25 @@ export class TimeSeriesDetailChart implements OnDestroy {
       data.aggregation_level === 'hour'
         ? 'Precipitação horária máxima do período'
         : data.aggregation_level === 'month'
-        ? 'Precipitação mensal máxima do período'
-        : 'Precipitação diária máxima do período';
+          ? 'Precipitação mensal máxima do período'
+          : 'Precipitação diária máxima do período';
 
     const historicalMaxRef = historicalMaxDate ? new Date(historicalMaxDate) : null;
 
     const annualMaxData = historicalMaxRef
       ? points
-          .filter((p) => {
-            if (p.value === null || p.is_failure) return false;
-            const pDate = new Date(p.date);
-            if (isHourLevel) {
-              return pDate.getTime() === historicalMaxRef.getTime();
-            }
-            return isSameUTCDate(pDate, historicalMaxRef);
-          })
-          .map((p) => ({
-            name: CHART_LEGEND_LABELS.maxObservado,
-            coord: [new Date(p.date).getTime(), p.value] as [number, number],
-          }))
+        .filter((p) => {
+          if (p.value === null || p.is_failure) return false;
+          const pDate = new Date(p.date);
+          if (isHourLevel) {
+            return pDate.getTime() === historicalMaxRef.getTime();
+          }
+          return isSameUTCDate(pDate, historicalMaxRef);
+        })
+        .map((p) => ({
+          name: CHART_LEGEND_LABELS.maxObservado,
+          coord: [new Date(p.date).getTime(), p.value] as [number, number],
+        }))
       : [];
 
     let maxPeriodoValue = -Infinity;
@@ -148,12 +149,42 @@ export class TimeSeriesDetailChart implements OnDestroy {
       }
     });
 
+    const hasFilledData = points.some((p: DetailPoint) => !p.is_failure && p.is_filled === true);
+
     const barData = points.map((p: DetailPoint) => {
       const value = p.is_failure ? null : p.value;
-      const isPico = !isHighVolume && p.date === maxPeriodoDate && value !== null; // ignora falhas
+      const isFilled = !p.is_failure && p.is_filled === true;
+      const isPico = !isHighVolume && p.date === maxPeriodoDate && value !== null;
+
+      if (isFilled && isPico) {
+        return {
+          value: [new Date(p.date).getTime(), value],
+          itemStyle: {
+            color: t.secondary,
+            borderColor: t.primaryDark,
+            borderWidth: 0.5,
+            borderRadius: [3, 3, 0, 0],
+          },
+          isFilled: true,
+          isPico: true,
+        };
+      }
+
+      if (isFilled) {
+        return {
+          value: [new Date(p.date).getTime(), value],
+          itemStyle: { color: t.secondary, borderRadius: [3, 3, 0, 0] },
+          isFilled: true,
+          isPico: false,
+        };
+      }
 
       return isPico
-        ? { value: [new Date(p.date).getTime(), value], itemStyle: { color: t.primaryDark } }
+        ? {
+          value: [new Date(p.date).getTime(), value],
+          itemStyle: { color: t.primaryDark, borderRadius: [3, 3, 0, 0] },
+          isPico: true,
+        }
         : [new Date(p.date).getTime(), value];
     });
 
@@ -190,36 +221,40 @@ export class TimeSeriesDetailChart implements OnDestroy {
 
     const baseSeries: any = isHighVolume
       ? {
-          name: seriesName,
-          type: 'line',
-          large: true,
-          largeThreshold: 2000,
-          sampling: 'lttb',
-          symbol: 'none',
-          data: barData,
-          lineStyle: { color: t.chartBarDetail, width: 1.5 },
-          itemStyle: { color: t.chartBarDetail },
-          markPoint: buildMarkPoint(annualMaxData, t),
-          markArea: buildMarkArea(markAreaData, t),
-          markLine: buildHistoricalMaxMarkLine(histMax, t, this.unit()),
-        }
+        name: seriesName,
+        type: 'line',
+        large: true,
+        largeThreshold: 2000,
+        sampling: 'lttb',
+        symbol: 'none',
+        data: barData,
+        lineStyle: { color: t.chartBarDetail, width: 1.5 },
+        itemStyle: { color: t.chartBarDetail },
+        markPoint: buildMarkPoint(annualMaxData, t),
+        markArea: buildMarkArea(markAreaData, t),
+        markLine: buildHistoricalMaxMarkLine(histMax, t, this.unit()),
+      }
       : {
-          name: seriesName,
-          type: 'bar',
-          data: barData,
-          barCategoryGap: '10%',
-          barGap: '-100%',
-          itemStyle: { color: t.chartBarDetail, borderRadius: [3, 3, 0, 0] },
-          emphasis: { itemStyle: { color: t.primaryMid } },
-          markPoint: buildMarkPoint(annualMaxData, t),
-          markArea: buildMarkArea(markAreaData, t),
-          markLine: buildHistoricalMaxMarkLine(histMax, t, this.unit()),
-        };
+        name: seriesName,
+        type: 'bar',
+        data: barData,
+        barCategoryGap: '10%',
+        barGap: '-100%',
+        itemStyle: { color: t.chartBarDetail, borderRadius: [3, 3, 0, 0] },
+        emphasis: { itemStyle: { color: t.primaryMid } },
+        markPoint: buildMarkPoint(annualMaxData, t),
+        markArea: buildMarkArea(markAreaData, t),
+        markLine: buildHistoricalMaxMarkLine(histMax, t, this.unit()),
+      };
 
     const series: any[] = [
       baseSeries,
       buildMaxPeriodoLegendSeries(t, legendNamePico),
     ];
+
+    if (hasFilledData) {
+      series.push(buildFilledDataLegendSeries(t, CHART_LEGEND_LABELS.dadoPreenchido));
+    }
 
     if (hasHistoricalMax) {
       series.push(buildMaxObservadoLegendSeries(t, CHART_LEGEND_LABELS.maxObservado));
@@ -230,7 +265,15 @@ export class TimeSeriesDetailChart implements OnDestroy {
     return {
       useUTC: true,
       textStyle: { fontFamily: t.fontFamily },
-      legend: buildLegend(seriesName, legendNameMax, t.chartBarDetail, t, legendNamePico),
+      legend: buildLegend(
+        seriesName,
+        legendNameMax,
+        t.chartBarDetail,
+        t,
+        legendNamePico,
+        null,
+        hasFilledData ? CHART_LEGEND_LABELS.dadoPreenchido : null,
+      ),
       grid: buildGrid(48),
       tooltip: {
         ...buildTooltipBase(t),
@@ -248,10 +291,21 @@ export class TimeSeriesDetailChart implements OnDestroy {
             const minutes = String(date.getUTCMinutes()).padStart(2, '0');
             dateLabel += ` ${hours}:${minutes}`;
           }
-          const valueLabel =
-            value === null || value === undefined
-              ? 'Sem dado registrado'
-              : `${value.toLocaleString('pt-BR')} ${this.unit()}`;
+          const isFilled = p?.data?.isFilled ?? false;
+          const isPico = p?.data?.isPico ?? false;
+
+          let valueLabel: string;
+          if (value === null || value === undefined) {
+            valueLabel = 'Sem dado registrado';
+          } else if (isFilled && isPico) {
+            valueLabel = `<span style="color:${t.secondary};font-weight:600;">Valor preenchido</span> <span style="font-weight:600;">(Máxima do período):</span> ${value.toLocaleString('pt-BR')} ${this.unit()}`;
+          } else if (isFilled) {
+            valueLabel = `<span style="color:${t.secondary};font-weight:600;">Valor preenchido:</span> ${value.toLocaleString('pt-BR')} ${this.unit()}`;
+          } else if (isPico) {
+            valueLabel = `<span style="color:${t.primaryDark};font-weight:600;">Máxima do período:</span> ${value.toLocaleString('pt-BR')} ${this.unit()}`;
+          } else {
+            valueLabel = `${value.toLocaleString('pt-BR')} ${this.unit()}`;
+          }
           return `<div style="font-weight:600;margin-bottom:2px;">${dateLabel}</div>${valueLabel}`;
         },
       },
@@ -265,23 +319,23 @@ export class TimeSeriesDetailChart implements OnDestroy {
           hideOverlap: true,
           ...(isHourLevel
             ? {
-                formatter: {
-                  year: '{yyyy}',
-                  month: '{MMM}',
-                  day: '{d} {MMM}',
-                  hour: '{HH}:{mm}',
-                  minute: '{HH}:{mm}',
-                },
-              }
+              formatter: {
+                year: '{yyyy}',
+                month: '{MMM}',
+                day: '{d} {MMM}',
+                hour: '{HH}:{mm}',
+                minute: '{HH}:{mm}',
+              },
+            }
             : {
-                customValues: tickValues,
-                formatter: (value: number) => {
-                  const d = new Date(value);
-                  const day = d.getUTCDate();
-                  const month = MONTHS_PT[d.getUTCMonth()];
-                  return `${day} ${month}`;
-                },
-              }),
+              customValues: tickValues,
+              formatter: (value: number) => {
+                const d = new Date(value);
+                const day = d.getUTCDate();
+                const month = MONTHS_PT[d.getUTCMonth()];
+                return `${day} ${month}`;
+              },
+            }),
         },
         splitLine: { show: false },
       },

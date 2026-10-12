@@ -1,5 +1,5 @@
 export type CoverageStatus = 'complete' | 'partial' | 'failure';
-export type AggregationLevel = 'month' | 'day' | 'hour';
+export type AggregationLevel = 'year' | 'month' | 'day' | 'hour';
 
 export interface YearlySummaryItem {
   year: number;
@@ -23,6 +23,7 @@ export interface DetailPoint {
   value: number | null;
   is_failure: boolean;
   is_annual_max: boolean;
+  is_filled?: boolean;
 }
 
 export interface FailureWindow {

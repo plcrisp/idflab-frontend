@@ -19,3 +19,37 @@ export interface GapFillingPostMetrics {
   model_rmse: number;
   model_mae: number;
 }
+
+export interface GapFillingDetailPoint {
+  date: string;
+  value: number | null;
+  is_failure: boolean;
+  is_filled: boolean;
+  is_annual_max: boolean;
+}
+
+export interface GapFillingFailureWindow {
+  start: string;
+  end: string;
+}
+
+export interface GapFillingYearSummary {
+  year: number;
+  corrections_count: number;
+}
+
+export interface GapFillingWindow {
+  start: string;
+  end: string;
+}
+
+export interface GapFillingVisualizationResponse {
+  aggregation_level: 'hour' | 'day' | 'month' | 'year';
+  points: GapFillingDetailPoint[];
+  failure_windows: GapFillingFailureWindow[];
+  applied_window: GapFillingWindow;
+  center_year: number | null;
+  total_corrections_in_window: number;
+  yearly_corrections: GapFillingYearSummary[];
+}
+

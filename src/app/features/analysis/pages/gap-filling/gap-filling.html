@@ -38,6 +38,7 @@
   <!-- Card Independente: Métricas de Pós-Preenchimento -->
   @if (shouldShowPostMetrics()) {
   <app-gap-filling-post-metrics-card id="gap-filling-post-metrics-card"
+    [projectId]="state.project()?.id ?? null"
     [isFilling]="state.isFilling()"
     [job]="state.fillingJob()"
     [metrics]="state.postMetrics()"
