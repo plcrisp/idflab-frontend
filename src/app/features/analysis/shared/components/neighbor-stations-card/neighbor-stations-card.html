@@ -76,15 +76,11 @@
         } @else {
           <!-- Lista de cards interativos de vizinhas -->
           @for (neighbor of neighbors; track neighbor.id) {
-            <div
+            <button
+              type="button"
               id="neighbor-card-{{ neighbor.id }}"
               (click)="selectStation(neighbor)"
-              role="radio"
-              [attr.aria-checked]="selectedNeighbor?.id === neighbor.id"
-              tabindex="0"
-              (keydown.enter)="selectStation(neighbor)"
-              (keydown.space)="selectStation(neighbor)"
-              class="group relative rounded-xl border transition-all duration-150 p-3 sm:p-3.5 cursor-pointer select-none flex items-center gap-3.5 outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              class="group w-full text-left relative rounded-xl border transition-all duration-150 p-3 sm:p-3.5 cursor-pointer select-none flex items-center gap-3.5 outline-none focus-visible:ring-2 focus-visible:ring-primary"
               [class.border-primary]="selectedNeighbor?.id === neighbor.id"
               [class.bg-primary-5]="selectedNeighbor?.id === neighbor.id"
               [class.border-border]="selectedNeighbor?.id !== neighbor.id"
@@ -164,7 +160,7 @@
                   </div>
                 }
               </div>
-            </div>
+            </button>
           }
         }
       </div>

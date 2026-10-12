@@ -1,12 +1,17 @@
-<div role="radiogroup" aria-label="Modo de tratamento de falhas" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
   <!-- Card 1: Preencher falhas (Random Forest) -->
-  <div #fillCard role="radio" [attr.aria-checked]="selected() === 'fill'" [attr.aria-label]="fillAriaLabel()"
-    [attr.aria-disabled]="disabled()" [attr.tabindex]="getTabIndex('fill')" (click)="selectOption('fill')"
-    (keydown)="onKeyDown($event, 'fill')"
-    class="path-card relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-4 py-3 sm:px-5 sm:py-3.5 pr-10 sm:pr-12 rounded-xl text-left outline-none select-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-    [class.path-card--selected]="selected() === 'fill'" [class.path-card--unselected]="selected() !== 'fill'"
-    [class.cursor-pointer]="!disabled()" [class.opacity-60]="disabled()" [class.cursor-not-allowed]="disabled()">
-    <!-- Check circular apenas no card selecionado -->
+  <button
+    type="button"
+    (click)="selectOption('fill')"
+    [disabled]="disabled()"
+    class="path-card relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-4 py-3 sm:px-5 sm:py-3.5 pr-10 sm:pr-12 rounded-xl text-left outline-none select-none transition-colors"
+    [class.path-card--selected]="selected() === 'fill'"
+    [class.path-card--unselected]="selected() !== 'fill'"
+    [class.cursor-pointer]="!disabled()"
+    [class.opacity-60]="disabled()"
+    [class.cursor-not-allowed]="disabled()"
+  >
+    <!-- Check circular no card selecionado -->
     @if (selected() === 'fill') {
     <div
       class="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 flex items-center justify-center h-5 w-5 rounded-full bg-primary text-primary-foreground shadow-xs pointer-events-none"
@@ -15,12 +20,13 @@
     </div>
     }
 
-    <!-- Linha principal: Ícone + Textos (sem eyebrow) -->
+    <!-- Linha principal: Ícone + Textos -->
     <div class="flex items-center gap-3.5 min-w-0 flex-1">
       <div
-        class="flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-lg shrink-0 bg-secondary transition-colors duration-150 motion-reduce:transition-none"
-        [class.text-primary]="selected() === 'fill'" [class.text-muted-foreground]="selected() !== 'fill'"
-        aria-hidden="true">
+        class="flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-lg shrink-0 bg-secondary transition-colors duration-150"
+        [class.text-primary]="selected() === 'fill'"
+        [class.text-muted-foreground]="selected() !== 'fill'"
+      >
         <ng-icon name="lucideWrench" class="text-lg" />
       </div>
 
@@ -39,9 +45,8 @@
       </div>
     </div>
 
-    <!-- Selo de Status: alinhado verticalmente ao centro no desktop, alinhado à esquerda no mobile -->
-    <div
-      class="status-slot shrink-0 self-start sm:self-center mt-2 sm:mt-0 min-w-0 sm:min-w-[130px] flex justify-start sm:justify-end">
+    <!-- Selo de Status -->
+    <div class="status-slot shrink-0 self-start sm:self-center mt-2 sm:mt-0 min-w-0 sm:min-w-[130px] flex justify-start sm:justify-end">
       @switch (fillStatus()) {
       @case ('idle') {
       <span hlmBadge variant="outline" class="text-[11px] font-medium text-muted-foreground">
@@ -68,16 +73,21 @@
       }
       }
     </div>
-  </div>
+  </button>
 
   <!-- Card 2: Desconsiderar anos incompletos (Filtro por limiar) -->
-  <div #filterCard role="radio" [attr.aria-checked]="selected() === 'filter'" [attr.aria-label]="filterAriaLabel()"
-    [attr.aria-disabled]="disabled()" [attr.tabindex]="getTabIndex('filter')" (click)="selectOption('filter')"
-    (keydown)="onKeyDown($event, 'filter')"
-    class="path-card relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-4 py-3 sm:px-5 sm:py-3.5 pr-10 sm:pr-12 rounded-xl text-left outline-none select-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-    [class.path-card--selected]="selected() === 'filter'" [class.path-card--unselected]="selected() !== 'filter'"
-    [class.cursor-pointer]="!disabled()" [class.opacity-60]="disabled()" [class.cursor-not-allowed]="disabled()">
-    <!-- Check circular apenas no card selecionado -->
+  <button
+    type="button"
+    (click)="selectOption('filter')"
+    [disabled]="disabled()"
+    class="path-card relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-4 py-3 sm:px-5 sm:py-3.5 pr-10 sm:pr-12 rounded-xl text-left outline-none select-none transition-colors"
+    [class.path-card--selected]="selected() === 'filter'"
+    [class.path-card--unselected]="selected() !== 'filter'"
+    [class.cursor-pointer]="!disabled()"
+    [class.opacity-60]="disabled()"
+    [class.cursor-not-allowed]="disabled()"
+  >
+    <!-- Check circular no card selecionado -->
     @if (selected() === 'filter') {
     <div
       class="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 flex items-center justify-center h-5 w-5 rounded-full bg-primary text-primary-foreground shadow-xs pointer-events-none"
@@ -86,12 +96,13 @@
     </div>
     }
 
-    <!-- Linha principal: Ícone + Textos (sem eyebrow) -->
+    <!-- Linha principal: Ícone + Textos -->
     <div class="flex items-center gap-3.5 min-w-0 flex-1">
       <div
-        class="flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-lg shrink-0 bg-secondary transition-colors duration-150 motion-reduce:transition-none"
-        [class.text-primary]="selected() === 'filter'" [class.text-muted-foreground]="selected() !== 'filter'"
-        aria-hidden="true">
+        class="flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-lg shrink-0 bg-secondary transition-colors duration-150"
+        [class.text-primary]="selected() === 'filter'"
+        [class.text-muted-foreground]="selected() !== 'filter'"
+      >
         <ng-icon name="lucideFilter" class="text-lg" />
       </div>
 
@@ -105,9 +116,8 @@
       </div>
     </div>
 
-    <!-- Selo de Status: reservado para evitar pulo de layout quando configurado -->
-    <div
-      class="status-slot shrink-0 self-start sm:self-center mt-2 sm:mt-0 min-w-0 sm:min-w-[130px] flex justify-start sm:justify-end">
+    <!-- Selo de Status -->
+    <div class="status-slot shrink-0 self-start sm:self-center mt-2 sm:mt-0 min-w-0 sm:min-w-[130px] flex justify-start sm:justify-end">
       @if (filterStatus() === 'configured') {
       <span hlmBadge variant="outline"
         class="text-[11px] font-medium flex items-center gap-1.5 bg-success/15 text-success border-success/30">
@@ -116,5 +126,5 @@
       </span>
       }
     </div>
-  </div>
+  </button>
 </div>

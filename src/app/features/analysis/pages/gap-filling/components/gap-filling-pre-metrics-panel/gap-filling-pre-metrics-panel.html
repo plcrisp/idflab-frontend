@@ -1,4 +1,4 @@
-<div id="gap-filling-pre-metrics-panel" aria-live="polite" aria-atomic="false" class="w-full flex flex-col gap-4">
+<div id="gap-filling-pre-metrics-panel" class="w-full flex flex-col gap-4">
   @if (!neighborStation() && !loading()) {
   <!-- 1. Estado Vazio (Sem vizinha selecionada) -->
   <div
@@ -14,8 +14,7 @@
     </p>
   </div>
   } @else if (loading()) {
-  <!-- 2. Estado Loading (Skeleton alinhado à grade de cards) -->
-  <div class="w-full flex flex-col gap-4" aria-busy="true" aria-label="Carregando métricas pré-preenchimento">
+  <div class="w-full flex flex-col gap-4">
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 items-stretch">
       <app-stat-card [loading]="true" />
       <app-stat-card [loading]="true" />
@@ -49,7 +48,7 @@
   <div class="w-full flex flex-col gap-4">
     <!-- Seção de Avisos (Ordenados: erro, aviso, informativo) -->
     @if (processedWarnings().length > 0) {
-    <div class="flex flex-col gap-2" aria-label="Avisos sobre o preenchimento">
+    <div class="flex flex-col gap-2">
       @for (warn of visibleWarnings(); track warn.code) {
       <div [attr.role]="warn.severity === 'destructive' ? 'alert' : 'status'"
         class="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg border text-xs transition-colors"
@@ -152,9 +151,6 @@
             <span
               class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
               [hlmTooltip]="metricTooltips.validPairs"
-              tabindex="0"
-              role="note"
-              aria-label="Informação sobre Pares Válidos"
             >
               <ng-icon name="lucideInfo" class="text-[11px]" />
             </span>
@@ -170,9 +166,6 @@
             <span
               class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
               [hlmTooltip]="metricTooltips.accumulatedRatio"
-              tabindex="0"
-              role="note"
-              aria-label="Informação sobre Razão entre Acumulados"
             >
               <ng-icon name="lucideInfo" class="text-[11px]" />
             </span>
@@ -188,9 +181,6 @@
             <span
               class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
               [hlmTooltip]="metricTooltips.totalGaps"
-              tabindex="0"
-              role="note"
-              aria-label="Informação sobre Total de Falhas"
             >
               <ng-icon name="lucideInfo" class="text-[11px]" />
             </span>
@@ -206,9 +196,6 @@
             <span
               class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
               [hlmTooltip]="metricTooltips.remainingGaps"
-              tabindex="0"
-              role="note"
-              aria-label="Informação sobre Falhas que permanecerão"
             >
               <ng-icon name="lucideInfo" class="text-[11px]" />
             </span>
