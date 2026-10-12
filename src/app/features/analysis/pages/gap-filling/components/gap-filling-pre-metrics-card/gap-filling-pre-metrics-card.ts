@@ -11,13 +11,14 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideActivity,
   lucideArrowRight,
+  lucideArrowUp,
   lucideCalendar,
   lucideChevronDown,
   lucideChevronUp,
   lucideInfo,
+  lucideMapPin,
   lucideRotateCw,
   lucideShieldCheck,
-  lucideSparkles,
   lucideTrendingUp,
   lucideTriangleAlert,
   lucideWrench,
@@ -31,6 +32,8 @@ import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
 import { SharedModule } from '../../../../../../shared/shared-module';
 import { NeighborStation } from '../../../../../../core/models/api/station.model';
+import { ActiveJobItem } from '../../../../../../core/models/api/notification.model';
+import { ConfirmationStatus, NeighborProgressInfo } from '../../../../shared/models/analysis.models';
 import {
   GapFillingPreMetrics,
   GapFillingWarning,
@@ -45,10 +48,11 @@ import { getReliabilityBadge } from '../../utils/gap-filling-reliability.utils';
 import { mapGapFillingWarnings } from '../../utils/gap-filling-warnings.utils';
 
 @Component({
-  selector: 'app-gap-filling-pre-metrics-panel',
+  selector: 'app-gap-filling-pre-metrics-card',
   standalone: true,
   imports: [
     CommonModule,
+    TitleCasePipe,
     NgIcon,
     SharedModule,
     ...HlmBadgeImports,
@@ -62,33 +66,38 @@ import { mapGapFillingWarnings } from '../../utils/gap-filling-warnings.utils';
     provideIcons({
       lucideActivity,
       lucideArrowRight,
+      lucideArrowUp,
       lucideCalendar,
       lucideChevronDown,
       lucideChevronUp,
       lucideInfo,
+      lucideMapPin,
       lucideRotateCw,
       lucideShieldCheck,
-      lucideSparkles,
       lucideTrendingUp,
       lucideTriangleAlert,
       lucideWrench,
     }),
   ],
-  templateUrl: './gap-filling-pre-metrics-panel.html',
-  styleUrl: './gap-filling-pre-metrics-panel.scss',
+  templateUrl: './gap-filling-pre-metrics-card.html',
+  styleUrl: './gap-filling-pre-metrics-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GapFillingPreMetricsPanel {
+export class GapFillingPreMetricsCard {
+  readonly activeStation = input<NeighborStation | null>(null);
+  readonly selectedStation = input<NeighborStation | null>(null);
+  readonly status = input<ConfirmationStatus>('idle');
+  readonly job = input<ActiveJobItem | null>(null);
+  readonly progress = input<NeighborProgressInfo | null>(null);
   readonly metrics = input<GapFillingPreMetrics | null>(null);
   readonly warnings = input<(string | GapFillingWarning)[]>([]);
-  readonly neighborStation = input<NeighborStation | null>(null);
-  readonly totalYears = input<number | null>(null);
   readonly loading = input<boolean>(false);
   readonly error = input<string | null>(null);
   readonly disabled = input<boolean>(false);
   readonly isFilling = input<boolean>(false);
   readonly isFilled = input<boolean>(false);
 
+  readonly changeStation = output<void>();
   readonly retry = output<void>();
   readonly fillGaps = output<void>();
   readonly skipStep = output<void>();
@@ -96,6 +105,13 @@ export class GapFillingPreMetricsPanel {
   readonly showAllWarnings = signal<boolean>(false);
   readonly showTechnicalDetails = signal<boolean>(false);
   readonly metricTooltips = METRIC_TOOLTIPS;
+
+  readonly targetStation = computed<NeighborStation | null>(() => {
+    if (this.status() === 'loading') {
+      return this.selectedStation() ?? this.activeStation();
+    }
+    return this.activeStation();
+  });
 
   readonly processedWarnings = computed<ProcessedWarning[]>(() => {
     return mapGapFillingWarnings(this.warnings(), {
@@ -154,7 +170,7 @@ export class GapFillingPreMetricsPanel {
     if (this.hasNoFillableGaps()) {
       return 'Nenhuma falha preenchível';
     }
-    const station = this.neighborStation();
+    const station = this.targetStation();
     if (!station?.name) {
       return 'Preencher falhas com a estação selecionada';
     }
@@ -170,17 +186,9 @@ export class GapFillingPreMetricsPanel {
     this.showTechnicalDetails.update((v) => !v);
   }
 
-  onRetry(): void {
-    this.retry.emit();
-  }
-
-  onFillGaps(): void {
-    if (this.isFillButtonDisabled()) return;
-    this.fillGaps.emit();
-  }
-
-  onSkipStep(): void {
-    this.skipStep.emit();
+  formatDistance(distanceKm?: number | null): string {
+    if (distanceKm == null) return '-';
+    return `${distanceKm.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} km`;
   }
 
   formatDecimal(val: number | null | undefined, decimals = 2): string {

@@ -61,8 +61,7 @@ import { NeighborAnalysisCard } from './pages/consistency-check/components/neigh
 import { ConsistencyAnalysis } from './pages/consistency-check/components/consistency-analysis/consistency-analysis';
 import { GapFilling } from './pages/gap-filling/gap-filling';
 import { PathSelector } from './pages/gap-filling/components/path-selector/path-selector';
-import { GapFillingMetricsCard } from './pages/gap-filling/components/gap-filling-metrics-card/gap-filling-metrics-card';
-import { GapFillingPreMetricsPanel } from './pages/gap-filling/components/gap-filling-pre-metrics-panel/gap-filling-pre-metrics-panel';
+import { GapFillingPreMetricsCard } from './pages/gap-filling/components/gap-filling-pre-metrics-card/gap-filling-pre-metrics-card';
 import { GapFillingPostMetricsCard } from './pages/gap-filling/components/gap-filling-post-metrics-card/gap-filling-post-metrics-card';
 
 registerLocaleData(localePt);
@@ -96,8 +95,7 @@ registerLocaleData(localePt);
     NeighborAnalysisCard,
     GapFilling,
     PathSelector,
-    GapFillingMetricsCard,
-    GapFillingPreMetricsPanel,
+    GapFillingPreMetricsCard,
     GapFillingPostMetricsCard,
     TimeSeriesDetailChart,
   ],
@@ -108,8 +106,7 @@ registerLocaleData(localePt);
     SharedModule,
     TimeSeriesDetailChart,
     PathSelector,
-    GapFillingMetricsCard,
-    GapFillingPreMetricsPanel,
+    GapFillingPreMetricsCard,
     GapFillingPostMetricsCard,
     NgIconsModule.withIcons({
       lucideDatabase,

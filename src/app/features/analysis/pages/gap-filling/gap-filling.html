@@ -24,15 +24,23 @@
 
   <!-- Card Independente: Métricas de Pré-Preenchimento -->
   @if (shouldShowMetricsCard) {
-  <app-gap-filling-metrics-card id="gap-filling-metrics-card" [projectId]="state.project()?.id ?? null"
-    [activeStation]="state.activeNeighborStation()" [selectedStation]="state.selectedNeighbor()"
-    [status]="state.confirmationStatus()" [job]="state.neighborJob()" [progress]="state.neighborProgress()"
-    [totalYears]="state.stats()?.total_years ?? null"
+  <app-gap-filling-pre-metrics-card id="gap-filling-pre-metrics-card"
+    [activeStation]="state.activeNeighborStation()"
+    [selectedStation]="state.selectedNeighbor()"
+    [status]="state.confirmationStatus()"
+    [job]="state.neighborJob()"
+    [progress]="state.neighborProgress()"
+    [metrics]="state.preMetrics()"
+    [warnings]="state.preMetricsWarnings()"
+    [loading]="state.isLoadingPreMetrics()"
+    [error]="state.preMetricsError()"
     [disabled]="state.isSelectionLocked() || state.isFilling()"
-    [isFilling]="state.isFilling()" [fillingJob]="state.fillingJob()"
+    [isFilling]="state.isFilling()"
     [isFilled]="isFilled()"
     (changeStation)="onScrollToNeighborCard()"
-    (fillGapsRequested)="onFillGaps()" (skipStepRequested)="onSkipStep()" />
+    (retry)="state.loadPreMetrics(true)"
+    (fillGaps)="onFillGaps()"
+    (skipStep)="onSkipStep()" />
   }
 
   <!-- Card Independente: Métricas de Pós-Preenchimento -->

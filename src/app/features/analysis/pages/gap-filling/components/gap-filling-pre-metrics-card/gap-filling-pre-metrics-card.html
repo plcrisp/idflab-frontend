@@ -1,0 +1,268 @@
+<div
+  id="gap-filling-pre-metrics-card"
+  class="w-full min-w-0 flex flex-col rounded-xl shadow-sm border border-border bg-popover text-foreground overflow-hidden"
+>
+  <!-- Cabeçalho do Card -->
+  @if (targetStation(); as station) {
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-border px-4 py-3">
+      <div class="flex flex-wrap items-center gap-2">
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-foreground">
+          Métricas de Pré-Preenchimento
+        </h3>
+        <span class="text-sm font-normal text-muted-foreground">
+          · {{ station.name | titlecase }}
+        </span>
+
+        <!-- Badge Colorido com Source -->
+        <span
+          hlmBadge
+          [ngClass]="station.source.toLowerCase()"
+          class="flex items-center gap-1.5 border-none font-medium text-xs px-2 py-0.5 rounded-md shrink-0"
+        >
+          <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+          {{ station.source }}
+        </span>
+
+        <!-- Chip de Distância com Ícone -->
+        <span class="inline-flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary/80 px-2.5 py-0.5 rounded-md border border-border shrink-0">
+          <ng-icon name="lucideMapPin" class="text-xs text-primary shrink-0" />
+          <span>{{ formatDistance(station.distance_km) }}</span>
+        </span>
+      </div>
+
+      <!-- Ação à Direita: Botão Trocar de Estação -->
+      <button
+        hlmBtn
+        variant="outline"
+        size="sm"
+        [disabled]="disabled()"
+        (click)="changeStation.emit()"
+        class="cursor-pointer font-medium inline-flex items-center gap-1.5 shadow-xs transition-all shrink-0"
+      >
+        <span>Trocar de estação</span>
+        <ng-icon name="lucideArrowUp" class="text-xs" />
+      </button>
+    </div>
+  }
+
+  <!-- Corpo do Card -->
+  <div class="p-4 sm:p-5 flex flex-col gap-4">
+    @if (status() === 'loading') {
+      <div class="analysis-loading-wrapper w-full flex flex-col">
+        <app-job-progress-card
+          variant="full"
+          [job]="job()"
+          [customTitle]="targetStation()?.name ? (targetStation()!.name | titlecase) : 'Estação Vizinha'"
+          [customSource]="targetStation()?.source ?? null"
+          [customDescription]="'Busca e processamento dos dados da estação em andamento.'"
+          [customMessage]="!job() ? (progress()?.message ?? null) : null"
+          [customProgress]="!job() ? (progress()?.percentage ?? null) : null"
+          class="block [&>div]:border-none [&>div]:shadow-none [&>div]:bg-transparent"
+        />
+      </div>
+    } @else if (loading()) {
+      <!-- Estado de Carregamento das Métricas (Skeleton) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 items-stretch">
+        <app-stat-card [loading]="true" />
+        <app-stat-card [loading]="true" />
+        <app-stat-card [loading]="true" />
+        <app-stat-card [loading]="true" />
+      </div>
+
+      @if (!isFilled()) {
+        <div class="flex items-center justify-end pt-1">
+          <div hlmSkeleton class="h-9 w-64 rounded-md"></div>
+        </div>
+      }
+    } @else if (error(); as err) {
+      <!-- Estado de Erro -->
+      <div role="alert"
+        class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl border border-destructive/20 bg-destructive/10 text-destructive">
+        <div class="flex items-center gap-2.5 text-sm">
+          <ng-icon name="lucideTriangleAlert" class="text-base shrink-0" />
+          <span>{{ err }}</span>
+        </div>
+
+        <button hlmBtn variant="outline" size="sm" (click)="retry.emit()"
+          class="cursor-pointer font-medium inline-flex items-center gap-1.5 border-destructive/30 hover:bg-destructive/20 text-destructive text-xs shrink-0">
+          <ng-icon name="lucideRotateCw" class="text-xs" />
+          <span>Tentar novamente</span>
+        </button>
+      </div>
+    } @else if (metrics(); as m) {
+      <!-- Avisos (se houver) -->
+      @if (processedWarnings().length > 0) {
+        <div class="flex flex-col gap-2">
+          @for (warn of visibleWarnings(); track warn.code) {
+            <div
+              class="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg border text-xs transition-colors"
+              [ngClass]="{
+                'border-destructive/30 bg-destructive/10 text-destructive': warn.severity === 'destructive',
+                'border-warning/30 bg-warning/10 text-warning-foreground dark:text-warning': warn.severity === 'warning',
+                'border-border/80 bg-secondary/60 text-foreground': warn.severity === 'info'
+              }">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <ng-icon [name]="warn.icon" class="text-sm shrink-0" />
+                <span class="leading-relaxed">{{ warn.message }}</span>
+              </div>
+
+              @if (warn.isNoGaps) {
+                <button hlmBtn variant="outline" size="sm" (click)="skipStep.emit()"
+                  class="cursor-pointer font-medium inline-flex items-center gap-1.5 text-xs h-7 px-2.5 shrink-0">
+                  <span>Pular etapa</span>
+                  <ng-icon name="lucideArrowRight" class="text-xs" />
+                </button>
+              }
+            </div>
+          }
+
+          @if (hiddenWarningsCount() > 0 || showAllWarnings()) {
+            <div class="flex justify-end pt-0.5">
+              <button type="button" (click)="toggleWarningsExpanded()"
+                class="cursor-pointer inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                <span>{{ showAllWarnings() ? 'Ver menos' : 'Ver mais (' + hiddenWarningsCount() + ')' }}</span>
+                <ng-icon [name]="showAllWarnings() ? 'lucideChevronUp' : 'lucideChevronDown'" class="text-xs" />
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Grade de 4 Cards de Métrica -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 items-stretch">
+        <!-- Card 1: Correlação de Pearson -->
+        <app-stat-card
+          label="Correlação de Pearson"
+          [value]="formatDecimal(m.pearson_r, 2)"
+          icon="lucideTrendingUp"
+          [badge]="reliabilityBadge()"
+          [footer]="{ type: 'text', content: 'Grau de associação linear diária' }"
+        />
+
+        <!-- Card 2: Cobertura preenchível -->
+        <app-stat-card
+          label="Cobertura preenchível"
+          [value]="hasNoOverlap() ? '—' : formatDecimal(m.fillable_coverage_pct, 1)"
+          [unit]="hasNoOverlap() ? undefined : '%'"
+          icon="lucideShieldCheck"
+          [footer]="{
+            type: 'progress',
+            value: hasNoOverlap() ? 0 : m.fillable_coverage_pct,
+            max: 100,
+            label: 'Do total de falhas'
+          }"
+        />
+
+        <!-- Card 3: Falhas preenchíveis -->
+        <app-stat-card
+          label="Dados Preenchíveis"
+          [value]="formatInteger(m.fillable_gaps)"
+          [unit]="'de ' + formatInteger(m.total_gaps)"
+          icon="lucideWrench"
+          [footer]="{ type: 'text', content: 'Permanecerão: ' + formatInteger(m.remaining_gaps) }"
+        />
+
+        <!-- Card 4: Sobreposição -->
+        <app-stat-card
+          label="Sobreposição"
+          [value]="hasNoOverlap() ? '—' : m.overlap_years"
+          [unit]="hasNoOverlap() ? undefined : (m.overlap_years === 1 ? 'ano' : 'anos')"
+          icon="lucideCalendar"
+          [footer]="{ type: 'text', content: 'Pares válidos: ' + formatInteger(m.valid_pairs) }"
+        />
+      </div>
+
+      <!-- Detalhes Técnicos Secundários -->
+      <div class="flex flex-col gap-2 pt-1">
+        <button
+          type="button"
+          (click)="toggleTechnicalDetails()"
+          class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors w-fit"
+        >
+          <ng-icon [name]="showTechnicalDetails() ? 'lucideChevronUp' : 'lucideChevronDown'" class="text-xs" />
+          <span>{{ showTechnicalDetails() ? 'Ocultar detalhes técnicos' : 'Ver detalhes técnicos' }}</span>
+        </button>
+
+        @if (showTechnicalDetails()) {
+          <div class="rounded-xl border border-border bg-card/40 p-3.5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+            <div class="flex flex-col gap-1 p-2.5 rounded-lg bg-secondary/30 border border-border/40">
+              <div class="inline-flex items-center gap-1.5 text-muted-foreground">
+                <span>Pares válidos</span>
+                <span
+                  class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
+                  [hlmTooltip]="metricTooltips.validPairs"
+                >
+                  <ng-icon name="lucideInfo" class="text-[11px]" />
+                </span>
+              </div>
+              <span class="text-sm font-semibold text-foreground">
+                {{ formatInteger(m.valid_pairs) }}
+              </span>
+            </div>
+
+            <div class="flex flex-col gap-1 p-2.5 rounded-lg bg-secondary/30 border border-border/40">
+              <div class="inline-flex items-center gap-1.5 text-muted-foreground">
+                <span>Razão entre acumulados</span>
+                <span
+                  class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
+                  [hlmTooltip]="metricTooltips.accumulatedRatio"
+                >
+                  <ng-icon name="lucideInfo" class="text-[11px]" />
+                </span>
+              </div>
+              <span class="text-sm font-semibold text-foreground">
+                {{ formatDecimal(m.accumulated_ratio, 2) }}
+              </span>
+            </div>
+
+            <div class="flex flex-col gap-1 p-2.5 rounded-lg bg-secondary/30 border border-border/40">
+              <div class="inline-flex items-center gap-1.5 text-muted-foreground">
+                <span>Falhas totais</span>
+                <span
+                  class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
+                  [hlmTooltip]="metricTooltips.totalGaps"
+                >
+                  <ng-icon name="lucideInfo" class="text-[11px]" />
+                </span>
+              </div>
+              <span class="text-sm font-semibold text-foreground">
+                {{ formatInteger(m.total_gaps) }}
+              </span>
+            </div>
+
+            <div class="flex flex-col gap-1 p-2.5 rounded-lg bg-secondary/30 border border-border/40">
+              <div class="inline-flex items-center gap-1.5 text-muted-foreground">
+                <span>Permanecerão</span>
+                <span
+                  class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
+                  [hlmTooltip]="metricTooltips.remainingGaps"
+                >
+                  <ng-icon name="lucideInfo" class="text-[11px]" />
+                </span>
+              </div>
+              <span class="text-sm font-semibold text-foreground">
+                {{ formatInteger(m.remaining_gaps) }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Rodapé com CTA -->
+      @if (!isFilled()) {
+        <div class="flex items-center justify-end pt-1">
+          <button hlmBtn size="default" (click)="fillGaps.emit()" [disabled]="isFillButtonDisabled()"
+            class="cursor-pointer disabled:cursor-not-allowed font-medium inline-flex items-center gap-2 shadow-xs transition-all shrink-0">
+            @if (isFilling()) {
+              <hlm-spinner class="mr-2" />
+              <span>Preenchendo falhas...</span>
+            } @else {
+              <ng-icon name="lucideWrench" class="text-sm" />
+              <span>{{ fillButtonText() }}</span>
+            }
+          </button>
+        </div>
+      }
+    }
+  </div>
+</div>

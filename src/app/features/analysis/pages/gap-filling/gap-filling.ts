@@ -82,7 +82,7 @@ export class GapFilling {
       const currentStatus = this.state.confirmationStatus();
       if (currentStatus === 'loading' && prevStatus !== 'loading') {
         setTimeout(() => {
-          this.scrollToMetricsCard();
+          this.scrollToPreMetricsCard();
         }, 80);
       }
       prevStatus = currentStatus;
@@ -113,8 +113,8 @@ export class GapFilling {
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  scrollToMetricsCard(): void {
-    const el = document.getElementById('gap-filling-metrics-card');
+  scrollToPreMetricsCard(): void {
+    const el = document.getElementById('gap-filling-pre-metrics-card');
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 

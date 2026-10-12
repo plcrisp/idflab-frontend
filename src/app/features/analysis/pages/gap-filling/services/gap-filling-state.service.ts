@@ -30,6 +30,7 @@ import { GapFillingPostMetrics } from '../models/gap-filling.model';
 import {
   GapFillingPreMetrics,
   GapFillingPreMetricsResponse,
+  GapFillingWarning,
 } from '../models/gap-filling-pre-metrics.model';
 import { GlobalStats } from '../../../shared/models/analysis.models';
 import { poll } from '../../../../../core/utils/polling.utils';
@@ -62,6 +63,11 @@ export class GapFillingStateService {
   readonly filledStationId = signal<string | null>(null);
   readonly fillError = signal<string | null>(null);
 
+  readonly preMetrics = signal<GapFillingPreMetrics | null>(null);
+  readonly preMetricsWarnings = signal<GapFillingWarning[]>([]);
+  readonly isLoadingPreMetrics = signal<boolean>(false);
+  readonly preMetricsError = signal<string | null>(null);
+
   // Delegação direta dos estados do NeighborStationsManager
   readonly neighbors = this.neighborManager.neighbors;
   readonly selectedNeighbor = this.neighborManager.selectedNeighbor;
@@ -79,6 +85,8 @@ export class GapFillingStateService {
   private summarySub: Subscription | null = null;
   private stepSub: Subscription | null = null;
   private fillSub: Subscription | null = null;
+  private preMetricsSub: Subscription | null = null;
+  private lastFetchedPreMetricsKey: string | null = null;
 
   private readonly summarySkeleton = new SkeletonLoadingCoordinator({
     delayMs: 350,
@@ -103,6 +111,7 @@ export class GapFillingStateService {
       this.summarySub?.unsubscribe();
       this.stepSub?.unsubscribe();
       this.fillSub?.unsubscribe();
+      this.preMetricsSub?.unsubscribe();
     });
 
     this.neighborManager.setOnConfirmed((neighbor, jobId) => {
@@ -143,15 +152,46 @@ export class GapFillingStateService {
         this.loadSavedStep(projectId, stationId);
       });
     });
+
+    // Reage à confirmação/troca da estação vizinha para carregar pré-métricas
+    effect(() => {
+      const status = this.confirmationStatus();
+      const p = this.project();
+      const activeSt = this.activeNeighborStation();
+
+      if (status !== 'ready' || !p || !activeSt) {
+        if (status === 'loading' || status === 'idle') {
+          untracked(() => {
+            this.preMetricsSub?.unsubscribe();
+            this.preMetrics.set(null);
+            this.preMetricsWarnings.set([]);
+            this.isLoadingPreMetrics.set(false);
+            this.preMetricsError.set(null);
+            this.lastFetchedPreMetricsKey = null;
+          });
+        }
+        return;
+      }
+
+      const key = `${p.id}_${activeSt.id}`;
+      if (this.lastFetchedPreMetricsKey === key) return;
+
+      untracked(() => {
+        this.lastFetchedPreMetricsKey = key;
+        this.loadPreMetrics(false);
+      });
+    });
   }
 
   private reset(): void {
     this.summarySub?.unsubscribe();
     this.stepSub?.unsubscribe();
     this.fillSub?.unsubscribe();
+    this.preMetricsSub?.unsubscribe();
     this.lastLoadedProjectId = null;
     this.lastLoadedStationId = null;
     this.lastLoadedStepProjectId = null;
+    this.lastFetchedPreMetricsKey = null;
     this.stats.set(null);
     this.excludedYears.set([]);
     this.isFilling.set(false);
@@ -159,6 +199,10 @@ export class GapFillingStateService {
     this.postMetrics.set(null);
     this.filledStationId.set(null);
     this.fillError.set(null);
+    this.preMetrics.set(null);
+    this.preMetricsWarnings.set([]);
+    this.isLoadingPreMetrics.set(false);
+    this.preMetricsError.set(null);
     this.neighborManager.reset();
   }
 
@@ -235,6 +279,8 @@ export class GapFillingStateService {
 
           const preMetrics = this.extractPreMetrics(step?.result);
           if (preMetrics && neighborId) {
+            this.preMetrics.set(preMetrics.metrics);
+            this.preMetricsWarnings.set(preMetrics.warnings ?? []);
             this.gapFillingService.setCachedPreMetrics(projectId, neighborId, preMetrics);
           }
 
@@ -275,6 +321,31 @@ export class GapFillingStateService {
         },
         error: () => {
           this.neighborManager.loadNeighbors(stationId, null, null, projectId);
+        },
+      });
+  }
+
+  loadPreMetrics(forceRefresh = false): void {
+    const p = this.project();
+    const activeSt = this.activeNeighborStation();
+    if (!p || !activeSt) return;
+
+    this.isLoadingPreMetrics.set(true);
+    this.preMetricsError.set(null);
+    this.preMetricsSub?.unsubscribe();
+
+    this.preMetricsSub = this.gapFillingService
+      .getPreMetrics(p.id, activeSt.id, forceRefresh)
+      .subscribe({
+        next: (response) => {
+          this.preMetrics.set(response.metrics);
+          this.preMetricsWarnings.set(response.warnings ?? []);
+          this.isLoadingPreMetrics.set(false);
+        },
+        error: (err) => {
+          console.error('[GapFillingStateService] Erro ao carregar métricas pré-preenchimento:', err);
+          this.preMetricsError.set('Não foi possível carregar as métricas pré-preenchimento.');
+          this.isLoadingPreMetrics.set(false);
         },
       });
   }
@@ -415,6 +486,8 @@ export class GapFillingStateService {
 
         const preMetrics = this.extractPreMetrics(step?.result);
         if (preMetrics && stepNeighborId) {
+          this.preMetrics.set(preMetrics.metrics);
+          this.preMetricsWarnings.set(preMetrics.warnings ?? []);
           this.gapFillingService.setCachedPreMetrics(projectId, stepNeighborId, preMetrics);
         }
 
