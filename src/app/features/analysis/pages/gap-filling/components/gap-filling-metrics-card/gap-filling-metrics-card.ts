@@ -21,6 +21,7 @@ import { HlmButtonImports } from '@spartan-ng/helm/button';
 
 import { NeighborStation } from '../../../../../../core/models/api/station.model';
 import { ActiveJobItem } from '../../../../../../core/models/api/notification.model';
+import { Job } from '../../../../../../core/models/api/job.model';
 import { ConfirmationStatus, NeighborProgressInfo } from '../../../../shared/models/analysis.models';
 import { SharedModule } from '../../../../../../shared/shared-module';
 import { GapFillingService } from '../../../../services/gap-filling.service';
@@ -65,6 +66,8 @@ export class GapFillingMetricsCard {
   readonly progress = input<NeighborProgressInfo | null>(null);
   readonly totalYears = input<number | null>(null);
   readonly disabled = input<boolean>(false);
+  readonly isFilling = input<boolean>(false);
+  readonly fillingJob = input<Job | null>(null);
 
   readonly fillGapsRequested = output<void>();
   readonly skipStepRequested = output<void>();

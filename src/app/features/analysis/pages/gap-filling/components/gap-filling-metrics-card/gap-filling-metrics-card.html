@@ -69,6 +69,7 @@
         [loading]="isLoadingMetrics()"
         [error]="metricsError()"
         [disabled]="disabled()"
+        [isFilling]="isFilling()"
         (retry)="retryMetrics()"
         (fillGaps)="fillGapsRequested.emit()"
         (skipStep)="skipStepRequested.emit()"

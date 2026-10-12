@@ -12,6 +12,15 @@ export interface GapFillingStepParams {
   excluded_years?: number[];
 }
 
+export interface GapFillingStepResult {
+  filled_count?: number;
+  remaining_gaps_pct?: number;
+  complete_years_after?: number;
+  model_score_r2?: number;
+  model_rmse?: number;
+  model_mae?: number;
+}
+
 export interface ProjectStepSaveRequest<T = Record<string, any>> {
   step: StepEnum;
   status?: StepStatus;

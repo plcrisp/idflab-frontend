@@ -27,9 +27,11 @@ export class GapFilling {
   readonly filterThreshold = signal<number>(90);
 
   readonly fillStatus = computed<'idle' | 'running' | 'done' | 'error'>(() => {
+    if (this.state.isFilling()) return 'running';
+    if (this.state.postMetrics()) return 'done';
+    if (this.state.fillError()) return 'error';
     const status = this.state.confirmationStatus();
     if (status === 'loading') return 'running';
-    if (status === 'ready' && this.state.activeNeighborStation()) return 'done';
     if (status === 'error') return 'error';
     return 'idle';
   });
@@ -45,7 +47,8 @@ export class GapFilling {
   readonly isAdvanceDisabled = computed<boolean>(() => {
     return (
       this.state.confirmationStatus() === 'loading' ||
-      this.state.isLoadingNeighborData()
+      this.state.isLoadingNeighborData() ||
+      this.state.isFilling()
     );
   });
 
@@ -73,6 +76,14 @@ export class GapFilling {
       }
       prevStatus = currentStatus;
     });
+
+    effect(() => {
+      if (this.state.isFilling() || this.state.postMetrics()) {
+        setTimeout(() => {
+          this.scrollToPostMetricsCard();
+        }, 80);
+      }
+    });
   }
 
   get shouldShowMetricsCard(): boolean {
@@ -96,9 +107,16 @@ export class GapFilling {
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  scrollToPostMetricsCard(): void {
+    const el = document.getElementById('gap-filling-post-metrics-card');
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   onFillGaps(): void {
-    // Ação pronta para a próxima etapa (fora do escopo da atual)
-    console.info('[GapFilling] Disparo de preenchimento de falhas solicitado');
+    this.state.executeGapFilling();
+    setTimeout(() => {
+      this.scrollToPostMetricsCard();
+    }, 60);
   }
 
   onSkipStep(): void {

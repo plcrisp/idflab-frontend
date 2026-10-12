@@ -14,6 +14,10 @@ export class JobsService {
     return this.http.get<Job[]>(`${this.baseUrl}/project/${projectId}`);
   }
 
+  getJob(jobId: string): Observable<Job> {
+    return this.http.get<Job>(`${this.baseUrl}/${jobId}`);
+  }
+
   retryCemadenCheck(jobId: string): Observable<Job> {
     return this.http.post<Job>(`${this.baseUrl}/${jobId}/retry-cemaden-check`, {});
   }

@@ -321,8 +321,13 @@
     <div class="flex items-center justify-end pt-1">
       <button hlmBtn size="default" (click)="onFillGaps()" [disabled]="isFillButtonDisabled()"
         class="cursor-pointer font-medium inline-flex items-center gap-2 shadow-xs transition-all shrink-0">
-        <ng-icon name="lucideWrench" class="text-sm" />
-        <span>{{ fillButtonText() }}</span>
+        @if (isFilling()) {
+          <hlm-spinner class="mr-2" />
+          <span>Preenchendo falhas...</span>
+        } @else {
+          <ng-icon name="lucideWrench" class="text-sm" />
+          <span>{{ fillButtonText() }}</span>
+        }
       </button>
     </div>
   </div>

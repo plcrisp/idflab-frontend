@@ -25,6 +25,7 @@ import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmProgressImports } from '@spartan-ng/helm/progress';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
+import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
 import { NeighborStation } from '../../../../../../core/models/api/station.model';
 import {
@@ -48,6 +49,7 @@ import { mapGapFillingWarnings } from '../../utils/gap-filling-warnings.utils';
     ...HlmProgressImports,
     ...HlmSkeletonImports,
     ...HlmTooltipImports,
+    ...HlmSpinnerImports,
   ],
   providers: [
     provideIcons({
@@ -75,6 +77,7 @@ export class GapFillingPreMetricsPanel {
   readonly loading = input<boolean>(false);
   readonly error = input<string | null>(null);
   readonly disabled = input<boolean>(false);
+  readonly isFilling = input<boolean>(false);
 
   readonly retry = output<void>();
   readonly fillGaps = output<void>();
@@ -131,6 +134,7 @@ export class GapFillingPreMetricsPanel {
   readonly isFillButtonDisabled = computed<boolean>(() => {
     return (
       this.loading() ||
+      this.isFilling() ||
       !!this.error() ||
       !this.metrics() ||
       this.hasNoOverlap() ||

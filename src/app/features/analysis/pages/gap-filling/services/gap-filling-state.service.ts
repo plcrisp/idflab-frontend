@@ -8,20 +8,28 @@ import {
   Signal,
   untracked,
 } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Subscription, timer, of } from 'rxjs';
+import { switchMap, map, catchError, takeWhile } from 'rxjs/operators';
 
 import { ProjectStateService } from '../../../services/project-state.service';
 import { InitialVisualizationService } from '../../../services/initial-visualization.service';
 import { ProjectStepsService } from '../../../../../core/services/api/project-steps.service';
+import { JobsService } from '../../../../../core/services/api/jobs.service';
+import { NotificationsService } from '../../../../../core/services/api/notifications.service';
+import { GapFillingService } from '../../../services/gap-filling.service';
 import { NeighborStationsManagerService } from '../../../shared/services/neighbor-stations-manager.service';
 import { Project } from '../../../../../core/models/api/project.model';
 import { NeighborStation } from '../../../../../core/models/api/station.model';
+import { Job } from '../../../../../core/models/api/job.model';
 import {
   ConsistencyStepParams,
   GapFillingStepParams,
   ProjectStepSaveRequest,
 } from '../../../../../core/models/api/project-step.model';
+import { GapFillingPostMetrics } from '../models/gap-filling.model';
 import { GlobalStats } from '../../../shared/models/analysis.models';
+import { poll } from '../../../../../core/utils/polling.utils';
+import { toast } from '@spartan-ng/brain/sonner';
 import {
   SkeletonLoadingCoordinator,
   trackWithSkeleton,
@@ -32,6 +40,9 @@ export class GapFillingStateService {
   private projectState = inject(ProjectStateService);
   private initialVisualizationService = inject(InitialVisualizationService);
   private projectStepsService = inject(ProjectStepsService);
+  private gapFillingService = inject(GapFillingService);
+  private jobsService = inject(JobsService);
+  private notificationsService = inject(NotificationsService);
   readonly neighborManager = inject(NeighborStationsManagerService);
   private destroyRef = inject(DestroyRef);
 
@@ -41,6 +52,10 @@ export class GapFillingStateService {
 
   readonly stats = signal<GlobalStats | null>(null);
   readonly excludedYears = signal<number[]>([]);
+  readonly isFilling = signal<boolean>(false);
+  readonly fillingJob = signal<Job | null>(null);
+  readonly postMetrics = signal<GapFillingPostMetrics | null>(null);
+  readonly fillError = signal<string | null>(null);
 
   // Delegação direta dos estados do NeighborStationsManager
   readonly neighbors = this.neighborManager.neighbors;
@@ -58,6 +73,7 @@ export class GapFillingStateService {
   private lastLoadedStepProjectId: string | null = null;
   private summarySub: Subscription | null = null;
   private stepSub: Subscription | null = null;
+  private fillSub: Subscription | null = null;
 
   private readonly summarySkeleton = new SkeletonLoadingCoordinator({
     delayMs: 350,
@@ -81,6 +97,7 @@ export class GapFillingStateService {
     this.destroyRef.onDestroy(() => {
       this.summarySub?.unsubscribe();
       this.stepSub?.unsubscribe();
+      this.fillSub?.unsubscribe();
     });
 
     this.neighborManager.setOnConfirmed((neighbor, jobId) => {
@@ -115,11 +132,16 @@ export class GapFillingStateService {
   private reset(): void {
     this.summarySub?.unsubscribe();
     this.stepSub?.unsubscribe();
+    this.fillSub?.unsubscribe();
     this.lastLoadedProjectId = null;
     this.lastLoadedStationId = null;
     this.lastLoadedStepProjectId = null;
     this.stats.set(null);
     this.excludedYears.set([]);
+    this.isFilling.set(false);
+    this.fillingJob.set(null);
+    this.postMetrics.set(null);
+    this.fillError.set(null);
     this.neighborManager.reset();
   }
 
@@ -140,6 +162,20 @@ export class GapFillingStateService {
       });
   }
 
+  private extractPostMetrics(result: any): GapFillingPostMetrics | null {
+    if (!result) return null;
+    const metrics = result.fill?.post_metrics ?? result.post_metrics ?? result;
+    if (
+      metrics &&
+      (metrics.filled_count != null ||
+        metrics.model_score_r2 != null ||
+        metrics.remaining_gaps_pct != null)
+    ) {
+      return metrics as GapFillingPostMetrics;
+    }
+    return null;
+  }
+
   private loadSavedStep(projectId: string, stationId?: string | null): void {
     if (this.lastLoadedStepProjectId === projectId) return;
     this.lastLoadedStepProjectId = projectId;
@@ -147,13 +183,26 @@ export class GapFillingStateService {
 
     // 1. Tenta carregar o passo GAP_FILLING
     this.stepSub = this.projectStepsService
-      .getProjectStep<GapFillingStepParams>(projectId, 'GAP_FILLING')
+      .getProjectStep<any>(projectId, 'GAP_FILLING')
       .subscribe({
         next: (step) => {
-          if (step?.params?.excluded_years) {
-            this.excludedYears.set(step.params.excluded_years);
+          const excluded =
+            step?.params?.fill?.excluded_years ??
+            step?.params?.filter?.excluded_years ??
+            step?.params?.excluded_years;
+          if (excluded) {
+            this.excludedYears.set(excluded);
           }
-          const neighborId = step?.params?.neighbor_station_id;
+
+          const postMetrics = this.extractPostMetrics(step?.result);
+          if (postMetrics) {
+            this.postMetrics.set(postMetrics);
+          }
+
+          const neighborId =
+            step?.params?.fill?.neighbor_station_id ??
+            step?.params?.neighbor_station_id;
+
           if (stationId) {
             if (neighborId) {
               this.neighborManager.loadNeighbors(stationId, neighborId, step?.job_id, projectId);
@@ -217,5 +266,124 @@ export class GapFillingStateService {
         console.error('Erro ao salvar etapa de preenchimento de falhas:', err);
       },
     });
+  }
+
+  executeGapFilling(): void {
+    const project = this.project();
+    const neighbor = this.activeNeighborStation() ?? this.selectedNeighbor();
+    if (!project || !neighbor || this.isFilling()) return;
+
+    this.isFilling.set(true);
+    this.fillError.set(null);
+    this.fillingJob.set(null);
+    this.fillSub?.unsubscribe();
+
+    this.fillSub = this.gapFillingService.fillGaps(project.id, neighbor.id).subscribe({
+      next: (res) => {
+        this.startJobPolling(project.id, res.job_id);
+      },
+      error: (err) => {
+        this.isFilling.set(false);
+        const msg = err?.error?.message ?? err?.error?.detail ?? 'Erro ao iniciar o preenchimento de falhas';
+        this.fillError.set(msg);
+        toast.error(msg);
+      },
+    });
+  }
+
+  private startJobPolling(projectId: string, jobId: string): void {
+    this.fillSub?.unsubscribe();
+
+    this.fillSub = timer(0, 2000)
+      .pipe(
+        switchMap(() =>
+          this.jobsService.getJob(jobId).pipe(
+            catchError((err) => {
+              console.warn('[GapFilling] Consulta de job falhou, checando step diretamente:', err);
+              return of(null);
+            }),
+          ),
+        ),
+        switchMap((job) => {
+          if (job) {
+            this.fillingJob.set(job);
+            const status = (job.status || '').toUpperCase();
+            if (status === 'SUCCESS' || status === 'COMPLETED' || (job.progress ?? 0) >= 100) {
+              return of({ type: 'SUCCESS', job });
+            }
+            if (status === 'FAILED' || status === 'FAILURE' || status === 'ERROR') {
+              return of({ type: 'FAILED', job });
+            }
+          }
+
+          // Checa também se o ProjectStep já foi concluído pelo Celery no backend
+          return this.projectStepsService.getProjectStep<any>(projectId, 'GAP_FILLING').pipe(
+            map((step) => {
+              const postMetrics = this.extractPostMetrics(step?.result);
+              if (step?.status === 'COMPLETED' && postMetrics) {
+                return { type: 'SUCCESS', step, postMetrics };
+              }
+              if (step?.status === 'FAILED') {
+                return { type: 'FAILED', step };
+              }
+              return { type: 'RUNNING' };
+            }),
+            catchError(() => of({ type: 'RUNNING' })),
+          );
+        }),
+        takeWhile((res) => res.type === 'RUNNING', true),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.type === 'SUCCESS') {
+            this.handleJobSuccess(projectId, (res as any).postMetrics);
+          } else if (res.type === 'FAILED') {
+            this.handleJobFailure((res as any).job ?? (res as any).step);
+          }
+        },
+        error: (err) => {
+          this.isFilling.set(false);
+          const msg = err?.error?.message ?? 'Erro ao acompanhar processamento do preenchimento';
+          this.fillError.set(msg);
+          toast.error(msg);
+        },
+      });
+  }
+
+  private handleJobSuccess(projectId: string, directMetrics?: GapFillingPostMetrics): void {
+    if (directMetrics) {
+      this.isFilling.set(false);
+      this.postMetrics.set(directMetrics);
+      this.notificationsService.refetch();
+      toast.success('Preenchimento de falhas concluído com sucesso!');
+      return;
+    }
+
+    this.projectStepsService.getProjectStep<any>(projectId, 'GAP_FILLING').subscribe({
+      next: (step) => {
+        this.isFilling.set(false);
+        const postMetrics = this.extractPostMetrics(step?.result);
+        if (postMetrics) {
+          this.postMetrics.set(postMetrics);
+        }
+        this.notificationsService.refetch();
+        toast.success('Preenchimento de falhas concluído com sucesso!');
+      },
+      error: () => {
+        this.isFilling.set(false);
+        this.notificationsService.refetch();
+        toast.success('Preenchimento de falhas concluído com sucesso!');
+      },
+    });
+  }
+
+  private handleJobFailure(job: Job): void {
+    this.isFilling.set(false);
+    const msg =
+      job.details?.message ??
+      (job.details as any)?.error_log ??
+      'Falha no processamento do preenchimento de falhas';
+    this.fillError.set(msg);
+    toast.error(msg);
   }
 }

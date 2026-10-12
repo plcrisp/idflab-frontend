@@ -63,6 +63,7 @@ import { GapFilling } from './pages/gap-filling/gap-filling';
 import { PathSelector } from './pages/gap-filling/components/path-selector/path-selector';
 import { GapFillingMetricsCard } from './pages/gap-filling/components/gap-filling-metrics-card/gap-filling-metrics-card';
 import { GapFillingPreMetricsPanel } from './pages/gap-filling/components/gap-filling-pre-metrics-panel/gap-filling-pre-metrics-panel';
+import { GapFillingPostMetricsCard } from './pages/gap-filling/components/gap-filling-post-metrics-card/gap-filling-post-metrics-card';
 
 registerLocaleData(localePt);
 
@@ -98,6 +99,7 @@ registerLocaleData(localePt);
     PathSelector,
     GapFillingMetricsCard,
     GapFillingPreMetricsPanel,
+    GapFillingPostMetricsCard,
   ],
   imports: [
     CommonModule,
@@ -107,6 +109,7 @@ registerLocaleData(localePt);
     PathSelector,
     GapFillingMetricsCard,
     GapFillingPreMetricsPanel,
+    GapFillingPostMetricsCard,
     NgIconsModule.withIcons({
       lucideDatabase,
       lucideTriangleAlert,

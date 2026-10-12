@@ -28,8 +28,22 @@
     [activeStation]="state.activeNeighborStation()" [selectedStation]="state.selectedNeighbor()"
     [status]="state.confirmationStatus()" [job]="state.neighborJob()" [progress]="state.neighborProgress()"
     [totalYears]="state.stats()?.total_years ?? null"
-    [disabled]="state.isSelectionLocked()" (changeStation)="onScrollToNeighborCard()"
+    [disabled]="state.isSelectionLocked() || state.isFilling()"
+    [isFilling]="state.isFilling()" [fillingJob]="state.fillingJob()"
+    (changeStation)="onScrollToNeighborCard()"
     (fillGapsRequested)="onFillGaps()" (skipStepRequested)="onSkipStep()" />
+  }
+
+  <!-- Card Independente: Métricas de Pós-Preenchimento -->
+  @if (state.isFilling() || state.postMetrics()) {
+  <app-gap-filling-post-metrics-card id="gap-filling-post-metrics-card"
+    [isFilling]="state.isFilling()"
+    [job]="state.fillingJob()"
+    [metrics]="state.postMetrics()"
+    [station]="state.activeNeighborStation() ?? state.selectedNeighbor()"
+    [totalYears]="state.stats()?.total_years ?? null"
+    [disabled]="state.isSelectionLocked() || state.isFilling()"
+    (recalculate)="onFillGaps()" />
   }
   } @else {
   <!-- Painel de Filtro: Desconsiderar Anos Incompletos -->

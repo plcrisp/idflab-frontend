@@ -82,12 +82,12 @@ export class StatCard {
 
   readonly footerLabelStyle = computed(() => {
     const f = this.footer();
-    if (f?.type !== 'progress' || !f.variant) return { color: 'var(--foreground)' };
+    if (f?.type !== 'progress' || !f.variant) return null;
     const v = f.variant;
     if (v === 'success') return { color: 'var(--success)' };
     if (v === 'warning') return { color: 'var(--warning)' };
     if (v === 'destructive') return { color: 'var(--destructive)' };
-    return { color: 'var(--foreground)' };
+    return null;
   });
 
   readonly footerBadgeStyle = computed(() => {
