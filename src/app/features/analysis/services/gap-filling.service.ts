@@ -46,6 +46,15 @@ export class GapFillingService {
     return this.http.post<GapFillingJobResponse>(`${this.baseUrl}/${projectId}/fill`, payload);
   }
 
+  setCachedPreMetrics(
+    projectId: string,
+    neighborStationId: string,
+    response: GapFillingPreMetricsResponse,
+  ): void {
+    const cacheKey = `${projectId}_${neighborStationId}`;
+    this.metricsCache.set(cacheKey, response);
+  }
+
   clearCache(): void {
     this.metricsCache.clear();
   }

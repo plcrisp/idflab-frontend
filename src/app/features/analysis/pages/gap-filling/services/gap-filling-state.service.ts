@@ -27,6 +27,10 @@ import {
   ProjectStepSaveRequest,
 } from '../../../../../core/models/api/project-step.model';
 import { GapFillingPostMetrics } from '../models/gap-filling.model';
+import {
+  GapFillingPreMetrics,
+  GapFillingPreMetricsResponse,
+} from '../models/gap-filling-pre-metrics.model';
 import { GlobalStats } from '../../../shared/models/analysis.models';
 import { poll } from '../../../../../core/utils/polling.utils';
 import { toast } from '@spartan-ng/brain/sonner';
@@ -55,6 +59,7 @@ export class GapFillingStateService {
   readonly isFilling = signal<boolean>(false);
   readonly fillingJob = signal<Job | null>(null);
   readonly postMetrics = signal<GapFillingPostMetrics | null>(null);
+  readonly filledStationId = signal<string | null>(null);
   readonly fillError = signal<string | null>(null);
 
   // Delegação direta dos estados do NeighborStationsManager
@@ -102,7 +107,18 @@ export class GapFillingStateService {
 
     this.neighborManager.setOnConfirmed((neighbor, jobId) => {
       const p = this.project();
-      if (p) {
+      if (!p) return;
+
+      const filledId = this.filledStationId();
+      const isDifferent =
+        !!filledId && filledId.toLowerCase() !== neighbor.id.toLowerCase();
+
+      if (isDifferent) {
+        this.postMetrics.set(null);
+        this.filledStationId.set(null);
+        this.fillError.set(null);
+        this.saveStep(p.id, neighbor.id, jobId);
+      } else if (!this.postMetrics()) {
         this.saveStep(p.id, neighbor.id, jobId);
       }
     });
@@ -141,6 +157,7 @@ export class GapFillingStateService {
     this.isFilling.set(false);
     this.fillingJob.set(null);
     this.postMetrics.set(null);
+    this.filledStationId.set(null);
     this.fillError.set(null);
     this.neighborManager.reset();
   }
@@ -160,6 +177,24 @@ export class GapFillingStateService {
           this.stats.set(null);
         },
       });
+  }
+
+  private extractPreMetrics(result: any): GapFillingPreMetricsResponse | null {
+    if (!result) return null;
+    const fill = result.fill ?? result;
+    const pre = fill.pre_metrics ?? fill;
+    if (
+      pre &&
+      (pre.valid_pairs != null ||
+        pre.overlap_years != null ||
+        pre.fillable_gaps != null)
+    ) {
+      return {
+        metrics: pre as GapFillingPreMetrics,
+        warnings: fill.warnings ?? pre.warnings ?? [],
+      };
+    }
+    return null;
   }
 
   private extractPostMetrics(result: any): GapFillingPostMetrics | null {
@@ -194,18 +229,26 @@ export class GapFillingStateService {
             this.excludedYears.set(excluded);
           }
 
-          const postMetrics = this.extractPostMetrics(step?.result);
-          if (postMetrics) {
-            this.postMetrics.set(postMetrics);
-          }
-
           const neighborId =
             step?.params?.fill?.neighbor_station_id ??
             step?.params?.neighbor_station_id;
 
+          const preMetrics = this.extractPreMetrics(step?.result);
+          if (preMetrics && neighborId) {
+            this.gapFillingService.setCachedPreMetrics(projectId, neighborId, preMetrics);
+          }
+
+          const postMetrics = this.extractPostMetrics(step?.result);
+          if (postMetrics) {
+            this.postMetrics.set(postMetrics);
+            if (neighborId) {
+              this.filledStationId.set(neighborId);
+            }
+          }
+
           if (stationId) {
             if (neighborId) {
-              this.neighborManager.loadNeighbors(stationId, neighborId, step?.job_id, projectId);
+              this.neighborManager.loadNeighbors(stationId, neighborId, null, projectId);
             } else {
               this.fallbackToConsistencyStep(projectId, stationId);
             }
@@ -351,28 +394,40 @@ export class GapFillingStateService {
   }
 
   private handleJobSuccess(projectId: string, directMetrics?: GapFillingPostMetrics): void {
+    const filledId =
+      (this.activeNeighborStation() ?? this.selectedNeighbor())?.id ?? null;
+
     if (directMetrics) {
       this.isFilling.set(false);
       this.postMetrics.set(directMetrics);
+      this.filledStationId.set(filledId);
       this.notificationsService.refetch();
-      toast.success('Preenchimento de falhas concluído com sucesso!');
       return;
     }
 
     this.projectStepsService.getProjectStep<any>(projectId, 'GAP_FILLING').subscribe({
       next: (step) => {
         this.isFilling.set(false);
+        const stepNeighborId =
+          step?.params?.fill?.neighbor_station_id ??
+          step?.params?.neighbor_station_id ??
+          filledId;
+
+        const preMetrics = this.extractPreMetrics(step?.result);
+        if (preMetrics && stepNeighborId) {
+          this.gapFillingService.setCachedPreMetrics(projectId, stepNeighborId, preMetrics);
+        }
+
         const postMetrics = this.extractPostMetrics(step?.result);
         if (postMetrics) {
           this.postMetrics.set(postMetrics);
+          this.filledStationId.set(stepNeighborId);
         }
         this.notificationsService.refetch();
-        toast.success('Preenchimento de falhas concluído com sucesso!');
       },
       error: () => {
         this.isFilling.set(false);
         this.notificationsService.refetch();
-        toast.success('Preenchimento de falhas concluído com sucesso!');
       },
     });
   }
