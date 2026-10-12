@@ -55,9 +55,20 @@
     [disabled]="state.isSelectionLocked() || state.isFilling()"
     (recalculate)="onFillGaps()" />
   }
-  } @else {
-  <!-- Painel de Filtro: Desconsiderar Anos Incompletos -->
 
+  <!-- Fim do Caminho A: Disponibilidade de Dados por Ano -->
+  @if (isFilled()) {
+  <app-year-data-availability
+    [projectId]="state.project()?.id ?? null"
+    [source]="'filled'"
+    (stateChange)="onYearFilterStateChange($event)" />
+  }
+  } @else {
+  <!-- Caminho B: Desconsiderar Anos Incompletos -->
+  <app-year-data-availability
+    [projectId]="state.project()?.id ?? null"
+    [source]="'original'"
+    (stateChange)="onYearFilterStateChange($event)" />
   }
 
   <!-- Rodapé com Ações -->
@@ -71,7 +82,7 @@
       @if (isAdvancing()) {
       <hlm-spinner class="mr-2" />
       }
-      Prosseguir
+      {{ advanceButtonText() }}
       <ng-icon name="lucideArrowRight" class="ml-2" />
     </button>
   </div>

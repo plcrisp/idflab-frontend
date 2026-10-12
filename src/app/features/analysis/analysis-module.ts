@@ -63,6 +63,7 @@ import { GapFilling } from './pages/gap-filling/gap-filling';
 import { PathSelector } from './pages/gap-filling/components/path-selector/path-selector';
 import { GapFillingPreMetricsCard } from './pages/gap-filling/components/gap-filling-pre-metrics-card/gap-filling-pre-metrics-card';
 import { GapFillingPostMetricsCard } from './pages/gap-filling/components/gap-filling-post-metrics-card/gap-filling-post-metrics-card';
+import { YearDataAvailability } from './pages/gap-filling/components/year-data-availability/year-data-availability';
 
 registerLocaleData(localePt);
 
@@ -97,6 +98,7 @@ registerLocaleData(localePt);
     PathSelector,
     GapFillingPreMetricsCard,
     GapFillingPostMetricsCard,
+    YearDataAvailability,
     TimeSeriesDetailChart,
   ],
   imports: [
@@ -108,6 +110,7 @@ registerLocaleData(localePt);
     PathSelector,
     GapFillingPreMetricsCard,
     GapFillingPostMetricsCard,
+    YearDataAvailability,
     NgIconsModule.withIcons({
       lucideDatabase,
       lucideTriangleAlert,

@@ -5,6 +5,9 @@ import { environment } from '../../../../environments/environment';
 import { GapFillingPreMetricsResponse } from '../pages/gap-filling/models/gap-filling-pre-metrics.model';
 import {
   GapFillingExecuteRequest,
+  GapFillingFilterConfirmResponse,
+  GapFillingFilterParams,
+  GapFillingFilterPreviewResponse,
   GapFillingJobResponse,
   GapFillingVisualizationResponse,
 } from '../pages/gap-filling/models/gap-filling.model';
@@ -59,6 +62,26 @@ export class GapFillingService {
     return this.http.get<GapFillingVisualizationResponse>(
       `${this.baseUrl}/${projectId}/visualization`,
       { params: httpParams },
+    );
+  }
+
+  filterPreview(
+    projectId: string,
+    params: GapFillingFilterParams,
+  ): Observable<GapFillingFilterPreviewResponse> {
+    return this.http.post<GapFillingFilterPreviewResponse>(
+      `${this.baseUrl}/${projectId}/filter/preview`,
+      params,
+    );
+  }
+
+  confirmFilter(
+    projectId: string,
+    params: GapFillingFilterParams,
+  ): Observable<GapFillingFilterConfirmResponse> {
+    return this.http.post<GapFillingFilterConfirmResponse>(
+      `${this.baseUrl}/${projectId}/filter`,
+      params,
     );
   }
 

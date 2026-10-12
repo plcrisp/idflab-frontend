@@ -5,7 +5,10 @@ import { Router } from '@angular/router';
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
 import { ProjectStateService } from '../../services/project-state.service';
 import { GapFillingStateService } from './services/gap-filling-state.service';
+import { GapFillingService } from '../../services/gap-filling.service';
 import { NeighborStationsManagerService } from '../../shared/services/neighbor-stations-manager.service';
+import { YearFilterState } from './components/year-data-availability/year-data-availability';
+import { toast } from '@spartan-ng/brain/sonner';
 
 @Component({
   selector: 'app-gap-filling',
@@ -17,10 +20,12 @@ import { NeighborStationsManagerService } from '../../shared/services/neighbor-s
 export class GapFilling {
   private mainLayoutService = inject(MainLayoutService);
   private projectState = inject(ProjectStateService);
+  private gapFillingService = inject(GapFillingService);
   private router = inject(Router);
 
   readonly state = inject(GapFillingStateService);
   readonly isAdvancing = signal<boolean>(false);
+  readonly yearFilterState = signal<YearFilterState | null>(null);
 
   readonly selectedPath = signal<'fill' | 'filter'>('fill');
   readonly filterStatus = signal<'default' | 'configured'>('default');
@@ -35,6 +40,20 @@ export class GapFilling {
 
   readonly shouldShowPostMetrics = computed<boolean>(() => {
     return this.state.isFilling() || this.isFilled();
+  });
+
+  readonly isYearFilterActive = computed<boolean>(() => {
+    return this.selectedPath() === 'filter' || (this.selectedPath() === 'fill' && this.isFilled());
+  });
+
+  readonly advanceButtonText = computed<string>(() => {
+    if (this.isYearFilterActive()) {
+      const s = this.yearFilterState();
+      if (s) {
+        return `Prosseguir com ${s.keptCount} ${s.keptCount === 1 ? 'ano' : 'anos'}`;
+      }
+    }
+    return 'Prosseguir';
   });
 
   readonly fillStatus = computed<'idle' | 'running' | 'done' | 'error'>(() => {
@@ -56,11 +75,24 @@ export class GapFilling {
   });
 
   readonly isAdvanceDisabled = computed<boolean>(() => {
-    return (
+    if (
       this.state.confirmationStatus() === 'loading' ||
       this.state.isLoadingNeighborData() ||
       this.state.isFilling()
-    );
+    ) {
+      return true;
+    }
+
+    if (this.selectedPath() === 'fill' && !this.isFilled()) {
+      return true;
+    }
+
+    if (this.isYearFilterActive()) {
+      const s = this.yearFilterState();
+      return !s || s.keptCount === 0;
+    }
+
+    return false;
   });
 
   constructor() {
@@ -135,17 +167,45 @@ export class GapFilling {
     this.router.navigate(['/app/analysis', project.id, 'consistency-check']);
   }
 
+  onYearFilterStateChange(state: YearFilterState): void {
+    this.yearFilterState.set(state);
+  }
+
   onAdvance(): void {
     const project = this.state.project();
     if (!project || this.isAdvancing() || this.isAdvanceDisabled()) return;
 
     this.isAdvancing.set(true);
+
+    if (this.isYearFilterActive() && this.yearFilterState()) {
+      const s = this.yearFilterState()!;
+      this.gapFillingService
+        .confirmFilter(project.id, {
+          threshold: s.threshold,
+          manualOverrides: s.manualOverrides,
+          source: this.selectedPath() === 'fill' ? 'filled' : 'original',
+        })
+        .subscribe({
+          next: () => {
+            this.isAdvancing.set(false);
+            toast.success('Filtro de anos aplicado com sucesso!');
+            this.router.navigate(['/app/analysis', project.id, 'resolucao-temporal']);
+          },
+          error: (err: unknown) => {
+            console.error('Erro ao salvar filtro de anos:', err);
+            this.isAdvancing.set(false);
+            toast.error('Não foi possível salvar o filtro de anos. Tente novamente.');
+          },
+        });
+      return;
+    }
+
     this.projectState.updateFurthestStep('TEMPORAL_RESOLUTION').subscribe({
       next: () => {
         this.isAdvancing.set(false);
         this.router.navigate(['/app/analysis', project.id, 'resolucao-temporal']);
       },
-      error: (err) => {
+      error: (err: unknown) => {
         console.error('Erro ao atualizar etapa do projeto:', err);
         this.isAdvancing.set(false);
         this.router.navigate(['/app/analysis', project.id, 'resolucao-temporal']);

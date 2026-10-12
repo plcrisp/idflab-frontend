@@ -53,3 +53,37 @@ export interface GapFillingVisualizationResponse {
   yearly_corrections: GapFillingYearSummary[];
 }
 
+export interface GapFillingFilterParams {
+  threshold: number; // 0 a 100
+  manualOverrides?: Record<string, 'include' | 'exclude'>; // chave = ano (string)
+  source?: 'original' | 'filled';
+}
+
+export interface GapFillingFilterYearItem {
+  year: number;
+  max_value?: number | null;
+  max_value_date?: string | null;
+  failure_percentage: number;
+  completeness: number;
+  suggested_action: 'include' | 'exclude';
+  is_overridden: boolean;
+  final_action: 'include' | 'exclude';
+}
+
+export interface GapFillingFilterPreviewResponse {
+  years: GapFillingFilterYearItem[];
+  kept_count: number;
+  removed_count: number;
+  total_years: number;
+  source: 'original' | 'filled';
+}
+
+export interface GapFillingFilterConfirmResponse {
+  kept_years: number[];
+  removed_years: number[];
+  kept_count: number;
+  removed_count: number;
+  total_years: number;
+}
+
+
