@@ -2,3 +2,37 @@
   display: block;
   width: 100%;
 }
+
+.inmet {
+  background-color: color-mix(in srgb, var(--inmet) 12%, transparent);
+  color: var(--inmet);
+}
+
+.cemaden {
+  background-color: color-mix(in srgb, var(--cemaden) 12%, transparent);
+  color: var(--cemaden);
+}
+
+.ana {
+  background-color: color-mix(in srgb, var(--ana) 12%, transparent);
+  color: var(--ana);
+}
+
+.analysis-loading-wrapper {
+  ::ng-deep app-job-progress-card {
+    > div {
+      padding: 1.25rem 1rem !important;
+      min-height: auto !important;
+    }
+
+    .h-16.w-16 {
+      height: 2.75rem !important;
+      width: 2.75rem !important;
+      margin-bottom: 0.625rem !important;
+
+      ng-icon {
+        font-size: 1.15rem !important;
+      }
+    }
+  }
+}

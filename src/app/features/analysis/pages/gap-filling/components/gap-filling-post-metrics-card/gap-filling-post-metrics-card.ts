@@ -88,12 +88,7 @@ export class GapFillingPostMetricsCard {
   readonly isLoadingVisualization = signal<boolean>(false);
   private visualizationSub: Subscription | null = null;
   private lastLoadedProjectId: string | null = null;
-
-  readonly detailMockBars = [
-    0, 15, 45, 0, 0, 10, 28, 0, 0, 0, 38, 82, 14, 0, 0, 0, 8, 24, 0, 0, 68, 94,
-    32, 0, 0, 0, 20, 48, 0, 0, 12, 30, 58, 0, 0, 0, 42, 86, 22, 0, 0, 0, 16,
-    36, 0, 0, 0, 52, 74, 28, 0, 0, 18, 42, 0, 0, 0, 32, 64, 15, 0,
-  ];
+  readonly skeletonBars = [35, 60, 20, 45, 80, 25, 50, 70, 40, 65, 30, 85, 55, 20, 60, 45, 75, 30, 50, 90, 40, 65, 35, 80];
 
   constructor() {
     this.destroyRef.onDestroy(() => {
@@ -102,7 +97,7 @@ export class GapFillingPostMetricsCard {
 
     effect(() => {
       const pid = this.projectId();
-      const m = this.normalizedMetrics();
+      const m = this.metrics();
       const filling = this.isFilling();
 
       if (!pid || !m || filling) {
@@ -143,19 +138,6 @@ export class GapFillingPostMetricsCard {
       },
     });
   }
-
-  readonly normalizedMetrics = computed(() => {
-    const m = this.metrics();
-    if (!m) return null;
-    return {
-      filled_count: m.filled_count ?? (m as any).filledCount,
-      remaining_gaps_pct: m.remaining_gaps_pct ?? (m as any).remainingGapsPct,
-      complete_years_after: m.complete_years_after ?? (m as any).completeYearsAfter,
-      model_score_r2: m.model_score_r2 ?? (m as any).modelScoreR2,
-      model_rmse: m.model_rmse ?? (m as any).modelRmse,
-      model_mae: m.model_mae ?? (m as any).modelMae,
-    };
-  });
 
   readonly correctionsInWindow = computed(
     () => this.visualization()?.total_corrections_in_window ?? 0,

@@ -1,4 +1,9 @@
-import { GapFillingWarning, WarningSeverity } from '../models/gap-filling-pre-metrics.model';
+import {
+  GapFillingWarning,
+  ProcessedWarning,
+  ReliabilityBadge,
+  WarningSeverity,
+} from '../models/gap-filling-pre-metrics.model';
 
 export const RELIABILITY_THRESHOLDS = {
   GOOD_PEARSON_ABS: 0.7,
@@ -78,3 +83,90 @@ export const METRIC_TOOLTIPS = {
   remainingGaps:
     'Falhas que não possuem dados simultâneos na estação vizinha e permanecerão não preenchidas.',
 } as const;
+
+export function getReliabilityBadge(
+  pearsonR: number | null | undefined,
+  overlapYears: number | null | undefined,
+): ReliabilityBadge | null {
+  if (pearsonR == null || Number.isNaN(pearsonR)) {
+    return null;
+  }
+
+  const absR = Math.abs(pearsonR);
+  const years = overlapYears ?? 0;
+
+  if (
+    absR >= RELIABILITY_THRESHOLDS.GOOD_PEARSON_ABS &&
+    years >= RELIABILITY_THRESHOLDS.GOOD_MIN_OVERLAP_YEARS
+  ) {
+    return {
+      label: 'Boa',
+      variant: 'success',
+    };
+  }
+
+  if (absR >= RELIABILITY_THRESHOLDS.MODERATE_PEARSON_ABS) {
+    return {
+      label: 'Moderada',
+      variant: 'warning',
+    };
+  }
+
+  return {
+    label: 'Fraca',
+    variant: 'destructive',
+  };
+}
+
+const SEVERITY_PRIORITY: Record<WarningSeverity, number> = {
+  destructive: 1,
+  warning: 2,
+  info: 3,
+};
+
+export interface WarningMappingContext {
+  longestGapDays?: number | null;
+}
+
+export function mapGapFillingWarnings(
+  warnings: (string | GapFillingWarning)[] | null | undefined,
+  context?: WarningMappingContext,
+): ProcessedWarning[] {
+  if (!warnings || !Array.isArray(warnings)) {
+    return [];
+  }
+
+  const processed: ProcessedWarning[] = warnings.map((code) => {
+    const config = GAP_FILLING_WARNING_CONFIGS[code as GapFillingWarning];
+
+    if (config) {
+      let message = config.message;
+      if (code === 'LONG_GAP') {
+        message = formatLongGapWarning(context?.longestGapDays);
+      }
+
+      return {
+        code,
+        severity: config.severity,
+        message,
+        icon: config.icon,
+        isNoGaps: code === 'NO_GAPS',
+      };
+    }
+
+    return {
+      code,
+      severity: UNKNOWN_WARNING_FALLBACK.severity,
+      message: `${UNKNOWN_WARNING_FALLBACK.messagePrefix} ${code}`,
+      icon: UNKNOWN_WARNING_FALLBACK.icon,
+      isNoGaps: false,
+    };
+  });
+
+  return processed.sort((a, b) => {
+    const prioA = SEVERITY_PRIORITY[a.severity] ?? 99;
+    const prioB = SEVERITY_PRIORITY[b.severity] ?? 99;
+    return prioA - prioB;
+  });
+}
+

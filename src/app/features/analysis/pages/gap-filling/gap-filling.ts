@@ -125,9 +125,6 @@ export class GapFilling {
 
   onFillGaps(): void {
     this.state.executeGapFilling();
-    setTimeout(() => {
-      this.scrollToPostMetricsCard();
-    }, 60);
   }
 
   onSkipStep(): void {

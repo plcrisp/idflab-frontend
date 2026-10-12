@@ -43,9 +43,9 @@ import {
 import {
   MAX_VISIBLE_WARNINGS,
   METRIC_TOOLTIPS,
+  getReliabilityBadge,
+  mapGapFillingWarnings,
 } from '../../constants/gap-filling-pre-metrics.constants';
-import { getReliabilityBadge } from '../../utils/gap-filling-reliability.utils';
-import { mapGapFillingWarnings } from '../../utils/gap-filling-warnings.utils';
 
 @Component({
   selector: 'app-gap-filling-pre-metrics-card',

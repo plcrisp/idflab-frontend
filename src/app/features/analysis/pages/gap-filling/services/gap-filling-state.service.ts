@@ -8,8 +8,8 @@ import {
   Signal,
   untracked,
 } from '@angular/core';
-import { Subscription, timer, of } from 'rxjs';
-import { switchMap, map, catchError, takeWhile } from 'rxjs/operators';
+import { Subscription, timer } from 'rxjs';
+import { switchMap, tap, takeWhile } from 'rxjs/operators';
 
 import { ProjectStateService } from '../../../services/project-state.service';
 import { InitialVisualizationService } from '../../../services/initial-visualization.service';
@@ -410,49 +410,27 @@ export class GapFillingStateService {
 
     this.fillSub = timer(0, 2000)
       .pipe(
-        switchMap(() =>
-          this.jobsService.getJob(jobId).pipe(
-            catchError((err) => {
-              console.warn('[GapFilling] Consulta de job falhou, checando step diretamente:', err);
-              return of(null);
-            }),
-          ),
-        ),
-        switchMap((job) => {
-          if (job) {
-            this.fillingJob.set(job);
-            const status = (job.status || '').toUpperCase();
-            if (status === 'SUCCESS' || status === 'COMPLETED' || (job.progress ?? 0) >= 100) {
-              return of({ type: 'SUCCESS', job });
-            }
-            if (status === 'FAILED' || status === 'FAILURE' || status === 'ERROR') {
-              return of({ type: 'FAILED', job });
-            }
-          }
-
-          // Checa também se o ProjectStep já foi concluído pelo Celery no backend
-          return this.projectStepsService.getProjectStep<any>(projectId, 'GAP_FILLING').pipe(
-            map((step) => {
-              const postMetrics = this.extractPostMetrics(step?.result);
-              if (step?.status === 'COMPLETED' && postMetrics) {
-                return { type: 'SUCCESS', step, postMetrics };
-              }
-              if (step?.status === 'FAILED') {
-                return { type: 'FAILED', step };
-              }
-              return { type: 'RUNNING' };
-            }),
-            catchError(() => of({ type: 'RUNNING' })),
-          );
-        }),
-        takeWhile((res) => res.type === 'RUNNING', true),
+        switchMap(() => this.jobsService.getJob(jobId)),
+        tap((job) => this.fillingJob.set(job)),
+        takeWhile((job) => {
+          const status = (job.status || '').toUpperCase();
+          const isDone =
+            status === 'SUCCESS' ||
+            status === 'COMPLETED' ||
+            status === 'FAILED' ||
+            status === 'FAILURE' ||
+            status === 'ERROR' ||
+            (job.progress ?? 0) >= 100;
+          return !isDone;
+        }, true),
       )
       .subscribe({
-        next: (res) => {
-          if (res.type === 'SUCCESS') {
-            this.handleJobSuccess(projectId, (res as any).postMetrics);
-          } else if (res.type === 'FAILED') {
-            this.handleJobFailure((res as any).job ?? (res as any).step);
+        next: (job) => {
+          const status = (job.status || '').toUpperCase();
+          if (status === 'SUCCESS' || status === 'COMPLETED' || (job.progress ?? 0) >= 100) {
+            this.handleJobSuccess(projectId);
+          } else if (status === 'FAILED' || status === 'FAILURE' || status === 'ERROR') {
+            this.handleJobFailure(job);
           }
         },
         error: (err) => {
@@ -464,17 +442,9 @@ export class GapFillingStateService {
       });
   }
 
-  private handleJobSuccess(projectId: string, directMetrics?: GapFillingPostMetrics): void {
+  private handleJobSuccess(projectId: string): void {
     const filledId =
       (this.activeNeighborStation() ?? this.selectedNeighbor())?.id ?? null;
-
-    if (directMetrics) {
-      this.isFilling.set(false);
-      this.postMetrics.set(directMetrics);
-      this.filledStationId.set(filledId);
-      this.notificationsService.refetch();
-      return;
-    }
 
     this.projectStepsService.getProjectStep<any>(projectId, 'GAP_FILLING').subscribe({
       next: (step) => {
