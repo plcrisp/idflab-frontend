@@ -37,7 +37,7 @@ export const GAP_FILLING_WARNING_CONFIGS: Record<GapFillingWarning, WarningConfi
   LOW_CORRELATION: {
     code: 'LOW_CORRELATION',
     severity: 'warning',
-    message: 'Correlação baixa pode reduzir a qualidade do preenchimento. A decisão é sua.',
+    message: 'Correlação baixa pode reduzir a qualidade do preenchimento.',
     icon: 'lucideTriangleAlert',
   },
   DIFFERENT_RESOLUTION: {
@@ -99,6 +99,7 @@ export const GAP_FILLING_I18N = {
     seeLess: 'Ver menos',
     fillGapsPrefix: 'Preencher falhas com',
     fillGapsFallback: 'Preencher falhas com a estação selecionada',
+    noFillableGaps: 'Nenhuma falha preenchível',
   },
   messages: {
     empty: 'Nenhuma estação vizinha selecionada. Selecione uma estação acima para visualizar as métricas de pré-preenchimento.',

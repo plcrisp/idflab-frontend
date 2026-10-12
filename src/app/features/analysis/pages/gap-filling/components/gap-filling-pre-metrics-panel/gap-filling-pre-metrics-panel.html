@@ -73,9 +73,11 @@
     </div>
 
     <!-- Skeleton CTA Rodapé -->
+    @if (!isFilled()) {
     <div class="flex items-center justify-end pt-2">
       <div hlmSkeleton class="h-9 w-64 rounded-md"></div>
     </div>
+    }
   </div>
   } @else if (error(); as err) {
   <!-- 3. Estado de Erro -->
@@ -318,9 +320,10 @@
     </div>
 
     <!-- Rodapé com Ação Principal (CTA) -->
+    @if (!isFilled()) {
     <div class="flex items-center justify-end pt-1">
       <button hlmBtn size="default" (click)="onFillGaps()" [disabled]="isFillButtonDisabled()"
-        class="cursor-pointer font-medium inline-flex items-center gap-2 shadow-xs transition-all shrink-0">
+        class="cursor-pointer disabled:cursor-not-allowed font-medium inline-flex items-center gap-2 shadow-xs transition-all shrink-0">
         @if (isFilling()) {
           <hlm-spinner class="mr-2" />
           <span>Preenchendo falhas...</span>
@@ -330,6 +333,7 @@
         }
       </button>
     </div>
+    }
   </div>
   }
 </div>

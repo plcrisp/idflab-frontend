@@ -30,12 +30,13 @@
     [totalYears]="state.stats()?.total_years ?? null"
     [disabled]="state.isSelectionLocked() || state.isFilling()"
     [isFilling]="state.isFilling()" [fillingJob]="state.fillingJob()"
+    [isFilled]="isFilled()"
     (changeStation)="onScrollToNeighborCard()"
     (fillGapsRequested)="onFillGaps()" (skipStepRequested)="onSkipStep()" />
   }
 
   <!-- Card Independente: Métricas de Pós-Preenchimento -->
-  @if (state.isFilling() || state.postMetrics()) {
+  @if (shouldShowPostMetrics()) {
   <app-gap-filling-post-metrics-card id="gap-filling-post-metrics-card"
     [isFilling]="state.isFilling()"
     [job]="state.fillingJob()"

@@ -78,6 +78,7 @@ export class GapFillingPreMetricsPanel {
   readonly error = input<string | null>(null);
   readonly disabled = input<boolean>(false);
   readonly isFilling = input<boolean>(false);
+  readonly isFilled = input<boolean>(false);
 
   readonly retry = output<void>();
   readonly fillGaps = output<void>();
@@ -131,6 +132,11 @@ export class GapFillingPreMetricsPanel {
     return !this.hasNoOverlap() && this.yearsGain() > 0;
   });
 
+  readonly hasNoFillableGaps = computed<boolean>(() => {
+    const m = this.metrics();
+    return m != null && (m.fillable_gaps ?? 0) <= 0;
+  });
+
   readonly isFillButtonDisabled = computed<boolean>(() => {
     return (
       this.loading() ||
@@ -139,11 +145,15 @@ export class GapFillingPreMetricsPanel {
       !this.metrics() ||
       this.hasNoOverlap() ||
       this.hasNoGaps() ||
+      this.hasNoFillableGaps() ||
       this.disabled()
     );
   });
 
   readonly fillButtonText = computed<string>(() => {
+    if (this.hasNoFillableGaps()) {
+      return GAP_FILLING_I18N.actions.noFillableGaps;
+    }
     const station = this.neighborStation();
     if (!station?.name) {
       return GAP_FILLING_I18N.actions.fillGapsFallback;

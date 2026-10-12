@@ -26,9 +26,20 @@ export class GapFilling {
   readonly filterStatus = signal<'default' | 'configured'>('default');
   readonly filterThreshold = signal<number>(90);
 
+  readonly isFilled = computed<boolean>(() => {
+    if (!this.state.postMetrics()) return false;
+    const currentStation = this.state.activeNeighborStation() ?? this.state.selectedNeighbor();
+    const filledId = this.state.filledStationId();
+    return !!currentStation && !!filledId && currentStation.id.toLowerCase() === filledId.toLowerCase();
+  });
+
+  readonly shouldShowPostMetrics = computed<boolean>(() => {
+    return this.state.isFilling() || this.isFilled();
+  });
+
   readonly fillStatus = computed<'idle' | 'running' | 'done' | 'error'>(() => {
     if (this.state.isFilling()) return 'running';
-    if (this.state.postMetrics()) return 'done';
+    if (this.shouldShowPostMetrics()) return 'done';
     if (this.state.fillError()) return 'error';
     const status = this.state.confirmationStatus();
     if (status === 'loading') return 'running';
@@ -78,7 +89,7 @@ export class GapFilling {
     });
 
     effect(() => {
-      if (this.state.isFilling() || this.state.postMetrics()) {
+      if (this.shouldShowPostMetrics()) {
         setTimeout(() => {
           this.scrollToPostMetricsCard();
         }, 80);

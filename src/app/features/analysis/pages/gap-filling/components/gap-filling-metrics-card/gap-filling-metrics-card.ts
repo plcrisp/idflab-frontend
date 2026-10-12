@@ -68,6 +68,7 @@ export class GapFillingMetricsCard {
   readonly disabled = input<boolean>(false);
   readonly isFilling = input<boolean>(false);
   readonly fillingJob = input<Job | null>(null);
+  readonly isFilled = input<boolean>(false);
 
   readonly fillGapsRequested = output<void>();
   readonly skipStepRequested = output<void>();

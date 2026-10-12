@@ -70,6 +70,7 @@
         [error]="metricsError()"
         [disabled]="disabled()"
         [isFilling]="isFilling()"
+        [isFilled]="isFilled()"
         (retry)="retryMetrics()"
         (fillGaps)="fillGapsRequested.emit()"
         (skipStep)="skipStepRequested.emit()"

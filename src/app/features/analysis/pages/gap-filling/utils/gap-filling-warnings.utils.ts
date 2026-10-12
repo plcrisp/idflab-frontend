@@ -19,13 +19,6 @@ export interface WarningMappingContext {
   longestGapDays?: number | null;
 }
 
-/**
- * Mapeia e ordena os avisos retornados pelo backend para exibição no front-end.
- *
- * Ordem de exibição: erro (destructive), aviso (warning), informativo (info).
- * Trata códigos desconhecidos com fallback genérico.
- * Se context.longestGapDays for fornecido, interpola a quantidade de dias no aviso LONG_GAP.
- */
 export function mapGapFillingWarnings(
   warnings: (string | GapFillingWarning)[] | null | undefined,
   context?: WarningMappingContext,
