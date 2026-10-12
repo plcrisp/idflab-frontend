@@ -100,19 +100,28 @@
     </div>
   </div>
   } @else {
-  <div class="flex items-baseline gap-1">
-    @if (value() != null) {
-    <span class="font-bold text-foreground tracking-tight text-xl sm:text-2xl">
-      {{ value() }}
-    </span>
-    } @else {
-    <span class="font-bold text-muted-foreground/50 text-xl sm:text-2xl">
-      -
-    </span>
-    }
-    @if (value() != null && unit()) {
-    <span class="text-muted-foreground font-medium text-xs sm:text-sm">
-      {{ unit() }}
+  <div class="flex items-baseline justify-between gap-2">
+    <div class="flex items-baseline gap-1">
+      @if (value() != null) {
+      <span class="font-bold text-foreground tracking-tight text-xl sm:text-2xl">
+        {{ value() }}
+      </span>
+      } @else {
+      <span class="font-bold text-muted-foreground/50 text-xl sm:text-2xl">
+        -
+      </span>
+      }
+      @if (value() != null && unit()) {
+      <span class="text-muted-foreground font-medium text-xs sm:text-sm">
+        {{ unit() }}
+      </span>
+      }
+    </div>
+
+    @if (badge(); as b) {
+    <span class="font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center shrink-0 border"
+      [ngClass]="badgeClass()">
+      {{ b.label }}
     </span>
     }
   </div>

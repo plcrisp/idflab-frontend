@@ -78,7 +78,7 @@ export const GAP_FILLING_I18N = {
     accumulatedRatio: 'Razão entre acumulados',
     fillableCoverage: 'Cobertura preenchível',
     totalGaps: 'Falhas totais',
-    fillableGaps: 'Preenchíveis',
+    fillableGaps: 'Dados Preenchíveis',
     remainingGaps: 'Permanecerão',
     completeYears: 'Anos completos',
   },
@@ -91,12 +91,18 @@ export const GAP_FILLING_I18N = {
       'Número de anos em que ambas as estações operaram concomitantemente com dados válidos.',
     accumulatedRatio:
       'Razão da precipitação acumulada (Principal ÷ Vizinha) no período comum. Valores próximos a 1,0 indicam volumes anuais equilibrados entre as bacias.',
+    totalGaps:
+      'Total de falhas diárias identificadas na estação principal no período analisado.',
+    remainingGaps:
+      'Falhas que não possuem dados simultâneos na estação vizinha e permanecerão não preenchidas.',
   },
   actions: {
     retry: 'Tentar novamente',
     skipStep: 'Pular etapa',
     seeMore: 'Ver mais',
     seeLess: 'Ver menos',
+    seeTechnicalDetails: 'Ver detalhes técnicos',
+    hideTechnicalDetails: 'Ocultar detalhes técnicos',
     fillGapsPrefix: 'Preencher falhas com',
     fillGapsFallback: 'Preencher falhas com a estação selecionada',
     noFillableGaps: 'Nenhuma falha preenchível',

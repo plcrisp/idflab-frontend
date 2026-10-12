@@ -11,6 +11,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideActivity,
   lucideArrowRight,
+  lucideCalendar,
   lucideChevronDown,
   lucideChevronUp,
   lucideInfo,
@@ -19,6 +20,7 @@ import {
   lucideSparkles,
   lucideTrendingUp,
   lucideTriangleAlert,
+  lucideWrench,
 } from '@ng-icons/lucide';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -27,6 +29,7 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
+import { SharedModule } from '../../../../../../shared/shared-module';
 import { NeighborStation } from '../../../../../../core/models/api/station.model';
 import {
   GapFillingPreMetrics,
@@ -44,6 +47,7 @@ import { mapGapFillingWarnings } from '../../utils/gap-filling-warnings.utils';
   imports: [
     CommonModule,
     NgIcon,
+    SharedModule,
     ...HlmBadgeImports,
     ...HlmButtonImports,
     ...HlmProgressImports,
@@ -55,6 +59,7 @@ import { mapGapFillingWarnings } from '../../utils/gap-filling-warnings.utils';
     provideIcons({
       lucideActivity,
       lucideArrowRight,
+      lucideCalendar,
       lucideChevronDown,
       lucideChevronUp,
       lucideInfo,
@@ -63,6 +68,7 @@ import { mapGapFillingWarnings } from '../../utils/gap-filling-warnings.utils';
       lucideSparkles,
       lucideTrendingUp,
       lucideTriangleAlert,
+      lucideWrench,
     }),
   ],
   templateUrl: './gap-filling-pre-metrics-panel.html',
@@ -85,6 +91,7 @@ export class GapFillingPreMetricsPanel {
   readonly skipStep = output<void>();
 
   readonly showAllWarnings = signal<boolean>(false);
+  readonly showTechnicalDetails = signal<boolean>(false);
   readonly i18n = GAP_FILLING_I18N;
 
   readonly processedWarnings = computed<ProcessedWarning[]>(() => {
@@ -122,16 +129,6 @@ export class GapFillingPreMetricsPanel {
     return getReliabilityBadge(m?.pearson_r, m?.overlap_years);
   });
 
-  readonly yearsGain = computed<number>(() => {
-    const m = this.metrics();
-    if (!m) return 0;
-    return (m.complete_years_predicted ?? 0) - (m.complete_years_before ?? 0);
-  });
-
-  readonly hasYearsGain = computed<boolean>(() => {
-    return !this.hasNoOverlap() && this.yearsGain() > 0;
-  });
-
   readonly hasNoFillableGaps = computed<boolean>(() => {
     const m = this.metrics();
     return m != null && (m.fillable_gaps ?? 0) <= 0;
@@ -164,6 +161,10 @@ export class GapFillingPreMetricsPanel {
 
   toggleWarningsExpanded(): void {
     this.showAllWarnings.update((v) => !v);
+  }
+
+  toggleTechnicalDetails(): void {
+    this.showTechnicalDetails.update((v) => !v);
   }
 
   onRetry(): void {

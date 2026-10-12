@@ -14,67 +14,17 @@
     </p>
   </div>
   } @else if (loading()) {
-  <!-- 2. Estado Loading (Skeleton sem pulo de layout, formato fiel ao painel) -->
+  <!-- 2. Estado Loading (Skeleton alinhado à grade de cards) -->
   <div class="w-full flex flex-col gap-4" aria-busy="true" aria-label="Carregando métricas pré-preenchimento">
-    <!-- Grid de 2 Grupos de Cards Skeleton -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 items-stretch">
-      <!-- Skeleton Grupo 1: Relação entre estações -->
-      <div class="rounded-xl border border-border bg-card/60 p-4 flex flex-col justify-between min-h-60">
-        <div class="space-y-3">
-          <div class="flex items-center gap-2">
-            <div hlmSkeleton class="h-4.5 w-4.5 rounded-sm"></div>
-            <div hlmSkeleton class="h-4 w-36 rounded-md"></div>
-          </div>
-          <div class="pt-2 flex items-baseline justify-between">
-            <div hlmSkeleton class="h-8 w-20 rounded-md"></div>
-            <div hlmSkeleton class="h-5 w-16 rounded-full"></div>
-          </div>
-          <div class="h-px bg-border/40 w-full my-1"></div>
-          <div class="space-y-2 pt-1">
-            <div class="flex justify-between items-center">
-              <div hlmSkeleton class="h-3 w-20 rounded"></div>
-              <div hlmSkeleton class="h-3.5 w-16 rounded"></div>
-            </div>
-            <div class="flex justify-between items-center">
-              <div hlmSkeleton class="h-3 w-24 rounded"></div>
-              <div hlmSkeleton class="h-3.5 w-14 rounded"></div>
-            </div>
-          </div>
-        </div>
-        <div class="pt-2 border-t border-border/40 flex justify-between items-center">
-          <div hlmSkeleton class="h-3 w-32 rounded"></div>
-          <div hlmSkeleton class="h-3.5 w-12 rounded"></div>
-        </div>
-      </div>
-
-      <!-- Skeleton Grupo 2: O que será preenchido -->
-      <div class="rounded-xl border border-border bg-card/60 p-4 flex flex-col justify-between min-h-60">
-        <div class="space-y-3">
-          <div class="flex items-center gap-2">
-            <div hlmSkeleton class="h-4.5 w-4.5 rounded-sm"></div>
-            <div hlmSkeleton class="h-4 w-36 rounded-md"></div>
-          </div>
-          <div class="pt-2 flex items-baseline justify-between">
-            <div hlmSkeleton class="h-8 w-24 rounded-md"></div>
-          </div>
-          <div hlmSkeleton class="h-2 w-full rounded-full"></div>
-          <div class="h-px bg-border/40 w-full my-1"></div>
-          <div class="flex items-center justify-between gap-1 pt-1">
-            <div hlmSkeleton class="h-3.5 w-16 rounded"></div>
-            <div hlmSkeleton class="h-3.5 w-16 rounded"></div>
-            <div hlmSkeleton class="h-3.5 w-16 rounded"></div>
-          </div>
-        </div>
-        <div class="pt-2 border-t border-border/40 flex justify-between items-center">
-          <div hlmSkeleton class="h-3 w-28 rounded"></div>
-          <div hlmSkeleton class="h-3.5 w-24 rounded"></div>
-        </div>
-      </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 items-stretch">
+      <app-stat-card [loading]="true" />
+      <app-stat-card [loading]="true" />
+      <app-stat-card [loading]="true" />
+      <app-stat-card [loading]="true" />
     </div>
 
-    <!-- Skeleton CTA Rodapé -->
     @if (!isFilled()) {
-    <div class="flex items-center justify-end pt-2">
+    <div class="flex items-center justify-end pt-1">
       <div hlmSkeleton class="h-9 w-64 rounded-md"></div>
     </div>
     }
@@ -139,184 +89,136 @@
     </div>
     }
 
-    <!-- Grade dos 2 Grupos de Métricas (Responsivo: 1 col mobile, 2 col md/lg) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 items-stretch">
-      <!-- GRUPO 1: Relação entre estações -->
-      <div
-        class="rounded-xl border border-border bg-card/60 p-4.5 flex flex-col justify-between shadow-xs transition-all">
-        <div>
-          <!-- Cabeçalho do Grupo -->
-          <div
-            class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-            <ng-icon name="lucideTrendingUp" class="text-primary text-sm shrink-0" />
-            <span>{{ i18n.groups.relationship }}</span>
-          </div>
+    <!-- Grade de 4 Cards de Métrica -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 items-stretch">
+      <!-- Card 1: Correlação de Pearson -->
+      <app-stat-card
+        [label]="i18n.labels.pearson"
+        [value]="formatDecimal(m.pearson_r, 2)"
+        icon="lucideTrendingUp"
+        [badge]="reliabilityBadge()"
+        [footer]="{ type: 'text', content: 'Grau de associação linear diária' }"
+      />
 
-          <!-- Destaque: Correlação de Pearson + Selo -->
-          <div class="flex items-baseline justify-between gap-2 mt-1 mb-3">
-            <div>
-              <div class="flex items-center gap-1.5 mb-0.5">
-                <span class="text-xs text-muted-foreground">{{ i18n.labels.pearson }}</span>
-                <span
-                  class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
-                  [hlmTooltip]="i18n.tooltips.pearson" tabindex="0" role="note"
-                  aria-label="Informação sobre Correlação de Pearson">
-                  <ng-icon name="lucideInfo" class="text-[11px]" />
-                </span>
-              </div>
-              <span class="text-2xl font-bold tracking-tight text-foreground">
-                {{ formatDecimal(m.pearson_r, 2) }}
-              </span>
-            </div>
+      <!-- Card 2: Cobertura preenchível -->
+      <app-stat-card
+        [label]="i18n.labels.fillableCoverage"
+        [value]="hasNoOverlap() ? i18n.messages.noOverlapMetricPlaceholder : formatDecimal(m.fillable_coverage_pct, 1)"
+        [unit]="hasNoOverlap() ? undefined : '%'"
+        icon="lucideShieldCheck"
+        [footer]="{
+          type: 'progress',
+          value: hasNoOverlap() ? 0 : m.fillable_coverage_pct,
+          max: 100,
+          label: 'Do total de falhas'
+        }"
+      />
 
-            <!-- Selo de Confiabilidade (Boa / Moderada / Fraca) -->
-            @if (reliabilityBadge(); as badge) {
-            <span class="font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center shrink-0 border"
-              [ngClass]="{
-                    'bg-success/15 text-success border-success/30': badge.variant === 'success',
-                    'bg-warning/15 text-warning border-warning/30': badge.variant === 'warning',
-                    'bg-destructive/15 text-destructive border-destructive/30': badge.variant === 'destructive'
-                  }">
-              {{ badge.label }}
-            </span>
-            }
-          </div>
+      <!-- Card 3: Falhas preenchíveis -->
+      <app-stat-card
+        [label]="i18n.labels.fillableGaps"
+        [value]="formatInteger(m.fillable_gaps)"
+        [unit]="'de ' + formatInteger(m.total_gaps)"
+        icon="lucideWrench"
+        [footer]="{ type: 'text', content: 'Permanecerão: ' + formatInteger(m.remaining_gaps) }"
+      />
 
-          <!-- Divisor sutil -->
-          <div class="border-t border-border/40 w-full my-2.5"></div>
+      <!-- Card 4: Sobreposição -->
+      <app-stat-card
+        [label]="i18n.labels.overlapYears"
+        [value]="hasNoOverlap() ? i18n.messages.noOverlapMetricPlaceholder : m.overlap_years"
+        [unit]="hasNoOverlap() ? undefined : (m.overlap_years === 1 ? 'ano' : 'anos')"
+        icon="lucideCalendar"
+        [footer]="{ type: 'text', content: 'Pares válidos: ' + formatInteger(m.valid_pairs) }"
+      />
+    </div>
 
-          <!-- Metadados da Relação: Pares Válidos & Sobreposição -->
-          <div class="space-y-2 text-xs">
-            <div class="flex items-center justify-between">
-              <div class="inline-flex items-center gap-1.5">
-                <span class="text-muted-foreground">{{ i18n.labels.validPairs }}</span>
-                <span
-                  class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
-                  [hlmTooltip]="i18n.tooltips.validPairs" tabindex="0" role="note"
-                  aria-label="Informação sobre Pares Válidos">
-                  <ng-icon name="lucideInfo" class="text-[11px]" />
-                </span>
-              </div>
-              <span class="font-semibold text-foreground">
-                {{ formatInteger(m.valid_pairs) }}
-              </span>
-            </div>
+    <!-- Seção Recolhível: Detalhes Técnicos Secundários -->
+    <div class="flex flex-col gap-2 pt-1">
+      <button
+        type="button"
+        (click)="toggleTechnicalDetails()"
+        class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors w-fit"
+      >
+        <ng-icon [name]="showTechnicalDetails() ? 'lucideChevronUp' : 'lucideChevronDown'" class="text-xs" />
+        <span>{{ showTechnicalDetails() ? i18n.actions.hideTechnicalDetails : i18n.actions.seeTechnicalDetails }}</span>
+      </button>
 
-            <div class="flex items-center justify-between">
-              <div class="inline-flex items-center gap-1.5">
-                <span class="text-muted-foreground">{{ i18n.labels.overlapYears }}</span>
-                <span
-                  class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
-                  [hlmTooltip]="i18n.tooltips.overlapYears" tabindex="0" role="note"
-                  aria-label="Informação sobre Sobreposição">
-                  <ng-icon name="lucideInfo" class="text-[11px]" />
-                </span>
-              </div>
-              <span class="font-semibold text-foreground">
-                @if (hasNoOverlap()) {
-                {{ i18n.messages.noOverlapMetricPlaceholder }}
-                } @else {
-                {{ m.overlap_years }} {{ m.overlap_years === 1 ? 'ano' : 'anos' }}
-                }
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Rodapé do Card: Razão entre acumulados -->
-        <div class="pt-3 mt-3 border-t border-border/40 flex items-center justify-between text-xs">
-          <div class="inline-flex items-center gap-1.5">
-            <span class="text-muted-foreground">{{ i18n.labels.accumulatedRatio }}</span>
+      @if (showTechnicalDetails()) {
+      <div class="rounded-xl border border-border bg-card/40 p-3.5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+        <div class="flex flex-col gap-1 p-2.5 rounded-lg bg-secondary/30 border border-border/40">
+          <div class="inline-flex items-center gap-1.5 text-muted-foreground">
+            <span>{{ i18n.labels.validPairs }}</span>
             <span
               class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
-              [hlmTooltip]="i18n.tooltips.accumulatedRatio" tabindex="0" role="note"
-              aria-label="Informação sobre Razão entre Acumulados">
+              [hlmTooltip]="i18n.tooltips.validPairs"
+              tabindex="0"
+              role="note"
+              aria-label="Informação sobre Pares Válidos"
+            >
               <ng-icon name="lucideInfo" class="text-[11px]" />
             </span>
           </div>
-          <span class="font-semibold text-foreground">
+          <span class="text-sm font-semibold text-foreground">
+            {{ formatInteger(m.valid_pairs) }}
+          </span>
+        </div>
+
+        <div class="flex flex-col gap-1 p-2.5 rounded-lg bg-secondary/30 border border-border/40">
+          <div class="inline-flex items-center gap-1.5 text-muted-foreground">
+            <span>{{ i18n.labels.accumulatedRatio }}</span>
+            <span
+              class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
+              [hlmTooltip]="i18n.tooltips.accumulatedRatio"
+              tabindex="0"
+              role="note"
+              aria-label="Informação sobre Razão entre Acumulados"
+            >
+              <ng-icon name="lucideInfo" class="text-[11px]" />
+            </span>
+          </div>
+          <span class="text-sm font-semibold text-foreground">
             {{ formatDecimal(m.accumulated_ratio, 2) }}
           </span>
         </div>
-      </div>
 
-      <!-- GRUPO 2: O que será preenchido -->
-      <div
-        class="rounded-xl border border-border bg-card/60 p-4.5 flex flex-col justify-between shadow-xs transition-all">
-        <div>
-          <!-- Cabeçalho do Grupo -->
-          <div
-            class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-            <ng-icon name="lucideShieldCheck" class="text-primary text-sm shrink-0" />
-            <span>{{ i18n.groups.fillingScope }}</span>
-          </div>
-
-          <!-- Destaque Grande: Cobertura Preenchível com barra de progresso -->
-          <div class="space-y-2 mt-1 mb-3">
-            <div class="flex items-baseline justify-between">
-              <span class="text-xs text-muted-foreground">{{ i18n.labels.fillableCoverage }}</span>
-              <span class="text-2xl font-bold tracking-tight text-foreground">
-                @if (hasNoOverlap()) {
-                {{ i18n.messages.noOverlapMetricPlaceholder }}
-                } @else {
-                {{ formatDecimal(m.fillable_coverage_pct, 1) }}%
-                }
-              </span>
-            </div>
-
-            <!-- Barra de Progresso Spartan -->
-            <hlm-progress [value]="hasNoOverlap() ? 0 : m.fillable_coverage_pct" class="h-2 w-full bg-secondary">
-              <hlm-progress-indicator class="bg-primary rounded-full transition-all duration-300" />
-            </hlm-progress>
-          </div>
-
-          <!-- Divisor sutil -->
-          <div class="border-t border-border/40 w-full my-2.5"></div>
-
-          <!-- Mini-Valores: Falhas Totais · Preenchíveis · Permanecerão -->
-          <div class="grid grid-cols-3 gap-1 py-1 text-center bg-secondary/30 rounded-lg p-2 border border-border/50">
-            <div class="flex flex-col">
-              <span class="text-[10px] text-muted-foreground uppercase tracking-tight">{{ i18n.labels.totalGaps
-                }}</span>
-              <span class="text-xs font-bold text-foreground mt-0.5">{{ formatInteger(m.total_gaps) }}</span>
-            </div>
-            <div class="flex flex-col border-x border-border/40">
-              <span class="text-[10px] text-muted-foreground uppercase tracking-tight">{{ i18n.labels.fillableGaps
-                }}</span>
-              <span class="text-xs font-bold text-primary mt-0.5">{{ formatInteger(m.fillable_gaps) }}</span>
-            </div>
-            <div class="flex flex-col">
-              <span class="text-[10px] text-muted-foreground uppercase tracking-tight">{{ i18n.labels.remainingGaps
-                }}</span>
-              <span class="text-xs font-bold text-muted-foreground mt-0.5">{{ formatInteger(m.remaining_gaps) }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Rodapé do Card: Anos completos before -> predicted de total -->
-        <div class="pt-3 mt-3 border-t border-border/40 flex items-center justify-between text-xs">
-          <span class="text-muted-foreground">{{ i18n.labels.completeYears }}</span>
-          <div class="inline-flex items-center gap-1.5 font-medium">
-            <span class="text-foreground font-semibold">{{ m.complete_years_before }}</span>
-            <ng-icon name="lucideArrowRight" class="text-xs text-muted-foreground shrink-0" />
-
-            @if (hasYearsGain()) {
-            <span class="text-success font-bold inline-flex items-center gap-1">
-              {{ m.complete_years_predicted }}
-              <span class="text-[10px] font-semibold bg-success/15 text-success px-1.5 py-0.2 rounded">
-                +{{ yearsGain() }}
-              </span>
+        <div class="flex flex-col gap-1 p-2.5 rounded-lg bg-secondary/30 border border-border/40">
+          <div class="inline-flex items-center gap-1.5 text-muted-foreground">
+            <span>{{ i18n.labels.totalGaps }}</span>
+            <span
+              class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
+              [hlmTooltip]="i18n.tooltips.totalGaps"
+              tabindex="0"
+              role="note"
+              aria-label="Informação sobre Total de Falhas"
+            >
+              <ng-icon name="lucideInfo" class="text-[11px]" />
             </span>
-            } @else {
-            <span class="text-foreground font-semibold">{{ m.complete_years_predicted }}</span>
-            }
-
-            @if (totalYears(); as total) {
-            <span class="text-muted-foreground">de {{ total }}</span>
-            }
           </div>
+          <span class="text-sm font-semibold text-foreground">
+            {{ formatInteger(m.total_gaps) }}
+          </span>
+        </div>
+
+        <div class="flex flex-col gap-1 p-2.5 rounded-lg bg-secondary/30 border border-border/40">
+          <div class="inline-flex items-center gap-1.5 text-muted-foreground">
+            <span>{{ i18n.labels.remainingGaps }}</span>
+            <span
+              class="text-muted-foreground/60 hover:text-foreground cursor-help transition-colors inline-flex items-center"
+              [hlmTooltip]="i18n.tooltips.remainingGaps"
+              tabindex="0"
+              role="note"
+              aria-label="Informação sobre Falhas que permanecerão"
+            >
+              <ng-icon name="lucideInfo" class="text-[11px]" />
+            </span>
+          </div>
+          <span class="text-sm font-semibold text-foreground">
+            {{ formatInteger(m.remaining_gaps) }}
+          </span>
         </div>
       </div>
+      }
     </div>
 
     <!-- Rodapé com Ação Principal (CTA) -->

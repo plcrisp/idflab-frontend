@@ -23,6 +23,17 @@ export class StatCard {
   variant = input<'card' | 'plain'>('card');
   layout = input<'default' | 'wide'>('default');
   iconVariant = input<StatCardSemanticVariant>('default');
+  badge = input<{ label: string; variant?: StatCardSemanticVariant } | null>(null);
+
+  readonly badgeClass = computed<string>(() => {
+    const b = this.badge();
+    if (!b) return '';
+    const v = b.variant;
+    if (v === 'success') return 'bg-success/15 text-success border-success/30';
+    if (v === 'warning') return 'bg-warning/15 text-warning border-warning/30';
+    if (v === 'destructive') return 'bg-destructive/15 text-destructive border-destructive/30';
+    return 'bg-secondary text-muted-foreground border-border';
+  });
 
   readonly progressPercent = computed<number>(() => {
     const f = this.footer();
