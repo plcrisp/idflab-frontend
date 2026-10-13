@@ -40,15 +40,16 @@
 
     <!-- Status no Canto Direito -->
     @if (isFilling()) {
-    <span
-      class="font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 border bg-primary/10 text-primary border-primary/25 shrink-0">
+    <span hlmBadge variant="outline"
+      class="text-xs font-medium px-2.5 py-0.5 rounded-md border inline-flex items-center gap-1.5 bg-primary/10 text-primary border-primary/25 shrink-0">
+      <ng-icon name="lucideLoader2" class="animate-spin text-xs text-primary" />
       <span>Em processamento</span>
     </span>
     } @else {
-    <span
-      class="font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 border bg-success/15 text-success border-success/30 shrink-0">
+    <span hlmBadge variant="outline"
+      class="text-xs font-medium px-2.5 py-0.5 rounded-md border inline-flex items-center gap-1.5 bg-success/15 text-success border-success/30 shrink-0">
       <span class="h-1.5 w-1.5 rounded-full bg-success"></span>
-      <span>Preenchimento Concluído</span>
+      <span>Preenchimento concluído</span>
     </span>
     }
   </div>

@@ -5,11 +5,8 @@
       {{ data.station_name | titlecase }}, {{ data.station_state }}
     </p>
 
-    <span
-      hlmBadge
-      [ngClass]="data.source.toLowerCase()"
-      class="flex items-center gap-1.5 border-none font-medium"
-    >
+    <span hlmBadge [ngClass]="data.source.toLowerCase()"
+      class="flex items-center gap-1.5 border-none font-medium text-xs px-2 py-0.5 rounded-md shrink-0">
       <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
       {{ data.source }}
     </span>
@@ -17,14 +14,11 @@
     <span hlmBadge variant="outline" class="text-muted-foreground"> {{ data.station_code }} </span>
 
     @if (hasInsufficientData()) {
-      <span
-        hlmBadge
-        variant="outline"
-        class="border-(--warning)/40 text-(--warning) bg-(--warning)/10 flex items-center gap-1.5 font-medium"
-      >
-        <span class="h-1.5 w-1.5 rounded-full bg-(--warning)"></span>
-        Dados insuficientes
-      </span>
+    <span hlmBadge variant="outline"
+      class="border-(--warning)/40 text-(--warning) bg-(--warning)/10 flex items-center gap-1.5 font-medium">
+      <span class="h-1.5 w-1.5 rounded-full bg-(--warning)"></span>
+      Dados insuficientes
+    </span>
     }
   </div>
 
@@ -32,20 +26,20 @@
     <div>
       <p class="text-xs font-medium tracking-wide text-muted-foreground">PERÍODO</p>
       @if (loading()) {
-        <div hlmSkeleton class="h-5 w-36 mt-0.5 rounded-md"></div>
+      <div hlmSkeleton class="h-5 w-36 mt-0.5 rounded-md"></div>
       } @else {
-        <p class="text-sm font-semibold text-foreground">
-          {{ data.start_date | date:'dd/MM/yyyy' }} - {{ data.end_date | date:'dd/MM/yyyy' }}
-        </p>
+      <p class="text-sm font-semibold text-foreground">
+        {{ data.start_date | date:'dd/MM/yyyy' }} - {{ data.end_date | date:'dd/MM/yyyy' }}
+      </p>
       }
     </div>
 
     <div>
       <p class="text-xs font-medium tracking-wide text-muted-foreground">RESOLUÇÃO</p>
       @if (loading()) {
-        <div hlmSkeleton class="h-5 w-16 mt-0.5 rounded-md ml-auto"></div>
+      <div hlmSkeleton class="h-5 w-16 mt-0.5 rounded-md ml-auto"></div>
       } @else {
-        <p class="text-sm font-semibold text-foreground">{{ resolution() }}</p>
+      <p class="text-sm font-semibold text-foreground">{{ resolution() }}</p>
       }
     </div>
   </div>
