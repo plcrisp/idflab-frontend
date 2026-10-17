@@ -5,6 +5,7 @@ export interface GapFillingExecuteRequest {
 
 export interface GapFillingJobResponse {
   job_id: string;
+  jobId?: string;
   project_id: string;
   step_id: string;
   status: string;

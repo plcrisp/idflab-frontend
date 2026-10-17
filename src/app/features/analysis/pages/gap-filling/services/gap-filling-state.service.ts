@@ -413,7 +413,8 @@ export class GapFillingStateService {
 
     this.fillSub = this.gapFillingService.fillGaps(project.id, neighbor.id).subscribe({
       next: (res) => {
-        this.startJobPolling(project.id, res.job_id);
+        const jobId = res.job_id ?? res.jobId;
+        this.startJobPolling(project.id, jobId!);
       },
       error: (err) => {
         this.isFilling.set(false);
@@ -425,6 +426,11 @@ export class GapFillingStateService {
   }
 
   private startJobPolling(projectId: string, jobId: string): void {
+    if (!jobId || jobId === 'undefined') {
+      console.error('[GapFillingStateService] jobId inválido para polling:', jobId);
+      this.isFilling.set(false);
+      return;
+    }
     this.fillSub?.unsubscribe();
 
     this.fillSub = timer(0, 2000)
@@ -485,10 +491,14 @@ export class GapFillingStateService {
           this.postMetrics.set(postMetrics);
           this.filledStationId.set(stepNeighborId);
         }
+        this.lastLoadedProjectId = null;
+        this.loadSummary(projectId);
         this.notificationsService.refetch();
       },
       error: () => {
         this.isFilling.set(false);
+        this.lastLoadedProjectId = null;
+        this.loadSummary(projectId);
         this.notificationsService.refetch();
       },
     });
