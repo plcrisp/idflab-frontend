@@ -106,5 +106,26 @@
         }
       </span>
     </div>
+
+    @if (stats()?.filled_station_name; as filledStation) {
+      <div class="h-5 w-px bg-border shrink-0 mx-6 lg:mx-8" aria-hidden="true"></div>
+
+      <!-- 5. Estação de preenchimento -->
+      <div class="flex items-center gap-2.5">
+        <ng-icon
+          name="lucideWrench"
+          size="18"
+          color="var(--primary)"
+          class="stat-icon icon-fill"
+        ></ng-icon>
+        <span class="text-muted-foreground font-normal">Preenchida com</span>
+        <span
+          class="font-bold text-foreground truncate max-w-40 lg:max-w-55"
+          [title]="filledStation | titlecase"
+        >
+          {{ filledStation | titlecase }}
+        </span>
+      </div>
+    }
   }
 </div>

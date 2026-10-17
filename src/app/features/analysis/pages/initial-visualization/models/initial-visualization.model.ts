@@ -16,6 +16,7 @@ export interface GlobalStats {
   total_years: number;
   max_value: number | null;
   max_value_date: string | null;
+  filled_station_name?: string | null;
 }
 
 export interface DetailPoint {
