@@ -34,6 +34,13 @@
         <h3 class="text-sm font-semibold text-foreground">
           {{ title() }}
         </h3>
+        @if (badge()) {
+          <span
+            class="text-xs font-medium px-2 py-0.5 rounded-md bg-secondary text-muted-foreground"
+          >
+            {{ badge() }}
+          </span>
+        }
       </div>
       <p class="text-xs text-muted-foreground leading-relaxed">
         {{ description() }}
@@ -43,7 +50,7 @@
 
   <!-- Selo de Status / Conteúdo Extra -->
   <div
-    class="status-slot shrink-0 self-start sm:self-center mt-2 sm:mt-0 min-w-0 sm:min-w-[130px] flex justify-start sm:justify-end"
+    class="status-slot shrink-0 self-start sm:self-center mt-2 sm:mt-0 min-w-0 sm:min-w-[130px] flex justify-start sm:justify-end empty:hidden"
   >
     <ng-content />
   </div>

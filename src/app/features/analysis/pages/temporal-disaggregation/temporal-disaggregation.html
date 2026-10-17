@@ -6,4 +6,7 @@
     [muted]="hasInsufficientData()"
     [isHourly]="isHourly()"
   />
+
+  <!-- 2. Seletor de Caminho da Desagregação Temporal -->
+  <app-temporal-disaggregation-path-selector [(selected)]="selectedMethod" />
 </div>

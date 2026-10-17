@@ -15,14 +15,15 @@ import {
   lucideArrowUp,
   lucideArrowUpRight,
   lucideCalendar,
+  lucideChartColumn,
   lucideCheck,
   lucideCheckCircle2,
   lucideChevronDown,
   lucideChevronUp,
   lucideClock,
-  lucideCpu,
   lucideDatabase,
   lucideDownload,
+  lucideDroplets,
   lucideFilter,
   lucideInfo,
   lucideLoader2,
@@ -67,6 +68,7 @@ import { GapFillingPreMetricsCard } from './pages/gap-filling/components/gap-fil
 import { GapFillingPostMetricsCard } from './pages/gap-filling/components/gap-filling-post-metrics-card/gap-filling-post-metrics-card';
 import { YearDataAvailability } from './pages/gap-filling/components/year-data-availability/year-data-availability';
 import { TemporalDisaggregation } from './pages/temporal-disaggregation/temporal-disaggregation';
+import { TemporalDisaggregationPathSelector } from './pages/temporal-disaggregation/components/temporal-disaggregation-path-selector/temporal-disaggregation-path-selector';
 
 registerLocaleData(localePt);
 
@@ -106,6 +108,7 @@ registerLocaleData(localePt);
     GapFillingPostMetricsCard,
     YearDataAvailability,
     TimeSeriesDetailChart,
+    TemporalDisaggregationPathSelector,
   ],
   imports: [
     CommonModule,
@@ -118,6 +121,7 @@ registerLocaleData(localePt);
     GapFillingPreMetricsCard,
     GapFillingPostMetricsCard,
     YearDataAvailability,
+    TemporalDisaggregationPathSelector,
     NgIconsModule.withIcons({
       lucideDatabase,
       lucideTriangleAlert,
@@ -144,6 +148,8 @@ registerLocaleData(localePt);
       lucideInfo,
       lucideWrench,
       lucideFilter,
+      lucideChartColumn,
+      lucideDroplets,
     }),
     ...HlmBadgeImports,
     ...HlmProgressImports,

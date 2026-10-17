@@ -4,6 +4,7 @@ import { InitialVisualizationService } from '../../services/initial-visualizatio
 import { GlobalStats } from '../../shared/models/analysis.models';
 import { SkeletonLoadingCoordinator, trackWithSkeleton } from '../../../../core/utils/skeleton-loading-coordinator';
 import { Subscription } from 'rxjs';
+import { DisaggregationMethod } from './components/temporal-disaggregation-path-selector/temporal-disaggregation-path-selector';
 
 @Component({
   selector: 'app-temporal-disaggregation',
@@ -19,6 +20,8 @@ export class TemporalDisaggregation {
   readonly project = this.projectState.project;
   readonly isJobRunning = this.projectState.isJobRunning;
   readonly hasInsufficientData = this.projectState.hasInsufficientData;
+
+  readonly selectedMethod = signal<DisaggregationMethod>('cetesb');
 
   readonly stats = signal<GlobalStats | null>(null);
 

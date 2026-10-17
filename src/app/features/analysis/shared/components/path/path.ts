@@ -20,6 +20,7 @@ export class Path {
   readonly selected = input<boolean>(false);
   readonly disabled = input<boolean>(false);
   readonly title = input.required<string>();
+  readonly badge = input<string>();
   readonly description = input.required<string>();
   readonly icon = input.required<string>();
 

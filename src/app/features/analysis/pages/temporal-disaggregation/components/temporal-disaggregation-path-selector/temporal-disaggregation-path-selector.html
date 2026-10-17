@@ -1,0 +1,23 @@
+﻿<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+  <!-- Card 1: Fatores CETESB -->
+  <app-path
+    [selected]="selected() === 'cetesb'"
+    [disabled]="disabled()"
+    icon="lucideChartColumn"
+    title="Fatores CETESB"
+    badge="Rápido"
+    description="Estima chuvas de 5 min a 24 h aplicando fatores empíricos à chuva máxima diária."
+    (select)="selectOption('cetesb')"
+  />
+
+  <!-- Card 2: Bartlett-Lewis -->
+  <app-path
+    [selected]="selected() === 'bartlett-lewis'"
+    [disabled]="disabled()"
+    icon="lucideDroplets"
+    title="Bartlett-Lewis"
+    badge="Avançado"
+    description="Simula a estrutura interna da chuva, calibrada com uma estação de alta resolução próxima."
+    (select)="selectOption('bartlett-lewis')"
+  />
+</div>

@@ -28,4 +28,9 @@
 
 .status-slot {
   min-height: 1.375rem; /* 22px para garantir alinhamento vertical idêntico mesmo sem selo */
+
+  &:empty {
+    display: none;
+    min-height: 0;
+  }
 }

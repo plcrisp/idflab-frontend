@@ -213,7 +213,6 @@ export class GapFilling {
         .subscribe({
           next: () => {
             this.isAdvancing.set(false);
-            toast.success('Filtro de anos aplicado com sucesso!');
             this.router.navigate(['/app/analysis', project.id, 'resolucao-temporal']);
           },
           error: (err: unknown) => {
