@@ -1,35 +1,34 @@
-import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  lucideCheck,
   lucideFilter,
   lucideLoader2,
   lucideWrench,
 } from '@ng-icons/lucide';
 import { HlmBadge } from '@spartan-ng/helm/badge';
+import { Path } from '../../../../shared/components/path/path';
 
 export type PathOption = 'fill' | 'filter';
 export type FillStatus = 'idle' | 'running' | 'done' | 'error';
 export type FilterStatus = 'default' | 'configured';
 
 @Component({
-  selector: 'app-path-selector',
+  selector: 'app-gap-filling-path-selector',
   standalone: true,
-  imports: [CommonModule, NgIcon, HlmBadge],
+  imports: [CommonModule, NgIcon, HlmBadge, Path],
   providers: [
     provideIcons({
       lucideWrench,
       lucideFilter,
-      lucideCheck,
       lucideLoader2,
     }),
   ],
-  templateUrl: './path-selector.html',
-  styleUrl: './path-selector.scss',
+  templateUrl: './gap-filling-path-selector.html',
+  styleUrl: './gap-filling-path-selector.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PathSelector {
+export class GapFillingPathSelector {
   readonly selected = model<PathOption>('fill');
   readonly fillStatus = input<FillStatus>('idle');
   readonly filterStatus = input<FilterStatus>('default');

@@ -1,28 +1,28 @@
-<div class="flex flex-col gap-4 overflow-x-hidden">
-  <!-- 1. Barra de Resumo Compacta da Estação -->
+﻿<div class="flex flex-col gap-4 overflow-x-hidden">
+  <!-- 1. Barra de Resumo Compacta da EstaÃ§Ã£o -->
   <app-station-summary-bar [stats]="state.stats()" [loading]="state.isLoading()" [muted]="state.hasInsufficientData()"
     [isHourly]="state.isHourly()" />
 
   <!-- 2. Seletor de Caminho do Tratamento de Falhas -->
-  <app-path-selector [(selected)]="selectedPath" [fillStatus]="fillStatus()" [filterStatus]="filterStatus()"
+  <app-gap-filling-path-selector [(selected)]="selectedPath" [fillStatus]="fillStatus()" [filterStatus]="filterStatus()"
     [filterThreshold]="filterThreshold()" [disabled]="isPathSelectorDisabled()" />
 
   <!-- 3. Painel do Caminho Selecionado -->
   @if (selectedPath() === 'fill') {
-  <!-- Painel de Preenchimento: Estação de Referência para Preenchimento -->
+  <!-- Painel de Preenchimento: EstaÃ§Ã£o de ReferÃªncia para Preenchimento -->
   <app-neighbor-stations-card [projectId]="state.project()?.id ?? null" [mainStation]="state.project()?.station ?? null"
     [neighbors]="state.neighbors()" [selectedNeighbor]="state.selectedNeighbor()"
     [activeNeighborStation]="state.activeNeighborStation()" [confirmationStatus]="state.confirmationStatus()"
     [neighborProgress]="state.neighborProgress()" [neighborJob]="state.neighborJob()"
     [loading]="state.isLoadingNeighbors()" [isLoadingData]="state.isLoadingNeighborData()"
-    [disabled]="state.isSelectionLocked()" [subtitle]="'Escolha uma estação de referência para preenchimento de falhas'"
-    [confirmActionPrefix]="'Usar para preenchimento de falhas a estação'"
-    [idleMessage]="'Selecione uma estação vizinha na lista ou no mapa para preenchimento de falhas.'"
-    [activeMessagePrefix]="'Preenchendo falhas com a estação'" (stationSelected)="state.selectNeighbor($event)"
+    [disabled]="state.isSelectionLocked()" [subtitle]="'Escolha uma estaÃ§Ã£o de referÃªncia para preenchimento de falhas'"
+    [confirmActionPrefix]="'Usar para preenchimento de falhas a estaÃ§Ã£o'"
+    [idleMessage]="'Selecione uma estaÃ§Ã£o vizinha na lista ou no mapa para preenchimento de falhas.'"
+    [activeMessagePrefix]="'Preenchendo falhas com a estaÃ§Ã£o'" (stationSelected)="state.selectNeighbor($event)"
     (confirmSelection)="state.confirmNeighbor($event)" (lockSelection)="state.lockSelection($event)"
     (scrollToSelection)="onScrollToNeighborCard()" />
 
-  <!-- Card Independente: Métricas de Pré-Preenchimento -->
+  <!-- Card Independente: MÃ©tricas de PrÃ©-Preenchimento -->
   @if (shouldShowMetricsCard) {
   <app-gap-filling-pre-metrics-card id="gap-filling-pre-metrics-card"
     [activeStation]="state.activeNeighborStation()"
@@ -43,7 +43,7 @@
     (skipStep)="onSkipStep()" />
   }
 
-  <!-- Card Independente: Métricas de Pós-Preenchimento -->
+  <!-- Card Independente: MÃ©tricas de PÃ³s-Preenchimento -->
   @if (shouldShowPostMetrics()) {
   <app-gap-filling-post-metrics-card id="gap-filling-post-metrics-card"
     [projectId]="state.project()?.id ?? null"
@@ -71,7 +71,7 @@
     (stateChange)="onYearFilterStateChange($event)" />
   }
 
-  <!-- Rodapé com Ações -->
+  <!-- RodapÃ© com AÃ§Ãµes -->
   <div class="flex w-full items-center justify-between gap-3">
     <button hlmBtn variant="outline" (click)="onBack()" [disabled]="isAdvanceDisabled() || isAdvancing()">
       <ng-icon name="lucideArrowLeft" class="mr-2" />

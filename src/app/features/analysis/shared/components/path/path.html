@@ -1,0 +1,50 @@
+﻿<button
+  type="button"
+  (click)="onSelect()"
+  [disabled]="disabled()"
+  class="path-card relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-4 py-3 sm:px-5 sm:py-3.5 pr-10 sm:pr-12 rounded-xl text-left outline-none select-none transition-colors w-full"
+  [class.path-card--selected]="selected()"
+  [class.path-card--unselected]="!selected()"
+  [class.cursor-pointer]="!disabled()"
+  [class.opacity-60]="disabled()"
+  [class.cursor-not-allowed]="disabled()"
+>
+  <!-- Check circular no card selecionado -->
+  @if (selected()) {
+    <div
+      class="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 flex items-center justify-center h-5 w-5 rounded-full bg-primary text-primary-foreground shadow-xs pointer-events-none"
+      aria-hidden="true"
+    >
+      <ng-icon name="lucideCheck" class="text-xs" />
+    </div>
+  }
+
+  <!-- Linha principal: Ícone + Textos -->
+  <div class="flex items-center gap-3.5 min-w-0 flex-1">
+    <div
+      class="flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-lg shrink-0 bg-secondary transition-colors duration-150"
+      [class.text-primary]="selected()"
+      [class.text-muted-foreground]="!selected()"
+    >
+      <ng-icon [name]="icon()" class="text-lg" />
+    </div>
+
+    <div class="flex flex-col min-w-0 flex-1 gap-1">
+      <div class="flex flex-wrap items-center gap-2">
+        <h3 class="text-sm font-semibold text-foreground">
+          {{ title() }}
+        </h3>
+      </div>
+      <p class="text-xs text-muted-foreground leading-relaxed">
+        {{ description() }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Selo de Status / Conteúdo Extra -->
+  <div
+    class="status-slot shrink-0 self-start sm:self-center mt-2 sm:mt-0 min-w-0 sm:min-w-[130px] flex justify-start sm:justify-end"
+  >
+    <ng-content />
+  </div>
+</button>
