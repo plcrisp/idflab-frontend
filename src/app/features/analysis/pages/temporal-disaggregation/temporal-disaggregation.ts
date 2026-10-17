@@ -132,4 +132,8 @@ export class TemporalDisaggregation {
         },
       });
   }
+
+  onExecuteDisaggregation(): void {
+    console.log('[TemporalDisaggregation] Executar desagregação acionado para método:', this.selectedMethod());
+  }
 }

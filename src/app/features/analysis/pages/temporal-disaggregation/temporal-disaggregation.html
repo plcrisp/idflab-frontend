@@ -13,4 +13,10 @@
     [bartlettDisabled]="isBartlettDisabled()"
     [isCheckingCandidates]="isCheckingCemaden()"
   />
+
+  <!-- 3. Configuração do Método Selecionado -->
+  <app-temporal-disaggregation-config
+    [method]="selectedMethod()"
+    (execute)="onExecuteDisaggregation()"
+  />
 </div>

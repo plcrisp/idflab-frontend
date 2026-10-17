@@ -1,4 +1,4 @@
-﻿import { NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -69,6 +69,7 @@ import { GapFillingPostMetricsCard } from './pages/gap-filling/components/gap-fi
 import { YearDataAvailability } from './pages/gap-filling/components/year-data-availability/year-data-availability';
 import { TemporalDisaggregation } from './pages/temporal-disaggregation/temporal-disaggregation';
 import { TemporalDisaggregationPathSelector } from './pages/temporal-disaggregation/components/temporal-disaggregation-path-selector/temporal-disaggregation-path-selector';
+import { TemporalDisaggregationConfig } from './pages/temporal-disaggregation/components/temporal-disaggregation-config/temporal-disaggregation-config';
 
 registerLocaleData(localePt);
 
@@ -109,6 +110,7 @@ registerLocaleData(localePt);
     YearDataAvailability,
     TimeSeriesDetailChart,
     TemporalDisaggregationPathSelector,
+    TemporalDisaggregationConfig,
   ],
   imports: [
     CommonModule,
@@ -122,6 +124,7 @@ registerLocaleData(localePt);
     GapFillingPostMetricsCard,
     YearDataAvailability,
     TemporalDisaggregationPathSelector,
+    TemporalDisaggregationConfig,
     NgIconsModule.withIcons({
       lucideDatabase,
       lucideTriangleAlert,

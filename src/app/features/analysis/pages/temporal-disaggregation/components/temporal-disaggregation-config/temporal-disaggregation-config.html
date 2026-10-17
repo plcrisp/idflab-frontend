@@ -1,0 +1,103 @@
+@if (method() === 'cetesb') {
+  <div
+    class="w-full min-w-0 flex flex-col rounded-xl shadow-xs border border-border bg-popover text-foreground overflow-hidden"
+  >
+    <!-- Cabeçalho do Card -->
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-border px-4 py-3">
+      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-foreground">
+          FATORES DE DESAGREGAÇÃO
+        </h3>
+        <span class="text-sm font-normal text-muted-foreground">
+          · CETESB
+        </span>
+      </div>
+
+      <!-- Ação à Direita: Botão Executar desagregação -->
+      <button
+        hlmBtn
+        size="sm"
+        type="button"
+        [disabled]="loading() || error() || factors().length === 0"
+        (click)="execute.emit()"
+        class="cursor-pointer font-medium shrink-0"
+      >
+        Executar desagregação
+      </button>
+    </div>
+
+    <!-- Corpo do Card -->
+    <div class="p-4 sm:p-5 flex flex-col">
+      @if (loading()) {
+        <div class="flex items-center justify-center py-4 text-xs text-muted-foreground">
+          Carregando fatores da CETESB…
+        </div>
+      } @else if (error()) {
+        <div
+          class="flex items-center justify-between p-3 rounded-lg border border-destructive/20 bg-destructive/10 text-destructive text-xs"
+        >
+          <span>Não foi possível carregar os fatores da CETESB.</span>
+          <button
+            hlmBtn
+            variant="outline"
+            size="sm"
+            type="button"
+            (click)="loadFactors()"
+          >
+            Tentar novamente
+          </button>
+        </div>
+      } @else {
+        <!-- Tabela Horizontal de Fatores -->
+        <div class="w-full overflow-x-auto">
+          <table class="w-full border-separate border-spacing-0 text-left">
+            <thead>
+              <tr>
+                <th
+                  class="text-[13px] font-normal text-muted-foreground text-left py-2.5 px-3 min-w-18 bg-secondary/50 first:rounded-l-lg border-b border-border"
+                >
+                  Duração
+                </th>
+                @for (item of factors(); track item.duration_minutes) {
+                  @if (item.duration_minutes === 1440) {
+                    <th
+                      class="text-[13px] font-medium text-muted-foreground text-center py-2.5 px-2 min-w-16 bg-secondary/50 last:rounded-r-lg border-b border-border cursor-help"
+                      [hlmTooltip]="'Fator de Weiss'"
+                    >
+                      {{ item.label }}
+                    </th>
+                  } @else {
+                    <th
+                      class="text-[13px] font-medium text-muted-foreground text-center py-2.5 px-2 min-w-16 bg-secondary/50 last:rounded-r-lg border-b border-border"
+                    >
+                      {{ item.label }}
+                    </th>
+                  }
+                }
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td
+                  class="text-sm font-normal text-muted-foreground text-left py-2.5 px-3 min-w-18"
+                >
+                  Fator
+                </td>
+                @for (item of factors(); track item.duration_minutes) {
+                  <td
+                    class="text-sm font-medium text-foreground text-center py-2.5 px-2 min-w-16 tabular-nums"
+                  >
+                    {{ formatFactor(item.factor) }}
+                  </td>
+                }
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+} @else {
+  <!-- Bloco vazio para Bartlett-Lewis (será implementado futuramente) -->
+  <div class="hidden"></div>
+}
