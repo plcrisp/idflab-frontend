@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
+import { switchMap } from 'rxjs';
 
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
 import { ConsistencyCheckStateService } from './services/consistency-check-state.service';
@@ -97,16 +98,21 @@ export class ConsistencyCheck {
     if (!project || this.isAdvancing() || this.isAdvanceDisabled()) return;
 
     this.isAdvancing.set(true);
-    this.projectState.updateFurthestStep('GAP_FILLING').subscribe({
-      next: () => {
-        this.isAdvancing.set(false);
-        this.router.navigate(['/app/analysis', project.id, 'tratamento-de-falhas']);
-      },
-      error: (err) => {
-        console.error('Erro ao atualizar etapa do projeto:', err);
-        this.isAdvancing.set(false);
-        this.router.navigate(['/app/analysis', project.id, 'tratamento-de-falhas']);
-      },
-    });
+    this.state
+      .completeStep()
+      .pipe(
+        switchMap(() => this.projectState.updateFurthestStep('GAP_FILLING')),
+      )
+      .subscribe({
+        next: () => {
+          this.isAdvancing.set(false);
+          this.router.navigate(['/app/analysis', project.id, 'tratamento-de-falhas']);
+        },
+        error: (err) => {
+          console.error('Erro ao atualizar etapa do projeto:', err);
+          this.isAdvancing.set(false);
+          this.router.navigate(['/app/analysis', project.id, 'tratamento-de-falhas']);
+        },
+      });
   }
 }

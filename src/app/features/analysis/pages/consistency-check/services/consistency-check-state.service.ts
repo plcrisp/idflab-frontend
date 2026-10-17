@@ -8,7 +8,7 @@ import {
   Signal,
   untracked,
 } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { catchError, Observable, of, Subscription, switchMap, tap } from 'rxjs';
 
 import { ProjectStateService } from '../../../services/project-state.service';
 import { InitialVisualizationService } from '../../../services/initial-visualization.service';
@@ -18,6 +18,7 @@ import { Project } from '../../../../../core/models/api/project.model';
 import { NeighborStation } from '../../../../../core/models/api/station.model';
 import {
   ConsistencyStepParams,
+  ProjectStepResponse,
   ProjectStepSaveRequest,
 } from '../../../../../core/models/api/project-step.model';
 import { GlobalStats } from '../../../shared/models/analysis.models';
@@ -39,6 +40,7 @@ export class ConsistencyCheckStateService {
   readonly hasInsufficientData = this.projectState.hasInsufficientData;
 
   readonly stats = signal<GlobalStats | null>(null);
+  readonly savedStep = signal<ProjectStepResponse<ConsistencyStepParams> | null>(null);
 
   // Delegação direta dos estados do NeighborStationsManager
   readonly neighbors = this.neighborManager.neighbors;
@@ -113,6 +115,7 @@ export class ConsistencyCheckStateService {
     this.lastLoadedStationId = null;
     this.lastLoadedStepProjectId = null;
     this.stats.set(null);
+    this.savedStep.set(null);
     this.neighborManager.reset();
   }
 
@@ -142,12 +145,14 @@ export class ConsistencyCheckStateService {
       .getProjectStep<ConsistencyStepParams>(projectId, 'CONSISTENCY')
       .subscribe({
         next: (step) => {
+          this.savedStep.set(step);
           const neighborId = step?.params?.neighbor_station_id;
           if (stationId) {
             this.neighborManager.loadNeighbors(stationId, neighborId, step?.job_id, projectId);
           }
         },
         error: (err) => {
+          this.savedStep.set(null);
           if (stationId) {
             this.neighborManager.loadNeighbors(stationId, null, null, projectId);
           }
@@ -173,20 +178,65 @@ export class ConsistencyCheckStateService {
   }
 
   private saveStep(projectId: string, stationId: string, jobId: string | null): void {
+    const currentSaved = this.savedStep();
     const request: ProjectStepSaveRequest<ConsistencyStepParams> = {
       step: 'CONSISTENCY',
       status: 'PENDING',
       params: {
         neighbor_station_id: stationId,
-        excluded_years: [],
+        excluded_years: currentSaved?.params?.excluded_years ?? [],
       },
-      job_id: jobId,
+      result: currentSaved?.result ?? undefined,
+      job_id: jobId ?? currentSaved?.job_id ?? undefined,
     };
 
     this.projectStepsService.saveProjectStep(projectId, request).subscribe({
+      next: (saved) => {
+        this.savedStep.set(saved);
+      },
       error: (err) => {
         console.error('Erro ao salvar etapa de consistência com job_id:', err);
       },
     });
+  }
+
+  completeStep(): Observable<ProjectStepResponse<ConsistencyStepParams> | null> {
+    const project = this.project();
+    if (!project) {
+      return of(null);
+    }
+
+    return this.projectStepsService
+      .getProjectStep<ConsistencyStepParams>(project.id, 'CONSISTENCY')
+      .pipe(
+        catchError(() => of(this.savedStep())),
+        switchMap((currentStep) => {
+          const activeNeighbor = this.activeNeighborStation();
+          const neighborId =
+            activeNeighbor?.id ??
+            currentStep?.params?.neighbor_station_id ??
+            null;
+
+          const request: ProjectStepSaveRequest<ConsistencyStepParams> = {
+            step: 'CONSISTENCY',
+            status: 'COMPLETED',
+            params: {
+              neighbor_station_id: neighborId,
+              excluded_years: currentStep?.params?.excluded_years ?? [],
+            },
+            result: currentStep?.result ?? undefined,
+            job_id: currentStep?.job_id ?? undefined,
+          };
+
+          return this.projectStepsService.saveProjectStep<ConsistencyStepParams>(project.id, request);
+        }),
+        tap((saved) => {
+          this.savedStep.set(saved);
+        }),
+        catchError((err) => {
+          console.error('Erro ao completar etapa de consistência:', err);
+          return of(null);
+        }),
+      );
   }
 }
