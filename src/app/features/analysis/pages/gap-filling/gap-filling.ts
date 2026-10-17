@@ -31,6 +31,12 @@ export class GapFilling {
   readonly filterStatus = signal<'default' | 'configured'>('default');
   readonly filterThreshold = signal<number>(90);
 
+  readonly savedManualOverrides = computed<Record<string, 'include' | 'exclude'> | null>(() => {
+    const f = this.state.savedFilter();
+    if (!f) return null;
+    return f.manual_overrides ?? f.manualOverrides ?? null;
+  });
+
   readonly isFilled = computed<boolean>(() => {
     if (!this.state.postMetrics()) return false;
     const currentStation = this.state.activeNeighborStation() ?? this.state.selectedNeighbor();
@@ -120,6 +126,24 @@ export class GapFilling {
       prevStatus = currentStatus;
     });
 
+    let hasAppliedInitialPath = false;
+    effect(() => {
+      const path = this.state.initialPath();
+      if (path && !hasAppliedInitialPath) {
+        hasAppliedInitialPath = true;
+        this.selectedPath.set(path);
+      }
+    });
+
+    effect(() => {
+      const filter = this.state.savedFilter();
+      if (filter) {
+        this.filterStatus.set('configured');
+        if (filter.threshold != null) {
+          this.filterThreshold.set(filter.threshold);
+        }
+      }
+    });
   }
 
   get shouldShowMetricsCard(): boolean {
@@ -169,6 +193,7 @@ export class GapFilling {
 
   onYearFilterStateChange(state: YearFilterState): void {
     this.yearFilterState.set(state);
+    this.filterThreshold.set(state.threshold);
   }
 
   onAdvance(): void {

@@ -23,6 +23,7 @@ import { NeighborStation } from '../../../../../core/models/api/station.model';
 import { Job } from '../../../../../core/models/api/job.model';
 import {
   ConsistencyStepParams,
+  GapFillingFilterParams,
   GapFillingStepParams,
   ProjectStepSaveRequest,
 } from '../../../../../core/models/api/project-step.model';
@@ -62,6 +63,8 @@ export class GapFillingStateService {
   readonly postMetrics = signal<GapFillingPostMetrics | null>(null);
   readonly filledStationId = signal<string | null>(null);
   readonly fillError = signal<string | null>(null);
+  readonly savedFilter = signal<GapFillingFilterParams | null>(null);
+  readonly initialPath = signal<'fill' | 'filter' | null>(null);
 
   readonly preMetrics = signal<GapFillingPreMetrics | null>(null);
   readonly preMetricsWarnings = signal<GapFillingWarning[]>([]);
@@ -199,6 +202,8 @@ export class GapFillingStateService {
     this.postMetrics.set(null);
     this.filledStationId.set(null);
     this.fillError.set(null);
+    this.savedFilter.set(null);
+    this.initialPath.set(null);
     this.preMetrics.set(null);
     this.preMetricsWarnings.set([]);
     this.isLoadingPreMetrics.set(false);
@@ -265,6 +270,20 @@ export class GapFillingStateService {
       .getProjectStep<any>(projectId, 'GAP_FILLING')
       .subscribe({
         next: (step) => {
+          const filterParams = step?.params?.filter;
+          const fillParams = step?.params?.fill;
+
+          if (filterParams) {
+            this.savedFilter.set(filterParams);
+          }
+
+          const isFilterSelected = !!filterParams && (filterParams.source === 'original' || !fillParams);
+          if (isFilterSelected) {
+            this.initialPath.set('filter');
+          } else if (fillParams) {
+            this.initialPath.set('fill');
+          }
+
           const excluded =
             step?.params?.fill?.excluded_years ??
             step?.params?.filter?.excluded_years ??

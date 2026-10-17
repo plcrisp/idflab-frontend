@@ -60,6 +60,8 @@ export class YearDataAvailability implements OnInit {
 
   readonly projectId = input<string | null>(null);
   readonly source = input<'original' | 'filled' | null>(null);
+  readonly initialThreshold = input<number | null>(null);
+  readonly initialManualOverrides = input<Record<string, 'include' | 'exclude'> | null>(null);
 
   readonly stateChange = output<YearFilterState>();
 
@@ -136,6 +138,14 @@ export class YearDataAvailability implements OnInit {
   }
 
   ngOnInit(): void {
+    const initThresh = this.initialThreshold();
+    if (initThresh != null) {
+      this.threshold.set(initThresh);
+    }
+    const initOverrides = this.initialManualOverrides();
+    if (initOverrides != null) {
+      this.manualOverrides.set(initOverrides);
+    }
     this.loadInitialPreview();
   }
 

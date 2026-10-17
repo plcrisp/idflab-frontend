@@ -7,7 +7,21 @@ export interface ConsistencyStepParams {
   excluded_years?: number[];
 }
 
+export interface GapFillingFilterParams {
+  threshold: number;
+  manual_overrides?: Record<string, 'include' | 'exclude'>;
+  manualOverrides?: Record<string, 'include' | 'exclude'>;
+  source?: 'original' | 'filled' | null;
+}
+
+export interface GapFillingFillParams {
+  neighbor_station_id: string;
+  method?: string;
+}
+
 export interface GapFillingStepParams {
+  fill?: GapFillingFillParams | null;
+  filter?: GapFillingFilterParams | null;
   neighbor_station_id?: string | null;
   excluded_years?: number[];
 }
