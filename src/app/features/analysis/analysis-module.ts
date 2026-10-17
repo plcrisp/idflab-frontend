@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+﻿import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -23,6 +23,7 @@ import {
   lucideCpu,
   lucideDatabase,
   lucideDownload,
+  lucideFilter,
   lucideInfo,
   lucideLoader2,
   lucideMap,
@@ -60,10 +61,12 @@ import { DoubleMassChart } from './pages/consistency-check/components/double-mas
 import { NeighborAnalysisCard } from './pages/consistency-check/components/neighbor-analysis-card/neighbor-analysis-card';
 import { ConsistencyAnalysis } from './pages/consistency-check/components/consistency-analysis/consistency-analysis';
 import { GapFilling } from './pages/gap-filling/gap-filling';
-import { PathSelector } from './pages/gap-filling/components/path-selector/path-selector';
+import { Path } from './shared/components/path/path';
+import { GapFillingPathSelector } from './pages/gap-filling/components/gap-filling-path-selector/gap-filling-path-selector';
 import { GapFillingPreMetricsCard } from './pages/gap-filling/components/gap-filling-pre-metrics-card/gap-filling-pre-metrics-card';
 import { GapFillingPostMetricsCard } from './pages/gap-filling/components/gap-filling-post-metrics-card/gap-filling-post-metrics-card';
 import { YearDataAvailability } from './pages/gap-filling/components/year-data-availability/year-data-availability';
+import { TemporalDisaggregation } from './pages/temporal-disaggregation/temporal-disaggregation';
 
 registerLocaleData(localePt);
 
@@ -86,6 +89,7 @@ registerLocaleData(localePt);
     NeighborAnalysisCard,
     ConsistencyAnalysis,
     GapFilling,
+    TemporalDisaggregation,
   ],
   exports: [
     StationSummaryBar,
@@ -95,7 +99,9 @@ registerLocaleData(localePt);
     DoubleMassChart,
     NeighborAnalysisCard,
     GapFilling,
-    PathSelector,
+    TemporalDisaggregation,
+    Path,
+    GapFillingPathSelector,
     GapFillingPreMetricsCard,
     GapFillingPostMetricsCard,
     YearDataAvailability,
@@ -107,7 +113,8 @@ registerLocaleData(localePt);
     RouterModule.forChild(ANALYSIS_ROUTES),
     SharedModule,
     TimeSeriesDetailChart,
-    PathSelector,
+    Path,
+    GapFillingPathSelector,
     GapFillingPreMetricsCard,
     GapFillingPostMetricsCard,
     YearDataAvailability,
@@ -135,7 +142,8 @@ registerLocaleData(localePt);
       lucideScan,
       lucideRotateCw,
       lucideInfo,
-      lucideWrench
+      lucideWrench,
+      lucideFilter,
     }),
     ...HlmBadgeImports,
     ...HlmProgressImports,

@@ -1,8 +1,9 @@
-import { Routes } from '@angular/router';
+﻿import { Routes } from '@angular/router';
 import { InitialVisualization } from './pages/initial-visualization/initial-visualization';
 import { AnalysisLayout } from './analysis-layout/analysis-layout';
 import { ConsistencyCheck } from './pages/consistency-check/consistency-check';
 import { GapFilling } from './pages/gap-filling/gap-filling';
+import { TemporalDisaggregation } from './pages/temporal-disaggregation/temporal-disaggregation';
 import { projectAccessGuard } from '../../core/guards/project-access.guard';
 
 export const ANALYSIS_ROUTES: Routes = [
@@ -43,7 +44,16 @@ export const ANALYSIS_ROUTES: Routes = [
         redirectTo: 'tratamento-de-falhas',
         pathMatch: 'full',
       },
+      {
+        path: 'resolucao-temporal',
+        component: TemporalDisaggregation,
+        title: 'Resolução Temporal | IDFLab',
+      },
+      {
+        path: 'temporal-disaggregation',
+        redirectTo: 'resolucao-temporal',
+        pathMatch: 'full',
+      },
     ],
   },
 ];
-
