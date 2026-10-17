@@ -74,7 +74,7 @@ export class HlmToaster {
     transform: booleanAttribute,
   });
   public readonly theme = input<ToasterProps['theme']>('system');
-  public readonly position = input<ToasterProps['position']>('bottom-right');
+  public readonly position = input<ToasterProps['position']>('bottom-center');
   public readonly hotKey = input<ToasterProps['hotkey']>(['altKey', 'KeyT']);
   public readonly richColors = input<ToasterProps['richColors'], BooleanInput>(false, {
     transform: booleanAttribute,

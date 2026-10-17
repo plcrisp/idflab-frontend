@@ -13,17 +13,23 @@
         </span>
       </div>
 
-      <!-- Ação à Direita: Botão Executar desagregação -->
-      <button
-        hlmBtn
-        size="sm"
-        type="button"
-        [disabled]="loading() || error() || factors().length === 0"
-        (click)="execute.emit()"
-        class="cursor-pointer font-medium shrink-0"
-      >
-        Executar desagregação
-      </button>
+      <!-- Ação à Direita: Botão Executar desagregação (some após executado) -->
+      @if (!isExecuted()) {
+        <button
+          hlmBtn
+          size="sm"
+          type="button"
+          [disabled]="loading() || error() || factors().length === 0 || isExecuting()"
+          (click)="execute.emit()"
+          class="cursor-pointer font-medium shrink-0"
+        >
+          @if (isExecuting()) {
+            Executando…
+          } @else {
+            Executar desagregação
+          }
+        </button>
+      }
     </div>
 
     <!-- Corpo do Card -->

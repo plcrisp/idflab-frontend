@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
   standalone: false,
   template: `
     <router-outlet></router-outlet>
-    <hlm-toaster />
+    <hlm-toaster position="bottom-center" />
   `,
 })
 export class AppComponent {}

@@ -12,11 +12,14 @@
     [(selected)]="selectedMethod"
     [bartlettDisabled]="isBartlettDisabled()"
     [isCheckingCandidates]="isCheckingCemaden()"
+    [cetesbExecuted]="isCetesbExecuted()"
   />
 
   <!-- 3. Configuração do Método Selecionado -->
   <app-temporal-disaggregation-config
     [method]="selectedMethod()"
+    [isExecuting]="isExecuting()"
+    [isExecuted]="isCetesbExecuted()"
     (execute)="onExecuteDisaggregation()"
   />
 </div>

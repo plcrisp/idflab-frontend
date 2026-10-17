@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input, model } from '@ang
 import { CommonModule } from '@angular/common';
 import { provideIcons } from '@ng-icons/core';
 import { lucideChartColumn, lucideDroplet, lucideDroplets } from '@ng-icons/lucide';
+import { HlmBadge } from '@spartan-ng/helm/badge';
 import { Path } from '../../../../shared/components/path/path';
 
 export type DisaggregationMethod = 'cetesb' | 'bartlett-lewis';
@@ -9,7 +10,7 @@ export type DisaggregationMethod = 'cetesb' | 'bartlett-lewis';
 @Component({
   selector: 'app-temporal-disaggregation-path-selector',
   standalone: true,
-  imports: [CommonModule, Path],
+  imports: [CommonModule, HlmBadge, Path],
   providers: [
     provideIcons({
       lucideChartColumn,
@@ -26,6 +27,7 @@ export class TemporalDisaggregationPathSelector {
   readonly disabled = input<boolean>(false);
   readonly bartlettDisabled = input<boolean>(false);
   readonly isCheckingCandidates = input<boolean>(false);
+  readonly cetesbExecuted = input<boolean>(false);
 
   readonly bartlettBadge = computed<string>(() => {
     if (this.isCheckingCandidates()) {

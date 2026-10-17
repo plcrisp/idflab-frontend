@@ -18,6 +18,8 @@ export class TemporalDisaggregationConfig implements OnInit {
   private readonly disaggregationService = inject(TemporalDisaggregationService);
 
   readonly method = input.required<DisaggregationMethod>();
+  readonly isExecuting = input<boolean>(false);
+  readonly isExecuted = input<boolean>(false);
   readonly execute = output<void>();
 
   readonly factors = signal<CetesbFactorItem[]>([]);
