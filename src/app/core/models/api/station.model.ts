@@ -94,6 +94,7 @@ export interface NeighborStation {
 export interface NeighborStationsFilter {
   limit?: number;
   max_distance_km?: number;
+  calibration_candidates?: boolean;
 }
 
 export interface EnsureStationDataRequest {

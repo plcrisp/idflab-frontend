@@ -1,6 +1,7 @@
-﻿import { Component, computed, DestroyRef, effect, inject, signal, untracked } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, signal, untracked } from '@angular/core';
 import { ProjectStateService } from '../../services/project-state.service';
 import { InitialVisualizationService } from '../../services/initial-visualization.service';
+import { StationService } from '../../../../core/services/api/stations.service';
 import { GlobalStats } from '../../shared/models/analysis.models';
 import { SkeletonLoadingCoordinator, trackWithSkeleton } from '../../../../core/utils/skeleton-loading-coordinator';
 import { Subscription } from 'rxjs';
@@ -15,6 +16,7 @@ import { DisaggregationMethod } from './components/temporal-disaggregation-path-
 export class TemporalDisaggregation {
   private projectState = inject(ProjectStateService);
   private initialVisualizationService = inject(InitialVisualizationService);
+  private stationService = inject(StationService);
   private destroyRef = inject(DestroyRef);
 
   readonly project = this.projectState.project;
@@ -22,8 +24,10 @@ export class TemporalDisaggregation {
   readonly hasInsufficientData = this.projectState.hasInsufficientData;
 
   readonly selectedMethod = signal<DisaggregationMethod>('cetesb');
-
   readonly stats = signal<GlobalStats | null>(null);
+
+  readonly hasCemadenNeighbors = signal<boolean>(false);
+  readonly isCheckingCemaden = signal<boolean>(false);
 
   private readonly summarySkeleton = new SkeletonLoadingCoordinator({
     delayMs: 350,
@@ -39,12 +43,19 @@ export class TemporalDisaggregation {
     () => this.isJobRunning() || this.summarySkeleton.showSkeleton(),
   );
 
+  readonly isBartlettDisabled = computed<boolean>(
+    () => !this.hasCemadenNeighbors() || this.isCheckingCemaden(),
+  );
+
   private summarySub: Subscription | null = null;
+  private cemadenSub: Subscription | null = null;
   private lastLoadedProjectId: string | null = null;
+  private lastCheckedStationId: string | null = null;
 
   constructor() {
     this.destroyRef.onDestroy(() => {
       this.summarySub?.unsubscribe();
+      this.cemadenSub?.unsubscribe();
     });
 
     effect(() => {
@@ -54,12 +65,18 @@ export class TemporalDisaggregation {
       if (!project || isJobRunning) {
         untracked(() => {
           this.stats.set(null);
+          this.hasCemadenNeighbors.set(false);
+          this.isCheckingCemaden.set(false);
         });
         return;
       }
 
       untracked(() => {
         this.loadSummary(project.id);
+        const stationId = project.station?.id ?? project.station_id;
+        if (stationId) {
+          this.checkCemadenCandidates(stationId);
+        }
       });
     });
   }
@@ -80,6 +97,38 @@ export class TemporalDisaggregation {
         error: (err) => {
           console.error('[TemporalDisaggregation] Erro ao carregar resumo da estação:', err);
           this.stats.set(null);
+        },
+      });
+  }
+
+  private checkCemadenCandidates(stationId: string): void {
+    if (this.lastCheckedStationId === stationId) {
+      return;
+    }
+    this.lastCheckedStationId = stationId;
+    this.cemadenSub?.unsubscribe();
+    this.isCheckingCemaden.set(true);
+
+    this.cemadenSub = this.stationService
+      .getNeighborStations(stationId, { calibration_candidates: true })
+      .subscribe({
+        next: (candidates) => {
+          const hasCandidates = candidates.length > 0;
+          this.hasCemadenNeighbors.set(hasCandidates);
+          this.isCheckingCemaden.set(false);
+
+          if (!hasCandidates && this.selectedMethod() === 'bartlett-lewis') {
+            this.selectedMethod.set('cetesb');
+          }
+        },
+        error: (err) => {
+          console.error('[TemporalDisaggregation] Erro ao buscar estações CEMADEN candidatas:', err);
+          this.hasCemadenNeighbors.set(false);
+          this.isCheckingCemaden.set(false);
+
+          if (this.selectedMethod() === 'bartlett-lewis') {
+            this.selectedMethod.set('cetesb');
+          }
         },
       });
   }

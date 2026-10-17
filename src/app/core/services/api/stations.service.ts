@@ -60,6 +60,9 @@ export class StationService {
     if (filters?.max_distance_km !== undefined) {
       params = params.set('max_distance_km', filters.max_distance_km);
     }
+    if (filters?.calibration_candidates !== undefined) {
+      params = params.set('calibration_candidates', filters.calibration_candidates);
+    }
 
     return this.http.get<NeighborStation[]>(`${this.baseUrl}/${stationId}/neighbors`, { params });
   }

@@ -1,4 +1,4 @@
-﻿<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
   <!-- Card 1: Fatores CETESB -->
   <app-path
     [selected]="selected() === 'cetesb'"
@@ -13,10 +13,10 @@
   <!-- Card 2: Bartlett-Lewis -->
   <app-path
     [selected]="selected() === 'bartlett-lewis'"
-    [disabled]="disabled()"
-    icon="lucideDroplets"
+    [disabled]="disabled() || bartlettDisabled()"
+    icon="lucideDroplet"
     title="Bartlett-Lewis"
-    badge="Avançado"
+    [badge]="bartlettBadge()"
     description="Simula a estrutura interna da chuva, calibrada com uma estação de alta resolução próxima."
     (select)="selectOption('bartlett-lewis')"
   />

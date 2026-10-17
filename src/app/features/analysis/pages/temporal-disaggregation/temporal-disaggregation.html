@@ -1,4 +1,4 @@
-﻿<div class="flex flex-col gap-4 overflow-x-hidden">
+<div class="flex flex-col gap-4 overflow-x-hidden">
   <!-- 1. Barra de Resumo Compacta da Estação -->
   <app-station-summary-bar
     [stats]="stats()"
@@ -8,5 +8,9 @@
   />
 
   <!-- 2. Seletor de Caminho da Desagregação Temporal -->
-  <app-temporal-disaggregation-path-selector [(selected)]="selectedMethod" />
+  <app-temporal-disaggregation-path-selector
+    [(selected)]="selectedMethod"
+    [bartlettDisabled]="isBartlettDisabled()"
+    [isCheckingCandidates]="isCheckingCemaden()"
+  />
 </div>
