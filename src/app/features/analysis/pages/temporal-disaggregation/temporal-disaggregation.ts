@@ -1,9 +1,12 @@
 import { Component, computed, DestroyRef, effect, inject, signal, untracked } from '@angular/core';
+import { Router } from '@angular/router';
+import { TitleCasePipe } from '@angular/common';
 import { ProjectStateService } from '../../services/project-state.service';
 import { InitialVisualizationService } from '../../services/initial-visualization.service';
 import { StationService } from '../../../../core/services/api/stations.service';
 import { ProjectStepsService } from '../../../../core/services/api/project-steps.service';
 import { TemporalDisaggregationService } from '../../services/temporal-disaggregation.service';
+import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
 import { GlobalStats } from '../../shared/models/analysis.models';
 import { SkeletonLoadingCoordinator, trackWithSkeleton } from '../../../../core/utils/skeleton-loading-coordinator';
 import { Subscription } from 'rxjs';
@@ -22,11 +25,14 @@ export class TemporalDisaggregation {
   private stationService = inject(StationService);
   private projectStepsService = inject(ProjectStepsService);
   private disaggregationService = inject(TemporalDisaggregationService);
+  private mainLayoutService = inject(MainLayoutService);
+  private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
   readonly project = this.projectState.project;
   readonly isJobRunning = this.projectState.isJobRunning;
   readonly hasInsufficientData = this.projectState.hasInsufficientData;
+  readonly isAdvancing = signal<boolean>(false);
 
   readonly selectedMethod = signal<DisaggregationMethod>('cetesb');
   readonly stats = signal<GlobalStats | null>(null);
@@ -65,6 +71,19 @@ export class TemporalDisaggregation {
       this.summarySub?.unsubscribe();
       this.cemadenSub?.unsubscribe();
       this.stepSub?.unsubscribe();
+    });
+
+    effect(() => {
+      const project = this.project();
+      if (!project) return;
+
+      const projectName = new TitleCasePipe().transform(project.name) || project.name;
+
+      this.mainLayoutService.setBreadcrumbs([
+        { label: 'Nova Análise', url: '/app/interactive-map' },
+        { label: projectName, url: `/app/project/${project.id}` },
+        { label: 'Resolução Temporal', url: `/app/analysis/${project.id}/temporal-disaggregation` },
+      ]);
     });
 
     effect(() => {
@@ -176,6 +195,7 @@ export class TemporalDisaggregation {
           this.projectState.updateFurthestStep('DISTRIBUTION').subscribe({
             error: (err) => console.error('Erro ao atualizar etapa do projeto:', err),
           });
+          setTimeout(() => this.scrollToResultCard(), 100);
         },
         error: (err) => {
           this.isExecuting.set(false);
@@ -187,5 +207,34 @@ export class TemporalDisaggregation {
         },
       });
     }
+  }
+
+  scrollToResultCard(): void {
+    const el = document.getElementById('temporal-disaggregation-result-card');
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  onBack(): void {
+    const project = this.project();
+    if (!project || this.isAdvancing()) return;
+    this.router.navigate(['/app/analysis', project.id, 'gap-filling']);
+  }
+
+  onAdvance(): void {
+    const project = this.project();
+    if (!project || this.isAdvancing() || !this.isCetesbExecuted()) return;
+
+    this.isAdvancing.set(true);
+    this.projectState.updateFurthestStep('DISTRIBUTION').subscribe({
+      next: () => {
+        this.isAdvancing.set(false);
+        this.router.navigate(['/app/analysis', project.id, 'distribution']);
+      },
+      error: (err) => {
+        this.isAdvancing.set(false);
+        console.error('Erro ao avançar para distribuição:', err);
+        this.router.navigate(['/app/analysis', project.id, 'distribution']);
+      },
+    });
   }
 }

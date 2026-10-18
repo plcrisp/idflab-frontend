@@ -22,4 +22,38 @@
     [isExecuted]="isCetesbExecuted()"
     (execute)="onExecuteDisaggregation()"
   />
+
+  <!-- 4. Resultado da Desagregação (quando executado) -->
+  @if (isCetesbExecuted() && project(); as p) {
+    <app-temporal-disaggregation-result
+      [projectId]="p.id"
+      [method]="'CETESB'"
+    />
+  }
+
+  <!-- 5. Rodapé com Ações (Voltar e Avançar) -->
+  <div class="flex w-full items-center justify-between gap-3 pt-2">
+    <button
+      hlmBtn
+      variant="outline"
+      (click)="onBack()"
+      [disabled]="isAdvancing()"
+    >
+      <ng-icon name="lucideArrowLeft" class="mr-2" />
+      Voltar
+    </button>
+
+    <button
+      hlmBtn
+      (click)="onAdvance()"
+      [disabled]="!isCetesbExecuted() || isAdvancing()"
+    >
+      @if (isAdvancing()) {
+        <hlm-spinner class="mr-2" />
+      }
+      Avançar
+      <ng-icon name="lucideArrowRight" class="ml-2" />
+    </button>
+  </div>
 </div>
+
