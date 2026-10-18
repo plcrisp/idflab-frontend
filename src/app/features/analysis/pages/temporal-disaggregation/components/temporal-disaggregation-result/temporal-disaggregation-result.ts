@@ -11,23 +11,29 @@ import {
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpResponse } from '@angular/common/http';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowDown,
   lucideArrowUp,
   lucideChevronLeft,
   lucideChevronRight,
+  lucideDownload,
   lucideRotateCw,
   lucideTable,
   lucideTrendingDown,
   lucideTriangleAlert,
 } from '@ng-icons/lucide';
+import { finalize } from 'rxjs';
+import { toast } from '@spartan-ng/brain/sonner';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
+import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 import { EChartsOption } from 'echarts';
 
 import { EchartsService } from '../../../../../../core/services/utils/echarts.service';
+import { FileDownloadService } from '../../../../../../core/services/utils/file-download.service';
 import { TemporalDisaggregationService } from '../../../../services/temporal-disaggregation.service';
 import {
   TemporalDisaggregationDecayCurveResponse,
@@ -48,6 +54,7 @@ import {
     NgIcon,
     HlmButtonImports,
     HlmSkeletonImports,
+    HlmSpinnerImports,
     HlmTooltipImports,
   ],
   providers: [
@@ -61,6 +68,7 @@ import {
       lucideChevronRight,
       lucideRotateCw,
       lucideTriangleAlert,
+      lucideDownload,
     }),
   ],
   templateUrl: './temporal-disaggregation-result.html',
@@ -75,9 +83,11 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
   private chartContainer?: ElementRef<HTMLDivElement>;
 
   private readonly disaggregationService = inject(TemporalDisaggregationService);
+  private readonly fileDownloadService = inject(FileDownloadService);
   private readonly echarts = inject(EchartsService) as EchartsService<TemporalDisaggregationDecayCurveResponse>;
 
   readonly activeView = signal<'chart' | 'table'>('chart');
+  readonly isDownloadingTable = signal<boolean>(false);
 
   // Estado da Curva de Decaimento
   readonly decayCurve = signal<TemporalDisaggregationDecayCurveResponse | null>(null);
@@ -186,6 +196,41 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
     if (val === null || val === undefined) return '—';
     return val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
+
+  onDownloadTable(): void {
+    const projectId = this.projectId();
+    if (!projectId || this.isDownloadingTable()) return;
+
+    this.isDownloadingTable.set(true);
+
+    this.disaggregationService
+      .downloadTableCsv(projectId)
+      .pipe(finalize(() => this.isDownloadingTable.set(false)))
+      .subscribe({
+        next: (response: HttpResponse<Blob>) => {
+          try {
+            this.fileDownloadService.triggerDownload(
+              response,
+              `desagregacao_temporal_${projectId}.csv`,
+            );
+          } catch (err) {
+            console.error('[TemporalDisaggregationResult] erro ao processar arquivo baixado:', err);
+            toast.error('Não foi possível baixar a tabela. Arquivo vazio.', {
+              duration: 8000,
+              position: 'bottom-center',
+            });
+          }
+        },
+        error: (err: unknown) => {
+          console.error('[TemporalDisaggregationResult] erro ao baixar CSV da tabela:', err);
+          toast.error('Não foi possível exportar a tabela para CSV. Tente novamente.', {
+            duration: 8000,
+            position: 'bottom-center',
+          });
+        },
+      });
+  }
+
 
   private buildChartOption(data: TemporalDisaggregationDecayCurveResponse): EChartsOption {
     const tokens = this.echarts.getTokens();

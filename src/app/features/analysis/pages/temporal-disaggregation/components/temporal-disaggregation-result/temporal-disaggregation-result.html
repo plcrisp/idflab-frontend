@@ -233,9 +233,28 @@
           </table>
         </div>
 
-        <p class="text-xs text-muted-foreground mt-0.5">
-          Precipitações máximas desagregadas (mm) para cada ano e duração.
-        </p>
+        <div class="flex flex-wrap items-center justify-between gap-3 mt-1 pt-2 border-t border-border/40">
+          <p class="text-xs text-muted-foreground">
+            Precipitações máximas desagregadas (mm) para cada ano e duração.
+          </p>
+
+          <button
+            hlmBtn
+            variant="outline"
+            size="sm"
+            type="button"
+            (click)="onDownloadTable()"
+            [disabled]="loadingTable() || isDownloadingTable()"
+            class="cursor-pointer text-xs h-8 px-3 inline-flex items-center font-medium shrink-0 ml-auto"
+          >
+            @if (isDownloadingTable()) {
+              <hlm-spinner class="mr-2" />
+            } @else {
+              <ng-icon name="lucideDownload" class="mr-2 text-sm" />
+            }
+            Exportar CSV
+          </button>
+        </div>
       }
     </div>
   </div>
