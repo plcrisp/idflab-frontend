@@ -111,7 +111,7 @@ export class GapFilling {
       this.mainLayoutService.setBreadcrumbs([
         { label: 'Nova Análise', url: '/app/interactive-map' },
         { label: projectName, url: `/app/project/${project.id}` },
-        { label: 'Tratamento de falhas', url: `/app/analysis/${project.id}/tratamento-de-falhas` },
+        { label: 'Tratamento de falhas', url: `/app/analysis/${project.id}/gap-filling` },
       ]);
     });
 
@@ -213,7 +213,7 @@ export class GapFilling {
         .subscribe({
           next: () => {
             this.isAdvancing.set(false);
-            this.router.navigate(['/app/analysis', project.id, 'resolucao-temporal']);
+            this.router.navigate(['/app/analysis', project.id, 'temporal-disaggregation']);
           },
           error: (err: unknown) => {
             console.error('Erro ao salvar filtro de anos:', err);
@@ -227,12 +227,12 @@ export class GapFilling {
     this.projectState.updateFurthestStep('TEMPORAL_RESOLUTION').subscribe({
       next: () => {
         this.isAdvancing.set(false);
-        this.router.navigate(['/app/analysis', project.id, 'resolucao-temporal']);
+        this.router.navigate(['/app/analysis', project.id, 'temporal-disaggregation']);
       },
       error: (err: unknown) => {
         console.error('Erro ao atualizar etapa do projeto:', err);
         this.isAdvancing.set(false);
-        this.router.navigate(['/app/analysis', project.id, 'resolucao-temporal']);
+        this.router.navigate(['/app/analysis', project.id, 'temporal-disaggregation']);
       },
     });
   }

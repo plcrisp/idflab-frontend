@@ -106,12 +106,12 @@ export class ConsistencyCheck {
       .subscribe({
         next: () => {
           this.isAdvancing.set(false);
-          this.router.navigate(['/app/analysis', project.id, 'tratamento-de-falhas']);
+          this.router.navigate(['/app/analysis', project.id, 'gap-filling']);
         },
         error: (err) => {
           console.error('Erro ao atualizar etapa do projeto:', err);
           this.isAdvancing.set(false);
-          this.router.navigate(['/app/analysis', project.id, 'tratamento-de-falhas']);
+          this.router.navigate(['/app/analysis', project.id, 'gap-filling']);
         },
       });
   }

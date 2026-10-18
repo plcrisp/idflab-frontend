@@ -1,4 +1,4 @@
-﻿import { Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { InitialVisualization } from './pages/initial-visualization/initial-visualization';
 import { AnalysisLayout } from './analysis-layout/analysis-layout';
 import { ConsistencyCheck } from './pages/consistency-check/consistency-check';
@@ -35,23 +35,28 @@ export const ANALYSIS_ROUTES: Routes = [
         title: 'Verificação de Consistência | IDFLab',
       },
       {
-        path: 'tratamento-de-falhas',
+        path: 'gap-filling',
         component: GapFilling,
         title: 'Tratamento de Falhas | IDFLab',
       },
       {
-        path: 'gap-filling',
-        redirectTo: 'tratamento-de-falhas',
+        path: 'tratamento-de-falhas',
+        redirectTo: 'gap-filling',
         pathMatch: 'full',
       },
       {
-        path: 'resolucao-temporal',
+        path: 'temporal-disaggregation',
         component: TemporalDisaggregation,
         title: 'Resolução Temporal | IDFLab',
       },
       {
-        path: 'temporal-disaggregation',
-        redirectTo: 'resolucao-temporal',
+        path: 'resolucao-temporal',
+        redirectTo: 'temporal-disaggregation',
+        pathMatch: 'full',
+      },
+      {
+        path: 'temporal-resolution',
+        redirectTo: 'temporal-disaggregation',
         pathMatch: 'full',
       },
     ],
