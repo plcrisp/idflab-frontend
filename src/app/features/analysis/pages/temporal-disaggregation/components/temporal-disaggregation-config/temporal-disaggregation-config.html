@@ -13,30 +13,43 @@
         </span>
       </div>
 
-      <!-- Ação à Direita: Botão Executar desagregação (some após executado) -->
-      @if (!isExecuted()) {
+      <!-- Ação à Direita: Badge se executado, ou Botão de Execução se pendente -->
+      @if (isExecuted()) {
+        <span
+          hlmBadge
+          variant="outline"
+          class="text-xs font-medium px-2.5 py-0.5 rounded-md border flex items-center gap-1.5 bg-success/15 text-success border-success/30 shrink-0"
+        >
+          <span class="h-1.5 w-1.5 rounded-full bg-success"></span>
+          Fatores aplicados
+        </span>
+      } @else {
         <button
           hlmBtn
           size="sm"
           type="button"
           [disabled]="loading() || error() || factors().length === 0 || isExecuting()"
           (click)="execute.emit()"
-          class="cursor-pointer font-medium shrink-0"
+          class="cursor-pointer font-medium inline-flex items-center gap-1.5 shadow-xs shrink-0"
         >
           @if (isExecuting()) {
-            Executando…
+            <hlm-spinner class="mr-1" />
+            <span>Executando…</span>
           } @else {
-            Executar desagregação
+            <span>Executar desagregação</span>
           }
         </button>
       }
     </div>
 
     <!-- Corpo do Card -->
-    <div class="p-4 sm:p-5 flex flex-col">
+    <div class="p-4 sm:p-5 flex flex-col gap-4">
       @if (loading()) {
-        <div class="flex items-center justify-center py-4 text-xs text-muted-foreground">
-          Carregando fatores da CETESB…
+        <!-- Skeletons na mesma grade de 12 tiles -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 gap-2 sm:gap-2.5">
+          @for (i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; track i) {
+            <div hlmSkeleton class="h-20 rounded-lg bg-secondary/40"></div>
+          }
         </div>
       } @else if (error()) {
         <div
@@ -54,51 +67,23 @@
           </button>
         </div>
       } @else {
-        <!-- Tabela Horizontal de Fatores -->
-        <div class="w-full overflow-x-auto">
-          <table class="w-full border-separate border-spacing-0 text-left">
-            <thead>
-              <tr>
-                <th
-                  class="text-[13px] font-normal text-muted-foreground text-left py-2.5 px-3 min-w-18 bg-secondary/50 first:rounded-l-lg border-b border-border"
-                >
-                  Duração
-                </th>
-                @for (item of factors(); track item.duration_minutes) {
-                  @if (item.duration_minutes === 1440) {
-                    <th
-                      class="text-[13px] font-medium text-muted-foreground text-center py-2.5 px-2 min-w-16 bg-secondary/50 last:rounded-r-lg border-b border-border cursor-help"
-                      [hlmTooltip]="'Fator de Weiss'"
-                    >
-                      {{ item.label }}
-                    </th>
-                  } @else {
-                    <th
-                      class="text-[13px] font-medium text-muted-foreground text-center py-2.5 px-2 min-w-16 bg-secondary/50 last:rounded-r-lg border-b border-border"
-                    >
-                      {{ item.label }}
-                    </th>
-                  }
-                }
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td
-                  class="text-sm font-normal text-muted-foreground text-left py-2.5 px-3 min-w-18"
-                >
-                  Fator
-                </td>
-                @for (item of factors(); track item.duration_minutes) {
-                  <td
-                    class="text-sm font-medium text-foreground text-center py-2.5 px-2 min-w-16"
-                  >
-                    {{ formatFactor(item.factor) }}
-                  </td>
-                }
-              </tr>
-            </tbody>
-          </table>
+        <!-- Grade Responsiva de 12 Tiles de Fatores -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 gap-2 sm:gap-2.5">
+          @for (item of factors(); track item.duration_minutes) {
+            <div
+              class="group flex flex-col items-center justify-center p-2.5 sm:py-3 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center"
+            >
+              <!-- Duração -->
+              <span class="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground group-hover:text-foreground transition-colors">
+                {{ item.label }}
+              </span>
+
+              <!-- Valor do Fator -->
+              <span class="mt-1 text-sm sm:text-base font-bold text-foreground tabular-nums">
+                {{ formatFactor(item.factor) }}
+              </span>
+            </div>
+          }
         </div>
       }
     </div>
@@ -107,3 +92,4 @@
   <!-- Bloco vazio para Bartlett-Lewis (será implementado futuramente) -->
   <div class="hidden"></div>
 }
+

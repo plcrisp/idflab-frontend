@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, input, OnInit, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
+import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
+import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { DisaggregationMethod } from '../temporal-disaggregation-path-selector/temporal-disaggregation-path-selector';
 import { TemporalDisaggregationService } from '../../../../services/temporal-disaggregation.service';
 import { CetesbFactorItem } from '../../models/temporal-disaggregation.model';
@@ -9,7 +11,13 @@ import { CetesbFactorItem } from '../../models/temporal-disaggregation.model';
 @Component({
   selector: 'app-temporal-disaggregation-config',
   standalone: true,
-  imports: [CommonModule, HlmButtonImports, HlmTooltipImports],
+  imports: [
+    CommonModule,
+    HlmBadgeImports,
+    HlmButtonImports,
+    HlmSkeletonImports,
+    HlmSpinnerImports,
+  ],
   templateUrl: './temporal-disaggregation-config.html',
   styleUrl: './temporal-disaggregation-config.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,3 +59,4 @@ export class TemporalDisaggregationConfig implements OnInit {
     return value.toFixed(4).replace('.', ',');
   }
 }
+
