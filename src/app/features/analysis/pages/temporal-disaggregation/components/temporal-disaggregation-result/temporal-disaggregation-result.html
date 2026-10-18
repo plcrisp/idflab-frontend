@@ -97,8 +97,7 @@
 
       <!-- Rodapé do Gráfico -->
       @if (!errorCurve() && decayCurve(); as curve) {
-        <div class="flex flex-wrap items-center justify-between gap-2 mt-2 pt-2 border-t border-border/40 text-xs text-muted-foreground">
-          <span>Eixos: duração nominal da chuva e intensidade de precipitação (mm/h).</span>
+        <div class="flex items-center justify-end mt-2 pt-2 border-t border-border/40 text-xs text-muted-foreground">
           <span class="tabular-nums">
             Pico histórico em <strong>{{ curve.max_year }}</strong> ({{ formatNumber(curve.max_daily_mm) }} mm diários).
           </span>
@@ -212,7 +211,15 @@
                 @for (row of tableData()?.rows ?? []; track row.year) {
                   <tr class="hover:bg-secondary/20 transition-colors">
                     <td class="py-2.5 px-3 font-semibold text-foreground border-b border-border/40 sticky left-0 bg-card z-10">
-                      {{ row.year }}
+                      <div class="inline-flex items-center gap-1.5">
+                        <span>{{ row.year }}</span>
+                        @if (row.year === maxHistoricalYear()) {
+                          <span
+                            [hlmTooltip]="'Máximo histórico'"
+                            class="inline-block h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0 cursor-help"
+                          ></span>
+                        }
+                      </div>
                     </td>
                     @for (val of row.values; track $index) {
                       <td class="py-2.5 px-2.5 text-right text-foreground tabular-nums border-b border-border/40 font-medium">

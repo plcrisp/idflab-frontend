@@ -97,6 +97,8 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
     return total > 0 ? Math.ceil(total / this.pageSize) : 1;
   });
 
+  readonly maxHistoricalYear = computed<number | null>(() => this.decayCurve()?.max_year ?? null);
+
   constructor() {
     this.echarts.setup({
       container: () => this.chartContainer?.nativeElement,
@@ -191,15 +193,35 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
     if (!data || !data.points || data.points.length === 0) {
       return {
         grid: { left: 24, right: 24, top: 32, bottom: 36, containLabel: true },
-        xAxis: { type: 'category', data: [] },
-        yAxis: { type: 'value' },
+        xAxis: { type: 'log', min: 5, max: 1440 },
+        yAxis: { type: 'log', min: 1, max: 1000 },
         series: [],
       };
     }
 
-    const categories = data.points.map((p) => p.label);
-    const maxSeriesData = data.points.map((p) => p.max_intensity_mm_h);
-    const meanSeriesData = data.points.map((p) => p.mean_intensity_mm_h);
+    const maxSeriesData = data.points.map((p) => [p.duration_minutes, p.max_intensity_mm_h]);
+    const meanSeriesData = data.points.map((p) => [p.duration_minutes, p.mean_intensity_mm_h]);
+
+    const keyDurations = [5, 15, 30, 60, 360, 1440];
+    const durationLabelMap: Record<number, string> = {
+      5: '5 min',
+      15: '15 min',
+      30: '30 min',
+      60: '1 h',
+      360: '6 h',
+      1440: '24 h',
+    };
+
+    const allIntensities = [
+      ...data.points.map((p) => p.max_intensity_mm_h),
+      ...data.points.map((p) => p.mean_intensity_mm_h),
+    ];
+    const minIntensity = Math.min(...allIntensities);
+    const maxIntensity = Math.max(...allIntensities);
+
+    const yTicks = [1, 10, 100, 1000];
+    if (minIntensity < 1) yTicks.unshift(0.1);
+    if (maxIntensity > 1000) yTicks.push(10000);
 
     const tooltipBase = buildTooltipBase(tokens);
 
@@ -209,8 +231,10 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
         trigger: 'axis',
         formatter: (params: any) => {
           if (!Array.isArray(params) || params.length === 0) return '';
-          const idx = params[0].dataIndex;
-          const pt = data.points[idx];
+          const durationVal = Array.isArray(params[0].value) ? params[0].value[0] : null;
+          const pt =
+            data.points.find((p) => p.duration_minutes === durationVal) ??
+            data.points[params[0].dataIndex];
           if (!pt) return '';
 
           const maxIntFmt = pt.max_intensity_mm_h.toLocaleString('pt-BR', {
@@ -237,7 +261,7 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
               </div>
               <div style="margin-bottom: 6px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px;">
-                  <span style="color: ${tokens.historicalMax}; font-weight: 500;">Máx. Histórico (${data.max_year}):</span>
+                  <span style="color: ${tokens.historicalMax}; font-weight: 500;">Máximo histórico (${data.max_year}):</span>
                   <strong style="color: ${tokens.text}; font-variant-numeric: tabular-nums;">${maxIntFmt} mm/h</strong>
                 </div>
                 <div style="font-size: 11px; color: ${tokens.textMuted}; text-align: right;">
@@ -246,7 +270,7 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
               </div>
               <div>
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px;">
-                  <span style="color: ${tokens.primary}; font-weight: 500;">Média dos Anos:</span>
+                  <span style="color: ${tokens.primary}; font-weight: 500;">Média dos anos:</span>
                   <strong style="color: ${tokens.text}; font-variant-numeric: tabular-nums;">${meanIntFmt} mm/h</strong>
                 </div>
                 <div style="font-size: 11px; color: ${tokens.textMuted}; text-align: right;">
@@ -272,12 +296,12 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
         },
         data: [
           {
-            name: `Máximo Histórico (${data.max_year})`,
+            name: `Máximo histórico (${data.max_year})`,
             icon: 'roundRect',
             itemStyle: { color: tokens.historicalMax },
           },
           {
-            name: 'Média dos Anos',
+            name: 'Média dos anos',
             icon: 'roundRect',
             itemStyle: { color: tokens.primary },
           },
@@ -291,11 +315,12 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
         containLabel: true,
       },
       xAxis: {
-        type: 'category',
-        data: categories,
+        type: 'log',
+        min: 5,
+        max: 1440,
         name: 'Duração',
         nameLocation: 'middle',
-        nameGap: 24,
+        nameGap: 26,
         nameTextStyle: {
           color: tokens.textMuted,
           fontFamily: tokens.fontFamily,
@@ -303,13 +328,24 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
           fontWeight: 500,
         },
         axisLine: buildAxisLineStyle(tokens),
-        axisLabel: buildAxisLabelBase(tokens),
+        axisTick: {
+          show: true,
+          lineStyle: { color: tokens.border },
+          customValues: keyDurations,
+        },
+        axisLabel: {
+          ...buildAxisLabelBase(tokens),
+          customValues: keyDurations,
+          formatter: (val: number) => durationLabelMap[val] ?? `${val} min`,
+        },
         splitLine: buildSplitLineStyle(tokens),
       },
       yAxis: {
-        type: 'value',
+        type: 'log',
         name: 'Intensidade (mm/h)',
         nameLocation: 'end',
+        min: yTicks[0],
+        max: yTicks[yTicks.length - 1],
         nameTextStyle: {
           color: tokens.textMuted,
           fontFamily: tokens.fontFamily,
@@ -319,15 +355,24 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
           padding: [0, 0, 8, -14],
         },
         axisLine: buildAxisLineStyle(tokens),
+        axisTick: {
+          show: true,
+          lineStyle: { color: tokens.border },
+          customValues: yTicks,
+        },
         axisLabel: {
           ...buildAxisLabelBase(tokens),
-          formatter: (val: number) => val.toLocaleString('pt-BR'),
+          customValues: yTicks,
+          formatter: (val: number) => {
+            if (val < 1) return val.toLocaleString('pt-BR');
+            return Math.round(val).toLocaleString('pt-BR');
+          },
         },
         splitLine: buildSplitLineStyle(tokens),
       },
       series: [
         {
-          name: `Máximo Histórico (${data.max_year})`,
+          name: `Máximo histórico (${data.max_year})`,
           type: 'line',
           data: maxSeriesData,
           smooth: 0.25,
@@ -341,7 +386,7 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
           },
         },
         {
-          name: 'Média dos Anos',
+          name: 'Média dos anos',
           type: 'line',
           data: meanSeriesData,
           smooth: 0.25,

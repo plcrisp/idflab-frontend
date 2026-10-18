@@ -29,8 +29,8 @@ export class ConsistencyCheck {
 
   readonly advanceButtonText = computed<string>(() => {
     return this.hasAnalyzedStation()
-      ? 'Prosseguir'
-      : 'Prosseguir sem verificar consistência';
+      ? 'Avançar'
+      : 'Avançar sem verificar consistência';
   });
 
   readonly isAdvanceDisabled = computed<boolean>(() => {

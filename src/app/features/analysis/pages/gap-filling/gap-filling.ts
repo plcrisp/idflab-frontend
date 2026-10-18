@@ -56,10 +56,10 @@ export class GapFilling {
     if (this.isYearFilterActive()) {
       const s = this.yearFilterState();
       if (s) {
-        return `Prosseguir com ${s.keptCount} ${s.keptCount === 1 ? 'ano' : 'anos'}`;
+        return `Avançar com ${s.keptCount} ${s.keptCount === 1 ? 'ano' : 'anos'}`;
       }
     }
-    return 'Prosseguir';
+    return 'Avançar';
   });
 
   readonly fillStatus = computed<'idle' | 'running' | 'done' | 'error'>(() => {

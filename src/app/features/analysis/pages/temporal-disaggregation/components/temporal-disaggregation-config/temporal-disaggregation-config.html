@@ -13,17 +13,8 @@
         </span>
       </div>
 
-      <!-- Ação à Direita: Badge se executado, ou Botão de Execução se pendente -->
-      @if (isExecuted()) {
-        <span
-          hlmBadge
-          variant="outline"
-          class="text-xs font-medium px-2.5 py-0.5 rounded-md border flex items-center gap-1.5 bg-success/15 text-success border-success/30 shrink-0"
-        >
-          <span class="h-1.5 w-1.5 rounded-full bg-success"></span>
-          Fatores aplicados
-        </span>
-      } @else {
+      <!-- Ação à Direita: Botão de Execução se pendente -->
+      @if (!isExecuted()) {
         <button
           hlmBtn
           size="sm"
