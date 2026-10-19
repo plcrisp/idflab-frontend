@@ -140,7 +140,7 @@ export class TemporalDisaggregation {
   });
 
   readonly executedMethodLabel = computed<string>(() => {
-    return this.selectedMethod() === 'cetesb' ? 'CETESB' : 'BARTLETT-LEWIS';
+    return this.selectedMethod() === 'cetesb' ? 'CETESB' : 'Bartlett-Lewis';
   });
 
   readonly activeJobForProgress = computed<Job | ActiveJobItem | null>(() => {
@@ -227,18 +227,8 @@ export class TemporalDisaggregation {
 
       untracked(() => {
         this.loadSummary(project.id);
-        this.checkExistingStep(project.id);
         const stationId = project.station?.id ?? project.station_id;
-        if (stationId && this.lastCheckedStationId !== stationId) {
-          this.lastCheckedStationId = stationId;
-          this.neighborManager.loadNeighbors(
-            stationId,
-            null,
-            null,
-            project.id,
-            { calibration_candidates: true },
-          );
-        }
+        this.checkExistingStep(project.id, stationId);
       });
     });
   }
@@ -282,7 +272,7 @@ export class TemporalDisaggregation {
       });
   }
 
-  private checkExistingStep(projectId: string): void {
+  private checkExistingStep(projectId: string, stationId?: string | null): void {
     this.stepSub?.unsubscribe();
     this.stepSub = this.projectStepsService
       .getProjectStep<any>(projectId, 'TEMPORAL_RESOLUTION')
@@ -295,6 +285,9 @@ export class TemporalDisaggregation {
             this.executedMethod.set(null);
             this.calibratedParams.set(null);
             this.calibrationMetadata.set(null);
+            if (stationId) {
+              this.loadNeighbors(stationId, null, projectId);
+            }
             return;
           }
 
@@ -319,9 +312,10 @@ export class TemporalDisaggregation {
 
             const calibStationId =
               (step?.params as any)?.calibration_station_id ||
-              calibMeta?.calibration_station_id;
-            if (calibStationId) {
-              this.neighborManager.applyStation(calibStationId, null, projectId);
+              calibMeta?.calibration_station_id ||
+              null;
+            if (stationId) {
+              this.loadNeighbors(stationId, calibStationId, projectId);
             }
           } else {
             this.isCetesbExecuted.set(true);
@@ -330,14 +324,42 @@ export class TemporalDisaggregation {
             this.selectedMethod.set('cetesb');
             this.calibratedParams.set(null);
             this.calibrationMetadata.set(null);
+            if (stationId) {
+              this.loadNeighbors(stationId, null, projectId);
+            }
           }
         },
         error: () => {
           this.isCetesbExecuted.set(false);
           this.isBartlettExecuted.set(false);
           this.executedMethod.set(null);
+          if (stationId) {
+            this.loadNeighbors(stationId, null, projectId);
+          }
         },
       });
+  }
+
+  private loadNeighbors(
+    stationId: string,
+    initialNeighborId?: string | null,
+    projectId?: string,
+  ): void {
+    if (this.neighborManager.neighbors().length > 0 && this.lastCheckedStationId === stationId) {
+      if (initialNeighborId) {
+        this.neighborManager.applyStation(initialNeighborId, null, projectId);
+      }
+      return;
+    }
+
+    this.lastCheckedStationId = stationId;
+    this.neighborManager.loadNeighbors(
+      stationId,
+      initialNeighborId ?? null,
+      null,
+      projectId,
+      { calibration_candidates: true },
+    );
   }
 
   onSelectCemadenStation(station: NeighborStation): void {
@@ -572,7 +594,8 @@ export class TemporalDisaggregation {
     this.executedMethod.set('BARTLETT_LEWIS');
     toast.success('Desagregação Bartlett-Lewis concluída com sucesso!');
     this.notificationsService.refetch();
-    this.checkExistingStep(projectId);
+    const stationId = this.project()?.station?.id ?? this.project()?.station_id;
+    this.checkExistingStep(projectId, stationId);
     this.projectState.updateFurthestStep('DISTRIBUTION').subscribe({
       error: (err) => console.error('Erro ao atualizar etapa do projeto:', err),
     });

@@ -22,6 +22,7 @@ import {
   lucideChevronRight,
   lucideDownload,
   lucideLoader2,
+  lucideMapPin,
   lucideRotateCw,
   lucideTable,
   lucideTrendingDown,
@@ -81,6 +82,7 @@ import {
       lucideTriangleAlert,
       lucideDownload,
       lucideLoader2,
+      lucideMapPin,
     }),
   ],
   templateUrl: './temporal-disaggregation-result.html',
@@ -95,6 +97,15 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
   readonly calibrationStation = input<NeighborStation | null>(null);
   readonly customMessage = input<string | null>(null);
   readonly customProgress = input<number | null>(null);
+
+  readonly isBartlettLewis = computed<boolean>(() => {
+    return (this.method() || '').toLowerCase().includes('bartlett');
+  });
+
+  formatDistance(distanceKm?: number | null): string {
+    if (distanceKm == null) return '-';
+    return `${distanceKm.toFixed(1).replace('.', ',')} km`;
+  }
 
   @ViewChild('chartContainer', { static: false })
   private chartContainer?: ElementRef<HTMLDivElement>;

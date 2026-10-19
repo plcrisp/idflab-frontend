@@ -51,6 +51,14 @@ export class TemporalDisaggregationConfig implements OnInit {
   readonly loading = signal<boolean>(true);
   readonly error = signal<boolean>(false);
 
+  readonly blParamsList = [
+    { key: 'lambda', letter: 'λ', unit: 'h⁻¹', desc: 'Frequência de tempestades' },
+    { key: 'beta', letter: 'β', unit: 'h⁻¹', desc: 'Término de células' },
+    { key: 'gamma', letter: 'γ', unit: 'h⁻¹', desc: 'Término de tempestade' },
+    { key: 'eta', letter: 'η', unit: 'h⁻¹', desc: 'Duração do pulso' },
+    { key: 'mu', letter: 'μ', unit: 'mm/h', desc: 'Intensidade da chuva' },
+  ] as const;
+
   ngOnInit(): void {
     if (this.method() === 'cetesb') {
       this.loadFactors();
