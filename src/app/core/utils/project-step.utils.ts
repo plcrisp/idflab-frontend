@@ -64,3 +64,46 @@ export function isStepBeyond(targetStep: StepEnum, furthestStep: StepEnum): bool
   }
   return targetIndex > furthestIndex;
 }
+
+export interface AnalysisStepDef {
+  label: string;
+  path: string;
+}
+
+export const ANALYSIS_STEPS: readonly AnalysisStepDef[] = [
+  { label: 'Mapa', path: 'interactive-map' },
+  { label: 'Visualização inicial', path: 'initial-view' },
+  { label: 'Verificação de consistência', path: 'consistency-check' },
+  { label: 'Tratamento de falhas', path: 'gap-filling' },
+  { label: 'Resolução temporal', path: 'temporal-disaggregation' },
+  { label: 'Distribuição estatística', path: 'distribuicao-estatistica' },
+  { label: 'IDF histórica', path: 'idf-historica' },
+  { label: 'Cenários futuros', path: 'cenarios-futuros' },
+] as const;
+
+export const PROJECT_PIPELINE_STEPS = ANALYSIS_STEPS.filter(
+  (step) => step.path !== 'interactive-map',
+);
+
+export function getProjectPipelineStepInfo(furthestStep: StepEnum): {
+  number: number;
+  total: number;
+  label: string;
+  percent: number;
+} {
+  const route = getRouteForStep(furthestStep);
+  const index = PROJECT_PIPELINE_STEPS.findIndex((s) => s.path === route);
+  const stepIndex = index >= 0 ? index : 0;
+  const current = PROJECT_PIPELINE_STEPS[stepIndex];
+  const number = stepIndex + 1;
+  const total = PROJECT_PIPELINE_STEPS.length;
+  const percent = Math.round((number / total) * 100);
+
+  return {
+    number,
+    total,
+    label: current.label,
+    percent,
+  };
+}
+

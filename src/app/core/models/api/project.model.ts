@@ -21,6 +21,9 @@ export interface Project {
   updated_at: string;
   furthest_step: StepEnum;
 
+  latitude?: number | null;
+  longitude?: number | null;
+
   station: StationSummary;
 }
 

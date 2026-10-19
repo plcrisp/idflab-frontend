@@ -1,9 +1,9 @@
 <article
-  class="group relative flex flex-col justify-between rounded-xl shadow-sm border border-border bg-popover p-5 transition-all duration-200 hover:border-primary/50 hover:shadow-md"
+  [routerLink]="['/app/analysis', project().id]"
+  class="group relative flex flex-col justify-between rounded-xl border border-border bg-popover p-5 transition-all duration-200 hover:border-foreground/30 hover:shadow-xs cursor-pointer select-none"
 >
-  <!-- Topo -->
   <div>
-    <!-- Nome do projeto e menu de ações ... -->
+    <!-- Linha 1: Nome do projeto e menu de ações -->
     <div class="flex items-start justify-between gap-3 mb-2">
       <h2
         class="font-semibold text-base text-foreground truncate leading-snug flex-1"
@@ -12,39 +12,41 @@
         {{ project().name }}
       </h2>
 
-      <!-- Menu de Ações ... -->
-      <div class="relative shrink-0" [hlmDropdownMenuTrigger]="cardMenu">
+      <!-- Menu de ações (não dispara navegação) -->
+      <div class="relative shrink-0" (click)="$event.stopPropagation()">
         <button
           type="button"
-          class="h-8 w-8 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors focus:outline-none cursor-pointer"
-          title="Ações do projeto"
-          aria-label="Ações do projeto"
+          [hlmDropdownMenuTrigger]="cardMenu"
+          (click)="$event.stopPropagation()"
+          class="h-7 w-7 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors focus:outline-none cursor-pointer"
+          title="Opções do projeto"
+          aria-label="Opções do projeto"
         >
           <ng-icon name="lucideMoreVertical" class="w-4 h-4"></ng-icon>
         </button>
-      </div>
 
-      <ng-template #cardMenu>
-        <hlm-dropdown-menu class="w-44">
-          <button hlmDropdownMenuItem (click)="onRename()">
-            <ng-icon name="lucidePencil" class="mr-2 h-4 w-4 text-muted-foreground"></ng-icon>
-            <span>Renomear</span>
-          </button>
-          <hlm-dropdown-menu-separator />
-          <button
-            hlmDropdownMenuItem
-            (click)="onDelete()"
-            class="text-destructive focus:text-destructive focus:bg-destructive/10"
-          >
-            <ng-icon name="lucideTrash2" class="mr-2 h-4 w-4 text-destructive"></ng-icon>
-            <span>Excluir</span>
-          </button>
-        </hlm-dropdown-menu>
-      </ng-template>
+        <ng-template #cardMenu>
+          <hlm-dropdown-menu class="w-40">
+            <button hlmDropdownMenuItem (click)="onRename($event)">
+              <ng-icon name="lucidePencil" class="mr-2 h-4 w-4 text-muted-foreground"></ng-icon>
+              <span>Renomear</span>
+            </button>
+            <hlm-dropdown-menu-separator />
+            <button
+              hlmDropdownMenuItem
+              (click)="onDelete($event)"
+              class="text-destructive focus:text-destructive focus:bg-destructive/10"
+            >
+              <ng-icon name="lucideTrash2" class="mr-2 h-4 w-4 text-destructive"></ng-icon>
+              <span>Excluir</span>
+            </button>
+          </hlm-dropdown-menu>
+        </ng-template>
+      </div>
     </div>
 
-    <!-- Linha de identificação da Estação: Badges + Nome / UF -->
-    <div class="flex items-center gap-2 mb-3 flex-wrap">
+    <!-- Linha 2, em cinza: Badge fonte, código, UF e nome da estação se não repetir -->
+    <div class="flex items-center gap-2 text-xs text-muted-foreground flex-wrap mb-2">
       <span
         hlmBadge
         [ngClass]="project().station.source.toLowerCase()"
@@ -58,65 +60,44 @@
         {{ project().station.code }}
       </span>
 
-      <span class="text-xs font-medium text-muted-foreground truncate max-w-56" [title]="project().station.name">
-        {{ project().station.name | titlecase }}@if (project().station.state) { · {{ project().station.state }} }
-      </span>
+      @if (project().station.state) {
+        <span>{{ project().station.state }}</span>
+      }
+
+      @if (shouldShowStationName()) {
+        <span>·</span>
+        <span class="truncate max-w-44" [title]="project().station.name">
+          {{ project().station.name }}
+        </span>
+      }
     </div>
 
-    <!-- Bloco Técnico de Metadados Hidrológicos -->
-    <div class="grid grid-cols-2 gap-3 my-3 p-3 rounded-lg bg-card/60 border border-border/60 text-xs">
-      <div>
-        <span class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          PERÍODO
-        </span>
-        <p class="font-medium text-foreground mt-0.5 truncate">
-          {{ formattedPeriod() }}
-        </p>
-        <span class="text-[11px] text-muted-foreground">
-          {{ seriesYearsText() }}
-        </span>
-      </div>
+    <!-- Linha 3, em cinza: Período · Anos · Resolução -->
+    <p class="text-xs text-muted-foreground truncate mb-4">
+      {{ formattedPeriod() }} · {{ seriesYearsText() }} · {{ translatedResolution() }}
+    </p>
 
-      <div>
-        <span class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          RESOLUÇÃO
-        </span>
-        <p class="font-medium text-foreground mt-0.5 truncate">
-          {{ translatedResolution() }}
-        </p>
-        <span class="text-[11px] text-muted-foreground truncate block">
-          Passo temporal
-        </span>
-      </div>
-    </div>
-
-    <!-- Progresso do Pipeline -->
-    <div class="space-y-1.5 my-3 pt-2">
-      <div class="flex justify-between items-center text-xs">
+    <!-- Progresso: Barra fina e texto Etapa X de 7 · [Etapa] -->
+    <div class="space-y-1.5 pt-1">
+      <div class="flex items-center justify-between text-xs text-muted-foreground">
         @if (isProcessing()) {
-        <span
-          class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/15 text-amber-400 border border-amber-500/30 animate-pulse"
-        >
-          <span class="relative flex h-1.5 w-1.5">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
+          <span class="inline-flex items-center gap-1.5 text-xs text-amber-500 font-medium">
+            <span class="relative flex h-1.5 w-1.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
+            </span>
+            Processando...
           </span>
-          Processando cálculo...
-        </span>
         } @else {
-        <span class="text-muted-foreground font-medium truncate pr-2">
-          {{ stepInfo().label }}
-        </span>
+          <span class="truncate">
+            Etapa {{ stepInfo().number }} de 7 · {{ stepInfo().label }}
+          </span>
         }
-
-        <span class="text-foreground font-semibold shrink-0">
-          {{ stepInfo().percent }}%
-        </span>
       </div>
 
-      <div class="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
+      <div class="h-1 w-full bg-secondary rounded-full overflow-hidden">
         <div
-          class="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+          class="h-full bg-primary rounded-full transition-all duration-300"
           [style.width.%]="stepInfo().percent"
         ></div>
       </div>
@@ -124,33 +105,14 @@
   </div>
 
   <!-- Rodapé -->
-  <footer class="pt-3 border-t border-border/60 flex items-center justify-between gap-3 mt-1">
-    <span class="text-[11px] text-muted-foreground truncate">
+  <footer class="pt-3 border-t border-border/40 flex items-center justify-between gap-3 mt-4 text-xs">
+    <span class="text-muted-foreground text-[11px] sm:text-xs truncate">
       Atualizado em {{ project().updated_at | date:'dd/MM/yyyy' }}
     </span>
 
-    @if (isCompleted()) {
-    <a
-      [routerLink]="['/app/analysis', project().id]"
-      hlmBtn
-      variant="outline"
-      size="sm"
-      class="shrink-0 text-xs gap-1.5 font-medium"
-    >
-      <span>Ver Resultados</span>
-      <ng-icon name="lucideArrowRight" class="w-3.5 h-3.5"></ng-icon>
-    </a>
-    } @else {
-    <a
-      [routerLink]="['/app/analysis', project().id]"
-      hlmBtn
-      variant="default"
-      size="sm"
-      class="shrink-0 text-xs gap-1.5 font-medium"
-    >
-      <span>Continuar Análise</span>
-      <ng-icon name="lucideArrowRight" class="w-3.5 h-3.5"></ng-icon>
-    </a>
-    }
+    <span class="text-muted-foreground group-hover:text-foreground font-medium transition-colors inline-flex items-center gap-0.5 shrink-0">
+      Continuar →
+    </span>
   </footer>
 </article>
+

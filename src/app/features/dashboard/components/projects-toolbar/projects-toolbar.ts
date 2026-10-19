@@ -1,7 +1,13 @@
 import { Component, input, output } from '@angular/core';
-import { ProjectStatsData } from '../projects-stats/projects-stats';
+
+export interface ProjectStatsData {
+  total: number;
+  inProgress: number;
+  completed: number;
+}
 
 export type StatusFilterType = 'ALL' | 'IN_PROGRESS' | 'COMPLETED';
+
 
 @Component({
   selector: 'app-projects-toolbar',

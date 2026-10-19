@@ -5,8 +5,10 @@ import { MainLayoutService } from '../../core/services/state/main-layout.service
 import { ProjectsService } from '../../core/services/api/projects.service';
 import { NotificationsService } from '../../core/services/api/notifications.service';
 import { Project } from '../../core/models/api/project.model';
-import { StatusFilterType } from './components/projects-toolbar/projects-toolbar';
-import { ProjectStatsData } from './components/projects-stats/projects-stats';
+import {
+  ProjectStatsData,
+  StatusFilterType,
+} from './components/projects-toolbar/projects-toolbar';
 
 @Component({
   selector: 'app-dashboard',
@@ -24,6 +26,10 @@ export class Dashboard implements OnInit {
   readonly projects = signal<Project[]>([]);
   readonly searchQuery = signal<string>('');
   readonly statusFilter = signal<StatusFilterType>('ALL');
+
+  // Paginação (3 cards = 1 fileira de 3)
+  readonly pageSize = 3;
+  readonly currentPage = signal<number>(1);
 
   // Modais
   readonly renameModalOpen = signal<boolean>(false);
@@ -73,9 +79,31 @@ export class Dashboard implements OnInit {
     });
   });
 
+  readonly totalFiltered = computed<number>(() => this.filteredProjects().length);
+
+  readonly totalPages = computed<number>(() =>
+    Math.max(1, Math.ceil(this.totalFiltered() / this.pageSize)),
+  );
+
+  readonly paginatedProjects = computed<Project[]>(() => {
+    const list = this.filteredProjects();
+    const page = this.currentPage();
+    const start = (page - 1) * this.pageSize;
+    return list.slice(start, start + this.pageSize);
+  });
+
+  readonly paginationText = computed<string>(() => {
+    const total = this.totalFiltered();
+    if (total === 0) return '';
+    const page = this.currentPage();
+    const start = (page - 1) * this.pageSize + 1;
+    const end = Math.min(page * this.pageSize, total);
+    return `${start}-${end} de ${total}`;
+  });
+
   ngOnInit(): void {
     this.mainLayoutService.setBreadcrumbs([
-      { label: 'Central de Projetos', url: '/app/projects', active: true },
+      { label: 'Central de projetos', url: '/app/projects', active: true },
     ]);
     this.sidebarService.setOpen(true);
 
@@ -108,9 +136,32 @@ export class Dashboard implements OnInit {
     return panel.active_jobs.some((job) => job.project_id === projectId);
   }
 
+  onSearchQueryChange(query: string): void {
+    this.searchQuery.set(query);
+    this.currentPage.set(1);
+  }
+
+  onStatusFilterChange(filter: StatusFilterType): void {
+    this.statusFilter.set(filter);
+    this.currentPage.set(1);
+  }
+
+  prevPage(): void {
+    if (this.currentPage() > 1) {
+      this.currentPage.update((p) => p - 1);
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.update((p) => p + 1);
+    }
+  }
+
   clearFilters(): void {
     this.searchQuery.set('');
     this.statusFilter.set('ALL');
+    this.currentPage.set(1);
   }
 
   // --- Modal Renomear ---

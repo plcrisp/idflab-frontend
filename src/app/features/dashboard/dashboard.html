@@ -1,31 +1,22 @@
 <div class="flex flex-col w-full min-w-0 gap-4 bg-background transition-colors duration-300 ease-out p-6">
-  <!-- 1. Cabeçalho em Card no Padrão do Sistema -->
-  <app-projects-header />
+  <!-- 1. Cabeçalho direto sobre o fundo da página -->
 
-  <!-- 2. Linha de Métricas Rápidas (3 StatCards) -->
-  <app-projects-stats
-    [stats]="metrics()"
-    [loading]="loading()"
-    [activeFilter]="statusFilter()"
-    (filterChange)="statusFilter.set($event)"
-  />
-
-  <!-- 3. Barra de Controles e Filtros em Card -->
+  <!-- 2. Barra de Busca e Abas de Filtro sem moldura de card -->
   <app-projects-toolbar
     [searchQuery]="searchQuery()"
-    (searchQueryChange)="searchQuery.set($event)"
+    (searchQueryChange)="onSearchQueryChange($event)"
     [statusFilter]="statusFilter()"
-    (statusFilterChange)="statusFilter.set($event)"
+    (statusFilterChange)="onStatusFilterChange($event)"
     [stats]="metrics()"
     (clearFilters)="clearFilters()"
   />
 
-  <!-- 4. Conteúdo: Loading / Empty States / Cards -->
+  <!-- 3. Conteúdo: Loading / Empty States / Grade de Cards -->
   @if (loading()) {
     <!-- Skeletons dos Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
       @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-        <div class="rounded-xl border border-border bg-popover p-5 space-y-4 shadow-sm">
+        <div class="rounded-xl border border-border bg-popover p-5 space-y-4 shadow-xs">
           <div class="flex items-center justify-between">
             <div hlmSkeleton class="h-5 w-3/4 rounded-md"></div>
             <div hlmSkeleton class="h-6 w-6 rounded-md"></div>
@@ -35,48 +26,43 @@
             <div hlmSkeleton class="h-4 w-20 rounded-md"></div>
             <div hlmSkeleton class="h-4 w-32 rounded-md"></div>
           </div>
-          <div hlmSkeleton class="h-16 w-full rounded-lg"></div>
-          <div hlmSkeleton class="h-1.5 w-full rounded-full"></div>
-          <div class="pt-3 border-t border-border flex items-center justify-between">
+          <div hlmSkeleton class="h-4 w-full rounded-md"></div>
+          <div hlmSkeleton class="h-1 w-full rounded-full"></div>
+          <div class="pt-3 border-t border-border/40 flex items-center justify-between">
             <div hlmSkeleton class="h-3.5 w-28 rounded-md"></div>
-            <div hlmSkeleton class="h-8 w-28 rounded-md"></div>
+            <div hlmSkeleton class="h-3.5 w-20 rounded-md"></div>
           </div>
         </div>
       }
     </div>
   } @else if (projects().length === 0) {
-    <!-- Estado Vazio: Nenhum estudo hidrológico criado -->
-    <div class="flex flex-col items-center justify-center rounded-xl border border-border bg-popover p-12 md:p-16 text-center w-full shadow-sm">
-      <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary border border-primary/20">
-        <ng-icon name="lucideFolderOpen" class="w-7 h-7" />
-      </div>
-      <h3 class="text-lg font-semibold text-foreground mb-2">
-        Nenhum estudo hidrológico criado
+    <!-- Estado vazio: Nenhum projeto criado -->
+    <div class="flex flex-col items-center justify-center rounded-xl border border-border bg-popover p-12 text-center w-full shadow-xs">
+      <h3 class="text-base font-semibold text-foreground mb-1">
+        Nenhum projeto criado
       </h3>
-      <p class="text-sm text-muted-foreground max-w-md mb-6 leading-relaxed">
-        Você ainda não possui projetos de curvas IDF cadastrados. Acesse o Mapa Interativo para selecionar uma estação pluviométrica e iniciar sua análise.
+      <p class="text-xs text-muted-foreground mb-4">
+        Inicie sua análise selecionando uma estação no mapa.
       </p>
       <a
         routerLink="/app/interactive-map"
         hlmBtn
         variant="default"
-        class="gap-2 font-medium"
+        size="sm"
+        class="gap-1.5 font-medium shadow-xs"
       >
-        <ng-icon name="lucideMap" class="w-4 h-4"></ng-icon>
-        <span>Ir para o Mapa Interativo</span>
+        <ng-icon name="lucidePlus" class="w-4 h-4"></ng-icon>
+        <span>Novo projeto</span>
       </a>
     </div>
   } @else if (filteredProjects().length === 0) {
-    <!-- Estado Vazio: Busca ou filtros sem resultados -->
-    <div class="flex flex-col items-center justify-center rounded-xl border border-border bg-popover p-10 md:p-14 text-center w-full shadow-sm">
-      <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-muted-foreground">
-        <ng-icon name="lucideSearch" class="w-6 h-6" />
-      </div>
-      <h3 class="text-base font-semibold text-foreground mb-1.5">
+    <!-- Estado vazio: Busca ou filtro sem resultado -->
+    <div class="flex flex-col items-center justify-center rounded-xl border border-border bg-popover p-10 text-center w-full shadow-xs">
+      <h3 class="text-base font-semibold text-foreground mb-1">
         Nenhum projeto encontrado
       </h3>
-      <p class="text-xs text-muted-foreground max-w-sm mb-5 leading-relaxed">
-        Nenhum estudo coincide com os critérios e filtros aplicados. Tente buscar por outros termos ou limpe a seleção.
+      <p class="text-xs text-muted-foreground mb-3">
+        Tente ajustar sua busca ou os filtros aplicados.
       </p>
       <button
         type="button"
@@ -84,27 +70,69 @@
         hlmBtn
         variant="outline"
         size="sm"
-        class="text-xs gap-1.5 cursor-pointer"
+        class="text-xs cursor-pointer"
       >
-        <ng-icon name="lucideRotateCw" class="w-3.5 h-3.5"></ng-icon>
-        <span>Limpar Filtros</span>
+        Limpar filtros
       </button>
     </div>
   } @else {
-    <!-- Grid de Cards de Projetos -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 w-full animate-in fade-in duration-150">
-      @for (project of filteredProjects(); track project.id) {
-        <app-project-card
-          [project]="project"
-          [isProcessing]="isProjectProcessing(project.id)"
-          (rename)="openRenameModal($event)"
-          (delete)="openDeleteModal($event)"
-        />
+    <!-- Bloco de Projetos + Paginação unificados para reduzir espaçamento -->
+    <div class="flex flex-col gap-2 w-full shrink-0">
+      <!-- Grade de Cards de Projetos: 3 colunas em lg, 2 em md, 1 em sm -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full animate-in fade-in duration-150">
+        @for (project of paginatedProjects(); track project.id) {
+          <app-project-card
+            [project]="project"
+            [isProcessing]="isProjectProcessing(project.id)"
+            (rename)="openRenameModal($event)"
+            (delete)="openDeleteModal($event)"
+          />
+        }
+      </div>
+
+      <!-- Paginação estilo temporal-disaggregation (clean, alinhada à direita, botões compactos h-7) -->
+      @if (totalFiltered() > pageSize) {
+        <div class="flex items-center justify-end gap-3 text-xs text-muted-foreground">
+          <span class="tabular-nums">
+            {{ currentPage() }} de {{ totalPages() }} ({{ totalFiltered() }} {{ totalFiltered() === 1 ? 'projeto' : 'projetos' }})
+          </span>
+
+          <div class="inline-flex items-center gap-1">
+            <button
+              hlmBtn
+              variant="outline"
+              size="icon"
+              type="button"
+              class="h-7 w-7 cursor-pointer"
+              [disabled]="currentPage() <= 1"
+              (click)="prevPage()"
+              title="Página anterior"
+            >
+              <ng-icon name="lucideChevronLeft" class="text-xs" />
+            </button>
+
+            <button
+              hlmBtn
+              variant="outline"
+              size="icon"
+              type="button"
+              class="h-7 w-7 cursor-pointer"
+              [disabled]="currentPage() >= totalPages()"
+              (click)="nextPage()"
+              title="Próxima página"
+            >
+              <ng-icon name="lucideChevronRight" class="text-xs" />
+            </button>
+          </div>
+        </div>
       }
     </div>
+
+    <!-- Mapa de contexto geográfico: ESTAÇÕES ANALISADAS -->
+    <app-projects-map [projects]="filteredProjects()" />
   }
 
-  <!-- 5. Modais de Ação -->
+  <!-- 4. Modais de Ação -->
   <app-project-rename-modal
     [isOpen]="renameModalOpen()"
     [project]="projectToRename()"
@@ -121,3 +149,4 @@
     (cancel)="closeDeleteModal()"
   />
 </div>
+

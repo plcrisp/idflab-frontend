@@ -1,4 +1,4 @@
-<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 rounded-xl shadow-sm border border-border bg-popover p-4 w-full">
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 w-full">
   <!-- Campo de Busca -->
   <div class="relative flex-1 max-w-md">
     <ng-icon
@@ -24,16 +24,16 @@
     }
   </div>
 
-  <!-- Pílulas de Filtro Rápido -->
-  <div class="inline-flex items-center p-1 bg-card border border-border rounded-lg self-start sm:self-auto shrink-0">
+  <!-- Abas de Filtro -->
+  <div class="inline-flex items-center p-1 bg-muted/40 border border-border rounded-lg self-start sm:self-auto shrink-0">
     <button
       type="button"
       (click)="onSelectStatus('ALL')"
-      class="px-3 py-1 text-xs font-medium rounded-md transition-all duration-150 cursor-pointer"
+      class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-150 cursor-pointer"
       [ngClass]="
         statusFilter() === 'ALL'
-          ? 'bg-primary text-primary-foreground font-semibold shadow-xs'
-          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'
+          ? 'bg-card text-foreground font-semibold shadow-xs border border-border/50'
+          : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
       "
     >
       Todos ({{ stats().total }})
@@ -41,23 +41,23 @@
     <button
       type="button"
       (click)="onSelectStatus('IN_PROGRESS')"
-      class="px-3 py-1 text-xs font-medium rounded-md transition-all duration-150 cursor-pointer"
+      class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-150 cursor-pointer"
       [ngClass]="
         statusFilter() === 'IN_PROGRESS'
-          ? 'bg-primary text-primary-foreground font-semibold shadow-xs'
-          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'
+          ? 'bg-card text-foreground font-semibold shadow-xs border border-border/50'
+          : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
       "
     >
-      Em Andamento ({{ stats().inProgress }})
+      Em andamento ({{ stats().inProgress }})
     </button>
     <button
       type="button"
       (click)="onSelectStatus('COMPLETED')"
-      class="px-3 py-1 text-xs font-medium rounded-md transition-all duration-150 cursor-pointer"
+      class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-150 cursor-pointer"
       [ngClass]="
         statusFilter() === 'COMPLETED'
-          ? 'bg-primary text-primary-foreground font-semibold shadow-xs'
-          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'
+          ? 'bg-card text-foreground font-semibold shadow-xs border border-border/50'
+          : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
       "
     >
       Concluídos ({{ stats().completed }})

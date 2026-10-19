@@ -11,6 +11,8 @@ import {
   lucideArrowRight,
   lucideCalendar,
   lucideCheck,
+  lucideChevronLeft,
+  lucideChevronRight,
   lucideCircleCheck,
   lucideClock,
   lucideFolder,
@@ -23,6 +25,7 @@ import {
   lucidePencil,
   lucidePlus,
   lucideRotateCw,
+  lucideScan,
   lucideSearch,
   lucideTrash2,
   lucideTriangleAlert,
@@ -38,9 +41,9 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 
 import { ProjectsHeader } from './components/projects-header/projects-header';
-import { ProjectsStats } from './components/projects-stats/projects-stats';
 import { ProjectsToolbar } from './components/projects-toolbar/projects-toolbar';
 import { ProjectCard } from './components/project-card/project-card';
+import { ProjectsMap } from './components/projects-map/projects-map';
 import { ProjectRenameModal } from './components/project-rename-modal/project-rename-modal';
 import { ProjectDeleteModal } from './components/project-delete-modal/project-delete-modal';
 
@@ -48,9 +51,9 @@ import { ProjectDeleteModal } from './components/project-delete-modal/project-de
   declarations: [
     Dashboard,
     ProjectsHeader,
-    ProjectsStats,
     ProjectsToolbar,
     ProjectCard,
+    ProjectsMap,
     ProjectRenameModal,
     ProjectDeleteModal,
   ],
@@ -72,6 +75,8 @@ import { ProjectDeleteModal } from './components/project-delete-modal/project-de
       lucideArrowRight,
       lucideCalendar,
       lucideCheck,
+      lucideChevronLeft,
+      lucideChevronRight,
       lucideCircleCheck,
       lucideClock,
       lucideFolder,
@@ -84,6 +89,7 @@ import { ProjectDeleteModal } from './components/project-delete-modal/project-de
       lucidePencil,
       lucidePlus,
       lucideRotateCw,
+      lucideScan,
       lucideSearch,
       lucideTrash2,
       lucideTriangleAlert,

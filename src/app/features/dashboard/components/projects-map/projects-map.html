@@ -1,0 +1,47 @@
+<section class="rounded-xl shadow-sm border border-border bg-popover text-foreground flex flex-col relative overflow-hidden w-full">
+  <!-- Cabeçalho do Card no padrão consistency-check (com subtítulo) -->
+  <div class="flex items-center justify-start border-b border-border p-4">
+    <div class="flex items-center gap-1">
+      <h3 class="text-sm font-semibold uppercase tracking-wide text-foreground">
+        Estações analisadas
+      </h3>
+      <span class="text-sm font-normal text-muted-foreground">
+        · Localização geográfica dos estudos hidrológicos
+      </span>
+    </div>
+  </div>
+
+  <!-- Corpo com Padding ao redor do Mapa -->
+  <div class="p-4 w-full">
+    <div class="map-container relative w-full rounded-xl border border-border overflow-hidden bg-muted/20">
+      <!-- Container do Mapbox -->
+      <div [id]="containerId" class="w-full h-full"></div>
+
+      <!-- Botão Flutuante: Enquadrar Todas as Estações -->
+      @if (mappedCount() > 0) {
+        <div class="absolute top-3 right-3 z-30 flex items-center gap-1.5">
+          <button
+            type="button"
+            (click)="fitAllBounds()"
+            title="Enquadrar todas as estações"
+            aria-label="Enquadrar todas as estações no mapa"
+            class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-popover/90 hover:bg-popover text-foreground border border-border shadow-sm backdrop-blur-md text-xs font-medium transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          >
+            <ng-icon name="lucideScan" class="text-sm text-primary" />
+            <span class="hidden sm:inline">Enquadrar</span>
+          </button>
+        </div>
+
+        <!-- Indicador de total no topo esquerdo -->
+        <div class="absolute top-3 left-3 z-30 pointer-events-none">
+          <div class="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-popover/90 border border-border shadow-sm backdrop-blur-md text-[11px] font-medium text-foreground">
+            <span class="flex items-center gap-1.5">
+              <ng-icon name="lucideMapPin" class="text-xs text-primary" />
+              <span>{{ mappedCount() }} {{ mappedCount() === 1 ? 'estação mapeada' : 'estações mapeadas' }}</span>
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>

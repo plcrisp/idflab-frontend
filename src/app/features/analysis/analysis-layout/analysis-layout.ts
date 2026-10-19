@@ -5,6 +5,7 @@ import { map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AnalysisStep, HeaderData } from '../shared/models/analysis.models';
 import { NotificationsService } from '../../../core/services/api/notifications.service';
+import { ANALYSIS_STEPS } from '../../../core/utils/project-step.utils';
 
 @Component({
   selector: 'app-analysis-layout',
@@ -43,16 +44,8 @@ export class AnalysisLayout {
     };
   });
 
-  readonly steps: AnalysisStep[] = [
-    { label: 'Mapa', path: 'interactive-map' },
-    { label: 'Visualização inicial', path: 'initial-view' },
-    { label: 'Verificação de Consistência', path: 'consistency-check' },
-    { label: 'Tratamento de falhas', path: 'gap-filling' },
-    { label: 'Resolução temporal', path: 'temporal-disaggregation' },
-    { label: 'Distribuição estatística', path: 'distribuicao-estatistica' },
-    { label: 'IDF histórica', path: 'idf-historica' },
-    { label: 'Cenários futuros', path: 'cenarios-futuros' },
-  ];
+  readonly steps: AnalysisStep[] = [...ANALYSIS_STEPS];
+
 
   ngOnInit(): void {
     this.route.paramMap

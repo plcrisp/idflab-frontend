@@ -1,5 +1,6 @@
 import { Component, computed, input, output } from '@angular/core';
-import { Project, StepEnum } from '../../../../core/models/api/project.model';
+import { Project } from '../../../../core/models/api/project.model';
+import { getProjectPipelineStepInfo } from '../../../../core/utils/project-step.utils';
 
 @Component({
   selector: 'app-project-card',
@@ -14,40 +15,16 @@ export class ProjectCard {
   rename = output<Project>();
   delete = output<Project>();
 
-  readonly isCompleted = computed(() => {
-    const s = this.project().furthest_step;
-    return s === 'FUTURE_SCENARIOS' || s === 'RESULTS';
+  readonly stepInfo = computed(() => {
+    return getProjectPipelineStepInfo(this.project().furthest_step);
   });
 
-  readonly stepInfo = computed(() => {
+  readonly shouldShowStationName = computed(() => {
     const p = this.project();
-    if (this.isCompleted()) {
-      return {
-        label: 'Concluído: Cenários Futuros',
-        percent: 100,
-      };
-    }
-
-    const mapping: Record<StepEnum, { num: number; name: string; pct: number }> = {
-      INITIAL_VISUALIZATION: { num: 1, name: 'Visualização Inicial', pct: 14 },
-      CONSISTENCY: { num: 2, name: 'Consistência', pct: 28 },
-      GAP_FILLING: { num: 3, name: 'Tratamento de Falhas', pct: 43 },
-      TEMPORAL_RESOLUTION: { num: 4, name: 'Resolução Temporal', pct: 57 },
-      DISTRIBUTION: { num: 5, name: 'Distribuição Estatística', pct: 71 },
-      HISTORICAL_IDF: { num: 6, name: 'IDF Histórica', pct: 86 },
-      FUTURE_SCENARIOS: { num: 7, name: 'Cenários Futuros', pct: 100 },
-      RESULTS: { num: 7, name: 'Cenários Futuros', pct: 100 },
-    };
-
-    const info = mapping[p.furthest_step] ?? {
-      num: 1,
-      name: 'Visualização Inicial',
-      pct: 14,
-    };
-    return {
-      label: `Etapa ${info.num} de 7: ${info.name}`,
-      percent: info.pct,
-    };
+    const projectName = (p.name || '').toLowerCase();
+    const stationName = (p.station?.name || '').toLowerCase().trim();
+    if (!stationName) return false;
+    return !projectName.includes(stationName);
   });
 
   readonly formattedPeriod = computed(() => {
@@ -58,7 +35,7 @@ export class ProjectCard {
     const end = new Date(p.end_date);
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      return `${p.start_date} - ${p.end_date}`;
+      return `${p.start_date} a ${p.end_date}`;
     }
 
     const s = `${String(start.getUTCMonth() + 1).padStart(2, '0')}/${start.getUTCFullYear()}`;
@@ -76,7 +53,7 @@ export class ProjectCard {
     if (isNaN(start.getTime()) || isNaN(end.getTime())) return '';
 
     const years = Math.max(1, end.getUTCFullYear() - start.getUTCFullYear() + 1);
-    return `${years} ${years === 1 ? 'ano' : 'anos'} de série`;
+    return `${years} ${years === 1 ? 'ano' : 'anos'}`;
   });
 
   readonly translatedResolution = computed(() => {
@@ -87,11 +64,14 @@ export class ProjectCard {
     return this.project().station?.resolution || 'Diária';
   });
 
-  onRename(): void {
+  onRename(event: Event): void {
+    event.stopPropagation();
     this.rename.emit(this.project());
   }
 
-  onDelete(): void {
+  onDelete(event: Event): void {
+    event.stopPropagation();
     this.delete.emit(this.project());
   }
 }
+
