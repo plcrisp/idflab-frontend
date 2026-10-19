@@ -312,8 +312,17 @@ export class GapFillingStateService {
           }
 
           if (stationId) {
-            if (neighborId) {
+            if (postMetrics && neighborId) {
               this.neighborManager.loadNeighbors(stationId, neighborId, null, projectId);
+            } else if (neighborId) {
+              this.neighborManager.loadNeighbors(
+                stationId,
+                null,
+                null,
+                projectId,
+                undefined,
+                neighborId,
+              );
             } else {
               this.fallbackToConsistencyStep(projectId, stationId);
             }
@@ -336,7 +345,14 @@ export class GapFillingStateService {
       .subscribe({
         next: (consistencyStep) => {
           const neighborId = consistencyStep?.params?.neighbor_station_id;
-          this.neighborManager.loadNeighbors(stationId, neighborId, consistencyStep?.job_id, projectId);
+          this.neighborManager.loadNeighbors(
+            stationId,
+            null,
+            null,
+            projectId,
+            undefined,
+            neighborId,
+          );
         },
         error: () => {
           this.neighborManager.loadNeighbors(stationId, null, null, projectId);

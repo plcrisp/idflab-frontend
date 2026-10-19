@@ -252,18 +252,21 @@ hlm-skeleton {
 }
 
 // Badges globais de fontes das estações
-.inmet {
-  background-color: color-mix(in srgb, var(--inmet) 12%, transparent) !important;
-  color: var(--inmet) !important;
-}
+[hlmBadge],
+.network-badge {
+  &.inmet {
+    background-color: color-mix(in srgb, var(--inmet) 12%, transparent) !important;
+    color: var(--inmet) !important;
+  }
 
-.cemaden {
-  background-color: color-mix(in srgb, var(--cemaden) 12%, transparent) !important;
-  color: var(--cemaden) !important;
-}
+  &.cemaden {
+    background-color: color-mix(in srgb, var(--cemaden) 12%, transparent) !important;
+    color: var(--cemaden) !important;
+  }
 
-.ana {
-  background-color: color-mix(in srgb, var(--ana) 12%, transparent) !important;
-  color: var(--ana) !important;
+  &.ana {
+    background-color: color-mix(in srgb, var(--ana) 12%, transparent) !important;
+    color: var(--ana) !important;
+  }
 }
 

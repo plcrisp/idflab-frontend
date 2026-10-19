@@ -3,7 +3,7 @@
     class="relative flex items-center justify-center w-9 h-9 rounded-md bg-transparent text-(--neutral-50) transition-colors hover:bg-sidebar-accent cursor-pointer"
     aria-label="Notificações"
     [hlmDropdownMenuTrigger]="menuNotifications"
-    (hlmDropdownMenuClosed)="onMenuClosed()"
+    (hlmDropdownMenuOpened)="onMenuOpened()"
     #bellTrigger
   >
     <ng-icon name="lucideBell" class="text-lg"></ng-icon>
@@ -22,8 +22,8 @@
     <hlm-dropdown-menu class="w-90">
       <div class="flex items-center justify-between pl-2 pr-4">
         <hlm-dropdown-menu-label>Notificações</hlm-dropdown-menu-label>
-        <span *ngIf="notifications().length > 0" class="text-xs text-(--neutral-100)">
-          {{ notifications().length }}
+        <span *ngIf="unreadCount() > 0" class="text-xs text-(--neutral-100)">
+          {{ unreadCount() }}
         </span>
       </div>
       <hlm-dropdown-menu-separator />

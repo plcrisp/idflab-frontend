@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
+import { switchMap } from 'rxjs';
 
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
 import { ProjectStateService } from '../../services/project-state.service';
@@ -207,37 +208,26 @@ export class GapFilling {
 
     this.isAdvancing.set(true);
 
-    if (this.isYearFilterActive() && this.yearFilterState()) {
-      const s = this.yearFilterState()!;
-      this.gapFillingService
-        .confirmFilter(project.id, {
-          threshold: s.threshold,
-          manualOverrides: s.manualOverrides,
-          source: this.selectedPath() === 'fill' ? 'filled' : 'original',
-        })
-        .subscribe({
-          next: () => {
-            this.isAdvancing.set(false);
-            this.router.navigate(['/app/analysis', project.id, 'temporal-disaggregation']);
-          },
-          error: (err: unknown) => {
-            console.error('Erro ao salvar filtro de anos:', err);
-            this.isAdvancing.set(false);
-            toast.error('Não foi possível salvar o filtro de anos. Tente novamente.');
-          },
-        });
-      return;
-    }
+    const advance$ =
+      this.isYearFilterActive() && this.yearFilterState()
+        ? this.gapFillingService
+            .confirmFilter(project.id, {
+              threshold: this.yearFilterState()!.threshold,
+              manualOverrides: this.yearFilterState()!.manualOverrides,
+              source: this.selectedPath() === 'fill' ? 'filled' : 'original',
+            })
+            .pipe(switchMap(() => this.projectState.updateFurthestStep('TEMPORAL_RESOLUTION')))
+        : this.projectState.updateFurthestStep('TEMPORAL_RESOLUTION');
 
-    this.projectState.updateFurthestStep('TEMPORAL_RESOLUTION').subscribe({
+    advance$.subscribe({
       next: () => {
         this.isAdvancing.set(false);
         this.router.navigate(['/app/analysis', project.id, 'temporal-disaggregation']);
       },
       error: (err: unknown) => {
-        console.error('Erro ao atualizar etapa do projeto:', err);
+        console.error('Erro ao avançar etapa de tratamento de falhas:', err);
         this.isAdvancing.set(false);
-        this.router.navigate(['/app/analysis', project.id, 'temporal-disaggregation']);
+        toast.error('Não foi possível avançar para a próxima etapa. Tente novamente.');
       },
     });
   }

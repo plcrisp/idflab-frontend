@@ -38,7 +38,7 @@ export class NotificationsBell {
   hasWorkingJobs = computed(() => this.activeJobs().length > 0);
 
   notifications = computed<NotificationViewModel[]>(() =>
-    (this.panel()?.notifications ?? []).map((notif) => ({
+    (this.panel()?.notifications ?? []).slice(0, 20).map((notif) => ({
       notif,
       rendered: renderNotification(notif),
     })),
@@ -47,11 +47,12 @@ export class NotificationsBell {
   @ViewChild('bellTrigger') bellTrigger!: ElementRef<HTMLButtonElement>;
   @ViewChild(CdkMenuTrigger) menuTrigger!: CdkMenuTrigger;
 
-  onMenuClosed(): void {
-    this.notificationsService.readAll().subscribe({
-      next: () => this.notificationsService.refetch(),
-      error: console.error,
-    });
+  onMenuOpened(): void {
+    if (this.unreadCount() > 0) {
+      this.notificationsService.readAll().subscribe({
+        error: console.error,
+      });
+    }
   }
 
   trackByNotifId(index: number, item: NotificationViewModel): string {
@@ -80,6 +81,9 @@ export class NotificationsBell {
 
   openNotification(notif: Notification): void {
     this.menuTrigger.close();
+    if (!notif.read) {
+      this.markAsRead(notif.id);
+    }
     if (notif.type === 'TIMEOUT') {
       this.retryTimeoutNotif(notif.job_id);
       if (notif.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA' && notif.project_id) {

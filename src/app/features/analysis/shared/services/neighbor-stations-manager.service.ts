@@ -100,6 +100,7 @@ export class NeighborStationsManagerService {
     savedJobId?: string | null,
     projectId?: string,
     filters?: NeighborStationsFilter,
+    preselectNeighborId?: string | null,
   ): void {
     this.neighborsSub?.unsubscribe();
     this.isLoadingNeighbors.set(true);
@@ -111,6 +112,8 @@ export class NeighborStationsManagerService {
 
         if (initialNeighborId) {
           this.applyStation(initialNeighborId, savedJobId, projectId);
+        } else if (preselectNeighborId) {
+          this.preselectStation(preselectNeighborId);
         } else if (neighbors.length > 0 && !this.selectedNeighbor()) {
           this.selectNeighbor(neighbors[0]);
         }
@@ -198,6 +201,32 @@ export class NeighborStationsManagerService {
     });
   }
 
+  preselectStation(stationId: string): void {
+    const found = this.neighbors().find((n) => n.id === stationId);
+    if (found) {
+      this.selectNeighbor(found);
+      return;
+    }
+
+    if (this.isLoadingNeighbors()) {
+      return;
+    }
+
+    this.stationService.getStationById(stationId).subscribe({
+      next: (st) => {
+        const neighbor = this.mapToNeighborStation(st);
+        this.neighbors.update((list) => {
+          if (list.some((n) => n.id === neighbor.id)) return list;
+          return [neighbor, ...list];
+        });
+        this.selectNeighbor(neighbor);
+      },
+      error: (err) => {
+        console.error('Erro ao buscar detalhes da estação pré-selecionada:', err);
+      },
+    });
+  }
+
   applyStation(stationId: string, savedJobId?: string | null, projectId?: string): void {
     const found = this.neighbors().find((n) => n.id === stationId);
     if (found) {
@@ -211,21 +240,7 @@ export class NeighborStationsManagerService {
 
     this.stationService.getStationById(stationId).subscribe({
       next: (st) => {
-        const neighbor: NeighborStation = {
-          id: st.id,
-          code: st.code,
-          name: st.name,
-          source: st.source,
-          latitude: st.latitude,
-          longitude: st.longitude,
-          distance_km: (st as any).distance_km ?? 0,
-          temporal_resolution: (st as any).resolution ?? (st as any).temporal_resolution ?? 'daily',
-          operation_start_date: st.operation_start_date,
-          last_data_date: st.last_data_date ?? '',
-          city: st.city,
-          state: st.state,
-        };
-
+        const neighbor = this.mapToNeighborStation(st);
         this.neighbors.update((list) => {
           if (list.some((n) => n.id === neighbor.id)) return list;
           return [neighbor, ...list];
@@ -236,6 +251,23 @@ export class NeighborStationsManagerService {
         console.error('Erro ao buscar detalhes da estação salva:', err);
       },
     });
+  }
+
+  private mapToNeighborStation(st: any): NeighborStation {
+    return {
+      id: st.id,
+      code: st.code,
+      name: st.name,
+      source: st.source,
+      latitude: st.latitude,
+      longitude: st.longitude,
+      distance_km: st.distance_km ?? 0,
+      temporal_resolution: st.resolution ?? st.temporal_resolution ?? 'daily',
+      operation_start_date: st.operation_start_date,
+      last_data_date: st.last_data_date ?? '',
+      city: st.city,
+      state: st.state,
+    };
   }
 
   private activateStation(

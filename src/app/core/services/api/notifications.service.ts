@@ -45,10 +45,31 @@ export class NotificationsService {
   }
 
   markAsRead(notificationId: string): Observable<Notification> {
+    const current = this._panel();
+    if (current) {
+      const notif = current.notifications.find((n) => n.id === notificationId);
+      if (notif && !notif.read) {
+        this._panel.set({
+          ...current,
+          unread_count: Math.max(0, current.unread_count - 1),
+          notifications: current.notifications.map((n) =>
+            n.id === notificationId ? { ...n, read: true } : n,
+          ),
+        });
+      }
+    }
     return this.http.patch<Notification>(`${this.baseUrl}/${notificationId}/read`, {});
   }
 
   readAll(): Observable<void> {
+    const current = this._panel();
+    if (current && current.unread_count > 0) {
+      this._panel.set({
+        ...current,
+        unread_count: 0,
+        notifications: current.notifications.map((n) => ({ ...n, read: true })),
+      });
+    }
     return this.http.patch<void>(`${this.baseUrl}/read-all`, {});
   }
 
