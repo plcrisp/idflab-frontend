@@ -28,8 +28,13 @@ export class GapFilling {
   readonly yearFilterState = signal<YearFilterState | null>(null);
 
   readonly selectedPath = signal<'fill' | 'filter'>('fill');
-  readonly filterStatus = signal<'default' | 'configured'>('default');
   readonly filterThreshold = signal<number>(90);
+
+  readonly isFilterApplied = computed<boolean>(() => {
+    if (this.isFilled()) return false;
+    const f = this.state.savedFilter();
+    return !!f && (f.source === 'original' || !this.state.filledStationId());
+  });
 
   readonly savedManualOverrides = computed<Record<string, 'include' | 'exclude'> | null>(() => {
     const f = this.state.savedFilter();
@@ -137,16 +142,16 @@ export class GapFilling {
 
     effect(() => {
       const filter = this.state.savedFilter();
-      if (filter) {
-        this.filterStatus.set('configured');
-        if (filter.threshold != null) {
-          this.filterThreshold.set(filter.threshold);
-        }
+      if (filter && filter.threshold != null) {
+        this.filterThreshold.set(filter.threshold);
       }
     });
   }
 
-  get shouldShowMetricsCard(): boolean {
+  readonly shouldShowMetricsCard = computed<boolean>(() => {
+    if (this.state.isFilling() || this.isFilled()) {
+      return false;
+    }
     const status = this.state.confirmationStatus();
     if (status === 'loading') {
       return !!(this.state.selectedNeighbor() || this.state.activeNeighborStation());
@@ -155,7 +160,7 @@ export class GapFilling {
       return !!this.state.activeNeighborStation();
     }
     return false;
-  }
+  });
 
   onScrollToNeighborCard(): void {
     const el = document.getElementById('neighbor-stations-selection-card');

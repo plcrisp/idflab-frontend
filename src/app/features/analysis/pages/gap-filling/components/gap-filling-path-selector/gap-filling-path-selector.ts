@@ -1,4 +1,4 @@
-﻿import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -11,7 +11,6 @@ import { Path } from '../../../../shared/components/path/path';
 
 export type PathOption = 'fill' | 'filter';
 export type FillStatus = 'idle' | 'running' | 'done' | 'error';
-export type FilterStatus = 'default' | 'configured';
 
 @Component({
   selector: 'app-gap-filling-path-selector',
@@ -31,7 +30,7 @@ export type FilterStatus = 'default' | 'configured';
 export class GapFillingPathSelector {
   readonly selected = model<PathOption>('fill');
   readonly fillStatus = input<FillStatus>('idle');
-  readonly filterStatus = input<FilterStatus>('default');
+  readonly filterApplied = input<boolean>(false);
   readonly filterThreshold = input<number>(90);
   readonly disabled = input<boolean>(false);
 

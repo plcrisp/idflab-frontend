@@ -1,4 +1,4 @@
-﻿<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
   <!-- Card 1: Preencher falhas (Random Forest) -->
   <app-path
     [selected]="selected() === 'fill'"
@@ -49,11 +49,11 @@
     description="Usa apenas dados observados e remove anos abaixo de um limiar de completude"
     (select)="selectOption('filter')"
   >
-    @if (filterStatus() === 'configured') {
+    @if (filterApplied()) {
       <span hlmBadge variant="outline"
         class="text-xs font-medium px-2.5 py-0.5 rounded-md border flex items-center gap-1.5 bg-success/15 text-success border-success/30">
         <span class="h-1.5 w-1.5 rounded-full bg-success"></span>
-        Configurado – {{ filterThreshold() }}%
+        Aplicado – {{ filterThreshold() }}%
       </span>
     }
   </app-path>
