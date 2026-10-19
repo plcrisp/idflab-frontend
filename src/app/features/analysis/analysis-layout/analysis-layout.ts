@@ -52,7 +52,6 @@ export class AnalysisLayout {
     { label: 'Distribuição estatística', path: 'distribuicao-estatistica' },
     { label: 'IDF histórica', path: 'idf-historica' },
     { label: 'Cenários futuros', path: 'cenarios-futuros' },
-    { label: 'Resultados', path: 'resultados' },
   ];
 
   ngOnInit(): void {
@@ -63,7 +62,7 @@ export class AnalysisLayout {
       )
       .subscribe((projectId) => {
         if (!projectId) {
-          this.router.navigateByUrl('/app/dashboard');
+          this.router.navigateByUrl('/app/projects');
           return;
         }
         this.projectState.loadProject(projectId);

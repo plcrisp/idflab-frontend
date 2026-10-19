@@ -31,8 +31,7 @@ export class Sidebar implements OnInit {
   }
 
   protected readonly items = [
-    { title: 'Dashboard', url: '/app/dashboard', icon: 'lucideHome' },
-    { title: 'Central de Projetos', url: '/app/projetos', icon: 'lucideFolderOpen' },
+    { title: 'Central de Projetos', url: '/app/projects', icon: 'lucideFolderOpen' },
     { title: 'Mapa Interativo', url: '/app/interactive-map', icon: 'lucideMap' },
   ];
 }

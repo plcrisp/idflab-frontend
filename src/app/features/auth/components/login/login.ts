@@ -45,7 +45,7 @@ export class Login implements OnInit {
 
     this.errorMessage = '';
 
-    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/app/dashboard';
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/app/projects';
 
     this.auth.login(email, password, returnUrl).subscribe({
       next: (response) => {
@@ -86,7 +86,7 @@ export class Login implements OnInit {
   }
 
   loginWithGoogle(): void {
-    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/app/dashboard';
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/app/projects';
 
     this.googleAuth.openPopup(returnUrl);
   }

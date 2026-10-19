@@ -17,6 +17,6 @@ export class NotFound {
   }
 
   goHome() {
-    this.router.navigate(['/app/dashboard']);
+    this.router.navigate(['/app/projects']);
   }
 }

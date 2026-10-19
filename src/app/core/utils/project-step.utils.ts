@@ -8,7 +8,6 @@ export const STEP_ORDER: readonly StepEnum[] = [
   'DISTRIBUTION',
   'HISTORICAL_IDF',
   'FUTURE_SCENARIOS',
-  'RESULTS',
 ] as const;
 
 export const STEP_ROUTE_MAP: Record<StepEnum, string> = {
@@ -19,7 +18,7 @@ export const STEP_ROUTE_MAP: Record<StepEnum, string> = {
   DISTRIBUTION: 'distribuicao-estatistica',
   HISTORICAL_IDF: 'idf-historica',
   FUTURE_SCENARIOS: 'cenarios-futuros',
-  RESULTS: 'resultados',
+  RESULTS: 'cenarios-futuros',
 };
 
 export const ROUTE_STEP_MAP: Record<string, StepEnum> = {
@@ -38,8 +37,8 @@ export const ROUTE_STEP_MAP: Record<string, StepEnum> = {
   'historical-idf': 'HISTORICAL_IDF',
   'cenarios-futuros': 'FUTURE_SCENARIOS',
   'future-scenarios': 'FUTURE_SCENARIOS',
-  'resultados': 'RESULTS',
-  'results': 'RESULTS',
+  'resultados': 'FUTURE_SCENARIOS',
+  'results': 'FUTURE_SCENARIOS',
 };
 
 export function getRouteForStep(step: StepEnum): string {
@@ -51,6 +50,9 @@ export function getStepForRoute(routeSegment: string): StepEnum | null {
 }
 
 export function getStepIndex(step: StepEnum): number {
+  if (step === 'RESULTS') {
+    return STEP_ORDER.indexOf('FUTURE_SCENARIOS');
+  }
   return STEP_ORDER.indexOf(step);
 }
 

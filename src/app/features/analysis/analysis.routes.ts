@@ -59,6 +59,16 @@ export const ANALYSIS_ROUTES: Routes = [
         redirectTo: 'temporal-disaggregation',
         pathMatch: 'full',
       },
+      {
+        path: 'resultados',
+        redirectTo: 'cenarios-futuros',
+        pathMatch: 'full',
+      },
+      {
+        path: 'results',
+        redirectTo: 'cenarios-futuros',
+        pathMatch: 'full',
+      },
     ],
   },
 ];

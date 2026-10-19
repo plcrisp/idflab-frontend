@@ -97,4 +97,28 @@ export class ProjectsService {
   createProject(payload: ProjectCreateRequest): Observable<ProjectCreateResponse> {
     return this.http.post<ProjectCreateResponse>(`${this.baseUrl}/`, payload);
   }
+
+  updateProjectName(projectId: string, name: string): Observable<ProjectResponse> {
+    return this.http
+      .patch<ProjectResponse>(`${this.baseUrl}/${projectId}`, { name })
+      .pipe(
+        tap((updated) => {
+          if (this.currentProject()?.id === projectId) {
+            this.currentProject.set(updated);
+          }
+          this.refetch();
+        }),
+      );
+  }
+
+  deleteProject(projectId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${projectId}`).pipe(
+      tap(() => {
+        if (this.currentProject()?.id === projectId) {
+          this.currentProject.set(null);
+        }
+        this.refetch();
+      }),
+    );
+  }
 }

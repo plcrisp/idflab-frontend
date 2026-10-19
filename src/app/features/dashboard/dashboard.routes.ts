@@ -5,6 +5,6 @@ export const DASHBOARD_ROUTES: Routes = [
   {
     path: '',
     component: Dashboard,
-    title: 'Dashboard | IDFLab',
+    title: 'Central de Projetos | IDFLab',
   },
 ];

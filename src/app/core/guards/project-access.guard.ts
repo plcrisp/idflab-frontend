@@ -26,7 +26,7 @@ export const projectAccessGuard: CanActivateFn = (
   const projectId = extractProjectId(route);
   if (!projectId) {
     console.warn('[ProjectAccessGuard] Project ID not found in route parameters.');
-    return router.createUrlTree(['/app/dashboard']);
+    return router.createUrlTree(['/app/projects']);
   }
 
   return projectService.getProjectById(projectId).pipe(
@@ -74,7 +74,7 @@ export const projectAccessGuard: CanActivateFn = (
     }),
     catchError((err) => {
       console.error('[ProjectAccessGuard] Error verifying project access:', err);
-      return of(router.createUrlTree(['/app/dashboard']));
+      return of(router.createUrlTree(['/app/projects']));
     }),
   );
 };

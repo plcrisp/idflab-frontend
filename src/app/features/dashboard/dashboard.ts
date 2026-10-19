@@ -14,7 +14,7 @@ export class Dashboard implements OnInit {
 
   ngOnInit() {
     this.mainLayoutService.setBreadcrumbs([
-      { label: 'Dashboard', url: '/app/dashboard', active: true },
+      { label: 'Central de Projetos', url: '/app/projects', active: true },
     ]);
 
     this.sidebarService.setOpen(true);

@@ -29,7 +29,7 @@ export class GoogleAuthService {
     });
   }
 
-  openPopup(route: string = '/app/dashboard'): void {
+  openPopup(route: string = '/app/projects'): void {
     google.accounts.oauth2
       .initTokenClient({
         client_id: environment.googleClientId,
@@ -41,7 +41,7 @@ export class GoogleAuthService {
       .requestAccessToken({ prompt: 'select_account' });
   }
 
-  private onGoogleLoginSuccess(googleToken: any, route: string = '/app/dashboard') {
+  private onGoogleLoginSuccess(googleToken: any, route: string = '/app/projects') {
     this.auth.loginWithGoogle(googleToken.access_token).subscribe({
       next: (response) => {
         if (response.needs_registration) {

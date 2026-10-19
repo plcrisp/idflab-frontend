@@ -42,7 +42,7 @@ export class AuthService {
   login(
     email: string,
     password: string,
-    route: string = '/app/dashboard',
+    route: string = '/app/projects',
   ): Observable<TokenResponse> {
     return this.http
       .post<TokenResponse>(`${this.baseUrl}/login`, {

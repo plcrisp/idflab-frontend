@@ -19,10 +19,13 @@ const routes: Routes = [
     component: MainLayout,
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: '', redirectTo: 'projects', pathMatch: 'full' },
+
+      { path: 'dashboard', redirectTo: 'projects', pathMatch: 'full' },
+      { path: 'projetos', redirectTo: 'projects', pathMatch: 'full' },
 
       {
-        path: 'dashboard',
+        path: 'projects',
         loadChildren: () =>
           import('./features/dashboard/dashboard-module').then((m) => m.DashboardModule),
       },
