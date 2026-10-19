@@ -24,46 +24,6 @@
 
     <div class="w-px h-6 bg-(--border-alt)"></div>
 
-    <div class="relative">
-      <button
-        class="group flex items-center gap-2 px-3 py-1.5 rounded-md bg-transparent text-white transition-colors hover:bg-sidebar-accent cursor-pointer"
-        [hlmDropdownMenuTrigger]="menuLanguage"
-      >
-        <ng-icon name="lucideGlobe" class="text-[16px] text-(--primary-50)"></ng-icon>
-        <span class="text-[13px]">{{ language }}</span>
-
-        <ng-icon
-          name="lucideChevronDown"
-          class="text-[14px] text-(--primary-50) transition-transform duration-200 -rotate-90 group-aria-expanded:rotate-0"
-        ></ng-icon>
-      </button>
-
-      <ng-template #menuLanguage>
-        <hlm-dropdown-menu class="w-42">
-          <hlm-dropdown-menu-group>
-            <hlm-dropdown-menu-label>Idioma</hlm-dropdown-menu-label>
-            <hlm-dropdown-menu-separator />
-            <button
-              hlmDropdownMenuRadio
-              [checked]="language === 'EN'"
-              (triggered)="setLanguage('EN')"
-            >
-              <hlm-dropdown-menu-radio-indicator />
-              <span>English</span>
-            </button>
-            <button
-              hlmDropdownMenuRadio
-              [checked]="language === 'PT-BR'"
-              (triggered)="setLanguage('PT-BR')"
-            >
-              <hlm-dropdown-menu-radio-indicator />
-              <span>Português (BR)</span>
-            </button>
-          </hlm-dropdown-menu-group>
-        </hlm-dropdown-menu>
-      </ng-template>
-    </div>
-
     <app-theme-toggle [isFixed]="false"></app-theme-toggle>
 
     <div class="w-px h-6 bg-(--border-alt)"></div>

@@ -1,0 +1,61 @@
+@if (isOpen()) {
+<div
+  class="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop-anim"
+  (click)="onCancel()"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="delete-modal-title"
+>
+  <div
+    class="bg-popover border border-destructive/30 rounded-xl shadow-2xl p-6 max-w-md w-full relative z-10 modal-content-anim space-y-4"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="flex items-start gap-3.5">
+      <div class="flex items-center justify-center h-10 w-10 rounded-full bg-destructive/15 text-destructive shrink-0">
+        <ng-icon name="lucideTriangleAlert" class="w-5 h-5"></ng-icon>
+      </div>
+      <div class="space-y-1 flex-1 min-w-0">
+        <h3 id="delete-modal-title" class="text-base font-semibold text-foreground">
+          Excluir Projeto
+        </h3>
+        <p class="text-xs text-muted-foreground leading-relaxed">
+          Tem certeza que deseja excluir o projeto
+          <strong class="text-foreground font-semibold">"{{ project()?.name }}"</strong>?
+          Esta ação é irreversível e removerá permanentemente o histórico de cálculos e curvas IDF associadas.
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-border">
+      <button
+        type="button"
+        (click)="onCancel()"
+        [disabled]="isDeleting()"
+        hlmBtn
+        variant="outline"
+        size="sm"
+        class="text-xs"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        (click)="onConfirm()"
+        [disabled]="isDeleting()"
+        hlmBtn
+        variant="destructive"
+        size="sm"
+        class="gap-1.5 text-xs font-medium"
+      >
+        @if (isDeleting()) {
+        <ng-icon name="lucideLoader2" class="w-3.5 h-3.5 animate-spin"></ng-icon>
+        <span>Excluindo...</span>
+        } @else {
+        <ng-icon name="lucideTrash2" class="w-3.5 h-3.5"></ng-icon>
+        <span>Excluir Definitivamente</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>
+}

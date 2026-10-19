@@ -1,0 +1,156 @@
+<article
+  class="group relative flex flex-col justify-between rounded-xl shadow-sm border border-border bg-popover p-5 transition-all duration-200 hover:border-primary/50 hover:shadow-md"
+>
+  <!-- Topo -->
+  <div>
+    <!-- Nome do projeto e menu de ações ... -->
+    <div class="flex items-start justify-between gap-3 mb-2">
+      <h2
+        class="font-semibold text-base text-foreground truncate leading-snug flex-1"
+        [title]="project().name"
+      >
+        {{ project().name }}
+      </h2>
+
+      <!-- Menu de Ações ... -->
+      <div class="relative shrink-0" [hlmDropdownMenuTrigger]="cardMenu">
+        <button
+          type="button"
+          class="h-8 w-8 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors focus:outline-none cursor-pointer"
+          title="Ações do projeto"
+          aria-label="Ações do projeto"
+        >
+          <ng-icon name="lucideMoreVertical" class="w-4 h-4"></ng-icon>
+        </button>
+      </div>
+
+      <ng-template #cardMenu>
+        <hlm-dropdown-menu class="w-44">
+          <button hlmDropdownMenuItem (click)="onRename()">
+            <ng-icon name="lucidePencil" class="mr-2 h-4 w-4 text-muted-foreground"></ng-icon>
+            <span>Renomear</span>
+          </button>
+          <hlm-dropdown-menu-separator />
+          <button
+            hlmDropdownMenuItem
+            (click)="onDelete()"
+            class="text-destructive focus:text-destructive focus:bg-destructive/10"
+          >
+            <ng-icon name="lucideTrash2" class="mr-2 h-4 w-4 text-destructive"></ng-icon>
+            <span>Excluir</span>
+          </button>
+        </hlm-dropdown-menu>
+      </ng-template>
+    </div>
+
+    <!-- Linha de identificação da Estação: Badges + Nome / UF -->
+    <div class="flex items-center gap-2 mb-3 flex-wrap">
+      <span
+        hlmBadge
+        [ngClass]="project().station.source.toLowerCase()"
+        class="flex items-center gap-1.5 border-none font-medium text-xs px-2 py-0.5 rounded-md shrink-0"
+      >
+        <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+        {{ project().station.source }}
+      </span>
+
+      <span hlmBadge variant="outline" class="text-muted-foreground text-xs font-mono">
+        {{ project().station.code }}
+      </span>
+
+      <span class="text-xs font-medium text-muted-foreground truncate max-w-56" [title]="project().station.name">
+        {{ project().station.name | titlecase }}@if (project().station.state) { · {{ project().station.state }} }
+      </span>
+    </div>
+
+    <!-- Bloco Técnico de Metadados Hidrológicos -->
+    <div class="grid grid-cols-2 gap-3 my-3 p-3 rounded-lg bg-card/60 border border-border/60 text-xs">
+      <div>
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          PERÍODO
+        </span>
+        <p class="font-medium text-foreground mt-0.5 truncate">
+          {{ formattedPeriod() }}
+        </p>
+        <span class="text-[11px] text-muted-foreground">
+          {{ seriesYearsText() }}
+        </span>
+      </div>
+
+      <div>
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          RESOLUÇÃO
+        </span>
+        <p class="font-medium text-foreground mt-0.5 truncate">
+          {{ translatedResolution() }}
+        </p>
+        <span class="text-[11px] text-muted-foreground truncate block">
+          Passo temporal
+        </span>
+      </div>
+    </div>
+
+    <!-- Progresso do Pipeline -->
+    <div class="space-y-1.5 my-3 pt-2">
+      <div class="flex justify-between items-center text-xs">
+        @if (isProcessing()) {
+        <span
+          class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/15 text-amber-400 border border-amber-500/30 animate-pulse"
+        >
+          <span class="relative flex h-1.5 w-1.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
+          </span>
+          Processando cálculo...
+        </span>
+        } @else {
+        <span class="text-muted-foreground font-medium truncate pr-2">
+          {{ stepInfo().label }}
+        </span>
+        }
+
+        <span class="text-foreground font-semibold shrink-0">
+          {{ stepInfo().percent }}%
+        </span>
+      </div>
+
+      <div class="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
+        <div
+          class="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+          [style.width.%]="stepInfo().percent"
+        ></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rodapé -->
+  <footer class="pt-3 border-t border-border/60 flex items-center justify-between gap-3 mt-1">
+    <span class="text-[11px] text-muted-foreground truncate">
+      Atualizado em {{ project().updated_at | date:'dd/MM/yyyy' }}
+    </span>
+
+    @if (isCompleted()) {
+    <a
+      [routerLink]="['/app/analysis', project().id]"
+      hlmBtn
+      variant="outline"
+      size="sm"
+      class="shrink-0 text-xs gap-1.5 font-medium"
+    >
+      <span>Ver Resultados</span>
+      <ng-icon name="lucideArrowRight" class="w-3.5 h-3.5"></ng-icon>
+    </a>
+    } @else {
+    <a
+      [routerLink]="['/app/analysis', project().id]"
+      hlmBtn
+      variant="default"
+      size="sm"
+      class="shrink-0 text-xs gap-1.5 font-medium"
+    >
+      <span>Continuar Análise</span>
+      <ng-icon name="lucideArrowRight" class="w-3.5 h-3.5"></ng-icon>
+    </a>
+    }
+  </footer>
+</article>
