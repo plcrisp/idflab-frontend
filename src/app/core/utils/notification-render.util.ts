@@ -237,10 +237,48 @@ const renderGapFilling: Renderer = (notification) => {
   };
 };
 
+
+const renderTemporalDisaggregation: Renderer = (notification) => {
+  const project = projectName(notification);
+  const details = notification.details as JobDetails;
+  const rawStation = (details as any)?.station_name || notification.station_name;
+  const station = rawStation ? (titleCasePipe.transform(rawStation.trim()) || rawStation) : '';
+
+  if (notification.type === 'SUCCESS') {
+    return {
+      title: 'Desagregação temporal concluída',
+      message: station
+        ? `Desagregação temporal Bartlett-Lewis concluída com sucesso no projeto ${project} (calibração: ${station}).`
+        : `Desagregação temporal concluída com sucesso no projeto ${project}.`,
+      tone: 'success',
+      icon: 'lucideCircleCheck',
+    };
+  }
+
+  if (notification.type === 'TIMEOUT') {
+    return {
+      title: 'Tempo esgotado',
+      message: `A desagregação temporal do projeto ${project} não respondeu a tempo.`,
+      tone: 'warning',
+      icon: 'lucideClock',
+    };
+  }
+
+  return {
+    title: 'Falha na desagregação temporal',
+    message: details?.error_log
+      ? `Falha ao executar desagregação temporal do projeto ${project}: ${details.error_log}`
+      : `Não foi possível executar a desagregação temporal do projeto ${project}.`,
+    tone: 'error',
+    icon: 'lucideCircleX',
+  };
+};
+
 const RENDERERS: Partial<Record<TaskType, Renderer>> = {
   DOWNLOAD_STATION_DATA: renderDownloadStationData,
   DOWNLOAD_NEIGHBOR_STATION_DATA: renderDownloadNeighborStationData,
   GAP_FILLING: renderGapFilling,
+  TEMPORAL_DISAGGREGATION: renderTemporalDisaggregation,
 };
 
 export function renderNotification(notification: Notification): RenderedNotification {

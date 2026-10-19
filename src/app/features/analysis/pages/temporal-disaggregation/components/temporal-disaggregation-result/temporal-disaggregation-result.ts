@@ -2,15 +2,17 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   ElementRef,
   inject,
   input,
   OnDestroy,
   OnInit,
   signal,
+  untracked,
   ViewChild,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { HttpResponse } from '@angular/common/http';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -19,6 +21,7 @@ import {
   lucideChevronLeft,
   lucideChevronRight,
   lucideDownload,
+  lucideLoader2,
   lucideRotateCw,
   lucideTable,
   lucideTrendingDown,
@@ -26,12 +29,14 @@ import {
 } from '@ng-icons/lucide';
 import { finalize } from 'rxjs';
 import { toast } from '@spartan-ng/brain/sonner';
+import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 import { EChartsOption } from 'echarts';
 
+import { SharedModule } from '../../../../../../shared/shared-module';
 import { EchartsService } from '../../../../../../core/services/utils/echarts.service';
 import { FileDownloadService } from '../../../../../../core/services/utils/file-download.service';
 import { TemporalDisaggregationService } from '../../../../services/temporal-disaggregation.service';
@@ -39,6 +44,9 @@ import {
   TemporalDisaggregationDecayCurveResponse,
   TemporalDisaggregationTableResponse,
 } from '../../models/temporal-disaggregation.model';
+import { Job } from '../../../../../../core/models/api/job.model';
+import { ActiveJobItem } from '../../../../../../core/models/api/notification.model';
+import { NeighborStation } from '../../../../../../core/models/api/station.model';
 import {
   buildAxisLabelBase,
   buildAxisLineStyle,
@@ -51,11 +59,14 @@ import {
   standalone: true,
   imports: [
     CommonModule,
+    TitleCasePipe,
     NgIcon,
-    HlmButtonImports,
-    HlmSkeletonImports,
-    HlmSpinnerImports,
-    HlmTooltipImports,
+    SharedModule,
+    ...HlmBadgeImports,
+    ...HlmButtonImports,
+    ...HlmSkeletonImports,
+    ...HlmSpinnerImports,
+    ...HlmTooltipImports,
   ],
   providers: [
     EchartsService,
@@ -69,6 +80,7 @@ import {
       lucideRotateCw,
       lucideTriangleAlert,
       lucideDownload,
+      lucideLoader2,
     }),
   ],
   templateUrl: './temporal-disaggregation-result.html',
@@ -78,8 +90,13 @@ import {
 export class TemporalDisaggregationResult implements OnInit, OnDestroy {
   readonly projectId = input.required<string>();
   readonly method = input<string>('CETESB');
+  readonly isExecuting = input<boolean>(false);
+  readonly job = input<Job | ActiveJobItem | null>(null);
+  readonly calibrationStation = input<NeighborStation | null>(null);
+  readonly customMessage = input<string | null>(null);
+  readonly customProgress = input<number | null>(null);
 
-  @ViewChild('chartContainer', { static: true })
+  @ViewChild('chartContainer', { static: false })
   private chartContainer?: ElementRef<HTMLDivElement>;
 
   private readonly disaggregationService = inject(TemporalDisaggregationService);
@@ -112,13 +129,31 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
   constructor() {
     this.echarts.setup({
       container: () => this.chartContainer?.nativeElement,
-      data: computed(() => (this.loadingCurve() ? null : this.decayCurve())),
+      data: computed(() => (this.loadingCurve() || this.isExecuting() ? null : this.decayCurve())),
       buildOption: (data) => this.buildChartOption(data),
+    });
+
+    effect(() => {
+      const pid = this.projectId();
+      const executing = this.isExecuting();
+
+      if (!pid || executing) {
+        return;
+      }
+
+      untracked(() => {
+        this.loadDecayCurve();
+        if (this.activeView() === 'table') {
+          this.loadTable();
+        }
+      });
     });
   }
 
   ngOnInit(): void {
-    this.loadDecayCurve();
+    if (!this.isExecuting()) {
+      this.loadDecayCurve();
+    }
   }
 
   ngOnDestroy(): void {
@@ -179,22 +214,22 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
   }
 
   prevPage(): void {
-    if (this.page() > 1) {
+    if (this.page() > 1 && !this.loadingTable()) {
       this.page.update((p) => p - 1);
       this.loadTable();
     }
   }
 
   nextPage(): void {
-    if (this.page() < this.totalPages()) {
+    if (this.page() < this.totalPages() && !this.loadingTable()) {
       this.page.update((p) => p + 1);
       this.loadTable();
     }
   }
 
-  formatNumber(val: number | null | undefined): string {
-    if (val === null || val === undefined) return '—';
-    return val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  formatNumber(val?: number | null): string {
+    if (val == null || isNaN(val)) return '-';
+    return val.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   }
 
   onDownloadTable(): void {
@@ -204,7 +239,7 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
     this.isDownloadingTable.set(true);
 
     this.disaggregationService
-      .downloadTableCsv(projectId)
+      .downloadTableCsv(projectId, ';')
       .pipe(finalize(() => this.isDownloadingTable.set(false)))
       .subscribe({
         next: (response: HttpResponse<Blob>) => {
@@ -231,8 +266,7 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
       });
   }
 
-
-  private buildChartOption(data: TemporalDisaggregationDecayCurveResponse): EChartsOption {
+  private buildChartOption(data: TemporalDisaggregationDecayCurveResponse | null): EChartsOption {
     const tokens = this.echarts.getTokens();
 
     if (!data || !data.points || data.points.length === 0) {

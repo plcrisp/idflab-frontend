@@ -13,7 +13,8 @@ export interface DurationSeriesItem {
 }
 
 export interface CetesbExecutionResult {
-  method: 'CETESB';
+  method: 'CETESB' | 'BARTLETT_LEWIS';
+  calibration_metadata?: any;
   source: 'original' | 'filled';
   years: number[];
   durations: DurationSeriesItem[];
@@ -62,4 +63,37 @@ export interface TemporalDisaggregationDecayCurveResponse {
   max_year: number;
   max_daily_mm: number;
   points: DecayCurvePoint[];
+}
+
+
+export interface CalibrationMetadata {
+  calibration_station_id: string;
+  calibration_station_code?: string;
+  calibration_station_name: string;
+  events_count?: number;
+  effective_days?: number;
+  calibrated_params?: BartlettLewisParams;
+}
+
+export interface BartlettLewisParams {
+  lambda: number;
+  beta: number;
+  gamma: number;
+  eta: number;
+  mu: number;
+  events_count?: number;
+  effective_days?: number;
+}
+
+export interface BartlettLewisExecuteRequest {
+  calibration_station_id: string;
+  seed?: number;
+}
+
+export interface TemporalDisaggregationJobResponse {
+  job_id: string;
+  project_id: string;
+  step_id: string;
+  status: string;
+  message: string;
 }

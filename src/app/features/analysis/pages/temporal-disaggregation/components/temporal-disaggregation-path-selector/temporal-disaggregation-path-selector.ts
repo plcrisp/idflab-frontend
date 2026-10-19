@@ -28,6 +28,7 @@ export class TemporalDisaggregationPathSelector {
   readonly bartlettDisabled = input<boolean>(false);
   readonly isCheckingCandidates = input<boolean>(false);
   readonly cetesbExecuted = input<boolean>(false);
+  readonly bartlettExecuted = input<boolean>(false);
 
   readonly bartlettBadge = computed<string>(() => {
     if (this.isCheckingCandidates()) {

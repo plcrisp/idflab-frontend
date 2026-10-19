@@ -30,5 +30,16 @@
     [badge]="bartlettBadge()"
     description="Simula a estrutura interna da chuva, calibrada com uma estação de alta resolução próxima."
     (select)="selectOption('bartlett-lewis')"
-  />
+  >
+    @if (bartlettExecuted()) {
+      <span
+        hlmBadge
+        variant="outline"
+        class="text-xs font-medium px-2.5 py-0.5 rounded-md border flex items-center gap-1.5 bg-success/15 text-success border-success/30"
+      >
+        <span class="h-1.5 w-1.5 rounded-full bg-success"></span>
+        Executado
+      </span>
+    }
+  </app-path>
 </div>

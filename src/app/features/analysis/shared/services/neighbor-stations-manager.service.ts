@@ -13,7 +13,7 @@ import { toast } from '@spartan-ng/brain/sonner';
 import { ProjectStateService } from '../../services/project-state.service';
 import { StationService } from '../../../../core/services/api/stations.service';
 import { NotificationsService } from '../../../../core/services/api/notifications.service';
-import { NeighborStation } from '../../../../core/models/api/station.model';
+import { NeighborStation, NeighborStationsFilter } from '../../../../core/models/api/station.model';
 import { ActiveJobItem } from '../../../../core/models/api/notification.model';
 import { ConfirmationStatus, NeighborProgressInfo } from '../models/analysis.models';
 import { buildEnsureStationDataPayload } from '../../pages/consistency-check/utils/consistency-check.utils';
@@ -99,11 +99,12 @@ export class NeighborStationsManagerService {
     initialNeighborId?: string | null,
     savedJobId?: string | null,
     projectId?: string,
+    filters?: NeighborStationsFilter,
   ): void {
     this.neighborsSub?.unsubscribe();
     this.isLoadingNeighbors.set(true);
 
-    this.neighborsSub = this.stationService.getNeighborStations(stationId).subscribe({
+    this.neighborsSub = this.stationService.getNeighborStations(stationId, filters).subscribe({
       next: (neighbors) => {
         this.neighbors.set(neighbors);
         this.isLoadingNeighbors.set(false);

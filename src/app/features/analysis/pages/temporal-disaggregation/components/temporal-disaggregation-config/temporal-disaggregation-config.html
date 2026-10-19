@@ -36,7 +36,6 @@
     <!-- Corpo do Card -->
     <div class="p-4 sm:p-5 flex flex-col gap-4">
       @if (loading()) {
-        <!-- Skeletons na mesma grade de 12 tiles -->
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 gap-2 sm:gap-2.5">
           @for (i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; track i) {
             <div hlmSkeleton class="h-20 rounded-lg bg-secondary/40"></div>
@@ -58,18 +57,15 @@
           </button>
         </div>
       } @else {
-        <!-- Grade Responsiva de 12 Tiles de Fatores -->
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 gap-2 sm:gap-2.5">
           @for (item of factors(); track item.duration_minutes) {
             <div
               class="group flex flex-col items-center justify-center p-2.5 sm:py-3 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center"
             >
-              <!-- Duração -->
               <span class="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground group-hover:text-foreground transition-colors">
                 {{ item.label }}
               </span>
 
-              <!-- Valor do Fator -->
               <span class="mt-1 text-sm sm:text-base font-bold text-foreground tabular-nums">
                 {{ formatFactor(item.factor) }}
               </span>
@@ -79,8 +75,162 @@
       }
     </div>
   </div>
-} @else {
-  <!-- Bloco vazio para Bartlett-Lewis (será implementado futuramente) -->
-  <div class="hidden"></div>
-}
+} @else if (isExecuted() && blParams(); as p) {
+  <div
+    class="w-full min-w-0 flex flex-col rounded-xl shadow-xs border border-border bg-popover text-foreground overflow-hidden"
+  >
+    <!-- Cabeçalho do Card: Bartlett-Lewis Executado -->
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-border px-4 py-3">
+      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-foreground">
+          PARÂMETROS CALIBRADOS
+        </h3>
+        <span class="text-sm font-normal text-muted-foreground">
+          · Bartlett-Lewis
+        </span>
+      </div>
 
+      @if (blMetadata(); as meta) {
+        <div class="flex items-center gap-2 text-xs text-muted-foreground">
+          <span>Estação: <strong class="text-foreground">{{ meta.calibration_station_name }}</strong></span>
+          @if (meta.events_count) {
+            <span>· {{ meta.events_count }} tempestades</span>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- 5 Tiles de Parâmetros Calibrados -->
+    <div class="p-4 sm:p-5 flex flex-col gap-4">
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+        <div class="group flex flex-col items-center justify-center p-3 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center">
+          <span class="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground group-hover:text-foreground transition-colors">
+            λ (lambda)
+          </span>
+          <span class="mt-1 text-base font-bold text-foreground tabular-nums">
+            {{ formatParam(p.lambda) }}
+          </span>
+          <span class="text-[10px] text-muted-foreground mt-0.5">h⁻¹ (frequência)</span>
+        </div>
+
+        <div class="group flex flex-col items-center justify-center p-3 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center">
+          <span class="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground group-hover:text-foreground transition-colors">
+            β (beta)
+          </span>
+          <span class="mt-1 text-base font-bold text-foreground tabular-nums">
+            {{ formatParam(p.beta) }}
+          </span>
+          <span class="text-[10px] text-muted-foreground mt-0.5">h⁻¹ (término células)</span>
+        </div>
+
+        <div class="group flex flex-col items-center justify-center p-3 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center">
+          <span class="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground group-hover:text-foreground transition-colors">
+            γ (gamma)
+          </span>
+          <span class="mt-1 text-base font-bold text-foreground tabular-nums">
+            {{ formatParam(p.gamma) }}
+          </span>
+          <span class="text-[10px] text-muted-foreground mt-0.5">h⁻¹ (término tempestade)</span>
+        </div>
+
+        <div class="group flex flex-col items-center justify-center p-3 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center">
+          <span class="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground group-hover:text-foreground transition-colors">
+            η (eta)
+          </span>
+          <span class="mt-1 text-base font-bold text-foreground tabular-nums">
+            {{ formatParam(p.eta) }}
+          </span>
+          <span class="text-[10px] text-muted-foreground mt-0.5">h⁻¹ (duração pulso)</span>
+        </div>
+
+        <div class="group flex flex-col items-center justify-center p-3 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center">
+          <span class="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground group-hover:text-foreground transition-colors">
+            μ (mu)
+          </span>
+          <span class="mt-1 text-base font-bold text-foreground tabular-nums">
+            {{ formatParam(p.mu) }}
+          </span>
+          <span class="text-[10px] text-muted-foreground mt-0.5">mm/h (intensidade)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+} @else if (method() === 'bartlett-lewis' && !isExecuted()) {
+  <div
+    class="w-full min-w-0 flex flex-col rounded-xl shadow-xs border border-border bg-popover text-foreground overflow-hidden"
+  >
+    <!-- Cabeçalho do Card: Bartlett-Lewis Pré-Execução -->
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-border px-4 py-3">
+      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-foreground">
+          CONFIGURAÇÃO DA DESAGREGAÇÃO
+        </h3>
+        <span class="text-sm font-normal text-muted-foreground">
+          · Bartlett-Lewis
+        </span>
+      </div>
+
+      <!-- Ação à Direita: Botão de Execução da Calibração e Desagregação -->
+      <button
+        hlmBtn
+        size="sm"
+        type="button"
+        [disabled]="!isCalibrationReady() || isExecuting()"
+        (click)="execute.emit()"
+        class="cursor-pointer font-medium inline-flex items-center gap-1.5 shadow-xs shrink-0"
+      >
+        @if (isExecuting()) {
+          <hlm-spinner class="mr-1" />
+          <span>Calibrando e desagregando…</span>
+        } @else {
+          <ng-icon name="lucideSparkles" class="text-xs" />
+          <span>Executar desagregação Bartlett-Lewis</span>
+        }
+      </button>
+    </div>
+
+    <!-- Corpo do Card -->
+    <div class="p-4 sm:p-5 flex flex-col gap-3">
+      @if (calibrationStation(); as st) {
+        @if (isCalibrationReady()) {
+          <div class="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-lg border border-primary/20 bg-primary/5">
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              <span class="text-muted-foreground">Estação de calibração selecionada:</span>
+              <strong class="text-foreground text-sm">{{ st.name | titlecase }}</strong>
+              <span
+                hlmBadge
+                [ngClass]="st.source.toLowerCase()"
+                class="flex items-center gap-1 border-none font-medium text-[11px] px-2 py-0.5 rounded-md"
+              >
+                <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+                {{ st.source }}
+              </span>
+              <span class="inline-flex items-center gap-1 text-[11px] font-medium text-foreground bg-secondary px-2 py-0.5 rounded-md border border-border">
+                <ng-icon name="lucideMapPin" class="text-xs text-primary" />
+                <span>{{ st.distance_km | number:'1.1-1':'pt-BR' }} km</span>
+              </span>
+            </div>
+            <span class="text-xs text-success font-medium inline-flex items-center gap-1.5">
+              <span class="h-1.5 w-1.5 rounded-full bg-success"></span>
+              Dados pluviométricos de 10 min prontos para calibração
+            </span>
+          </div>
+        } @else {
+          <div class="flex items-center gap-2 p-3.5 rounded-lg border border-border/70 bg-muted/20 text-xs text-muted-foreground">
+            <ng-icon name="lucideInfo" class="text-base text-muted-foreground shrink-0" />
+            <span>
+              A estação <strong>{{ st.name | titlecase }}</strong> foi selecionada. Clique em <strong>"Buscar dados desta estação"</strong> no card abaixo para verificar e baixar os dados necessários.
+            </span>
+          </div>
+        }
+      } @else {
+        <div class="flex items-center gap-2 p-3.5 rounded-lg border border-border/70 bg-muted/20 text-xs text-muted-foreground">
+          <ng-icon name="lucideInfo" class="text-base text-muted-foreground shrink-0" />
+          <span>
+            Selecione uma estação CEMADEN de 10 min na lista abaixo e clique em <strong>"Buscar dados desta estação"</strong> para prepará-la para a calibração do modelo estocástico Bartlett-Lewis.
+          </span>
+        </div>
+      }
+    </div>
+  </div>
+}

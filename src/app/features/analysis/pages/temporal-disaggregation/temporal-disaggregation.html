@@ -11,23 +11,67 @@
   <app-temporal-disaggregation-path-selector
     [(selected)]="selectedMethod"
     [bartlettDisabled]="isBartlettDisabled()"
-    [isCheckingCandidates]="isCheckingCemaden()"
+    [isCheckingCandidates]="isLoadingNeighbors()"
     [cetesbExecuted]="isCetesbExecuted()"
+    [bartlettExecuted]="isBartlettExecuted()"
   />
 
   <!-- 3. Configuração do Método Selecionado -->
-  <app-temporal-disaggregation-config
-    [method]="selectedMethod()"
-    [isExecuting]="isExecuting()"
-    [isExecuted]="isCetesbExecuted()"
-    (execute)="onExecuteDisaggregation()"
-  />
+  @if (selectedMethod() === 'cetesb') {
+    <app-temporal-disaggregation-config
+      [method]="'cetesb'"
+      [isExecuting]="isExecuting()"
+      [isExecuted]="isCetesbExecuted()"
+      (execute)="onExecuteDisaggregation()"
+    />
+  } @else {
+    <!-- Bartlett-Lewis: Configuração / Parâmetros -->
+    <app-temporal-disaggregation-config
+      [method]="'bartlett-lewis'"
+      [isExecuting]="isProcessing()"
+      [isExecuted]="isBartlettExecuted()"
+      [calibrationStation]="activeNeighborStation() ?? selectedNeighbor()"
+      [isCalibrationReady]="isCalibrationReady()"
+      [blParams]="calibratedParams()"
+      [blMetadata]="calibrationMetadata()"
+      (execute)="onExecuteDisaggregation()"
+    />
 
-  <!-- 4. Resultado da Desagregação (quando executado) -->
-  @if (isCetesbExecuted() && project(); as p) {
+    <!-- Bartlett-Lewis: Seleção e Coleta de Dados da Estação CEMADEN -->
+    <app-neighbor-stations-card
+      [projectId]="project()?.id ?? null"
+      [mainStation]="project()?.station ?? null"
+      [neighbors]="neighbors()"
+      [selectedNeighbor]="selectedNeighbor()"
+      [activeNeighborStation]="activeNeighborStation()"
+      [confirmationStatus]="confirmationStatus()"
+      [neighborProgress]="neighborProgress()"
+      [neighborJob]="neighborJob()"
+      [loading]="isLoadingNeighbors()"
+      [isLoadingData]="isLoadingNeighborData() || isDownloadingStation()"
+      [disabled]="isProcessing()"
+      [subtitle]="'Selecione uma estação CEMADEN para calibrar os 5 parâmetros de Bartlett-Lewis'"
+      [highDistanceWarningText]="'Distância elevada pode reduzir a representatividade dos parâmetros calibrados.'"
+      [idleMessage]="'Selecione uma estação CEMADEN na lista ou no mapa para calibrar os parâmetros.'"
+      [confirmActionPrefix]="'Calibrar e desagregar com a estação'"
+      [confirmButtonText]="'Calibrar e desagregar com esta estação'"
+      [activeMessagePrefix]="'Calibrando com a estação'"
+      (stationSelected)="onSelectCemadenStation($event)"
+      (confirmSelection)="onConfirmCemadenStation($event)"
+      (scrollToSelection)="scrollToResultCard()"
+    />
+  }
+
+  <!-- 4. Card de Resultado (Exibe Progresso durante Execução e Resultados ao Finalizar) -->
+  @if (showResultCard() && project(); as p) {
     <app-temporal-disaggregation-result
       [projectId]="p.id"
-      [method]="'CETESB'"
+      [method]="executedMethodLabel()"
+      [isExecuting]="isProcessing()"
+      [job]="activeJobForProgress()"
+      [calibrationStation]="activeNeighborStation() ?? selectedNeighbor()"
+      [customMessage]="activeProgressMessage()"
+      [customProgress]="activeProgressPercentage()"
     />
   }
 
@@ -37,7 +81,7 @@
       hlmBtn
       variant="outline"
       (click)="onBack()"
-      [disabled]="isAdvancing()"
+      [disabled]="isAdvancing() || isProcessing()"
     >
       <ng-icon name="lucideArrowLeft" class="mr-2" />
       Voltar
@@ -46,7 +90,7 @@
     <button
       hlmBtn
       (click)="onAdvance()"
-      [disabled]="!isCetesbExecuted() || isAdvancing()"
+      [disabled]="!isCurrentMethodExecuted() || isAdvancing() || isProcessing()"
     >
       @if (isAdvancing()) {
         <hlm-spinner class="mr-2" />
@@ -56,4 +100,3 @@
     </button>
   </div>
 </div>
-

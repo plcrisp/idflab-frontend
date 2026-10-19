@@ -3,8 +3,10 @@ import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
+  BartlettLewisExecuteRequest,
   CetesbExecutionResponse,
   CetesbFactorItem,
+  TemporalDisaggregationJobResponse,
   TemporalDisaggregationDecayCurveResponse,
   TemporalDisaggregationTableResponse,
 } from '../pages/temporal-disaggregation/models/temporal-disaggregation.model';
@@ -18,6 +20,16 @@ export class TemporalDisaggregationService {
 
   getCetesbFactors(): Observable<CetesbFactorItem[]> {
     return this.http.get<CetesbFactorItem[]>(`${this.baseUrl}/cetesb-factors`);
+  }
+
+  executeBartlettLewis(
+    projectId: string,
+    payload: BartlettLewisExecuteRequest,
+  ): Observable<TemporalDisaggregationJobResponse> {
+    return this.http.post<TemporalDisaggregationJobResponse>(
+      `${this.baseUrl}/${projectId}/bartlett-lewis`,
+      payload,
+    );
   }
 
   executeCetesb(projectId: string): Observable<CetesbExecutionResponse> {
