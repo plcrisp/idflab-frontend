@@ -46,6 +46,7 @@ export interface ProjectCreateResponse {
 
 export interface SidebarProject {
   id: string;
+  name?: string;
   station_name: string;
   created_at: string;
 }

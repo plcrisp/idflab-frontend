@@ -103,15 +103,13 @@ export class SelectStation implements OnInit {
   }
 
   private buildProjectName(stationName: string): string {
-    const formatted = new Date().toLocaleDateString('pt-BR');
-
     const formattedName = stationName
       .toLowerCase()
       .split(' ')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
 
-    return `${formattedName} - ${formatted}`;
+    return `${formattedName}`;
   }
 
   openModal(): void {

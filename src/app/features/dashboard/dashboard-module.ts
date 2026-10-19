@@ -40,7 +40,6 @@ import { HlmProgressImports } from '@spartan-ng/helm/progress';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 
-import { ProjectsHeader } from './components/projects-header/projects-header';
 import { ProjectsToolbar } from './components/projects-toolbar/projects-toolbar';
 import { ProjectCard } from './components/project-card/project-card';
 import { ProjectsMap } from './components/projects-map/projects-map';
@@ -50,7 +49,6 @@ import { ProjectDeleteModal } from './components/project-delete-modal/project-de
 @NgModule({
   declarations: [
     Dashboard,
-    ProjectsHeader,
     ProjectsToolbar,
     ProjectCard,
     ProjectsMap,

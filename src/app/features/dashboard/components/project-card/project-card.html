@@ -1,10 +1,11 @@
 <article
   [routerLink]="['/app/analysis', project().id]"
-  class="group relative flex flex-col justify-between rounded-xl border border-border bg-popover p-5 transition-all duration-200 hover:border-foreground/30 hover:shadow-xs cursor-pointer select-none"
+  class="group relative flex flex-col justify-between rounded-xl shadow-sm border border-border bg-popover p-5 transition-all duration-200 hover:border-foreground/30 hover:shadow-xs cursor-pointer select-none h-full gap-4"
 >
+  <!-- 1. Identidade -->
   <div>
-    <!-- Linha 1: Nome do projeto e menu de ações -->
-    <div class="flex items-start justify-between gap-3 mb-2">
+    <!-- Linha 1: Nome do projeto e menu de três pontos -->
+    <div class="flex items-start justify-between gap-3">
       <h2
         class="font-semibold text-base text-foreground truncate leading-snug flex-1"
         [title]="project().name"
@@ -45,8 +46,8 @@
       </div>
     </div>
 
-    <!-- Linha 2, em cinza: Badge fonte, código, UF e nome da estação se não repetir -->
-    <div class="flex items-center gap-2 text-xs text-muted-foreground flex-wrap mb-2">
+    <!-- Linha 2: Badge da fonte + código · UF em cinza 12px -->
+    <div class="flex items-center gap-2 text-xs text-muted-foreground mt-1">
       <span
         hlmBadge
         [ngClass]="project().station.source.toLowerCase()"
@@ -56,63 +57,73 @@
         {{ project().station.source }}
       </span>
 
-      <span hlmBadge variant="outline" class="text-muted-foreground text-xs font-mono">
-        {{ project().station.code }}
+      <span class="truncate">
+        {{ project().station.code }}{{ project().station.state ? ' · ' + project().station.state : '' }}
       </span>
-
-      @if (project().station.state) {
-        <span>{{ project().station.state }}</span>
-      }
-
-      @if (shouldShowStationName()) {
-        <span>·</span>
-        <span class="truncate max-w-44" [title]="project().station.name">
-          {{ project().station.name }}
-        </span>
-      }
-    </div>
-
-    <!-- Linha 3, em cinza: Período · Anos · Resolução -->
-    <p class="text-xs text-muted-foreground truncate mb-4">
-      {{ formattedPeriod() }} · {{ seriesYearsText() }} · {{ translatedResolution() }}
-    </p>
-
-    <!-- Progresso: Barra fina e texto Etapa X de 7 · [Etapa] -->
-    <div class="space-y-1.5 pt-1">
-      <div class="flex items-center justify-between text-xs text-muted-foreground">
-        @if (isProcessing()) {
-          <span class="inline-flex items-center gap-1.5 text-xs text-amber-500 font-medium">
-            <span class="relative flex h-1.5 w-1.5">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
-            </span>
-            Processando...
-          </span>
-        } @else {
-          <span class="truncate">
-            Etapa {{ stepInfo().number }} de 7 · {{ stepInfo().label }}
-          </span>
-        }
-      </div>
-
-      <div class="h-1 w-full bg-secondary rounded-full overflow-hidden">
-        <div
-          class="h-full bg-primary rounded-full transition-all duration-300"
-          [style.width.%]="stepInfo().percent"
-        ></div>
-      </div>
     </div>
   </div>
 
-  <!-- Rodapé -->
-  <footer class="pt-3 border-t border-border/40 flex items-center justify-between gap-3 mt-4 text-xs">
-    <span class="text-muted-foreground text-[11px] sm:text-xs truncate">
-      Atualizado em {{ project().updated_at | date:'dd/MM/yyyy' }}
+  <!-- 2. Dados, em chips -->
+  <div class="flex items-center gap-2 flex-wrap">
+    <!-- Período e Anos -->
+    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary px-2.5 py-1 rounded-md border border-border shrink-0">
+      <ng-icon name="lucideCalendar" class="text-xs text-primary shrink-0" />
+      <span>{{ periodAndYearsText() }}</span>
     </span>
 
-    <span class="text-muted-foreground group-hover:text-foreground font-medium transition-colors inline-flex items-center gap-0.5 shrink-0">
-      Continuar →
+    <!-- Resolução -->
+    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary px-2.5 py-1 rounded-md border border-border shrink-0">
+      <ng-icon name="lucideClock" class="text-xs text-primary shrink-0" />
+      <span>{{ translatedResolution() }}</span>
     </span>
+  </div>
+
+  <!-- 3. Progresso -->
+  <div class="space-y-1.5">
+    <div class="flex items-center justify-between text-xs">
+      <div class="flex items-center gap-1.5 min-w-0">
+        @if (isProcessing()) {
+          <span class="relative flex h-1.5 w-1.5 shrink-0">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
+          </span>
+        }
+        <span class="text-[13px] font-medium text-foreground truncate">
+          {{ stepInfo().label }}
+        </span>
+      </div>
+
+      <span class="text-xs text-muted-foreground shrink-0 tabular-nums ml-2">
+        {{ stepInfo().number }} de 7
+      </span>
+    </div>
+
+    <!-- Barra de progresso segmentada em 7 partes -->
+    <div class="grid grid-cols-7 gap-1 w-full">
+      @for (segment of [1, 2, 3, 4, 5, 6, 7]; track segment) {
+        <div
+          class="h-1 rounded-full transition-colors duration-200"
+          [ngClass]="segment <= stepInfo().number ? 'bg-primary' : 'bg-muted'"
+        ></div>
+      }
+    </div>
+  </div>
+
+  <!-- 4. Rodapé (sem divisor acima) -->
+  <footer class="flex items-center justify-between gap-3 text-xs">
+    <span class="text-muted-foreground text-xs truncate">
+      {{ updatedAgoText() }}
+    </span>
+
+    <button
+      type="button"
+      hlmBtn
+      variant="outline"
+      size="sm"
+      class="hover:text-primary gap-1 text-xs font-medium shrink-0 cursor-pointer"
+    >
+      <span>Continuar</span>
+      <ng-icon name="lucideArrowRight" class="text-xs text-primary" />
+    </button>
   </footer>
 </article>
-
