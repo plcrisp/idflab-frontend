@@ -25,18 +25,6 @@
       (execute)="onExecuteDisaggregation()"
     />
   } @else {
-    <!-- Bartlett-Lewis: Configuração / Parâmetros -->
-    <app-temporal-disaggregation-config
-      [method]="'bartlett-lewis'"
-      [isExecuting]="isProcessing()"
-      [isExecuted]="isBartlettExecuted()"
-      [calibrationStation]="activeNeighborStation() ?? selectedNeighbor()"
-      [isCalibrationReady]="isCalibrationReady()"
-      [blParams]="calibratedParams()"
-      [blMetadata]="calibrationMetadata()"
-      (execute)="onExecuteDisaggregation()"
-    />
-
     <!-- Bartlett-Lewis: Seleção e Coleta de Dados da Estação CEMADEN -->
     <app-neighbor-stations-card
       [projectId]="project()?.id ?? null"
@@ -70,6 +58,7 @@
       [isExecuting]="isProcessing()"
       [job]="activeJobForProgress()"
       [calibrationStation]="activeNeighborStation() ?? selectedNeighbor()"
+      [blParams]="calibratedParams()"
       [customMessage]="activeProgressMessage()"
       [customProgress]="activeProgressPercentage()"
     />

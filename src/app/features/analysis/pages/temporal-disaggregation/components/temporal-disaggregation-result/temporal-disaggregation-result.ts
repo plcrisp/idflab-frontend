@@ -42,6 +42,7 @@ import { EchartsService } from '../../../../../../core/services/utils/echarts.se
 import { FileDownloadService } from '../../../../../../core/services/utils/file-download.service';
 import { TemporalDisaggregationService } from '../../../../services/temporal-disaggregation.service';
 import {
+  BartlettLewisParams,
   TemporalDisaggregationDecayCurveResponse,
   TemporalDisaggregationTableResponse,
 } from '../../models/temporal-disaggregation.model';
@@ -95,6 +96,7 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
   readonly isExecuting = input<boolean>(false);
   readonly job = input<Job | ActiveJobItem | null>(null);
   readonly calibrationStation = input<NeighborStation | null>(null);
+  readonly blParams = input<BartlettLewisParams | null>(null);
   readonly customMessage = input<string | null>(null);
   readonly customProgress = input<number | null>(null);
 
@@ -102,9 +104,22 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
     return (this.method() || '').toLowerCase().includes('bartlett');
   });
 
+  readonly blParamsList = [
+    { key: 'lambda', letter: 'λ', unit: 'h⁻¹', desc: 'Frequência de tempestades' },
+    { key: 'beta', letter: 'β', unit: 'h⁻¹', desc: 'Término de células' },
+    { key: 'gamma', letter: 'γ', unit: 'h⁻¹', desc: 'Término de tempestade' },
+    { key: 'eta', letter: 'η', unit: 'h⁻¹', desc: 'Duração do pulso' },
+    { key: 'mu', letter: 'μ', unit: 'mm/h', desc: 'Intensidade da chuva' },
+  ] as const;
+
   formatDistance(distanceKm?: number | null): string {
     if (distanceKm == null) return '-';
     return `${distanceKm.toFixed(1).replace('.', ',')} km`;
+  }
+
+  formatParam(value?: number): string {
+    if (value == null) return '-';
+    return value.toFixed(4).replace('.', ',');
   }
 
   @ViewChild('chartContainer', { static: false })
