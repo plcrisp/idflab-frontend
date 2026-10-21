@@ -1,36 +1,36 @@
-<div class="dashboard-stats">
-  <div class="main-metric">
-    <span class="metric-value">{{ stats().totalStations }}</span>
-    <span class="metric-label">estações na área visível</span>
+<div class="p-4 flex flex-col gap-3.5 overflow-y-auto">
+  <div class="flex items-baseline gap-2">
+    <span class="text-2xl font-bold tracking-tight text-foreground tabular-nums">{{ stats().totalStations }}</span>
+    <span class="text-xs text-muted-foreground font-medium">estações na área visível</span>
   </div>
 
-  <div class="health-section">
-    <div class="health-info">
-      <span class="health-label">Operabilidade da Rede</span>
-      <span class="health-value">{{ stats().activePercentage }}%</span>
+  <div class="space-y-1.5">
+    <div class="flex items-center justify-between text-xs">
+      <span class="text-xs text-muted-foreground font-medium">Operabilidade da Rede</span>
+      <span class="text-xs font-semibold text-foreground tabular-nums">{{ stats().activePercentage }}%</span>
     </div>
 
-    <div class="health-track">
-      <div class="health-fill inmet" [style.width.%]="stats().inmetActiveShare"></div>
-
-      <div class="health-fill cemaden" [style.width.%]="stats().cemadenActiveShare"></div>
-
-      <div class="health-fill ana" [style.width.%]="stats().anaActiveShare"></div>
+    <div class="h-1.5 w-full bg-secondary rounded-full overflow-hidden flex">
+      <div class="h-full bg-[var(--inmet)] transition-all duration-300" [style.width.%]="stats().inmetActiveShare"></div>
+      <div class="h-full bg-[var(--cemaden)] transition-all duration-300" [style.width.%]="stats().cemadenActiveShare"></div>
+      <div class="h-full bg-[var(--ana)] transition-all duration-300" [style.width.%]="stats().anaActiveShare"></div>
     </div>
   </div>
 
-  <div class="sources-breakdown">
-    <div class="source-stat inmet">
-      <span class="source-name">INMET</span>
-      <span class="source-count">{{ stats().inmetCount }}</span>
+  <div class="grid grid-cols-3 gap-2 pt-2 border-t border-border">
+    <div class="flex flex-col p-2 rounded-lg bg-secondary/50 border border-border/50 text-center">
+      <span class="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">INMET</span>
+      <span class="text-sm font-semibold text-[var(--inmet)] tabular-nums">{{ stats().inmetCount }}</span>
     </div>
-    <div class="source-stat cemaden">
-      <span class="source-name">CEMADEN</span>
-      <span class="source-count">{{ stats().cemadenCount }}</span>
+
+    <div class="flex flex-col p-2 rounded-lg bg-secondary/50 border border-border/50 text-center">
+      <span class="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">CEMADEN</span>
+      <span class="text-sm font-semibold text-[var(--cemaden)] tabular-nums">{{ stats().cemadenCount }}</span>
     </div>
-    <div class="source-stat ana">
-      <span class="source-name">ANA</span>
-      <span class="source-count">{{ stats().anaCount }}</span>
+
+    <div class="flex flex-col p-2 rounded-lg bg-secondary/50 border border-border/50 text-center">
+      <span class="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">ANA</span>
+      <span class="text-sm font-semibold text-[var(--ana)] tabular-nums">{{ stats().anaCount }}</span>
     </div>
   </div>
 </div>

@@ -14,10 +14,13 @@ import {
   lucideArrowRight,
   lucideCalendar,
   lucideChartLine,
+  lucideChevronLeft,
+  lucideChevronRight,
   lucideClock,
   lucideDroplet,
   lucideInfo,
   lucideLayoutDashboard,
+  lucideLoader2,
   lucideMapPin,
   lucideSearch,
   lucideX,
@@ -28,6 +31,9 @@ import { StationList } from './components/station-list/station-list';
 import { SelectStation } from './components/select-station/select-station';
 import { StationSearch } from './components/station-search/station-search';
 import { StationModal } from './components/station-modal/station-modal';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmBadgeImports } from '@spartan-ng/helm/badge';
+import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmDatePickerImports } from '@spartan-ng/helm/date-picker';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 
@@ -46,6 +52,11 @@ import { HlmFieldImports } from '@spartan-ng/helm/field';
     ReactiveFormsModule,
     RouterModule.forChild(INTERACTIVE_MAP_ROUTES),
     SharedModule,
+    ...HlmButtonImports,
+    ...HlmBadgeImports,
+    ...HlmInputImports,
+    ...HlmDatePickerImports,
+    ...HlmFieldImports,
     NgIconsModule.withIcons({
       lucideSearch,
       lucideX,
@@ -53,15 +64,16 @@ import { HlmFieldImports } from '@spartan-ng/helm/field';
       lucideActivity,
       lucideArrowRight,
       lucideArrowLeft,
+      lucideChevronLeft,
+      lucideChevronRight,
       lucideLayoutDashboard,
       lucideInfo,
       lucideCalendar,
       lucideAlertCircle,
       lucideClock,
       lucideChartLine,
+      lucideLoader2,
     }),
-    ...HlmDatePickerImports,
-    ...HlmFieldImports,
   ],
 })
 export class InteractiveMapModule {}

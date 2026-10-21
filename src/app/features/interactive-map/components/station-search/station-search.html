@@ -1,14 +1,22 @@
-<div class="panel-header">
-  <h2 class="panel-title">Buscar Região</h2>
-
-  <div class="search-box">
-    <ng-icon *ngIf="!isLoading()" name="lucideSearch" class="search-icon"></ng-icon>
-    <span *ngIf="isLoading()" class="search-spinner"></span>
+<div class="p-3 border-b border-border relative">
+  <div class="relative w-full">
+    @if (isLoading()) {
+      <ng-icon
+        name="lucideLoader2"
+        class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4 animate-spin pointer-events-none"
+      />
+    } @else {
+      <ng-icon
+        name="lucideSearch"
+        class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none"
+      />
+    }
 
     <input
+      hlmInput
       type="text"
       placeholder="Pesquisar cidade..."
-      class="search-input"
+      class="pl-9 pr-8 w-full text-xs sm:text-sm h-9 bg-background border-border shadow-none"
       [formControl]="searchControl"
       (keydown)="onKeydown($event)"
       (focus)="onFocus()"
@@ -17,32 +25,41 @@
       [attr.aria-expanded]="isOpen()"
     />
 
-    <button
-      *ngIf="searchControl.value"
-      class="search-clear"
-      (click)="clear()"
-      aria-label="Limpar busca"
-    >
-      <ng-icon name="lucideX" size="14"></ng-icon>
-    </button>
-
-    <ul *ngIf="isOpen()" class="search-dropdown" role="listbox">
-      <li
-        *ngFor="let item of results(); let i = index"
-        class="search-option"
-        [class.search-option--active]="activeIndex() === i"
-        role="option"
-        (mouseenter)="activeIndex.set(i)"
-        (click)="select(item)"
+    @if (searchControl.value) {
+      <button
+        type="button"
+        (click)="clear()"
+        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-0.5 cursor-pointer rounded-sm"
+        title="Limpar busca"
+        aria-label="Limpar busca"
       >
-        <div class="option-icon-wrapper">
-          <ng-icon name="lucideMapPin" size="16"></ng-icon>
-        </div>
-        <div class="option-content">
-          <span class="option-title">{{ item.title }}</span>
-          <span class="option-subtitle">{{ item.subtitle }}</span>
-        </div>
-      </li>
-    </ul>
+        <ng-icon name="lucideX" class="w-3.5 h-3.5" />
+      </button>
+    }
+
+    @if (isOpen()) {
+      <ul
+        class="absolute left-0 right-0 top-[calc(100%+6px)] z-50 bg-card border border-border rounded-xl shadow-lg p-1 list-none overflow-hidden max-h-60 overflow-y-auto animate-in fade-in zoom-in-95 duration-100"
+        role="listbox"
+      >
+        @for (item of results(); track item.title; let i = $index) {
+          <li
+            class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs transition-colors select-none"
+            [class.bg-secondary]="activeIndex() === i"
+            [class.text-foreground]="activeIndex() === i"
+            [class.text-muted-foreground]="activeIndex() !== i"
+            role="option"
+            (mouseenter)="activeIndex.set(i)"
+            (click)="select(item)"
+          >
+            <ng-icon name="lucideMapPin" class="w-3.5 h-3.5 text-primary shrink-0" />
+            <div class="flex flex-col min-w-0">
+              <span class="font-medium text-foreground truncate">{{ item.title }}</span>
+              <span class="text-[11px] text-muted-foreground truncate">{{ item.subtitle }}</span>
+            </div>
+          </li>
+        }
+      </ul>
+    }
   </div>
 </div>

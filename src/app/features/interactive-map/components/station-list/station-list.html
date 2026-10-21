@@ -1,23 +1,82 @@
-<div class="station-list-container">
-  <div class="station-list">
-    <ng-container *ngFor="let station of stations()">
-      <div class="station-item" (click)="flyToStation(station.id)">
-        <div class="station-header">
-          <span class="station-name">{{ station.name | titlecase }}</span>
+<div class="flex flex-col max-h-90">
+  <!-- Cabeçalho de Contexto -->
+  <div class="px-3.5 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center justify-between border-b border-border bg-secondary/20 shrink-0">
+    <span>Estações na Região</span>
+    <span class="tabular-nums font-medium text-foreground bg-secondary px-1.5 py-0.5 rounded border border-border/50 text-[10px]">
+      {{ stations().length }} {{ stations().length === 1 ? 'estação' : 'estações' }}
+    </span>
+  </div>
 
-          <div class="station-status" [ngClass]="(station.status | lowercase) || 'desconhecido'">
-            <div class="status-dot"></div>
-            <span class="status-label">{{ station.status || 'ND' }}</span>
+  <!-- Lista de Mini-cards com padding interno -->
+  <div class="p-2 space-y-1.5 overflow-y-auto">
+    @for (station of stations(); track station.id) {
+      <div
+        role="button"
+        tabindex="0"
+        (click)="flyToStation(station.id)"
+        (keydown.enter)="flyToStation(station.id)"
+        class="group w-full p-2.5 rounded-lg border border-border/60 bg-secondary/25 hover:bg-secondary/70 hover:border-border transition-all cursor-pointer select-none text-left flex flex-col gap-1.5 outline-none focus-visible:ring-1 focus-visible:ring-primary"
+      >
+        <!-- Linha 1: Nome da Estação + Status + Seta -->
+        <div class="flex items-center justify-between gap-2">
+          <span
+            class="font-semibold text-xs text-foreground truncate flex-1 leading-tight"
+            [title]="station.name | titlecase"
+          >
+            {{ station.name | titlecase }}
+          </span>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <div class="flex items-center gap-1">
+              <span
+                class="w-1.5 h-1.5 rounded-full"
+                [ngClass]="
+                  station.status === 'Operante'
+                    ? 'bg-emerald-500'
+                    : station.status === 'Pane' || station.status === 'Falha'
+                      ? 'bg-amber-500'
+                      : 'bg-muted-foreground'
+                "
+              ></span>
+              <span
+                class="text-[10px] font-semibold uppercase tracking-wider"
+                [ngClass]="
+                  station.status === 'Operante'
+                    ? 'text-emerald-500'
+                    : station.status === 'Pane' || station.status === 'Falha'
+                      ? 'text-amber-500'
+                      : 'text-muted-foreground'
+                "
+              >
+                {{ station.status || 'ND' }}
+              </span>
+            </div>
+
+            <ng-icon
+              name="lucideChevronRight"
+              class="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-transform"
+            />
           </div>
         </div>
 
-        <div class="station-meta">
-          <span class="network-badge" [ngClass]="station.source.toLowerCase()">
+        <!-- Linha 2: Badges e Tipo da Estação -->
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span
+            hlmBadge
+            [ngClass]="station.source.toLowerCase()"
+            class="border-none font-medium text-[11px] px-1.5 py-0.5 rounded-md flex items-center shrink-0"
+          >
+            <span class="h-1.5 w-1.5 rounded-full bg-current mr-1.5"></span>
             {{ station.source }} {{ station.code }}
           </span>
-          <span *ngIf="station.station_type" class="station-type">{{ station.station_type }}</span>
+
+          @if (station.station_type) {
+            <span class="text-[10px] text-muted-foreground bg-card px-2 py-0.5 rounded-md border border-border/70 capitalize truncate max-w-[130px] shrink-0">
+              {{ station.station_type }}
+            </span>
+          }
         </div>
       </div>
-    </ng-container>
+    }
   </div>
 </div>

@@ -1,11 +1,15 @@
-<div class="floating-panel">
-  <app-station-search></app-station-search>
+<div class="absolute top-4 left-4 w-80 sm:w-[340px] max-h-[calc(100%-2rem)] flex flex-col bg-card border border-border rounded-xl shadow-lg z-10 overflow-hidden">
+  <app-station-search />
 
-  <app-station-analytics *ngIf="stations().length === 0 && !station()"> </app-station-analytics>
-
-  <app-station-list *ngIf="stations().length !== 0 && !station()"> </app-station-list>
-
-  <app-select-station (open)="toggleModal()" *ngIf="station()"> </app-select-station>
+  @if (station()) {
+    <app-select-station (open)="toggleModal()" />
+  } @else if (stations().length > 0) {
+    <app-station-list />
+  } @else {
+    <app-station-analytics />
+  }
 </div>
 
-<app-station-modal *ngIf="showStationTypeModal" (close)="toggleModal()"> </app-station-modal>
+@if (showStationTypeModal) {
+  <app-station-modal (close)="toggleModal()" />
+}
