@@ -71,6 +71,7 @@ import { TemporalDisaggregation } from './pages/temporal-disaggregation/temporal
 import { TemporalDisaggregationPathSelector } from './pages/temporal-disaggregation/components/temporal-disaggregation-path-selector/temporal-disaggregation-path-selector';
 import { TemporalDisaggregationConfig } from './pages/temporal-disaggregation/components/temporal-disaggregation-config/temporal-disaggregation-config';
 import { TemporalDisaggregationResult } from './pages/temporal-disaggregation/components/temporal-disaggregation-result/temporal-disaggregation-result';
+import { Distribution } from './pages/distribution/distribution';
 
 registerLocaleData(localePt);
 
@@ -94,6 +95,7 @@ registerLocaleData(localePt);
     ConsistencyAnalysis,
     GapFilling,
     TemporalDisaggregation,
+    Distribution,
   ],
   exports: [
     StationSummaryBar,
@@ -104,6 +106,7 @@ registerLocaleData(localePt);
     NeighborAnalysisCard,
     GapFilling,
     TemporalDisaggregation,
+    Distribution,
     Path,
     GapFillingPathSelector,
     GapFillingPreMetricsCard,

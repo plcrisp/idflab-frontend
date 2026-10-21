@@ -1,0 +1,29 @@
+<div class="flex flex-col gap-4 overflow-x-hidden">
+  <div class="rounded-xl border border-border bg-card p-8 shadow-xs flex flex-col items-center justify-center text-center min-h-90 gap-4">
+    <div class="h-14 w-14 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+      <ng-icon name="lucideTrendingUp" class="text-2xl" />
+    </div>
+
+    <div class="space-y-1.5 max-w-md">
+      <h2 class="text-lg font-semibold text-foreground tracking-tight">
+        Distribuição Estatística
+      </h2>
+      <p class="text-sm text-muted-foreground">
+        Esta etapa de modelagem de distribuições probabilísticas (Gumbel, GEV, etc.) para os máximos anuais está em desenvolvimento.
+      </p>
+    </div>
+
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border">
+      <span class="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
+      Etapa em Construção
+    </div>
+  </div>
+
+  <!-- Rodapé com Ações -->
+  <div class="flex w-full items-center justify-between gap-3 pt-2">
+    <button hlmBtn variant="outline" (click)="onBack()">
+      <ng-icon name="lucideArrowLeft" class="mr-2" />
+      Voltar
+    </button>
+  </div>
+</div>
