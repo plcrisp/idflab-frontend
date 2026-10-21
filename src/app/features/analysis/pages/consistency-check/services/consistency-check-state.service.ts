@@ -147,8 +147,23 @@ export class ConsistencyCheckStateService {
         next: (step) => {
           this.savedStep.set(step);
           const neighborId = step?.params?.neighbor_station_id;
+          const isCompleted = step?.status === 'COMPLETED';
+
           if (stationId) {
-            this.neighborManager.loadNeighbors(stationId, neighborId, step?.job_id, projectId);
+            if (isCompleted && neighborId) {
+              this.neighborManager.loadNeighbors(stationId, neighborId, null, projectId);
+            } else if (neighborId) {
+              this.neighborManager.loadNeighbors(
+                stationId,
+                null,
+                null,
+                projectId,
+                undefined,
+                neighborId,
+              );
+            } else {
+              this.neighborManager.loadNeighbors(stationId, null, null, projectId);
+            }
           }
         },
         error: (err) => {

@@ -360,7 +360,7 @@ export class ProjectsMap implements AfterViewInit, OnDestroy {
 
       this.map.fitBounds(bounds, {
         padding: { top: 40, bottom: 40, left: 40, right: 40 },
-        maxZoom: 8,
+        maxZoom: 9,
         duration,
       });
     }
