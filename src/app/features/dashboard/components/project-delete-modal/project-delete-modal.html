@@ -1,32 +1,72 @@
 @if (isOpen()) {
 <div
-  class="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop-anim"
+  class="modal-overlay"
   (click)="onCancel()"
   role="dialog"
   aria-modal="true"
   aria-labelledby="delete-modal-title"
 >
   <div
-    class="bg-popover border border-destructive/30 rounded-xl shadow-2xl p-6 max-w-md w-full relative z-10 modal-content-anim space-y-4"
+    class="modal-container max-w-md"
     (click)="$event.stopPropagation()"
   >
-    <div class="flex items-start gap-3.5">
-      <div class="flex items-center justify-center h-10 w-10 rounded-full bg-destructive/15 text-destructive shrink-0">
-        <ng-icon name="lucideTriangleAlert" class="w-5 h-5"></ng-icon>
+    <!-- Cabeçalho no padrão StationModal -->
+    <div class="modal-header">
+      <div class="header-titles">
+        <h2 id="delete-modal-title">Excluir Projeto</h2>
+        <p>Esta ação é irreversível e removerá o projeto da sua central.</p>
       </div>
-      <div class="space-y-1 flex-1 min-w-0">
-        <h3 id="delete-modal-title" class="text-base font-semibold text-foreground">
-          Excluir Projeto
-        </h3>
-        <p class="text-xs text-muted-foreground leading-relaxed">
-          Tem certeza que deseja excluir o projeto
-          <strong class="text-foreground font-semibold">"{{ project()?.name }}"</strong>?
-          Esta ação é irreversível e removerá permanentemente o histórico de cálculos e curvas IDF associadas.
+
+      <button
+        type="button"
+        (click)="onCancel()"
+        [disabled]="isDeleting()"
+        class="close-btn"
+        aria-label="Fechar"
+      >
+        <ng-icon name="lucideX" class="w-4 h-4"></ng-icon>
+      </button>
+    </div>
+
+    <!-- Corpo com Sub-card refinado e Aviso -->
+    <div class="modal-body space-y-3">
+      <!-- Card de Identificação do Projeto -->
+      <div class="sub-card">
+        <div class="flex items-center justify-between gap-2">
+          <span class="font-semibold text-sm text-foreground truncate" [title]="project()?.name">
+            {{ project()?.name }}
+          </span>
+
+          @if (project()?.station?.source) {
+            <span
+              hlmBadge
+              [ngClass]="project()!.station.source.toLowerCase()"
+              class="border-none font-medium text-[11px] px-2 py-0.5 rounded-md shrink-0 flex items-center"
+            >
+              <span class="h-1.5 w-1.5 rounded-full bg-current mr-1.5"></span>
+              {{ project()!.station.source }} {{ project()!.station.code }}
+            </span>
+          }
+        </div>
+
+        @if (project()?.station?.name) {
+          <span class="text-xs text-muted-foreground truncate">
+            Estação: {{ project()!.station.name }}
+          </span>
+        }
+      </div>
+
+      <!-- Nota de Alerta Delicada -->
+      <div class="warning-note">
+        <ng-icon name="lucideTriangleAlert" class="warning-icon"></ng-icon>
+        <p>
+          Todos os dados calculados, etapas de preenchimento de falhas e parâmetros de curvas IDF associados a este projeto serão permanentemente removidos.
         </p>
       </div>
     </div>
 
-    <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-border">
+    <!-- Rodapé de Ações com divisória -->
+    <div class="modal-footer">
       <button
         type="button"
         (click)="onCancel()"
@@ -34,7 +74,7 @@
         hlmBtn
         variant="outline"
         size="sm"
-        class="text-xs"
+        class="text-xs cursor-pointer"
       >
         Cancelar
       </button>
@@ -45,14 +85,14 @@
         hlmBtn
         variant="destructive"
         size="sm"
-        class="gap-1.5 text-xs font-medium"
+        class="gap-1.5 text-xs font-medium cursor-pointer"
       >
         @if (isDeleting()) {
-        <ng-icon name="lucideLoader2" class="w-3.5 h-3.5 animate-spin"></ng-icon>
-        <span>Excluindo...</span>
+          <ng-icon name="lucideLoader2" class="w-3.5 h-3.5 animate-spin"></ng-icon>
+          <span>Excluindo...</span>
         } @else {
-        <ng-icon name="lucideTrash2" class="w-3.5 h-3.5"></ng-icon>
-        <span>Excluir Definitivamente</span>
+          <ng-icon name="lucideTrash2" class="w-3.5 h-3.5"></ng-icon>
+          <span>Excluir Definitivamente</span>
         }
       </button>
     </div>

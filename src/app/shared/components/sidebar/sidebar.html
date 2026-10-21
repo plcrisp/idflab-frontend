@@ -8,6 +8,7 @@
       <div hlmSidebarSeparator></div>
     </div>
     <div hlmSidebarContent>
+      <!-- Grupo de Navegação Principal -->
       <div hlmSidebarGroup>
         <div hlmSidebarGroupContent>
           <ul hlmSidebarMenu>
@@ -21,32 +22,36 @@
               <a
                 hlmSidebarMenuButton
                 [routerLink]="item.url"
-                routerLinkActive="bg-sidebar-accent"
+                #rla="routerLinkActive"
+                routerLinkActive="active"
+                [isActive]="rla.isActive"
+                [attr.aria-current]="rla.isActive ? 'page' : null"
+                class="sidebar-nav-item"
               >
-                <ng-icon hlm [name]="item.icon" />
-                <span>{{ item.title }}</span>
+                <ng-icon hlm [name]="item.icon" class="sidebar-nav-icon" />
+                <span class="sidebar-nav-text">{{ item.title }}</span>
               </a>
             </li>
             }
           </ul>
-          <div hlmSidebarSeparator></div>
         </div>
       </div>
-      <div hlmSidebarGroup class="group-data-[collapsible=icon]:hidden">
+
+      <!-- Grupo de Projetos Recentes (com espaçamento superior de 20px) -->
+      <div hlmSidebarGroup class="mt-5 group-data-[collapsible=icon]:hidden">
         <div hlmSidebarGroupContent>
           <ul hlmSidebarMenu>
             <hlm-collapsible [expanded]="true" class="group/collapsible">
               <li hlmSidebarMenuItem>
                 <button
+                  type="button"
                   hlmCollapsibleTrigger
-                  hlmSidebarMenuButton
-                  class="flex w-full items-center justify-between"
+                  class="sidebar-group-trigger"
                 >
-                  <span>Projetos Recentes</span>
+                  <span class="sidebar-group-title">Projetos Recentes</span>
                   <ng-icon
                     name="lucideChevronRight"
-                    class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90"
-                    hlm
+                    class="sidebar-group-chevron group-data-[state=open]/collapsible:rotate-90"
                   />
                 </button>
                 <hlm-collapsible-content>
@@ -56,16 +61,19 @@
                     <li hlmSidebarMenuSubItem>
                       <a
                         hlmSidebarMenuSubButton
-                        class="flex h-auto w-full items-start gap-2 py-2"
+                        class="sidebar-sub-item flex h-auto w-full items-start gap-2 py-2"
                         [routerLink]="['/app/analysis', project.id]"
-                        routerLinkActive="bg-sidebar-accent"
+                        #projectRla="routerLinkActive"
+                        routerLinkActive="active"
+                        [isActive]="projectRla.isActive"
+                        [attr.aria-current]="projectRla.isActive ? 'page' : null"
                       >
                         <div class="flex flex-col text-left overflow-hidden w-full">
-                          <span class="truncate text-sm font-medium leading-tight">
+                          <span class="sidebar-sub-item-title truncate text-sm font-medium leading-tight">
                             {{ project.name || project.station_name }}
                           </span>
 
-                          <span class="text-xs text-(--color-grey-light) mt-0.5">
+                          <span class="sidebar-sub-item-date text-xs mt-0.5">
                             {{ project.created_at | date:'dd/MM/yyyy' }}
                           </span>
                         </div>
@@ -73,7 +81,8 @@
                     </li>
                     }
                   </ul>
-                  <ul *ngIf="state().projects.length === 0" hlmSidebarMenuSub>
+                  @if (state().projects.length === 0) {
+                  <ul hlmSidebarMenuSub>
                     <div
                       class="mx-3 flex flex-col items-center justify-center rounded-lg px-4 py-8 text-center"
                     >
@@ -82,14 +91,15 @@
                       >
                         <ng-icon
                           name="lucideFolder"
-                          class="text-xl text-muted-foreground/40"
+                          class="text-xl text-sidebar-foreground/60"
                         ></ng-icon>
                       </div>
-                      <span class="mb-5 text-xs text-(--sidebar-text-muted)">
+                      <span class="mb-5 text-xs text-sidebar-foreground/80">
                         Nenhum projeto salvo
                       </span>
                     </div>
                   </ul>
+                  }
                   }
                 </hlm-collapsible-content>
               </li>
@@ -100,7 +110,7 @@
     </div>
     <div hlmSidebarFooter class="px-2 py-4 group-data-[collapsible=icon]:hidden">
       <div hlmSidebarSeparator></div>
-      <span class="text-xs text-(--sidebar-text-muted) mt-2 ml-4">IDFLab v1.0.0 &copy; 2026</span>
+      <span class="text-xs text-sidebar-foreground/70 mt-2 ml-4">IDFLab v1.0.0 &copy; 2026</span>
     </div>
   </hlm-sidebar>
   <ng-content />

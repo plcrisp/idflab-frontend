@@ -218,26 +218,28 @@ export class ProjectsMap implements AfterViewInit, OnDestroy {
         duration: 400,
       });
 
-      const sourceColor = this.getSourceColor(source);
+      const sourceClass = source.toLowerCase();
       const popupContent = document.createElement('div');
-      popupContent.className = 'p-3 flex flex-col gap-1.5 min-w-[190px] max-w-[250px]';
+      popupContent.className = 'project-popup-content';
       popupContent.innerHTML = `
-        <div class="flex items-center justify-between gap-2">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground truncate">
-            ${this.escapeHtml(regionText)}
-          </span>
-          <span class="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full shrink-0" style="background-color: ${sourceColor}20; color: ${sourceColor};">
+        <div class="project-popup-header">
+          <span class="project-popup-region">${this.escapeHtml(regionText)}</span>
+          <span class="project-popup-badge ${sourceClass}">
             ${this.escapeHtml(source)}
           </span>
         </div>
-        <span class="font-semibold text-xs text-foreground leading-snug line-clamp-2">
+        <h4 class="project-popup-title" title="${this.escapeHtml(project.name)}">
           ${this.escapeHtml(project.name)}
+        </h4>
+        <span class="project-popup-station">
+          Estação · ${this.escapeHtml(this.titleCasePipe.transform(stationName))}
         </span>
-        <span class="text-[11px] text-muted-foreground truncate">
-          Estação: ${this.escapeHtml(this.titleCasePipe.transform(stationName))}
-        </span>
-        <a href="/app/analysis/${project.id}" class="text-xs text-primary font-medium hover:underline inline-flex items-center gap-1 mt-1 cursor-pointer">
-          Continuar análise →
+        <div class="project-popup-divider"></div>
+        <a href="/app/analysis/${project.id}" class="project-popup-btn">
+          <span>Abrir Análise</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
         </a>
       `;
 

@@ -85,21 +85,149 @@
   }
 }
 
-// Popup estilizado com design tokens
+// Popup ao clicar na estação (exclusivo do mapa de projetos)
 ::ng-deep .minimal-project-popup {
-  z-index: 50;
+  z-index: 95;
 
   .mapboxgl-popup-content {
     background: color-mix(in srgb, var(--popover) 95%, transparent);
     border: 1px solid var(--border);
-    border-radius: 0.75rem;
-    padding: 0;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    border-radius: 1rem;
+    padding: 0.85rem 1rem;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+
+    min-width: 210px;
+    max-width: 260px;
+    transition:
+      transform 180ms ease,
+      border-color 180ms ease,
+      box-shadow 180ms ease;
   }
 
   .mapboxgl-popup-tip {
     display: none;
   }
+
+  .project-popup-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .project-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .project-popup-region {
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    opacity: 0.9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .project-popup-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.22rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+    flex-shrink: 0;
+    backdrop-filter: blur(10px);
+
+    &.inmet {
+      background-color: color-mix(in srgb, var(--inmet) 12%, transparent);
+      color: var(--inmet);
+    }
+    &.cemaden {
+      background-color: color-mix(in srgb, var(--cemaden) 12%, transparent);
+      color: var(--cemaden);
+    }
+    &.ana {
+      background-color: color-mix(in srgb, var(--ana) 12%, transparent);
+      color: var(--ana);
+    }
+  }
+
+  .project-popup-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--foreground);
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .project-popup-station {
+    font-size: 0.68rem;
+    color: var(--muted-foreground);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+  }
+
+  .project-popup-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+    margin: 0.2rem 0;
+  }
+
+  .project-popup-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    width: 100%;
+    padding: 0.38rem 0.6rem;
+    border-radius: 0.5rem;
+    background-color: color-mix(in srgb, var(--primary) 12%, transparent);
+    color: var(--primary);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
+
+    &:hover {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+      border-color: var(--primary);
+      box-shadow: 0 2px 6px color-mix(in srgb, var(--primary) 30%, transparent);
+    }
+
+    svg {
+      width: 12px;
+      height: 12px;
+      transition: transform 0.15s ease;
+    }
+
+    &:hover svg {
+      transform: translateX(2px);
+    }
+  }
 }
+
