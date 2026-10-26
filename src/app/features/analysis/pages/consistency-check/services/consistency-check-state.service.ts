@@ -22,6 +22,7 @@ import {
   ProjectStepResponse,
   ProjectStepSaveRequest,
 } from '../../../../../core/models/api/project-step.model';
+import { NotificationsService } from '../../../../../core/services/api/notifications.service';
 import { GlobalStats } from '../../../shared/models/analysis.models';
 import {
   SkeletonLoadingCoordinator,
@@ -33,6 +34,7 @@ export class ConsistencyCheckStateService {
   private projectState = inject(ProjectStateService);
   private initialVisualizationService = inject(InitialVisualizationService);
   private projectStepsService = inject(ProjectStepsService);
+  private notificationsService = inject(NotificationsService);
   readonly neighborManager = inject(NeighborStationsManagerService);
   private destroyRef = inject(DestroyRef);
 
@@ -151,7 +153,17 @@ export class ConsistencyCheckStateService {
           const isCompleted = step?.status === 'COMPLETED';
 
           if (stationId) {
-            const runningJobId = (step?.status === 'PENDING' ? step?.job_id : null) ?? null;
+            const panel = this.notificationsService.panel();
+            const isJobActive =
+              !!step?.job_id &&
+              !!panel?.active_jobs.some(
+                (j) =>
+                  String(j.job_id).toLowerCase() === String(step.job_id).toLowerCase() &&
+                  j.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA',
+              );
+            const runningJobId =
+              step?.status === 'PENDING' && isJobActive ? step.job_id : null;
+
             if (neighborId) {
               this.neighborManager.loadNeighbors(
                 stationId,
@@ -200,7 +212,7 @@ export class ConsistencyCheckStateService {
         excluded_years: currentSaved?.params?.excluded_years ?? [],
       },
       result: currentSaved?.result ?? undefined,
-      job_id: jobId ?? currentSaved?.job_id ?? undefined,
+      job_id: jobId ? jobId : undefined,
     };
 
     this.projectStepsService.saveProjectStep(projectId, request).subscribe({

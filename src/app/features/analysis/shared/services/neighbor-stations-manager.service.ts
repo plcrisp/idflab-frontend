@@ -304,6 +304,7 @@ export class NeighborStationsManagerService {
     projectId?: string,
   ): void {
     this.selectedNeighbor.set(neighbor);
+    this.activeNeighborStation.set(neighbor);
 
     if (savedJobId) {
       this.neighborJobId.set(savedJobId);
@@ -311,6 +312,7 @@ export class NeighborStationsManagerService {
       this.confirmationStatus.set('loading');
       this.isLoadingNeighborData.set(true);
       this.isSelectionLocked.set(true);
+      this.hasSeenActiveJob = true;
 
       const formattedName = new TitleCasePipe().transform(neighbor.name) || neighbor.name;
       this.neighborProgress.set({
@@ -319,27 +321,7 @@ export class NeighborStationsManagerService {
       });
 
       this.notificationsService.refetch();
-
-      if (projectId) {
-        const payload = buildEnsureStationDataPayload(neighbor, projectId);
-        this.stationService.ensureStationData(neighbor.id, payload).subscribe({
-          next: (res) => {
-            if (res.status === 'ready') {
-              this.onJobSuccess();
-            } else if (res.status === 'processing') {
-              const currentJobId = res.job_id ?? savedJobId;
-              this.neighborJobId.set(currentJobId);
-              this.projectState.setNeighborJobId(currentJobId);
-              this.hasSeenActiveJob = true;
-            }
-          },
-          error: (err) => {
-            console.error('Erro ao verificar status dos dados da estação salva:', err);
-          },
-        });
-      }
     } else {
-      this.activeNeighborStation.set(neighbor);
       this.confirmationStatus.set('ready');
       this.isLoadingNeighborData.set(false);
       this.isSelectionLocked.set(false);
