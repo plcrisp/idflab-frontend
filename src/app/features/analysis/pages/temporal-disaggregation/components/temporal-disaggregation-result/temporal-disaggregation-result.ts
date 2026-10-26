@@ -299,7 +299,7 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
       return {
         grid: { left: 24, right: 24, top: 32, bottom: 36, containLabel: true },
         xAxis: { type: 'log', min: 5, max: 1440 },
-        yAxis: { type: 'log', min: 1, max: 1000 },
+        yAxis: { type: 'value', min: 0 },
         series: [],
       };
     }
@@ -316,17 +316,6 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
       360: '6 h',
       1440: '24 h',
     };
-
-    const allIntensities = [
-      ...data.points.map((p) => p.max_intensity_mm_h),
-      ...data.points.map((p) => p.mean_intensity_mm_h),
-    ];
-    const minIntensity = Math.min(...allIntensities);
-    const maxIntensity = Math.max(...allIntensities);
-
-    const yTicks = [1, 10, 100, 1000];
-    if (minIntensity < 1) yTicks.unshift(0.1);
-    if (maxIntensity > 1000) yTicks.push(10000);
 
     const tooltipBase = buildTooltipBase(tokens);
 
@@ -446,11 +435,10 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
         splitLine: buildSplitLineStyle(tokens),
       },
       yAxis: {
-        type: 'log',
+        type: 'value',
+        min: 0,
         name: 'Intensidade (mm/h)',
         nameLocation: 'end',
-        min: yTicks[0],
-        max: yTicks[yTicks.length - 1],
         nameTextStyle: {
           color: tokens.textMuted,
           fontFamily: tokens.fontFamily,
@@ -460,18 +448,10 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
           padding: [0, 0, 8, -14],
         },
         axisLine: buildAxisLineStyle(tokens),
-        axisTick: {
-          show: true,
-          lineStyle: { color: tokens.border },
-          customValues: yTicks,
-        },
+        axisTick: { show: false },
         axisLabel: {
           ...buildAxisLabelBase(tokens),
-          customValues: yTicks,
-          formatter: (val: number) => {
-            if (val < 1) return val.toLocaleString('pt-BR');
-            return Math.round(val).toLocaleString('pt-BR');
-          },
+          formatter: (val: number) => Math.round(val).toLocaleString('pt-BR'),
         },
         splitLine: buildSplitLineStyle(tokens),
       },

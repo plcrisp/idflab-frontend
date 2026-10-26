@@ -52,6 +52,8 @@
     [metrics]="state.postMetrics()"
     [station]="state.activeNeighborStation() ?? state.selectedNeighbor()"
     [totalYears]="state.stats()?.total_years ?? null"
+    [historicalMaxValue]="state.stats()?.max_value ?? null"
+    [historicalMaxDate]="state.stats()?.max_value_date ?? null"
     [disabled]="state.isSelectionLocked() || state.isFilling()"
     (recalculate)="onFillGaps()" />
   }

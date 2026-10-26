@@ -1,3 +1,4 @@
+import { isSubDailyResolution } from '../../../../core/utils/resolution.utils';
 import {
   Component,
   computed,
@@ -101,7 +102,7 @@ export class TemporalDisaggregation {
   });
 
   readonly isHourly = computed<boolean>(
-    () => this.project()?.station?.resolution === 'hourly',
+    () => isSubDailyResolution(this.project()?.station?.resolution),
   );
 
   readonly isLoading = computed<boolean>(
@@ -140,7 +141,7 @@ export class TemporalDisaggregation {
   });
 
   readonly executedMethodLabel = computed<string>(() => {
-    return this.selectedMethod() === 'cetesb' ? 'CETESB' : 'Bartlett-Lewis';
+    return this.selectedMethod() === 'cetesb' ? 'CETESB' : 'Hyetos-Minute Bartlett-Lewis';
   });
 
   readonly activeJobForProgress = computed<Job | ActiveJobItem | null>(() => {
@@ -163,7 +164,7 @@ export class TemporalDisaggregation {
     const nProg = this.neighborProgress();
     if (nProg?.message) return nProg.message;
 
-    if (this.isExecutingBl()) return 'Iniciando desagregação Bartlett-Lewis...';
+    if (this.isExecutingBl()) return 'Iniciando desagregação Hyetos-Minute Bartlett-Lewis...';
     if (this.isDownloadingStation()) return 'Baixando dados pluviométricos da estação CEMADEN...';
 
     return null;
@@ -504,7 +505,7 @@ export class TemporalDisaggregation {
     this.neighborManager.neighborJobId.set(null);
     this.neighborManager.confirmationStatus.set('ready');
     this.neighborManager.activeNeighborStation.set(neighbor);
-    toast.success('Download dos dados da estação concluído! Iniciando calibração Bartlett-Lewis...');
+    toast.success('Download dos dados da estação concluído! Iniciando calibração Hyetos-Minute Bartlett-Lewis...');
     this.notificationsService.refetch();
 
     // Inicia automaticamente a execução do Bartlett-Lewis com os dados já disponíveis
@@ -588,7 +589,7 @@ export class TemporalDisaggregation {
           const msg =
             err?.error?.detail ??
             err?.error?.message ??
-            'Erro ao iniciar a desagregação Bartlett-Lewis.';
+            'Erro ao iniciar a desagregação Hyetos-Minute Bartlett-Lewis.';
           toast.error(msg);
         },
       });
@@ -629,7 +630,7 @@ export class TemporalDisaggregation {
         error: (err) => {
           this.isExecutingBl.set(false);
           const msg =
-            err?.error?.message ?? 'Erro ao acompanhar processamento da desagregação Bartlett-Lewis.';
+            err?.error?.message ?? 'Erro ao acompanhar processamento da desagregação Hyetos-Minute Bartlett-Lewis.';
           toast.error(msg);
         },
       });
@@ -640,7 +641,7 @@ export class TemporalDisaggregation {
     this.blJob.set(null);
     this.isBartlettExecuted.set(true);
     this.executedMethod.set('BARTLETT_LEWIS');
-    toast.success('Desagregação Bartlett-Lewis concluída com sucesso!');
+    toast.success('Desagregação Hyetos-Minute Bartlett-Lewis concluída com sucesso!');
     this.notificationsService.refetch();
     const stationId = this.project()?.station?.id ?? this.project()?.station_id;
     this.checkExistingStep(projectId, stationId);
@@ -657,7 +658,7 @@ export class TemporalDisaggregation {
     const msg =
       job?.details?.error_log ??
       job?.details?.message ??
-      'Falha na desagregação temporal Bartlett-Lewis.';
+      'Falha na desagregação temporal Hyetos-Minute Bartlett-Lewis.';
     toast.error(msg);
     this.notificationsService.refetch();
   }

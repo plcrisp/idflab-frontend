@@ -93,7 +93,7 @@
             Série temporal pós-preenchimento
           </h4>
           @if (correctionsInWindow() > 0) {
-          <span class="text-xs font-medium text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+          <span class="text-xs font-medium text-[#d9480f] dark:text-[#ff8787] bg-[#d9480f]/10 px-2 py-0.5 rounded-md border border-[#d9480f]/20">
             {{ correctionsInWindow() }} valores imputados na janela
           </span>
           }
@@ -155,6 +155,8 @@
       } @else {
       <app-time-series-detail-chart
         [data]="visualization()"
+        [historicalMaxDate]="historicalMaxDate()"
+        [historicalMaxValue]="historicalMaxValue()"
         unit="mm"
       />
       }

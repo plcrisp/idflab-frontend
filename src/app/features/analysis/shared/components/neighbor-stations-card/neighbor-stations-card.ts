@@ -1,3 +1,4 @@
+import { formatTemporalResolution } from '../../../../../core/utils/resolution.utils';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NeighborStation, StationSummary } from '../../../../../core/models/api/station.model';
 import { ActiveJobItem } from '../../../../../core/models/api/notification.model';
@@ -87,13 +88,7 @@ export class NeighborStationsCard {
   }
 
   formatTemporalResolution(res?: string | null): string {
-    if (!res) return '-';
-    const lower = res.toLowerCase().trim();
-    if (lower === 'hourly' || lower === 'hour') return 'Horária';
-    if (lower === 'daily' || lower === 'day') return 'Diária';
-    if (lower === 'monthly' || lower === 'month') return 'Mensal';
-    if (lower.includes('10')) return '10 min';
-    return res.charAt(0).toUpperCase() + res.slice(1);
+    return formatTemporalResolution(res);
   }
 
   formatCoveragePeriod(start?: string | null, end?: string | null): string {

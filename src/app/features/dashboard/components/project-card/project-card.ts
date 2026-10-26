@@ -1,3 +1,4 @@
+import { formatTemporalResolution } from '../../../../core/utils/resolution.utils';
 import { Component, computed, input, output } from '@angular/core';
 import { Project } from '../../../../core/models/api/project.model';
 import { getProjectPipelineStepInfo } from '../../../../core/utils/project-step.utils';
@@ -39,11 +40,7 @@ export class ProjectCard {
   });
 
   readonly translatedResolution = computed(() => {
-    const res = this.project().station?.resolution?.toLowerCase();
-    if (res === 'hourly') return 'Horária';
-    if (res === 'daily') return 'Diária';
-    if (res === 'monthly') return 'Mensal';
-    return this.project().station?.resolution || 'Diária';
+    return formatTemporalResolution(this.project().station?.resolution);
   });
 
   readonly updatedAgoText = computed(() => {

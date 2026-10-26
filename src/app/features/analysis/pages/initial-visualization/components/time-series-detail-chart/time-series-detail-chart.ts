@@ -12,11 +12,13 @@ import {
   buildFilledDataLegendSeries,
   buildGrid,
   buildHistoricalMaxMarkLine,
+  buildHistoricalMaxMarkPointItem,
   buildLegend,
   buildMarkArea,
   buildMarkPoint,
   buildMaxObservadoLegendSeries,
   buildMaxPeriodoLegendSeries,
+  buildPeriodMaxMarkPointItem,
   buildSplitLineStyle,
   buildTooltipBase,
   calcYAxisMax,
@@ -74,6 +76,8 @@ export class TimeSeriesDetailChart implements OnDestroy {
     historicalMaxValue: number | null;
   }>;
 
+  private currentMaxPeriodoDate: string | null = null;
+
   private readonly chartInput = computed(() => ({
     detail: this.data(),
     historicalMaxDate: this.historicalMaxDate(),
@@ -86,6 +90,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
       data: this.chartInput,
       buildOption: ({ detail, historicalMaxDate, historicalMaxValue }) =>
         detail ? this.buildOption(detail, historicalMaxDate, historicalMaxValue) : {},
+      onDataZoom: (params) => this.onDataZoom(params),
       renderer: 'canvas',
     });
   }
@@ -94,14 +99,57 @@ export class TimeSeriesDetailChart implements OnDestroy {
     this.echarts.destroy();
   }
 
-  private buildOption(
+  private onDataZoom(params: any): void {
+    const detail = this.data();
+    if (!detail?.points?.length) return;
+
+    const start = params?.batch ? params.batch[0]?.start : params?.start;
+    const end = params?.batch ? params.batch[0]?.end : params?.end;
+    if (start == null || end == null) return;
+
+    const points = detail.points;
+    const firstTs = new Date(points[0].date).getTime();
+    const lastTs = new Date(points[points.length - 1].date).getTime();
+    const currentStartTs = firstTs + (lastTs - firstTs) * (start / 100);
+    const currentEndTs = firstTs + (lastTs - firstTs) * (end / 100);
+
+    let newMaxDate: string | null = null;
+    let newMaxValue = -Infinity;
+
+    points.forEach((p) => {
+      const ts = new Date(p.date).getTime();
+      if (ts >= currentStartTs - 1000 && ts <= currentEndTs + 1000) {
+        if (!p.is_failure && p.value !== null && p.value > newMaxValue) {
+          newMaxValue = p.value;
+          newMaxDate = p.date;
+        }
+      }
+    });
+
+    if (newMaxDate === this.currentMaxPeriodoDate) return;
+    this.currentMaxPeriodoDate = newMaxDate;
+
+    const t = this.echarts.getTokens();
+    const series = this.buildSeries(
+      detail,
+      newMaxDate,
+      newMaxValue,
+      this.historicalMaxDate(),
+      this.historicalMaxValue(),
+      t,
+    );
+    this.echarts.getInstance()?.setOption({ series }, false);
+  }
+
+  private buildSeries(
     data: DetailResponse,
+    maxPeriodoDate: string | null,
+    maxPeriodoValue: number,
     historicalMaxDate: string | null,
     historicalMaxValue: number | null,
-  ): EChartsOption {
+    t: any,
+  ): any[] {
     const { points, failure_windows } = data;
-    const t = this.echarts.getTokens();
-
     const isHourLevel = data.aggregation_level === 'hour';
     const isHighVolume = points.length >= 1000;
 
@@ -139,6 +187,134 @@ export class TimeSeriesDetailChart implements OnDestroy {
         }))
       : [];
 
+    const isCoincident =
+      historicalMaxRef !== null &&
+      maxPeriodoDate !== null &&
+      annualMaxData.length > 0 &&
+      (isHourLevel
+        ? new Date(maxPeriodoDate).getTime() === historicalMaxRef.getTime()
+        : isSameUTCDate(new Date(maxPeriodoDate), historicalMaxRef));
+
+    const markPointItems: any[] = [];
+    if (annualMaxData.length > 0) {
+      markPointItems.push(buildHistoricalMaxMarkPointItem(annualMaxData[0].coord, t));
+    }
+    if (!isCoincident && maxPeriodoDate !== null && maxPeriodoValue > -Infinity) {
+      markPointItems.push(
+        buildPeriodMaxMarkPointItem(
+          [new Date(maxPeriodoDate).getTime(), maxPeriodoValue],
+          t,
+          legendNamePico,
+        ),
+      );
+    }
+
+    const hasFilledData = points.some((p: DetailPoint) => !p.is_failure && p.is_filled === true);
+
+    const barData = points.map((p: DetailPoint) => {
+      const value = p.is_failure ? null : p.value;
+      const isFilled = !p.is_failure && p.is_filled === true;
+      const isPico = !isHighVolume && p.date === maxPeriodoDate && value !== null;
+
+      let color = t.chartBarDetail;
+      if (isFilled) {
+        color = t.chartBarFilled;
+      } else if (isPico) {
+        color = t.primaryDark;
+      }
+
+      return {
+        value: [new Date(p.date).getTime(), value],
+        itemStyle: { color, borderRadius: [3, 3, 0, 0] },
+        isFilled,
+        isPico,
+      };
+    });
+
+    const offsetMs = isHourLevel ? 30 * 60 * 1000 : DAY_MS / 2;
+    const markAreaData = (failure_windows ?? []).map((w: FailureWindow) => [
+      { xAxis: new Date(w.start).getTime() - offsetMs },
+      { xAxis: new Date(w.end).getTime() + offsetMs },
+    ]);
+
+    const histMax =
+      historicalMaxValue ??
+      (annualMaxData.length > 0 ? (annualMaxData[0].coord[1] as number) : null);
+
+    const hasHistoricalMax = histMax !== null && histMax !== undefined;
+
+    const baseSeries: any = isHighVolume
+      ? {
+        name: seriesName,
+        type: 'line',
+        large: true,
+        largeThreshold: 2000,
+        sampling: 'lttb',
+        symbol: 'none',
+        data: barData,
+        lineStyle: { color: t.chartBarDetail, width: 1.5 },
+        itemStyle: { color: t.chartBarDetail },
+        markPoint: buildMarkPoint(markPointItems, t),
+        markArea: buildMarkArea(markAreaData, t),
+        markLine: buildHistoricalMaxMarkLine(histMax, t, this.unit()),
+      }
+      : {
+        name: seriesName,
+        type: 'bar',
+        data: barData,
+        barCategoryGap: '10%',
+        barGap: '-100%',
+        itemStyle: { color: t.chartBarDetail, borderRadius: [3, 3, 0, 0] },
+        emphasis: { itemStyle: { color: t.primaryMid } },
+        markPoint: buildMarkPoint(markPointItems, t),
+        markArea: buildMarkArea(markAreaData, t),
+        markLine: buildHistoricalMaxMarkLine(histMax, t, this.unit()),
+      };
+
+    const series: any[] = [
+      baseSeries,
+      buildMaxPeriodoLegendSeries(t, legendNamePico),
+    ];
+
+    if (hasFilledData) {
+      series.push(buildFilledDataLegendSeries(t, CHART_LEGEND_LABELS.dadoPreenchido));
+    }
+
+    if (hasHistoricalMax) {
+      series.push(buildMaxObservadoLegendSeries(t, CHART_LEGEND_LABELS.maxObservado));
+    }
+
+    series.push(buildFalhaLegendSeries(t, isHighVolume ? 'scatter' : 'bar'));
+
+    return series;
+  }
+
+  private buildOption(
+    data: DetailResponse,
+    historicalMaxDate: string | null,
+    historicalMaxValue: number | null,
+  ): EChartsOption {
+    const { points } = data;
+    const t = this.echarts.getTokens();
+
+    const isHourLevel = data.aggregation_level === 'hour';
+
+    const defaultSeriesName =
+      data.aggregation_level === 'hour'
+        ? 'Precipitação horária'
+        : data.aggregation_level === 'month'
+          ? 'Precipitação mensal'
+          : 'Precipitação diária';
+    const seriesName =
+      this.seriesName() !== 'Precipitação diária' ? this.seriesName() : defaultSeriesName;
+
+    const legendNamePico =
+      data.aggregation_level === 'hour'
+        ? 'Precipitação horária máxima do período'
+        : data.aggregation_level === 'month'
+          ? 'Precipitação mensal máxima do período'
+          : 'Precipitação diária máxima do período';
+
     let maxPeriodoValue = -Infinity;
     let maxPeriodoDate: string | null = null;
 
@@ -149,50 +325,9 @@ export class TimeSeriesDetailChart implements OnDestroy {
       }
     });
 
+    this.currentMaxPeriodoDate = maxPeriodoDate;
+
     const hasFilledData = points.some((p: DetailPoint) => !p.is_failure && p.is_filled === true);
-
-    const barData = points.map((p: DetailPoint) => {
-      const value = p.is_failure ? null : p.value;
-      const isFilled = !p.is_failure && p.is_filled === true;
-      const isPico = !isHighVolume && p.date === maxPeriodoDate && value !== null;
-
-      if (isFilled && isPico) {
-        return {
-          value: [new Date(p.date).getTime(), value],
-          itemStyle: {
-            color: t.secondary,
-            borderColor: t.primaryDark,
-            borderWidth: 0.5,
-            borderRadius: [3, 3, 0, 0],
-          },
-          isFilled: true,
-          isPico: true,
-        };
-      }
-
-      if (isFilled) {
-        return {
-          value: [new Date(p.date).getTime(), value],
-          itemStyle: { color: t.secondary, borderRadius: [3, 3, 0, 0] },
-          isFilled: true,
-          isPico: false,
-        };
-      }
-
-      return isPico
-        ? {
-          value: [new Date(p.date).getTime(), value],
-          itemStyle: { color: t.primaryDark, borderRadius: [3, 3, 0, 0] },
-          isPico: true,
-        }
-        : [new Date(p.date).getTime(), value];
-    });
-
-    const offsetMs = isHourLevel ? 30 * 60 * 1000 : DAY_MS / 2;
-    const markAreaData = (failure_windows ?? []).map((w: FailureWindow) => [
-      { xAxis: new Date(w.start).getTime() - offsetMs },
-      { xAxis: new Date(w.end).getTime() + offsetMs },
-    ]);
 
     const tickValues: number[] = [];
     if (!isHourLevel && points.length > 0) {
@@ -212,55 +347,29 @@ export class TimeSeriesDetailChart implements OnDestroy {
       }
     }
 
-    const histMax =
-      historicalMaxValue ??
-      (annualMaxData.length > 0 ? (annualMaxData[0].coord[1] as number) : null);
+    const historicalMaxRef = historicalMaxDate ? new Date(historicalMaxDate) : null;
+    const histMaxInPoints = historicalMaxRef
+      ? points.find((p) => {
+          if (p.value === null || p.is_failure) return false;
+          const pDate = new Date(p.date);
+          return isHourLevel
+            ? pDate.getTime() === historicalMaxRef.getTime()
+            : isSameUTCDate(pDate, historicalMaxRef);
+        })?.value ?? null
+      : null;
 
+    const histMax = historicalMaxValue ?? histMaxInPoints;
     const hasHistoricalMax = histMax !== null && histMax !== undefined;
     const legendNameMax = hasHistoricalMax ? CHART_LEGEND_LABELS.maxObservado : null;
 
-    const baseSeries: any = isHighVolume
-      ? {
-        name: seriesName,
-        type: 'line',
-        large: true,
-        largeThreshold: 2000,
-        sampling: 'lttb',
-        symbol: 'none',
-        data: barData,
-        lineStyle: { color: t.chartBarDetail, width: 1.5 },
-        itemStyle: { color: t.chartBarDetail },
-        markPoint: buildMarkPoint(annualMaxData, t),
-        markArea: buildMarkArea(markAreaData, t),
-        markLine: buildHistoricalMaxMarkLine(histMax, t, this.unit()),
-      }
-      : {
-        name: seriesName,
-        type: 'bar',
-        data: barData,
-        barCategoryGap: '10%',
-        barGap: '-100%',
-        itemStyle: { color: t.chartBarDetail, borderRadius: [3, 3, 0, 0] },
-        emphasis: { itemStyle: { color: t.primaryMid } },
-        markPoint: buildMarkPoint(annualMaxData, t),
-        markArea: buildMarkArea(markAreaData, t),
-        markLine: buildHistoricalMaxMarkLine(histMax, t, this.unit()),
-      };
-
-    const series: any[] = [
-      baseSeries,
-      buildMaxPeriodoLegendSeries(t, legendNamePico),
-    ];
-
-    if (hasFilledData) {
-      series.push(buildFilledDataLegendSeries(t, CHART_LEGEND_LABELS.dadoPreenchido));
-    }
-
-    if (hasHistoricalMax) {
-      series.push(buildMaxObservadoLegendSeries(t, CHART_LEGEND_LABELS.maxObservado));
-    }
-
-    series.push(buildFalhaLegendSeries(t, isHighVolume ? 'scatter' : 'bar'));
+    const series = this.buildSeries(
+      data,
+      maxPeriodoDate,
+      maxPeriodoValue,
+      historicalMaxDate,
+      historicalMaxValue,
+      t,
+    );
 
     return {
       useUTC: true,
@@ -298,9 +407,9 @@ export class TimeSeriesDetailChart implements OnDestroy {
           if (value === null || value === undefined) {
             valueLabel = 'Sem dado registrado';
           } else if (isFilled && isPico) {
-            valueLabel = `<span style="color:${t.secondary};font-weight:600;">Valor preenchido</span> <span style="font-weight:600;">(Máxima do período):</span> ${value.toLocaleString('pt-BR')} ${this.unit()}`;
+            valueLabel = `<span style="color:${t.chartBarFilled};font-weight:600;">Valor preenchido</span> <span style="font-weight:600;">(Máxima do período):</span> ${value.toLocaleString('pt-BR')} ${this.unit()}`;
           } else if (isFilled) {
-            valueLabel = `<span style="color:${t.secondary};font-weight:600;">Valor preenchido:</span> ${value.toLocaleString('pt-BR')} ${this.unit()}`;
+            valueLabel = `<span style="color:${t.chartBarFilled};font-weight:600;">Valor preenchido:</span> ${value.toLocaleString('pt-BR')} ${this.unit()}`;
           } else if (isPico) {
             valueLabel = `<span style="color:${t.primaryDark};font-weight:600;">Máxima do período:</span> ${value.toLocaleString('pt-BR')} ${this.unit()}`;
           } else {

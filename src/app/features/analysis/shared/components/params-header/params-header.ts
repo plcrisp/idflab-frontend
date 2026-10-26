@@ -1,7 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { HeaderData } from '../../models/analysis.models';
-
-type Resolution = 'Horária' | 'Diária';
+import { formatTemporalResolution, Resolution } from '../../../../../core/utils/resolution.utils';
 
 @Component({
   selector: 'app-params-header',
@@ -18,9 +17,6 @@ export class ParamsHeader {
     const data = this.headerData();
     if (!data) return null;
 
-    if (data.resolution === 'daily') return 'Diária';
-    if (data.resolution === 'hourly') return 'Horária';
-
-    return 'Diária';
+    return formatTemporalResolution(data.resolution) as Resolution;
   });
 }

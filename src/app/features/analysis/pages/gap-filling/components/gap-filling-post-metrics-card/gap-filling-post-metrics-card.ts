@@ -82,6 +82,8 @@ export class GapFillingPostMetricsCard {
   readonly metrics = input<GapFillingPostMetrics | null>(null);
   readonly station = input<NeighborStation | null>(null);
   readonly totalYears = input<number | null>(null);
+  readonly historicalMaxValue = input<number | null>(null);
+  readonly historicalMaxDate = input<string | null>(null);
   readonly disabled = input<boolean>(false);
 
   readonly recalculate = output<void>();

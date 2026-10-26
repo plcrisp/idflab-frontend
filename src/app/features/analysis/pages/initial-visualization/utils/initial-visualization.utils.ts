@@ -23,7 +23,10 @@ export function isFullYearWindow(start: string, end: string): boolean {
 
 export function getRecordsLabel(resolution?: string): string {
   if (!resolution) return '';
-  return resolution === 'daily' ? 'registros diários' : 'registros horários';
+  const lower = resolution.toLowerCase().trim();
+  if (lower === 'daily' || lower === 'day') return 'registros diários';
+  if (lower === 'sub-hourly' || lower === 'sub_hourly' || lower.includes('10')) return 'registros sub-horários';
+  return 'registros horários';
 }
 
 export function formatMaxDate(dateStr: string | null | undefined, isHourly: boolean): string | null {

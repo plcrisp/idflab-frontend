@@ -1,3 +1,4 @@
+import { isSubDailyResolution } from '../../../../../core/utils/resolution.utils';
 import {
   computed,
   DestroyRef,
@@ -98,7 +99,7 @@ export class GapFillingStateService {
   });
 
   readonly isHourly = computed<boolean>(
-    () => this.project()?.station?.resolution === 'hourly',
+    () => isSubDailyResolution(this.project()?.station?.resolution),
   );
 
   readonly isLoading = computed<boolean>(

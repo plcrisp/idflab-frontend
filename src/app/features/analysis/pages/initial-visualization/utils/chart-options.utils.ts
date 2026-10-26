@@ -10,6 +10,18 @@ export const CHART_LEGEND_LABELS = {
   dadoPreenchido: 'Dado preenchido',
 } as const;
 
+export const CHART_COLORS = {
+  barDetail: '#94a3b8',
+  barFilled: '#d9480f',
+  maxPeriodo: '#32415a',
+  historicalMax: '#f59e0b',
+} as const;
+
+export function buildMaxPeriodoLegendIcon(tokens: ChartTokens): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14"><rect x="1" y="4.5" width="12" height="9.5" rx="1.5" fill="${tokens.primaryDark}"/><circle cx="7" cy="4" r="3" fill="${tokens.primaryDark}" stroke="#ffffff" stroke-width="1.2"/></svg>`;
+  return `image://data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
 // color handler
 
 export function hexToRgba(hex: string, alpha: number): string {
@@ -45,15 +57,14 @@ export function buildLegend(
     data.push({
       name: filledDataName,
       icon: 'roundRect',
-      itemStyle: { color: tokens.secondary },
+      itemStyle: { color: tokens.chartBarFilled },
     });
   }
 
   if (maxPeriodName) {
     data.push({
       name: maxPeriodName,
-      icon: 'roundRect',
-      itemStyle: { color: tokens.primaryDark },
+      icon: buildMaxPeriodoLegendIcon(tokens),
     });
   }
 
@@ -162,16 +173,53 @@ export function buildMarkArea(data: any[], tokens: ChartTokens) {
 
 // markpoint
 
-export function buildMarkPoint(data: any[], tokens: ChartTokens) {
+export function buildHistoricalMaxMarkPointItem(
+  coord: [number, number],
+  tokens: ChartTokens,
+) {
   return {
+    name: CHART_LEGEND_LABELS.maxObservado,
+    coord,
     symbol: 'circle',
     symbolSize: 10,
-    data,
     itemStyle: {
       color: tokens.historicalMax,
       borderColor: tokens.surface,
       borderWidth: 1,
     },
+  };
+}
+
+export function buildPeriodMaxMarkPointItem(
+  coord: [number, number],
+  tokens: ChartTokens,
+  name: string,
+) {
+  return {
+    name,
+    coord,
+    symbol: 'circle',
+    symbolSize: 7,
+    itemStyle: {
+      color: tokens.primaryDark,
+      borderColor: '#ffffff',
+      borderWidth: 1.5,
+    },
+  };
+}
+
+export function buildMarkPoint(data: any[], tokens?: ChartTokens) {
+  return {
+    symbol: 'circle',
+    symbolSize: 10,
+    data,
+    itemStyle: tokens
+      ? {
+          color: tokens.historicalMax,
+          borderColor: tokens.surface,
+          borderWidth: 1,
+        }
+      : undefined,
     label: { show: false },
   };
 }
@@ -275,6 +323,6 @@ export function buildFilledDataLegendSeries(tokens: ChartTokens, name: string): 
     name,
     type: 'bar',
     data: [] as any[],
-    itemStyle: { color: tokens.secondary },
+    itemStyle: { color: tokens.chartBarFilled },
   };
 }

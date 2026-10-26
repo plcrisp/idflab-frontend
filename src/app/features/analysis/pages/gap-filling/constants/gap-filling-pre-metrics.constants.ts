@@ -48,7 +48,7 @@ export const GAP_FILLING_WARNING_CONFIGS: Record<GapFillingWarning, WarningConfi
   DIFFERENT_RESOLUTION: {
     code: 'DIFFERENT_RESOLUTION',
     severity: 'info',
-    message: 'A vizinha tem resolução horária e será agregada para escala diária.',
+    message: 'A vizinha tem resolução superior e será agregada para escala diária.',
     icon: 'lucideInfo',
   },
   LONG_GAP: {

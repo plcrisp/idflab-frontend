@@ -248,7 +248,7 @@ const renderTemporalDisaggregation: Renderer = (notification) => {
     return {
       title: 'Desagregação temporal concluída',
       message: station
-        ? `Desagregação temporal Bartlett-Lewis concluída com sucesso no projeto ${project} (calibração: ${station}).`
+        ? `Desagregação temporal Hyetos-Minute Bartlett-Lewis concluída com sucesso no projeto ${project} (calibração: ${station}).`
         : `Desagregação temporal concluída com sucesso no projeto ${project}.`,
       tone: 'success',
       icon: 'lucideCircleCheck',

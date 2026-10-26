@@ -56,6 +56,7 @@ body {
     --chart-bar-detail: var(--primary-500);
     --chart-bar-selected: var(--primary-600);
     --chart-historical-max: var(--accent-500);
+    --chart-bar-filled: #d9480f;
     --success: #10b981;
     --warning: #f59e0b;
 
@@ -147,6 +148,7 @@ body {
     --chart-bar-detail: var(--primary-400);
     --chart-bar-selected: var(--primary-700);
     --chart-historical-max: var(--accent-500);
+    --chart-bar-filled: #d9480f;
   }
 }
 

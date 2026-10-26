@@ -20,6 +20,7 @@ export interface ChartTokens {
   chartBarOverview: string;
   chartBarDetail: string;
   chartBarSelected: string;
+  chartBarFilled: string;
   historicalMax: string;
   incompleteCoverage: string;
   incompleteBorder: string;
@@ -68,6 +69,7 @@ function readTokens(): ChartTokens {
     chartBarOverview: v('--chart-bar-overview', '#32415a'),
     chartBarDetail: v('--chart-bar-detail', '#94a3b8'),
     chartBarSelected: v('--chart-bar-selected', '#49628b'),
+    chartBarFilled: v('--chart-bar-filled', '#d9480f'),
     historicalMax: v('--chart-historical-max', '#f59e0b'),
     incompleteCoverage: v('--chart-incomplete-coverage', 'rgba(239, 68, 68, 0.2)'),
     incompleteBorder: v('--chart-incomplete-border', '#ef4444'),
@@ -98,6 +100,10 @@ export class EchartsService<T = unknown> {
     ensureThemeObserver();
   }
 
+  getInstance(): echarts.ECharts | undefined {
+    return this.chart;
+  }
+
   getTokens(): ChartTokens {
     return readTokens();
   }
@@ -107,6 +113,7 @@ export class EchartsService<T = unknown> {
     data: Signal<T | null>;
     buildOption: (data: T) => EChartsOption;
     onClick?: (params: echarts.ECElementEvent) => void;
+    onDataZoom?: (params: any) => void;
     renderer?: 'canvas' | 'svg';
   }): void {
     effect(() => {
@@ -124,6 +131,9 @@ export class EchartsService<T = unknown> {
         this.disposeResize = observeResize(el, () => this.chart?.resize());
         if (config.onClick) {
           this.chart.on('click', config.onClick);
+        }
+        if (config.onDataZoom) {
+          this.chart.on('datazoom', config.onDataZoom);
         }
       }
       this.chart.setOption(config.buildOption(data), true);

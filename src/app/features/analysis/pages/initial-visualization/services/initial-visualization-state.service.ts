@@ -1,3 +1,4 @@
+import { isSubDailyResolution } from '../../../../../core/utils/resolution.utils';
 import { computed, DestroyRef, effect, inject, Injectable, signal, Signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, of } from 'rxjs';
@@ -216,7 +217,7 @@ export class InitialVisualizationStateService {
   });
 
   readonly stationResolution = computed(() => this.project()?.station.resolution ?? 'daily');
-  readonly isHourly = computed(() => this.project()?.station.resolution === 'hourly');
+  readonly isHourly = computed(() => isSubDailyResolution(this.project()?.station.resolution));
 
   readonly recordsLabel = computed(() => {
     const p = this.project();
