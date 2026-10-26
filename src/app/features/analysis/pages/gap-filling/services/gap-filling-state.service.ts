@@ -317,11 +317,9 @@ export class GapFillingStateService {
             } else if (neighborId) {
               this.neighborManager.loadNeighbors(
                 stationId,
-                null,
+                neighborId,
                 null,
                 projectId,
-                undefined,
-                neighborId,
               );
             } else {
               this.fallbackToConsistencyStep(projectId, stationId);
@@ -347,11 +345,9 @@ export class GapFillingStateService {
           const neighborId = consistencyStep?.params?.neighbor_station_id;
           this.neighborManager.loadNeighbors(
             stationId,
-            null,
+            neighborId ?? null,
             null,
             projectId,
-            undefined,
-            neighborId,
           );
         },
         error: () => {
