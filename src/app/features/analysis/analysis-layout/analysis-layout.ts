@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject } from '@angular/core';
+import { AfterViewInit, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { ProjectStateService } from '../services/project-state.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AnalysisStep, HeaderData } from '../shared/models/analysis.models';
 import { NotificationsService } from '../../../core/services/api/notifications.service';
 import { ANALYSIS_STEPS } from '../../../core/utils/project-step.utils';
+import { HlmSidebarService } from '@spartan-ng/helm/sidebar';
 
 @Component({
   selector: 'app-analysis-layout',
@@ -14,12 +15,13 @@ import { ANALYSIS_STEPS } from '../../../core/utils/project-step.utils';
   templateUrl: './analysis-layout.html',
   styleUrl: './analysis-layout.scss',
 })
-export class AnalysisLayout {
+export class AnalysisLayout implements OnInit, AfterViewInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private projectState = inject(ProjectStateService);
   private notificationsService = inject(NotificationsService);
+  private sidebarService = inject(HlmSidebarService);
 
   project = this.projectState.project;
   isJobRunning = this.projectState.isJobRunning;
@@ -61,5 +63,11 @@ export class AnalysisLayout {
         this.projectState.loadProject(projectId);
         this.notificationsService.refetch();
       });
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.sidebarService.setOpen(false);
+    }, 300);
   }
 }
