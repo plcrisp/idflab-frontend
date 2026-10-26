@@ -184,6 +184,24 @@ export class GapFillingStateService {
         this.loadPreMetrics(false);
       });
     });
+
+    // Auto-reconexão ao job de GAP_FILLING se houver um job ativo para o projeto no painel
+    effect(() => {
+      const p = this.project();
+      if (!p || this.isFilling() || this.postMetrics()) return;
+
+      const panel = this.notificationsService.panel();
+      const activeJob = panel?.active_jobs.find(
+        (j) => j.project_id === p.id && j.task_type === 'GAP_FILLING',
+      );
+      if (activeJob) {
+        untracked(() => {
+          this.initialPath.set('fill');
+          this.isFilling.set(true);
+          this.startJobPolling(p.id, activeJob.job_id);
+        });
+      }
+    });
   }
 
   private reset(): void {
@@ -309,6 +327,13 @@ export class GapFillingStateService {
             if (neighborId) {
               this.filledStationId.set(neighborId);
             }
+          }
+
+          const runningFillJobId = (step?.status === 'PENDING' ? step?.job_id : null) ?? null;
+          if (runningFillJobId && !postMetrics && !this.isFilling()) {
+            this.initialPath.set('fill');
+            this.isFilling.set(true);
+            this.startJobPolling(projectId, runningFillJobId);
           }
 
           if (stationId) {

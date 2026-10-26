@@ -199,6 +199,12 @@ export class TemporalDisaggregation {
       this.neighborManager.reset();
     });
 
+    this.neighborManager.setOnConfirmed((neighbor) => {
+      if (!this.isExecutingBl() && !this.isBartlettExecuted()) {
+        this.executeBartlettLewisJob(neighbor.id);
+      }
+    });
+
     // 1. Breadcrumbs
     effect(() => {
       const project = this.project();
@@ -230,6 +236,35 @@ export class TemporalDisaggregation {
         const stationId = project.station?.id ?? project.station_id;
         this.checkExistingStep(project.id, stationId);
       });
+    });
+
+    // 3. Auto-reconexão aos jobs (Bartlett-Lewis ou Download CEMADEN) caso haja job ativo no painel de notificações
+    effect(() => {
+      const p = this.project();
+      if (!p) return;
+
+      const panel = this.notificationsService.panel();
+      if (!panel) return;
+
+      const blJob = panel.active_jobs.find(
+        (j) => j.project_id === p.id && j.task_type === 'TEMPORAL_DISAGGREGATION',
+      );
+      if (blJob && !this.isExecutingBl() && !this.isBartlettExecuted()) {
+        untracked(() => {
+          this.selectedMethod.set('bartlett-lewis');
+          this.startBlJobPolling(p.id, blJob.job_id);
+        });
+        return;
+      }
+
+      const dlJob = panel.active_jobs.find(
+        (j) => j.project_id === p.id && j.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA',
+      );
+      if (dlJob) {
+        untracked(() => {
+          this.selectedMethod.set('bartlett-lewis');
+        });
+      }
     });
   }
 
@@ -280,6 +315,19 @@ export class TemporalDisaggregation {
         next: (step) => {
           const isCompleted = step?.status === 'COMPLETED';
           if (!isCompleted) {
+            if (step?.status === 'PENDING' && step?.job_id && !this.isExecutingBl()) {
+              this.selectedMethod.set('bartlett-lewis');
+              this.startBlJobPolling(projectId, step.job_id);
+              const calibStationId =
+                (step?.params as any)?.calibration_station_id ||
+                (step?.result as any)?.calibration_metadata?.calibration_station_id ||
+                null;
+              if (stationId) {
+                this.loadNeighbors(stationId, calibStationId, projectId);
+              }
+              return;
+            }
+
             this.isCetesbExecuted.set(false);
             this.isBartlettExecuted.set(false);
             this.executedMethod.set(null);

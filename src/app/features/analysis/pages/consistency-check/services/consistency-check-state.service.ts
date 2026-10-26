@@ -150,16 +150,13 @@ export class ConsistencyCheckStateService {
           const isCompleted = step?.status === 'COMPLETED';
 
           if (stationId) {
-            if (isCompleted && neighborId) {
-              this.neighborManager.loadNeighbors(stationId, neighborId, null, projectId);
-            } else if (neighborId) {
+            const runningJobId = (step?.status === 'PENDING' ? step?.job_id : null) ?? null;
+            if (neighborId) {
               this.neighborManager.loadNeighbors(
                 stationId,
-                null,
-                null,
-                projectId,
-                undefined,
                 neighborId,
+                runningJobId,
+                projectId,
               );
             } else {
               this.neighborManager.loadNeighbors(stationId, null, null, projectId);
