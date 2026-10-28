@@ -70,8 +70,8 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 items-stretch">
 
       <!-- StatCard 1: Dias Preenchidos -->
-      <app-stat-card label="Dias Preenchidos" [value]="formatInteger(m.filled_count)" icon="lucideWrench"
-        [footer]="{ type: 'text', content: 'Valores diários estimados pelo modelo' }" />
+      <app-stat-card [label]="m.mode === 'hourly' ? 'Horas Preenchidas' : 'Dias Preenchidos'" [value]="formatInteger(m.filled_count)" icon="lucideWrench"
+        [footer]="{ type: 'text', content: m.mode === 'hourly' ? 'Valores horários estimados pelo modelo' : 'Valores diários estimados pelo modelo' }" />
 
       <!-- StatCard 2: Falhas Restantes -->
       <app-stat-card label="Falhas Restantes" [value]="formatDecimal(m.remaining_gaps_pct, 1)" unit="%"

@@ -153,6 +153,23 @@ export class GapFillingPreMetricsCard {
     return getAccumulatedRatioBadge(this.metrics()?.accumulated_ratio);
   });
 
+  readonly pearsonFooterText = computed<string>(() => {
+    const mode = this.metrics()?.mode;
+    return mode === 'hourly'
+      ? 'Associação linear horária entre as séries'
+      : 'Associação linear diária entre as séries';
+  });
+
+  readonly commonPeriodFooterText = computed<string>(() => {
+    const m = this.metrics();
+    if (!m) return '';
+    if (m.mode === 'hourly') {
+      const approxDays = Math.round(m.valid_pairs / 24);
+      return `${this.formatInteger(m.valid_pairs)} horas simultâneas com a vizinha (~${this.formatInteger(approxDays)} dias)`;
+    }
+    return `${this.formatInteger(m.valid_pairs)} dias simultâneos com a vizinha`;
+  });
+
   readonly hasNoFillableGaps = computed<boolean>(() => {
     const m = this.metrics();
     return m != null && (m.fillable_gaps ?? 0) <= 0;

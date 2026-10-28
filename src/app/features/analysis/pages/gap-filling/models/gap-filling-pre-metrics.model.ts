@@ -18,11 +18,13 @@ export interface GapFillingPreMetrics {
   complete_years_predicted: number;
   longest_gap_days: number;
   accumulated_ratio: number | null;
+  mode?: 'daily' | 'hourly';
 }
 
 export interface GapFillingPreMetricsResponse {
   metrics: GapFillingPreMetrics;
   warnings: GapFillingWarning[];
+  mode?: 'daily' | 'hourly';
 }
 
 export type ReliabilityLevel = 'Boa' | 'Moderada' | 'Fraca' | 'Equilibrada' | 'Discrepante';

@@ -19,6 +19,7 @@ export interface GapFillingPostMetrics {
   model_score_r2: number;
   model_rmse: number;
   model_mae: number;
+  mode?: 'daily' | 'hourly';
 }
 
 export interface GapFillingDetailPoint {

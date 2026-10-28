@@ -118,7 +118,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 items-stretch">
       <!-- Card 1: Correlação de Pearson -->
       <app-stat-card label="Correlação de Pearson" [value]="formatDecimal(m.pearson_r, 2)" icon="lucideTrendingUp"
-        [badge]="reliabilityBadge()" [footer]="{ type: 'text', content: 'Associação linear diária entre as séries' }" />
+        [badge]="reliabilityBadge()" [footer]="{ type: 'text', content: pearsonFooterText() }" />
 
       <!-- Card 2: Razão de Volumes -->
       <app-stat-card label="Razão entre Acumulados"
@@ -139,7 +139,7 @@
       <app-stat-card label="Período em Comum" [value]="hasNoOverlap() ? '—' : m.overlap_years"
         [unit]="hasNoOverlap() ? undefined : (m.overlap_years === 1 ? 'ano' : 'anos')" icon="lucideCalendar" [footer]="{
             type: 'text',
-            content: hasNoOverlap() ? 'Sem dados simultâneos' : (formatInteger(m.valid_pairs) + ' dias simultâneos com a vizinha')
+            content: hasNoOverlap() ? 'Sem dados simultâneos' : commonPeriodFooterText()
           }" />
     </div>
 
