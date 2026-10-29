@@ -264,7 +264,8 @@ export function calcYAxisMax(
   const target = Math.max(extentMax || 0, historicalMax ?? 0);
   if (target <= 0) return step;
   const rounded = Math.ceil(target / step) * step;
-  return rounded - target < 10 ? rounded + step : rounded;
+  const headroomThreshold = step >= 50 ? 10 : step * 0.2;
+  return rounded - target < headroomThreshold ? rounded + step : rounded;
 }
 
 // series fantasma

@@ -1,0 +1,153 @@
+<div class="flex flex-col gap-3 w-full">
+  @if (errorTable(); as err) {
+  <div
+    class="flex items-center justify-between p-3.5 rounded-lg border border-destructive/20 bg-destructive/10 text-destructive text-xs">
+    <div class="flex items-center gap-2">
+      <ng-icon name="lucideTriangleAlert" class="text-sm shrink-0" />
+      <span>{{ err }}</span>
+    </div>
+    <button hlmBtn variant="outline" size="sm" type="button" (click)="loadTable()"
+      class="text-xs border-destructive/30 hover:bg-destructive/20 text-destructive shrink-0">
+      <ng-icon name="lucideRotateCw" class="mr-1.5 text-xs" />
+      Tentar novamente
+    </button>
+  </div>
+  } @else {
+  <!-- Barra de Controles da Tabela: Ordenação e Paginação -->
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <!-- Botão de Ordenação -->
+    <button hlmBtn variant="outline" size="sm" type="button" (click)="toggleOrder()"
+      class="cursor-pointer text-xs h-8 px-2.5 inline-flex items-center gap-1.5 font-medium shrink-0"
+      [disabled]="loadingTable()">
+      <ng-icon [name]="order() === 'asc' ? 'lucideArrowUp' : 'lucideArrowDown'" class="text-xs text-primary" />
+      <span>Ano: {{ order() === 'asc' ? 'Crescente' : 'Decrescente' }}</span>
+    </button>
+
+    <!-- Paginação -->
+    <div class="flex items-center gap-3 text-xs text-muted-foreground ml-auto">
+      <span class="tabular-nums">
+        {{ page() }} de {{ totalPages() }} ({{ tableData()?.total_years ?? 0 }} anos)
+      </span>
+
+      <div class="inline-flex items-center gap-1">
+        <button hlmBtn variant="outline" size="icon" type="button" class="h-7 w-7 cursor-pointer"
+          [disabled]="page() <= 1 || loadingTable()" (click)="prevPage()" title="Página anterior">
+          <ng-icon name="lucideChevronLeft" class="text-xs" />
+        </button>
+
+        <button hlmBtn variant="outline" size="icon" type="button" class="h-7 w-7 cursor-pointer"
+          [disabled]="page() >= totalPages() || loadingTable()" (click)="nextPage()" title="Próxima página">
+          <ng-icon name="lucideChevronRight" class="text-xs" />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela Horizontal com Scroll Limpo -->
+  <div class="w-full overflow-x-auto rounded-lg border border-border/80 bg-card">
+    <table class="w-full border-separate border-spacing-0 text-left text-xs">
+      <thead>
+        <tr class="bg-secondary/40">
+          <th
+            class="py-2.5 px-3 font-semibold text-muted-foreground text-left min-w-16 border-b border-border sticky left-0 bg-secondary/40 z-10">
+            Ano
+          </th>
+          @for (col of tableData()?.columns ?? []; track col.duration_minutes) {
+          <th
+            class="py-2.5 px-2.5 font-semibold text-muted-foreground text-right min-w-16 border-b border-border align-bottom">
+            <div class="flex flex-col items-end gap-0.5">
+              <span class="text-xs font-semibold text-foreground">{{ col.label }}</span>
+              @if (isHybrid() && col.origin === 'aggregation') {
+              <span
+                class="inline-flex items-center text-[10px] font-medium leading-none px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25"
+                title="Série calculada por agregação direta das observações horárias">
+                Agreg.
+              </span>
+              } @else if (isHybrid() && col.origin === 'disaggregation') {
+              <span
+                class="inline-flex items-center text-[10px] font-medium leading-none px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25"
+                title="Série calculada por método de desagregação temporal">
+                Desagr.
+              </span>
+              }
+            </div>
+          </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @if (loadingTable()) {
+        @for (i of skeletonRows(); track i) {
+        <tr>
+          <td class="py-2.5 px-3 border-b border-border/40 sticky left-0 bg-card z-10">
+            <div hlmSkeleton class="h-4 w-12 rounded"></div>
+          </td>
+          @for (col of tableData()?.columns ?? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; track $index) {
+          <td class="py-2.5 px-2.5 border-b border-border/40 text-right">
+            <div hlmSkeleton class="h-4 w-10 rounded ml-auto"></div>
+          </td>
+          }
+        </tr>
+        }
+        } @else {
+        @for (row of tableData()?.rows ?? []; track row.year) {
+        <tr class="hover:bg-secondary/20 transition-colors">
+          <td
+            class="py-2.5 px-3 font-semibold text-foreground border-b border-border/40 sticky left-0 bg-card z-10">
+            <div class="inline-flex items-center gap-1.5">
+              <span>{{ row.year }}</span>
+              @if (maxHistoricalYear() && row.year === maxHistoricalYear()) {
+              <span [hlmTooltip]="'Máximo histórico'"
+                class="inline-block h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0 cursor-help"></span>
+              }
+            </div>
+          </td>
+          @for (val of row.values; track $index) {
+          <td class="py-2.5 px-2.5 text-right text-foreground tabular-nums border-b border-border/40 font-medium">
+            {{ formatNumber(val) }}
+          </td>
+          }
+        </tr>
+        }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="flex flex-wrap items-center justify-between gap-3 mt-1 pt-2 border-t border-border/40">
+    <div class="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+      @if (footerText()) {
+      <span>{{ footerText() }}</span>
+      }
+      @if (isHybrid()) {
+      <div class="flex items-center gap-3 text-[11px] border-l border-border/60 pl-3">
+        <span class="inline-flex items-center gap-1.5">
+          <span
+            class="h-2 w-2 rounded-full bg-emerald-500/20 border border-emerald-500 flex items-center justify-center">
+          </span>
+          <span>Agregação direta (≥ 1 h)</span>
+        </span>
+        <span class="inline-flex items-center gap-1.5">
+          <span
+            class="h-2 w-2 rounded-full bg-amber-500/20 border border-amber-500 flex items-center justify-center">
+          </span>
+          <span>Desagregação temporal (< 1 h)</span>
+          </span>
+      </div>
+      }
+    </div>
+
+    <button hlmBtn variant="outline" size="sm" type="button" (click)="onDownloadTable()"
+      [disabled]="loadingTable() || isDownloadingTable()"
+      class="cursor-pointer text-xs h-8 px-3 inline-flex items-center font-medium shrink-0 ml-auto">
+      @if (isDownloadingTable()) {
+      <hlm-spinner class="mr-2" />
+      } @else {
+      <ng-icon name="lucideDownload" class="mr-2 text-sm" />
+      }
+      Exportar CSV
+    </button>
+  </div>
+  }
+</div>
+

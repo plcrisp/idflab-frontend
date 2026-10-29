@@ -48,11 +48,16 @@ export class TemporalDisaggregationService {
     page: number = 1,
     pageSize: number = 10,
     order: 'asc' | 'desc' = 'asc',
+    unit: 'mm' | 'mm_h' = 'mm',
   ): Observable<TemporalDisaggregationTableResponse> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('page_size', pageSize.toString())
       .set('order', order);
+
+    if (unit) {
+      params = params.set('unit', unit);
+    }
 
     return this.http.get<TemporalDisaggregationTableResponse>(
       `${this.baseUrl}/${projectId}/result/table`,
@@ -69,8 +74,13 @@ export class TemporalDisaggregationService {
   downloadTableCsv(
     projectId: string,
     delimiter: ';' | ',' = ';',
+    unit: 'mm' | 'mm_h' = 'mm',
   ): Observable<HttpResponse<Blob>> {
-    const params = new HttpParams().set('delimiter', delimiter);
+    let params = new HttpParams().set('delimiter', delimiter);
+
+    if (unit) {
+      params = params.set('unit', unit);
+    }
 
     return this.http.get<Blob>(
       `${this.baseUrl}/${projectId}/result/table/download`,

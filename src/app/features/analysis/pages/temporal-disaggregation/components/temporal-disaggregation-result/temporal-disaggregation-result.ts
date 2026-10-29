@@ -1,3 +1,4 @@
+import { AnnualMaxTable } from '../../../../shared/components/annual-max-table/annual-max-table';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -60,6 +61,7 @@ import {
   selector: 'app-temporal-disaggregation-result',
   standalone: true,
   imports: [
+    AnnualMaxTable,
     CommonModule,
     TitleCasePipe,
     NgIcon,

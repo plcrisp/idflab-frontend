@@ -7,6 +7,7 @@ export interface YearlySummaryItem {
   max_value_date: string | null;
   failure_percentage: number;
   coverage_status: CoverageStatus;
+  is_excluded?: boolean;
 }
 
 export interface GlobalStats {

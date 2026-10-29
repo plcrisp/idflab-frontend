@@ -1,12 +1,12 @@
 .chart-card {
-  padding: 16px 16px 4px;
+  padding: var(--annual-max-padding-top, 16px) var(--annual-max-padding-side, 16px) 4px;
   overflow: hidden;
   min-width: 0;
 }
 
 .chart-container {
   width: 100%;
-  height: 220px;
+  height: var(--annual-max-height, 220px);
   overflow: hidden;
   min-width: 0;
 }

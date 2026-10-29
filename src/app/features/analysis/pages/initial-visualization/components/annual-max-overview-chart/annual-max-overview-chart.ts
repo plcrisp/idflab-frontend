@@ -29,6 +29,14 @@ import {
 } from '../../utils/chart-options.utils';
 import { EchartsService } from '../../../../../../core/services/utils/echarts.service';
 
+export interface AnnualMaxChartItem {
+  year: number;
+  max_value?: number | null;
+  value?: number | null;
+  max_value_date?: string | null;
+  failure_percentage?: number;
+  coverage_status?: CoverageStatus;
+}
 @Component({
   selector: 'app-annual-max-overview-chart',
   standalone: false,
@@ -38,19 +46,23 @@ import { EchartsService } from '../../../../../../core/services/utils/echarts.se
   host: { class: 'block w-full min-w-0' },
 })
 export class AnnualMaxOverviewChart implements OnDestroy {
-  data = input<YearlySummaryItem[] | null>(null);
+  data = input<AnnualMaxChartItem[] | YearlySummaryItem[] | null>(null);
   unit = input('mm');
   seriesName = input('Precipitação diária máxima anual');
   selectedYear = input<number | null>(null);
   historicalMaxValue = input<number | null>(null);
   isHourly = input<boolean>(false);
+  showGaps = input<boolean>(true);
+  showSelectedYear = input<boolean>(true);
+  clickable = input<boolean>(true);
+  yAxisInterval = input<number | 'auto' | null>(null);
   yearClick = output<number>();
 
   @ViewChild('chartContainer', { static: true })
   private chartContainer!: ElementRef<HTMLDivElement>;
 
   private readonly echarts = inject(EchartsService) as EchartsService<{
-    items: YearlySummaryItem[];
+    items: (AnnualMaxChartItem | YearlySummaryItem)[];
     selectedYear: number | null;
     historicalMaxValue: number | null;
     isHourly: boolean;
@@ -76,6 +88,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
   }
 
   private handleChartClick(params: ECElementEvent): void {
+    if (!this.clickable()) return;
     if (params.componentType !== 'series' || params.seriesType !== 'bar') return;
     if (params.seriesName !== this.seriesName()) return;
 
@@ -89,31 +102,44 @@ export class AnnualMaxOverviewChart implements OnDestroy {
     this.echarts.destroy();
   }
 
-  private findGlobalMax(data: YearlySummaryItem[]): YearlySummaryItem | null {
-    return data.reduce<YearlySummaryItem | null>((best, item) => {
-      if (item.max_value === null) return best;
-      if (!best || best.max_value === null || item.max_value > best.max_value) return item;
+  private findGlobalMax(data: AnnualMaxChartItem[]): AnnualMaxChartItem | null {
+    return data.reduce<AnnualMaxChartItem | null>((best, item) => {
+      const val = item.value ?? item.max_value ?? null;
+      if (val === null) return best;
+      const bestVal = best ? (best.value ?? best.max_value ?? null) : null;
+      if (bestVal === null || val > bestVal) return item;
       return best;
     }, null);
   }
 
+  private getAdaptiveStep(targetMax: number): number {
+    if (targetMax <= 2) return 0.5;
+    if (targetMax <= 6) return 1;
+    if (targetMax <= 14) return 2;
+    if (targetMax <= 30) return 5;
+    if (targetMax <= 60) return 10;
+    if (targetMax <= 120) return 20;
+    return 50;
+  }
+
   private buildOption(
-    data: YearlySummaryItem[],
+    data: AnnualMaxChartItem[],
     selectedYear: number | null,
     historicalMaxValue: number | null = null,
   ): EChartsOption {
     const t = this.echarts.getTokens();
 
     const years = data.map((d) => d.year.toString());
-    const selectedYearStr = selectedYear !== null ? selectedYear.toString() : null;
+    const selectedYearStr = this.showSelectedYear() && selectedYear !== null ? selectedYear.toString() : null;
 
     const barData = data.map((d) => {
+      const val = d.value ?? d.max_value ?? null;
       const isSelected = selectedYearStr !== null && d.year.toString() === selectedYearStr;
-      if (!isSelected) return d.max_value;
+      if (!isSelected) return val;
 
       // barra do ano selecionado
       return {
-        value: d.max_value,
+        value: val,
         itemStyle: {
           color: t.chartBarSelected,
         },
@@ -126,28 +152,40 @@ export class AnnualMaxOverviewChart implements OnDestroy {
         : null;
 
     const markAreaData: [{ xAxis: number }, { xAxis: number }][] = [];
-    let gapStart: number | null = null;
+    if (this.showGaps()) {
+      let gapStart: number | null = null;
 
-    data.forEach((d, i) => {
-      const isGap = d.coverage_status !== 'complete';
-      if (isGap && gapStart === null) {
-        gapStart = i;
-      } else if (!isGap && gapStart !== null) {
-        markAreaData.push([{ xAxis: gapStart }, { xAxis: i }]);
-        gapStart = null;
+      data.forEach((d, i) => {
+        const isGap = d.coverage_status && d.coverage_status !== 'complete';
+        if (isGap && gapStart === null) {
+          gapStart = i;
+        } else if (!isGap && gapStart !== null) {
+          markAreaData.push([{ xAxis: gapStart }, { xAxis: i }]);
+          gapStart = null;
+        }
+      });
+      if (gapStart !== null) {
+        markAreaData.push([{ xAxis: gapStart }, { xAxis: data.length }]);
       }
-    });
-    if (gapStart !== null) {
-      markAreaData.push([{ xAxis: gapStart }, { xAxis: data.length }]);
     }
 
     const globalMax = this.findGlobalMax(data);
-    const histMax = historicalMaxValue ?? globalMax?.max_value ?? null;
-    const annualMaxData = globalMax
+    const globalVal = globalMax ? (globalMax.value ?? globalMax.max_value ?? null) : null;
+    const histMax = historicalMaxValue ?? globalVal ?? null;
+
+    let step = 50;
+    const explicitInterval = this.yAxisInterval();
+    if (typeof explicitInterval === 'number') {
+      step = explicitInterval;
+    } else if (explicitInterval === 'auto' || this.unit() !== 'mm') {
+      const targetMax = Math.max(histMax ?? 0, globalVal ?? 0);
+      step = this.getAdaptiveStep(targetMax);
+    }
+    const annualMaxData = globalMax && globalVal !== null
       ? [
           {
-            name: 'Máximo anual',
-            coord: [globalMax.year.toString(), globalMax.max_value as number] as [string, number],
+            name: this.unit() === 'mm/h' ? 'Intensidade máxima' : 'Máximo anual',
+            coord: [globalMax.year.toString(), globalVal as number] as [string, number],
           },
         ]
       : [];
@@ -174,21 +212,24 @@ export class AnnualMaxOverviewChart implements OnDestroy {
           const item = data[p.dataIndex];
           if (!item) return '';
 
+          const rawVal = item.value ?? item.max_value ?? null;
           const valueLabel =
-            item.max_value === null
+            rawVal === null
               ? 'Sem dado registrado'
-              : `${item.max_value.toLocaleString('pt-BR')} ${this.unit()}`;
+              : `${rawVal.toLocaleString('pt-BR')} ${this.unit()}`;
 
           const dateLabel = item.max_value_date
             ? formatMaxDate(item.max_value_date, this.isHourly())
             : null;
 
+          const failPct = item.failure_percentage ?? 0;
           const statusLabel: Record<CoverageStatus, string | null> = {
             complete: null,
-            partial: `Cobertura parcial · ${item.failure_percentage.toLocaleString('pt-BR')}% de falhas`,
-            failure: `Cobertura insuficiente · ${item.failure_percentage.toLocaleString('pt-BR')}% de falhas`,
+            partial: `Cobertura parcial · ${failPct.toLocaleString('pt-BR')}% de falhas`,
+            failure: `Cobertura insuficiente · ${failPct.toLocaleString('pt-BR')}% de falhas`,
           };
-          const status = statusLabel[item.coverage_status];
+          const status =
+            this.showGaps() && item.coverage_status ? statusLabel[item.coverage_status] : null;
 
           const isSelected = selectedYearStr !== null && item.year.toString() === selectedYearStr;
 
@@ -230,15 +271,21 @@ export class AnnualMaxOverviewChart implements OnDestroy {
       ],
       yAxis: {
         type: 'value',
-        interval: 50,
-        max: (extent: { min: number; max: number }) => calcYAxisMax(extent.max, histMax, 50),
+        interval: step,
+        max: (extent: { min: number; max: number }) => calcYAxisMax(extent.max, histMax, step),
         axisLine: { show: false },
         axisTick: { show: false },
         splitLine: buildSplitLineStyle(t),
         axisLabel: {
           ...buildAxisLabelBase(t),
           hideOverlap: true,
-          formatter: `{value} ${this.unit()}`,
+          formatter: (value: number) => {
+            const valStr =
+              step < 1
+                ? value.toFixed(1).replace('.', ',')
+                : Math.round(value).toLocaleString('pt-BR');
+            return `${valStr} ${this.unit()}`;
+          },
         },
       },
       series: [
@@ -255,14 +302,14 @@ export class AnnualMaxOverviewChart implements OnDestroy {
           type: 'bar',
           data: barData,
           barCategoryGap: '20%',
-          cursor: 'pointer',
+          cursor: this.clickable() ? 'pointer' : 'default',
           itemStyle: { color: t.primaryDark, borderRadius: [3, 3, 0, 0] },
           emphasis: { itemStyle: { color: t.primaryMid } },
           markPoint: buildMarkPoint(annualMaxData, t),
           markLine: buildHistoricalMaxMarkLine(histMax, t, this.unit()),
         },
         buildMaxObservadoLegendSeries(t, CHART_LEGEND_LABELS.maxObservado, { symbol: 'scatter' }),
-        buildFalhaLegendSeries(t, 'scatter'),
+        ...(this.showGaps() ? [buildFalhaLegendSeries(t, 'scatter')] : []),
         ...(selectedYearStr !== null
           ? [buildSelectedYearLegendSeries(t, CHART_LEGEND_LABELS.anoSelecionado)]
           : []),
