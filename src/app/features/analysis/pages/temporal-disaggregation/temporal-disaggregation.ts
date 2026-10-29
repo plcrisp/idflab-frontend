@@ -82,7 +82,7 @@ export class TemporalDisaggregation {
 
   readonly calibratedParams = signal<BartlettLewisParams | null>(null);
   readonly calibrationMetadata = signal<CalibrationMetadata | null>(null);
-  readonly executedMethod = signal<'CETESB' | 'BARTLETT_LEWIS' | null>(null);
+  readonly executedMethod = signal<'CETESB' | 'BARTLETT_LEWIS' | 'DIRECT_AGGREGATION' | null>(null);
 
   private summarySub: Subscription | null = null;
   private stepSub: Subscription | null = null;
@@ -98,6 +98,22 @@ export class TemporalDisaggregation {
 
   readonly isHourly = computed<boolean>(
     () => isSubDailyResolution(this.project()?.station?.resolution),
+  );
+
+  readonly stationResolution = computed<string>(
+    () => (this.project()?.station?.resolution ?? 'daily').toLowerCase(),
+  );
+
+  readonly isSubHourly = computed<boolean>(
+    () => this.stationResolution() === 'sub-hourly',
+  );
+
+  readonly isHourlyStation = computed<boolean>(
+    () => this.stationResolution() === 'hourly',
+  );
+
+  readonly isDailyStation = computed<boolean>(
+    () => !this.isSubHourly() && !this.isHourlyStation(),
   );
 
   readonly isLoading = computed<boolean>(
@@ -125,6 +141,9 @@ export class TemporalDisaggregation {
   });
 
   readonly isCurrentMethodExecuted = computed<boolean>(() => {
+    if (this.isSubHourly()) {
+      return this.isCetesbExecuted() || this.executedMethod() === 'DIRECT_AGGREGATION';
+    }
     return this.selectedMethod() === 'cetesb'
       ? this.isCetesbExecuted()
       : this.isBartlettExecuted();
@@ -135,7 +154,15 @@ export class TemporalDisaggregation {
   });
 
   readonly executedMethodLabel = computed<string>(() => {
-    return this.selectedMethod() === 'cetesb' ? 'CETESB' : 'Hyetos-Minute Bartlett-Lewis';
+    if (this.isSubHourly()) {
+      return 'Agregação Direta Observada';
+    }
+    if (this.isHourlyStation()) {
+      return this.selectedMethod() === 'cetesb'
+        ? 'Fatores CETESB (Híbrido)'
+        : 'Hyetos-Minute Bartlett-Lewis (Híbrido)';
+    }
+    return this.selectedMethod() === 'cetesb' ? 'Fatores CETESB' : 'Hyetos-Minute Bartlett-Lewis';
   });
 
   readonly activeJobForProgress = computed<Job | ActiveJobItem | null>(() => {
@@ -144,6 +171,12 @@ export class TemporalDisaggregation {
 
   readonly activeProgressMessage = computed<string | null>(() => {
     if (this.isExecuting()) {
+      if (this.isSubHourly()) {
+        return 'Consolidando máximas anuais por agregação móvel (10 min)...';
+      }
+      if (this.isHourlyStation()) {
+        return 'Agregando durações horárias e aplicando fatores CETESB sub-horários...';
+      }
       return 'Aplicando fatores de desagregação CETESB...';
     }
     const bl = this.blJob();
@@ -322,7 +355,7 @@ export class TemporalDisaggregation {
             this.executedMethod.set(null);
             this.calibratedParams.set(null);
             this.calibrationMetadata.set(null);
-            if (stationId) {
+            if (stationId && !this.isSubHourly()) {
               this.loadNeighbors(stationId, null, projectId);
             }
             return;
@@ -331,6 +364,7 @@ export class TemporalDisaggregation {
           const rawMethod =
             (step?.params as any)?.method || (step?.result as any)?.method;
           const isBl = rawMethod === 'BARTLETT_LEWIS';
+          const isDirect = rawMethod === 'DIRECT_AGGREGATION';
 
           if (isBl) {
             this.isBartlettExecuted.set(true);
@@ -354,6 +388,13 @@ export class TemporalDisaggregation {
             if (stationId) {
               this.loadNeighbors(stationId, calibStationId, projectId);
             }
+          } else if (isDirect) {
+            this.isCetesbExecuted.set(true);
+            this.isBartlettExecuted.set(false);
+            this.executedMethod.set('DIRECT_AGGREGATION');
+            this.selectedMethod.set('cetesb');
+            this.calibratedParams.set(null);
+            this.calibrationMetadata.set(null);
           } else {
             this.isCetesbExecuted.set(true);
             this.isBartlettExecuted.set(false);
@@ -361,7 +402,7 @@ export class TemporalDisaggregation {
             this.selectedMethod.set('cetesb');
             this.calibratedParams.set(null);
             this.calibrationMetadata.set(null);
-            if (stationId) {
+            if (stationId && !this.isSubHourly()) {
               this.loadNeighbors(stationId, null, projectId);
             }
           }
@@ -417,6 +458,36 @@ export class TemporalDisaggregation {
     const project = this.project();
     if (!project || this.isProcessing()) return;
 
+    if (this.isSubHourly()) {
+      this.isExecuting.set(true);
+      setTimeout(() => this.scrollToResultCard(), 100);
+
+      this.disaggregationService.executeDirectAggregation(project.id).subscribe({
+        next: () => {
+          this.isExecuting.set(false);
+          this.isCetesbExecuted.set(true);
+          this.isBartlettExecuted.set(false);
+          this.executedMethod.set('DIRECT_AGGREGATION');
+          this.calibratedParams.set(null);
+          this.calibrationMetadata.set(null);
+          toast.success('Agregação direta observada concluída com sucesso!');
+          this.projectState.updateFurthestStep('DISTRIBUTION').subscribe({
+            error: (err) => console.error('Erro ao atualizar etapa do projeto:', err),
+          });
+          setTimeout(() => this.scrollToResultCard(), 100);
+        },
+        error: (err) => {
+          this.isExecuting.set(false);
+          const msg =
+            err?.error?.detail ??
+            err?.error?.message ??
+            'Erro ao executar a agregação direta dos dados sub-horários.';
+          toast.error(msg);
+        },
+      });
+      return;
+    }
+
     if (this.selectedMethod() === 'cetesb') {
       this.isExecuting.set(true);
       setTimeout(() => this.scrollToResultCard(), 100);
@@ -429,7 +500,11 @@ export class TemporalDisaggregation {
           this.executedMethod.set('CETESB');
           this.calibratedParams.set(null);
           this.calibrationMetadata.set(null);
-          toast.success('Desagregação por fatores CETESB executada com sucesso!');
+          toast.success(
+            this.isHourlyStation()
+              ? 'Processamento híbrido (agregação direta + CETESB) concluído com sucesso!'
+              : 'Desagregação por fatores CETESB executada com sucesso!'
+          );
           this.projectState.updateFurthestStep('DISTRIBUTION').subscribe({
             error: (err) => console.error('Erro ao atualizar etapa do projeto:', err),
           });

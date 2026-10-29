@@ -1,0 +1,62 @@
+<div
+  class="w-full min-w-0 flex flex-col rounded-xl shadow-xs border border-border bg-popover text-foreground overflow-hidden"
+>
+  <!-- Cabeçalho do Card -->
+  <div class="flex flex-wrap items-center justify-between gap-4 border-b border-border px-4 py-3">
+    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+      <h3 class="text-sm font-semibold uppercase tracking-wide text-foreground">
+        AGREGAÇÃO DIRETA DE MÁXIMAS
+      </h3>
+      <span class="text-sm font-normal text-muted-foreground">
+        · DADOS OBSERVADOS (10 MIN)
+      </span>
+    </div>
+
+    <!-- Ação à Direita: Botão de Execução se pendente -->
+    @if (!isExecuted()) {
+      <button
+        hlmBtn
+        size="sm"
+        type="button"
+        [disabled]="isExecuting()"
+        (click)="execute.emit()"
+        class="cursor-pointer font-medium inline-flex items-center gap-1.5 shadow-xs shrink-0"
+      >
+        @if (isExecuting()) {
+          <hlm-spinner class="mr-1" />
+          <span>Consolidando…</span>
+        } @else {
+          <ng-icon name="lucideLayers" class="mr-1 text-sm" />
+          <span>Consolidar máximas anuais</span>
+        }
+      </button>
+    }
+  </div>
+
+  <!-- Corpo do Card -->
+  <div class="p-4 sm:p-5 flex flex-col gap-4">
+    <!-- Grid das 9 Durações Compatíveis -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2 sm:gap-2.5">
+      @for (dur of compatibleDurations; track dur) {
+        <div
+          class="group flex flex-col items-center justify-center p-2.5 sm:py-3 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center"
+        >
+          <span class="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground group-hover:text-foreground transition-colors">
+            {{ dur }}
+          </span>
+
+          <span class="mt-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+            Janela móvel
+          </span>
+        </div>
+      }
+    </div>
+
+    <!-- Rodapé explicativo do card -->
+    <p class="text-xs text-muted-foreground leading-relaxed pt-1 border-t border-border/50">
+      Estação com resolução nativa contínua. As máximas anuais para as 9 durações compatíveis são calculadas por agregação direta
+      das observações. Durações de 5, 15 e 25 min são desconsideradas por não serem múltiplos inteiros do intervalo amostral de 10 minutos.
+    </p>
+  </div>
+</div>
+

@@ -2,7 +2,7 @@
   type="button"
   (click)="onSelect()"
   [disabled]="disabled()"
-  class="path-card relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-4 py-3 sm:px-5 sm:py-3.5 pr-10 sm:pr-12 rounded-xl text-left outline-none select-none transition-colors w-full"
+  class="path-card relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-4 py-3 sm:px-5 sm:py-3.5 pr-10 sm:pr-12 rounded-xl text-left outline-none select-none transition-colors w-full h-full"
   [class.path-card--selected]="selected()"
   [class.path-card--unselected]="!selected()"
   [class.cursor-pointer]="!disabled()"

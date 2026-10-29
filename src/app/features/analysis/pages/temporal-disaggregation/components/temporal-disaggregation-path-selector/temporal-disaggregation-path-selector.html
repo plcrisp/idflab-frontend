@@ -4,9 +4,9 @@
     [selected]="selected() === 'cetesb'"
     [disabled]="disabled()"
     icon="lucideChartColumn"
-    title="Fatores CETESB"
+    [title]="isHourly() ? 'Fatores CETESB (Híbrido)' : 'Fatores CETESB'"
     badge="Rápido"
-    description="Estima chuvas de 5 min a 24 h aplicando fatores empíricos à chuva máxima diária."
+    [description]="cetesbDescription()"
     (select)="selectOption('cetesb')"
   >
     @if (cetesbExecuted()) {
@@ -26,9 +26,9 @@
     [selected]="selected() === 'bartlett-lewis'"
     [disabled]="disabled() || bartlettDisabled()"
     icon="lucideDroplet"
-    title="Hyetos-Minute Bartlett-Lewis"
+    [title]="isHourly() ? 'Hyetos-Minute Bartlett-Lewis (Híbrido)' : 'Hyetos-Minute Bartlett-Lewis'"
     [badge]="bartlettBadge()"
-    description="Simula a estrutura da chuva, calibrada com uma estação de alta resolução próxima."
+    [description]="bartlettDescription()"
     (select)="selectOption('bartlett-lewis')"
   >
     @if (bartlettExecuted()) {

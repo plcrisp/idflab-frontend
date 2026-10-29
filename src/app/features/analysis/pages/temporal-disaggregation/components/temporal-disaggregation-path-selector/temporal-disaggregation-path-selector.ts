@@ -29,6 +29,7 @@ export class TemporalDisaggregationPathSelector {
   readonly isCheckingCandidates = input<boolean>(false);
   readonly cetesbExecuted = input<boolean>(false);
   readonly bartlettExecuted = input<boolean>(false);
+  readonly isHourly = input<boolean>(false);
 
   readonly bartlettBadge = computed<string>(() => {
     if (this.isCheckingCandidates()) {
@@ -38,6 +39,20 @@ export class TemporalDisaggregationPathSelector {
       return 'Sem CEMADEN próxima';
     }
     return 'Avançado';
+  });
+
+  readonly cetesbDescription = computed<string>(() => {
+    if (this.isHourly()) {
+      return 'Agrega dados observados para durações ≥ 1 h e aplica fatores empíricos da CETESB para durações < 1 h.';
+    }
+    return 'Estima chuvas de 5 min a 24 h aplicando fatores empíricos à chuva máxima diária.';
+  });
+
+  readonly bartlettDescription = computed<string>(() => {
+    if (this.isHourly()) {
+      return 'Agrega dados observados para durações ≥ 1 h e calibra a estrutura de chuva na CEMADEN vizinha para durações < 1 h.';
+    }
+    return 'Simula a estrutura da chuva, calibrada com uma estação de alta resolução próxima.';
   });
 
   selectOption(option: DisaggregationMethod): void {

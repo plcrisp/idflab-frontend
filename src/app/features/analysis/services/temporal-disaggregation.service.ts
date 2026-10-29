@@ -36,6 +36,13 @@ export class TemporalDisaggregationService {
     return this.http.post<CetesbExecutionResponse>(`${this.baseUrl}/${projectId}/cetesb`, {});
   }
 
+  executeDirectAggregation(projectId: string): Observable<CetesbExecutionResponse> {
+    return this.http.post<CetesbExecutionResponse>(
+      `${this.baseUrl}/${projectId}/direct-aggregation`,
+      {},
+    );
+  }
+
   getResultTable(
     projectId: string,
     page: number = 1,

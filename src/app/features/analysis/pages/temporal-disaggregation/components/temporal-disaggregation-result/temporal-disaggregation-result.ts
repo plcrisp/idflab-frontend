@@ -99,6 +99,18 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
   readonly blParams = input<BartlettLewisParams | null>(null);
   readonly customMessage = input<string | null>(null);
   readonly customProgress = input<number | null>(null);
+  readonly isHybrid = input<boolean>(false);
+  readonly isSubHourly = input<boolean>(false);
+
+  readonly footerText = computed<string>(() => {
+    if (this.isSubHourly()) {
+      return 'Precipitações máximas anuais calculadas por agregação direta por janela móvel sobre os registros contínuos de 10 minutos.';
+    }
+    if (this.isHybrid()) {
+      return 'Precipitações máximas (mm) calculadas por processamento híbrido (agregação direta para ≥ 1 h e desagregação para < 1 h).';
+    }
+    return `Precipitações máximas desagregadas (mm) a partir da série diária pelo método ${this.method()}.`;
+  });
 
   readonly isBartlettLewis = computed<boolean>(() => {
     return (this.method() || '').toLowerCase().includes('bartlett');
@@ -307,13 +319,20 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
     const maxSeriesData = data.points.map((p) => [p.duration_minutes, p.max_intensity_mm_h]);
     const meanSeriesData = data.points.map((p) => [p.duration_minutes, p.mean_intensity_mm_h]);
 
-    const keyDurations = [5, 15, 30, 60, 360, 1440];
+    const firstDur = data.points[0]?.duration_minutes ?? 5;
+    const keyDurations = firstDur >= 10 ? [10, 30, 60, 360, 1440] : [5, 15, 30, 60, 360, 1440];
     const durationLabelMap: Record<number, string> = {
       5: '5 min',
+      10: '10 min',
       15: '15 min',
+      20: '20 min',
+      25: '25 min',
       30: '30 min',
       60: '1 h',
       360: '6 h',
+      480: '8 h',
+      600: '10 h',
+      720: '12 h',
       1440: '24 h',
     };
 
@@ -410,7 +429,7 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
       },
       xAxis: {
         type: 'log',
-        min: 5,
+        min: firstDur,
         max: 1440,
         name: 'Duração',
         nameLocation: 'middle',

@@ -70,6 +70,7 @@ import { YearDataAvailability } from './pages/gap-filling/components/year-data-a
 import { TemporalDisaggregation } from './pages/temporal-disaggregation/temporal-disaggregation';
 import { TemporalDisaggregationPathSelector } from './pages/temporal-disaggregation/components/temporal-disaggregation-path-selector/temporal-disaggregation-path-selector';
 import { TemporalDisaggregationConfig } from './pages/temporal-disaggregation/components/temporal-disaggregation-config/temporal-disaggregation-config';
+import { TemporalAggregationDirectConfig } from './pages/temporal-disaggregation/components/temporal-aggregation-direct-config/temporal-aggregation-direct-config';
 import { TemporalDisaggregationResult } from './pages/temporal-disaggregation/components/temporal-disaggregation-result/temporal-disaggregation-result';
 import { Distribution } from './pages/distribution/distribution';
 
@@ -115,6 +116,7 @@ registerLocaleData(localePt);
     TimeSeriesDetailChart,
     TemporalDisaggregationPathSelector,
     TemporalDisaggregationConfig,
+    TemporalAggregationDirectConfig,
     TemporalDisaggregationResult,
   ],
   imports: [
@@ -130,6 +132,7 @@ registerLocaleData(localePt);
     YearDataAvailability,
     TemporalDisaggregationPathSelector,
     TemporalDisaggregationConfig,
+    TemporalAggregationDirectConfig,
     TemporalDisaggregationResult,
     NgIconsModule.withIcons({
       lucideDatabase,

@@ -10,10 +10,11 @@ export interface DurationSeriesItem {
   factor: number;
   values: Record<string, number>;
   mean: number;
+  origin?: 'aggregation' | 'disaggregation';
 }
 
 export interface CetesbExecutionResult {
-  method: 'CETESB' | 'BARTLETT_LEWIS';
+  method: 'CETESB' | 'BARTLETT_LEWIS' | 'DIRECT_AGGREGATION' | string;
   calibration_metadata?: any;
   source: 'original' | 'filled';
   years: number[];
@@ -31,6 +32,7 @@ export interface CetesbExecutionResponse {
 export interface TableColumn {
   duration_minutes: number;
   label: string;
+  origin?: 'aggregation' | 'disaggregation';
 }
 
 export interface TableRow {
@@ -55,6 +57,7 @@ export interface DecayCurvePoint {
   mean_intensity_mm_h: number;
   max_depth_mm: number;
   mean_depth_mm: number;
+  origin?: 'aggregation' | 'disaggregation';
 }
 
 export interface TemporalDisaggregationDecayCurveResponse {
