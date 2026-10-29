@@ -1,0 +1,13 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.bg-primary-5 {
+  background-color: color-mix(in srgb, var(--primary) 6%, transparent);
+}
+
+.border-muted-foreground-40 {
+  border-color: color-mix(in srgb, var(--muted-foreground) 40%, transparent);
+}
+
