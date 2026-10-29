@@ -33,6 +33,7 @@ import {
   lucideScan,
   lucideShieldCheck,
   lucideSparkles,
+  lucideTable,
   lucideTrendingUp,
   lucideTriangleAlert,
   lucideWrench,
@@ -45,6 +46,7 @@ import { AnnualMaxOverviewChart } from './pages/initial-visualization/components
 import { InitialKpiCards } from './pages/initial-visualization/components/initial-kpi-cards/initial-kpi-cards';
 import { Stepper } from './shared/components/stepper/stepper';
 import { ParamsHeader } from './shared/components/params-header/params-header';
+import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmProgressImports } from '@spartan-ng/helm/progress';
 import { DataAvailabilityRibbon } from './shared/components/data-availability-ribbon/data-availability-ribbon';
@@ -72,6 +74,9 @@ import { TemporalDisaggregationPathSelector } from './pages/temporal-disaggregat
 import { TemporalDisaggregationConfig } from './pages/temporal-disaggregation/components/temporal-disaggregation-config/temporal-disaggregation-config';
 import { TemporalAggregationDirectConfig } from './pages/temporal-disaggregation/components/temporal-aggregation-direct-config/temporal-aggregation-direct-config';
 import { TemporalDisaggregationResult } from './pages/temporal-disaggregation/components/temporal-disaggregation-result/temporal-disaggregation-result';
+import { AnnualMaxTable } from './shared/components/annual-max-table/annual-max-table';
+import { DistributionFittingChart } from './pages/distribution/components/distribution-fitting-chart/distribution-fitting-chart';
+import { DistributionSelectionTable } from './pages/distribution/components/distribution-selection-table/distribution-selection-table';
 import { Distribution } from './pages/distribution/distribution';
 
 registerLocaleData(localePt);
@@ -108,6 +113,9 @@ registerLocaleData(localePt);
     GapFilling,
     TemporalDisaggregation,
     Distribution,
+    AnnualMaxTable,
+    DistributionFittingChart,
+    DistributionSelectionTable,
     Path,
     GapFillingPathSelector,
     GapFillingPreMetricsCard,
@@ -134,6 +142,9 @@ registerLocaleData(localePt);
     TemporalDisaggregationConfig,
     TemporalAggregationDirectConfig,
     TemporalDisaggregationResult,
+    AnnualMaxTable,
+    DistributionFittingChart,
+    DistributionSelectionTable,
     NgIconsModule.withIcons({
       lucideDatabase,
       lucideTriangleAlert,
@@ -162,7 +173,9 @@ registerLocaleData(localePt);
       lucideFilter,
       lucideChartColumn,
       lucideDroplets,
+      lucideTable,
     }),
+    ...HlmDropdownMenuImports,
     ...HlmBadgeImports,
     ...HlmProgressImports,
     ...HlmButtonImports,

@@ -1,3 +1,9 @@
 :host {
   display: block;
 }
+
+#annual-max-card app-annual-max-overview-chart {
+  --annual-max-padding-top: 4px;
+  --annual-max-height: 300px;
+  --annual-max-padding-side: 0px;
+}
