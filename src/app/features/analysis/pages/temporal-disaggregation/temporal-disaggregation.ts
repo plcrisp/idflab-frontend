@@ -30,7 +30,6 @@ import { Job } from '../../../../core/models/api/job.model';
 import { ActiveJobItem } from '../../../../core/models/api/notification.model';
 import { DisaggregationMethod } from './components/temporal-disaggregation-path-selector/temporal-disaggregation-path-selector';
 import { BartlettLewisParams, CalibrationMetadata } from './models/temporal-disaggregation.model';
-import { buildEnsureStationDataPayload } from '../consistency-check/utils/consistency-check.utils';
 
 @Component({
   selector: 'app-temporal-disaggregation',
@@ -75,10 +74,7 @@ export class TemporalDisaggregation {
   readonly isExecuting = signal<boolean>(false);
   readonly isCetesbExecuted = signal<boolean>(false);
 
-  // Estados de Execução - Bartlett-Lewis & Coleta CEMADEN
-  readonly isDownloadingStation = signal<boolean>(false);
-  readonly downloadJob = signal<Job | null>(null);
-
+  // Estados de Execução - Bartlett-Lewis
   readonly isExecutingBl = signal<boolean>(false);
   readonly isBartlettExecuted = signal<boolean>(false);
   readonly isBlError = signal<boolean>(false);
@@ -90,7 +86,6 @@ export class TemporalDisaggregation {
 
   private summarySub: Subscription | null = null;
   private stepSub: Subscription | null = null;
-  private dlSub: Subscription | null = null;
   private blSub: Subscription | null = null;
   private lastLoadedProjectId: string | null = null;
   private lastCheckedStationId: string | null = null;
@@ -125,7 +120,6 @@ export class TemporalDisaggregation {
     return (
       this.isExecuting() ||
       this.isExecutingBl() ||
-      this.isDownloadingStation() ||
       this.isLoadingNeighborData()
     );
   });
@@ -145,7 +139,7 @@ export class TemporalDisaggregation {
   });
 
   readonly activeJobForProgress = computed<Job | ActiveJobItem | null>(() => {
-    return this.blJob() ?? this.downloadJob() ?? this.neighborJob();
+    return this.blJob() ?? this.neighborJob();
   });
 
   readonly activeProgressMessage = computed<string | null>(() => {
@@ -155,9 +149,6 @@ export class TemporalDisaggregation {
     const bl = this.blJob();
     if (bl?.details?.message) return bl.details.message;
 
-    const dl = this.downloadJob();
-    if (dl?.details?.message) return dl.details.message;
-
     const nJob = this.neighborJob();
     if (nJob?.details?.message) return nJob.details.message;
 
@@ -165,7 +156,7 @@ export class TemporalDisaggregation {
     if (nProg?.message) return nProg.message;
 
     if (this.isExecutingBl()) return 'Iniciando desagregação Hyetos-Minute Bartlett-Lewis...';
-    if (this.isDownloadingStation()) return 'Baixando dados pluviométricos da estação CEMADEN...';
+    if (this.isLoadingNeighborData()) return 'Baixando dados pluviométricos da estação CEMADEN...';
 
     return null;
   });
@@ -176,9 +167,6 @@ export class TemporalDisaggregation {
     const bl = this.blJob();
     if (bl?.progress != null) return bl.progress;
 
-    const dl = this.downloadJob();
-    if (dl?.progress != null) return dl.progress;
-
     const nJob = this.neighborJob();
     if (nJob?.progress != null) return nJob.progress;
 
@@ -186,7 +174,7 @@ export class TemporalDisaggregation {
     if (nProg?.percentage != null) return nProg.percentage;
 
     if (this.isExecutingBl()) return 10;
-    if (this.isDownloadingStation()) return 10;
+    if (this.isLoadingNeighborData()) return 10;
 
     return null;
   });
@@ -195,13 +183,12 @@ export class TemporalDisaggregation {
     this.destroyRef.onDestroy(() => {
       this.summarySub?.unsubscribe();
       this.stepSub?.unsubscribe();
-      this.dlSub?.unsubscribe();
       this.blSub?.unsubscribe();
       this.neighborManager.reset();
     });
 
-    this.neighborManager.setOnConfirmed((neighbor) => {
-      if (!this.isExecutingBl() && !this.isBartlettExecuted()) {
+    this.neighborManager.setOnConfirmed((neighbor, jobId) => {
+      if (!jobId && !this.isExecutingBl() && !this.isBartlettExecuted()) {
         this.executeBartlettLewisJob(neighbor.id);
       }
     });
@@ -253,6 +240,10 @@ export class TemporalDisaggregation {
       if (blJob && !this.isExecutingBl() && !this.isBartlettExecuted()) {
         untracked(() => {
           this.selectedMethod.set('bartlett-lewis');
+          const calibStationId = (blJob.details as any)?.station_id;
+          if (calibStationId) {
+            this.neighborManager.applyStation(calibStationId, null, p.id);
+          }
           this.startBlJobPolling(p.id, blJob.job_id);
         });
         return;
@@ -272,7 +263,6 @@ export class TemporalDisaggregation {
   private reset(): void {
     this.summarySub?.unsubscribe();
     this.stepSub?.unsubscribe();
-    this.dlSub?.unsubscribe();
     this.blSub?.unsubscribe();
     this.lastLoadedProjectId = null;
     this.lastCheckedStationId = null;
@@ -283,8 +273,6 @@ export class TemporalDisaggregation {
     this.calibrationMetadata.set(null);
     this.executedMethod.set(null);
     this.blJob.set(null);
-    this.downloadJob.set(null);
-    this.isDownloadingStation.set(false);
     this.isExecutingBl.set(false);
     this.isBlError.set(false);
     this.neighborManager.reset();
@@ -420,110 +408,9 @@ export class TemporalDisaggregation {
     const project = this.project();
     if (!project || this.isProcessing()) return;
 
-    const neighbor = this.neighbors().find((n) => n.id === stationId) ?? this.selectedNeighbor();
-    if (!neighbor) return;
-
-    this.neighborManager.selectNeighbor(neighbor);
     this.isBlError.set(false);
-
-    // Abre imediatamente o card de resultado e faz scroll suave!
-    this.isDownloadingStation.set(true);
     setTimeout(() => this.scrollToResultCard(), 100);
-
-    const payload = buildEnsureStationDataPayload(neighbor, project.id);
-
-    this.stationService.ensureStationData(stationId, payload).subscribe({
-      next: (res) => {
-        if (res.status === 'ready') {
-          // Dados já disponíveis! Transiciona para ready e inicia a desagregação Bartlett-Lewis
-          this.isDownloadingStation.set(false);
-          this.neighborManager.activeNeighborStation.set(neighbor);
-          this.neighborManager.confirmationStatus.set('ready');
-          this.executeBartlettLewisJob(stationId);
-        } else if (res.status === 'processing') {
-          const jobId = res.job_id;
-          if (jobId) {
-            this.neighborManager.neighborJobId.set(jobId);
-            this.neighborManager.confirmationStatus.set('loading');
-            this.startDownloadJobPolling(project.id, jobId, neighbor);
-          } else {
-            this.isDownloadingStation.set(false);
-          }
-        }
-      },
-      error: (err) => {
-        this.isDownloadingStation.set(false);
-        this.isBlError.set(true);
-        const msg =
-          err?.error?.detail ??
-          err?.error?.message ??
-          'Erro ao verificar registros da estação de calibração.';
-        toast.error(msg);
-      },
-    });
-  }
-
-  private startDownloadJobPolling(projectId: string, jobId: string, neighbor: NeighborStation): void {
-    this.dlSub?.unsubscribe();
-
-    this.dlSub = timer(0, 2000)
-      .pipe(
-        switchMap(() => this.jobsService.getJob(jobId)),
-        tap((job) => this.downloadJob.set(job)),
-        takeWhile((job) => {
-          const status = (job.status || '').toUpperCase();
-          const isDone =
-            status === 'SUCCESS' ||
-            status === 'COMPLETED' ||
-            status === 'FAILED' ||
-            status === 'FAILURE' ||
-            status === 'ERROR' ||
-            (job.progress ?? 0) >= 100;
-          return !isDone;
-        }, true),
-      )
-      .subscribe({
-        next: (job) => {
-          const status = (job.status || '').toUpperCase();
-          if (status === 'SUCCESS' || status === 'COMPLETED' || (job.progress ?? 0) >= 100) {
-            this.handleDownloadSuccess(projectId, neighbor);
-          } else if (status === 'FAILED' || status === 'FAILURE' || status === 'ERROR') {
-            this.handleDownloadFailure(job);
-          }
-        },
-        error: (err) => {
-          this.isDownloadingStation.set(false);
-          const msg = err?.error?.message ?? 'Erro ao acompanhar download da estação.';
-          toast.error(msg);
-        },
-      });
-  }
-
-  private handleDownloadSuccess(projectId: string, neighbor: NeighborStation): void {
-    this.isDownloadingStation.set(false);
-    this.downloadJob.set(null);
-    this.neighborManager.neighborJobId.set(null);
-    this.neighborManager.confirmationStatus.set('ready');
-    this.neighborManager.activeNeighborStation.set(neighbor);
-    toast.success('Download dos dados da estação concluído! Iniciando calibração Hyetos-Minute Bartlett-Lewis...');
-    this.notificationsService.refetch();
-
-    // Inicia automaticamente a execução do Bartlett-Lewis com os dados já disponíveis
-    this.executeBartlettLewisJob(neighbor.id);
-  }
-
-  private handleDownloadFailure(job: Job): void {
-    this.isDownloadingStation.set(false);
-    this.downloadJob.set(null);
-    this.neighborManager.neighborJobId.set(null);
-    this.neighborManager.confirmationStatus.set('error');
-    this.isBlError.set(true);
-    const msg =
-      job?.details?.error_log ??
-      job?.details?.message ??
-      'Falha no download dos dados da estação CEMADEN.';
-    toast.error(msg);
-    this.notificationsService.refetch();
+    this.neighborManager.confirmNeighbor(stationId, project.id);
   }
 
   onExecuteDisaggregation(): void {
@@ -600,6 +487,8 @@ export class TemporalDisaggregation {
       this.isExecutingBl.set(false);
       return;
     }
+    this.isExecutingBl.set(true);
+    this.isBlError.set(false);
     this.blSub?.unsubscribe();
 
     this.blSub = timer(0, 2000)

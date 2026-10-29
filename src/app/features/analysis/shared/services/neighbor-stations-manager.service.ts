@@ -39,6 +39,9 @@ export class NeighborStationsManagerService {
   private hasSeenActiveJob = false;
   private neighborsSub: Subscription | null = null;
   private onConfirmedCallback?: (neighbor: NeighborStation, jobId: string | null) => void;
+  private pendingStationId: string | null = null;
+  private pendingJobId: string | null = null;
+  private pendingProjectId: string | null = null;
 
   readonly neighborJob = computed<ActiveJobItem | null>(() => {
     const jobId = this.neighborJobId();
@@ -138,7 +141,15 @@ export class NeighborStationsManagerService {
         this.neighbors.set(neighbors);
         this.isLoadingNeighbors.set(false);
 
-        if (initialNeighborId) {
+        if (this.pendingStationId) {
+          const pId = this.pendingStationId;
+          const jId = this.pendingJobId;
+          const projId = this.pendingProjectId;
+          this.pendingStationId = null;
+          this.pendingJobId = null;
+          this.pendingProjectId = null;
+          this.applyStation(pId, jId, projId ?? undefined);
+        } else if (initialNeighborId) {
           this.applyStation(initialNeighborId, savedJobId, projectId);
         } else if (preselectNeighborId) {
           this.preselectStation(preselectNeighborId);
@@ -263,6 +274,9 @@ export class NeighborStationsManagerService {
     }
 
     if (this.isLoadingNeighbors()) {
+      this.pendingStationId = stationId;
+      this.pendingJobId = savedJobId ?? null;
+      this.pendingProjectId = projectId ?? null;
       return;
     }
 
@@ -363,6 +377,9 @@ export class NeighborStationsManagerService {
     this.neighborJobId.set(null);
     this.hasSeenActiveJob = false;
     this.projectState.setNeighborJobId(null);
+    this.pendingStationId = null;
+    this.pendingJobId = null;
+    this.pendingProjectId = null;
     this.isSelectionLocked.set(false);
     this.isLoadingNeighbors.set(true);
     this.isLoadingNeighborData.set(false);
