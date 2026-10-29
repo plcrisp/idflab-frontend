@@ -77,6 +77,7 @@ export interface GapFillingFilterPreviewResponse {
   kept_count: number;
   removed_count: number;
   total_years: number;
+  valid_years?: number;
   source: 'original' | 'filled';
 }
 
@@ -86,6 +87,7 @@ export interface GapFillingFilterConfirmResponse {
   kept_count: number;
   removed_count: number;
   total_years: number;
+  valid_years?: number;
 }
 
 

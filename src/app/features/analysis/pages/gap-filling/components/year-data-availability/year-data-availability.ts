@@ -30,6 +30,7 @@ export interface YearFilterState {
   manualOverrides: Record<string, 'include' | 'exclude'>;
   keptCount: number;
   totalYears: number;
+  validYears: number;
   source?: 'original' | 'filled';
 }
 
@@ -84,6 +85,14 @@ export class YearDataAvailability implements OnInit {
 
   readonly keptCount = computed<number>(() => this.preview()?.kept_count ?? 0);
   readonly totalYears = computed<number>(() => this.preview()?.total_years ?? 0);
+  readonly validYears = computed<number>(() => {
+    const prev = this.preview();
+    if (!prev) return 0;
+    if (prev.valid_years != null) return prev.valid_years;
+    return (prev.years ?? []).filter(
+      (y) => y.final_action === 'include' && y.completeness >= 90.0,
+    ).length;
+  });
   readonly isLowYears = computed<boolean>(
     () => this.keptCount() > 0 && this.keptCount() < 30,
   );
@@ -215,6 +224,7 @@ export class YearDataAvailability implements OnInit {
       manualOverrides: this.manualOverrides(),
       keptCount: this.keptCount(),
       totalYears: this.totalYears(),
+      validYears: this.validYears(),
       source: this.source() ?? undefined,
     });
   }

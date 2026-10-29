@@ -30,6 +30,7 @@
     <div hlmSkeleton class="h-4 w-28 rounded-md"></div>
   </div>
   } @else {
+  @if (showTotalRecords()) {
   <!-- 1. Registros totais -->
   <div class="flex items-center gap-2.5">
     <ng-icon name="lucideDatabase" size="18" color="var(--primary)" class="stat-icon icon-database"></ng-icon>
@@ -40,6 +41,7 @@
   </div>
 
   <div class="h-5 w-px bg-border shrink-0 mx-6 lg:mx-8" aria-hidden="true"></div>
+  }
 
   <!-- 2. Falhas na série -->
   <div class="flex items-center gap-2.5">
@@ -95,6 +97,22 @@
     <span class="text-muted-foreground font-normal">Preenchida com</span>
     <span class="font-bold text-foreground truncate max-w-40 lg:max-w-55" [title]="filledStation | titlecase">
       {{ filledStation | titlecase }}
+    </span>
+  </div>
+  }
+
+  @if (disaggregationMethod(); as method) {
+  <div class="h-5 w-px bg-border shrink-0 mx-6 lg:mx-8" aria-hidden="true"></div>
+
+  <!-- 6. Método de desagregação temporal -->
+  <div class="flex items-center gap-2.5 min-w-0">
+    <ng-icon name="lucideClock" size="18" color="var(--primary)" class="stat-icon shrink-0"></ng-icon>
+    <span class="text-muted-foreground font-normal shrink-0">Desagregação</span>
+    <span
+      class="font-bold text-foreground truncate max-w-44 lg:max-w-64 cursor-help"
+      [title]="'Desagregada com ' + method"
+    >
+      {{ method }}
     </span>
   </div>
   }

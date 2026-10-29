@@ -9,6 +9,7 @@ import { GapFillingStateService } from './services/gap-filling-state.service';
 import { GapFillingService } from '../../services/gap-filling.service';
 import { NeighborStationsManagerService } from '../../shared/services/neighbor-stations-manager.service';
 import { YearFilterState } from './components/year-data-availability/year-data-availability';
+import { GlobalStats } from '../../shared/models/analysis.models';
 import { toast } from '@spartan-ng/brain/sonner';
 
 @Component({
@@ -56,6 +57,23 @@ export class GapFilling {
 
   readonly isYearFilterActive = computed<boolean>(() => {
     return this.selectedPath() === 'filter' || (this.selectedPath() === 'fill' && this.isFilled());
+  });
+
+  readonly displayStats = computed<GlobalStats | null>(() => {
+    const baseStats = this.state.stats();
+    if (!baseStats) return null;
+
+    if (this.isYearFilterActive()) {
+      const filter = this.yearFilterState();
+      if (filter && filter.validYears != null) {
+        return {
+          ...baseStats,
+          valid_years: filter.validYears,
+        };
+      }
+    }
+
+    return baseStats;
   });
 
   readonly advanceButtonText = computed<string>(() => {

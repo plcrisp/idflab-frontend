@@ -1,6 +1,6 @@
 <div class="flex flex-col gap-4 overflow-x-hidden">
   <!-- 1. Barra de Resumo Compacta da Estação -->
-  <app-station-summary-bar [stats]="state.stats()" [loading]="state.isLoading()" [muted]="state.hasInsufficientData()"
+  <app-station-summary-bar [stats]="displayStats()" [loading]="state.isLoading()" [muted]="state.hasInsufficientData()"
     [isHourly]="state.isHourly()" />
 
   <!-- 2. Seletor de Caminho do Tratamento de Falhas -->

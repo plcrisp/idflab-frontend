@@ -15,6 +15,8 @@ export class StationSummaryBar {
   isHourly = input<boolean>(false);
   loading = input<boolean>(false);
   muted = input<boolean>(false);
+  showTotalRecords = input<boolean>(true);
+  disaggregationMethod = input<string | null>(null);
 
   readonly formattedMaxDate = computed(() => {
     const s = this.stats();
