@@ -106,19 +106,19 @@
       </button>
 
       <ng-template #distTooltip>
-        <div class="flex flex-col gap-2 w-60 py-0.5 select-none font-sans font-normal leading-normal">
+        <div class="flex flex-col gap-3 w-64 p-1 select-none font-sans font-normal leading-normal">
           <!-- 1. Cabeçalho: ponto na cor + nome da distribuição + chip de duração -->
-          <div class="flex items-center justify-between pb-1.5 border-b border-border/50">
-            <div class="flex items-center gap-1.5 min-w-0">
+          <div class="flex items-center justify-between pb-2 border-b border-border/60">
+            <div class="flex items-center gap-2 min-w-0">
               <span
-                class="h-2 w-2 rounded-full shrink-0"
+                class="h-2.5 w-2.5 rounded-full shrink-0"
                 [style.background-color]="getColor(row.distribution)"
               ></span>
               <span class="font-semibold text-xs text-foreground truncate">
                 {{ getConfig(row.distribution).name }}
               </span>
             </div>
-            <span class="text-[10px] font-medium text-muted-foreground bg-secondary/80 px-1.5 py-0.5 rounded border border-border/40 shrink-0">
+            <span class="text-[10px] font-medium text-muted-foreground bg-secondary/80 px-2 py-0.5 rounded-md border border-border/40 shrink-0">
               {{ durationLabel() }}
             </span>
           </div>
@@ -126,27 +126,27 @@
           @if (getDistDetail(row.distribution); as d) {
             @if (d.status === 'ok') {
               <!-- 2. Quantis: rótulo e 3 colunas discretas -->
-              <div class="flex flex-col gap-1">
+              <div class="flex flex-col gap-1.5">
                 <span class="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
                   Intensidade por TR (mm/h)
                 </span>
                 @if (d.quantiles; as q) {
-                  <div class="grid grid-cols-3 gap-1 text-center pt-0.5">
+                  <div class="grid grid-cols-3 gap-2 text-center py-1.5 bg-secondary/25 rounded-md border border-border/30">
                     <div class="flex flex-col">
                       <span class="text-[10px] text-muted-foreground">TR 10</span>
-                      <span class="font-semibold tabular-nums text-foreground text-xs mt-0.5">
+                      <span class="font-semibold tabular-nums text-foreground text-xs mt-1">
                         {{ q.tr_10 != null ? (q.tr_10 | number:'1.2-2':'pt-BR') : '—' }}
                       </span>
                     </div>
-                    <div class="flex flex-col border-x border-border/40">
+                    <div class="flex flex-col border-x border-border/40 px-1">
                       <span class="text-[10px] text-muted-foreground">TR 50</span>
-                      <span class="font-semibold tabular-nums text-foreground text-xs mt-0.5">
+                      <span class="font-semibold tabular-nums text-foreground text-xs mt-1">
                         {{ q.tr_50 != null ? (q.tr_50 | number:'1.2-2':'pt-BR') : '—' }}
                       </span>
                     </div>
                     <div class="flex flex-col">
                       <span class="text-[10px] text-muted-foreground">TR 100</span>
-                      <span class="font-semibold tabular-nums text-foreground text-xs mt-0.5">
+                      <span class="font-semibold tabular-nums text-foreground text-xs mt-1">
                         {{ q.tr_100 != null ? (q.tr_100 | number:'1.2-2':'pt-BR') : '—' }}
                       </span>
                     </div>
@@ -159,7 +159,7 @@
               </div>
 
               <!-- 3. Rodapé em duas linhas curtas -->
-              <div class="flex flex-col gap-1 pt-1.5 border-t border-border/50 text-[11px]">
+              <div class="flex flex-col gap-2 pt-2 border-t border-border/60 text-xs">
                 <div class="flex items-center justify-between">
                   <span class="text-muted-foreground">Máx. observado</span>
                   <span class="tabular-nums">
@@ -179,12 +179,15 @@
                 </div>
               </div>
             } @else {
-              <div class="py-1 text-center text-xs text-destructive">
-                Falha no ajuste para esta duração.
+              <div class="py-2 text-center text-xs text-destructive flex flex-col gap-1">
+                <span class="font-medium">Falha no ajuste para esta duração</span>
+                <span class="text-muted-foreground text-[11px] leading-relaxed">
+                  {{ d.error_message || d.error || 'Ajuste rejeitado ou não convergido.' }}
+                </span>
               </div>
             }
           } @else {
-            <div class="py-1 text-center text-xs text-muted-foreground">
+            <div class="py-2 text-center text-xs text-muted-foreground">
               Detalhes indisponíveis para esta duração.
             </div>
           }

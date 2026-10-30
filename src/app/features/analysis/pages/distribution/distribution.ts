@@ -1,12 +1,16 @@
 import {
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
+  OnDestroy,
   OnInit,
   signal,
   untracked,
 } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { SkeletonLoadingCoordinator, trackWithSkeleton } from '../../../../core/utils/skeleton-loading-coordinator';
 import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { toast } from '@spartan-ng/brain/sonner';
@@ -30,12 +34,22 @@ import { getDistributionConfig } from './constants/statistical-distribution.cons
   templateUrl: './distribution.html',
   styleUrl: './distribution.scss',
 })
-export class Distribution implements OnInit {
+export class Distribution implements OnInit, OnDestroy {
   private readonly mainLayoutService = inject(MainLayoutService);
   private readonly projectState = inject(ProjectStateService);
   private readonly router = inject(Router);
   private readonly distributionService = inject(StatisticalDistributionService);
   private readonly initialVisualizationService = inject(InitialVisualizationService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private summarySub: Subscription | null = null;
+  private readonly summarySkeleton = new SkeletonLoadingCoordinator({
+    delayMs: 350,
+    minDurationMs: 250,
+    destroyRef: this.destroyRef,
+  });
+
+  readonly isSummaryLoading = computed<boolean>(() => this.summarySkeleton.showSkeleton());
 
   readonly project = this.projectState.project;
   readonly hasInsufficientData = this.projectState.hasInsufficientData;
@@ -120,14 +134,23 @@ export class Distribution implements OnInit {
   }
 
   loadSummaryStats(projectId: string): void {
-    this.initialVisualizationService.getSummary(projectId).subscribe({
-      next: (summary) => {
-        this.stats.set(summary.stats);
-      },
-      error: (err) => {
-        console.error('[Distribution] Erro ao carregar estatísticas do resumo:', err);
-      },
-    });
+    this.summarySub?.unsubscribe();
+    this.summarySub = this.initialVisualizationService
+      .getSummary(projectId)
+      .pipe(trackWithSkeleton(this.summarySkeleton))
+      .subscribe({
+        next: (summary) => {
+          this.stats.set(summary.stats);
+        },
+        error: (err) => {
+          console.error('[Distribution] Erro ao carregar estatísticas do resumo:', err);
+          this.stats.set(null);
+        },
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.summarySub?.unsubscribe();
   }
 
   loadState(projectId: string): void {

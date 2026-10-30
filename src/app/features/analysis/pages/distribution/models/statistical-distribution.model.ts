@@ -58,10 +58,11 @@ export interface AnnualMaximumItem {
 export interface DurationDistributionItem {
   distribution: DistributionEnum;
   status: FitStatus;
-  error: string | null;
-  pdf_density: (number | null)[] | null;
-  sse: number | null;
-  quantiles: QuantilesMmH | null;
+  error?: string | null;
+  error_message?: string | null;
+  pdf_density?: (number | null)[] | null;
+  sse?: number | null;
+  quantiles?: QuantilesMmH | null;
 }
 
 export interface DurationDetailResponse {

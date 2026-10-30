@@ -92,18 +92,19 @@ export class DistributionFittingChart implements OnDestroy {
     // Distribuições válidas (status == 'ok')
     const validDists = distributions.filter((d) => d.status === 'ok' && d.pdf_density);
 
-    // Legenda ECharts com seleção padrão: todas as distribuições válidas iniciam visíveis
-    const legendData: { name: string; itemStyle: { color: string } }[] = [];
+    // Legenda ECharts com seleção padrão: distribuições válidas visíveis, inválidas desabilitadas
+    const legendData: { name: string; itemStyle?: { color: string } }[] = [];
     const legendSelected: Record<string, boolean> = {};
 
-    validDists.forEach((d) => {
+    distributions.forEach((d) => {
       const cfg = getDistributionConfig(d.distribution);
       const color = getDistributionColor(d.distribution);
+      const isOk = d.status === 'ok' && !!d.pdf_density;
       legendData.push({
         name: cfg.name,
-        itemStyle: { color },
+        itemStyle: { color: isOk ? color : tokens.border },
       });
-      legendSelected[cfg.name] = true;
+      legendSelected[cfg.name] = isOk;
     });
 
     // Custom Series: Barras do Histograma
@@ -156,6 +157,7 @@ export class DistributionFittingChart implements OnDestroy {
         type: 'line',
         smooth: 0.25,
         symbol: 'none',
+        clip: true,
         data: points,
         lineStyle: {
           color,
@@ -170,6 +172,8 @@ export class DistributionFittingChart implements OnDestroy {
     });
 
     const tooltipBase = buildTooltipBase(tokens);
+    const maxEmpirical = empiricalDensity.length > 0 ? Math.max(...empiricalDensity, 0) : 0;
+    const maxY = maxEmpirical > 0 ? Number((maxEmpirical * 1.5).toFixed(4)) : undefined;
 
     return {
       textStyle: { fontFamily: tokens.fontFamily },
@@ -287,6 +291,8 @@ export class DistributionFittingChart implements OnDestroy {
       },
       yAxis: {
         type: 'value',
+        min: 0,
+        max: maxY,
         name: 'Densidade',
         nameLocation: 'end',
         nameTextStyle: {
