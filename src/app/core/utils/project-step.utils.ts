@@ -16,7 +16,7 @@ export const STEP_ROUTE_MAP: Record<StepEnum, string> = {
   GAP_FILLING: 'gap-filling',
   TEMPORAL_RESOLUTION: 'temporal-disaggregation',
   DISTRIBUTION: 'distribution',
-  HISTORICAL_IDF: 'idf-historica',
+  HISTORICAL_IDF: 'historical-idf',
   FUTURE_SCENARIOS: 'cenarios-futuros',
   RESULTS: 'cenarios-futuros',
 };
@@ -77,7 +77,7 @@ export const ANALYSIS_STEPS: readonly AnalysisStepDef[] = [
   { label: 'Tratamento de falhas', path: 'gap-filling' },
   { label: 'Resolução temporal', path: 'temporal-disaggregation' },
   { label: 'Distribuição estatística', path: 'distribution' },
-  { label: 'IDF histórica', path: 'idf-historica' },
+  { label: 'IDF histórica', path: 'historical-idf' },
   { label: 'Cenários futuros', path: 'cenarios-futuros' },
 ] as const;
 

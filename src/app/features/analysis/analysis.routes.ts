@@ -5,6 +5,7 @@ import { ConsistencyCheck } from './pages/consistency-check/consistency-check';
 import { GapFilling } from './pages/gap-filling/gap-filling';
 import { TemporalDisaggregation } from './pages/temporal-disaggregation/temporal-disaggregation';
 import { Distribution } from './pages/distribution/distribution';
+import { HistoricalIdf } from './pages/historical-idf/historical-idf';
 import { projectAccessGuard } from '../../core/guards/project-access.guard';
 
 export const ANALYSIS_ROUTES: Routes = [
@@ -73,6 +74,16 @@ export const ANALYSIS_ROUTES: Routes = [
       {
         path: 'statistical-distribution',
         redirectTo: 'distribution',
+        pathMatch: 'full',
+      },
+      {
+        path: 'historical-idf',
+        component: HistoricalIdf,
+        title: 'IDF Histórica | IDFLab',
+      },
+      {
+        path: 'idf-historica',
+        redirectTo: 'historical-idf',
         pathMatch: 'full',
       },
       {

@@ -78,6 +78,7 @@ import { AnnualMaxTable } from './shared/components/annual-max-table/annual-max-
 import { DistributionFittingChart } from './pages/distribution/components/distribution-fitting-chart/distribution-fitting-chart';
 import { DistributionSelectionTable } from './pages/distribution/components/distribution-selection-table/distribution-selection-table';
 import { Distribution } from './pages/distribution/distribution';
+import { HistoricalIdf } from './pages/historical-idf/historical-idf';
 
 registerLocaleData(localePt);
 
@@ -102,6 +103,7 @@ registerLocaleData(localePt);
     GapFilling,
     TemporalDisaggregation,
     Distribution,
+    HistoricalIdf,
   ],
   exports: [
     StationSummaryBar,
@@ -113,6 +115,7 @@ registerLocaleData(localePt);
     GapFilling,
     TemporalDisaggregation,
     Distribution,
+    HistoricalIdf,
     AnnualMaxTable,
     DistributionFittingChart,
     DistributionSelectionTable,
