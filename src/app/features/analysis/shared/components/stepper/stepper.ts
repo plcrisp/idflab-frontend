@@ -1,4 +1,4 @@
-import { Component, computed, inject, Input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -28,19 +28,25 @@ export class Stepper {
   private router = inject(Router);
   private mapService = inject(MapService);
 
-  @Input({ required: true }) steps: AnalysisStep[] = [];
-  @Input({ required: true }) station_id: string | undefined = '';
-  @Input() furthestStep?: StepEnum;
-  @Input() projectSteps: ProjectStepResponse[] = [];
+  readonly steps = input.required<AnalysisStep[]>();
+  readonly station_id = input<string | undefined>('');
+  readonly furthestStep = input<StepEnum | undefined>(undefined);
+  readonly projectSteps = input<ProjectStepResponse[]>([]);
 
   private projectState = inject(ProjectStateService, { optional: true });
   private titleCasePipe = new TitleCasePipe();
 
+  readonly effectiveFurthestStep = computed(() => {
+    return this.furthestStep() ?? this.projectState?.project()?.furthest_step;
+  });
+
   readonly effectiveProjectSteps = computed(() => {
-    if (this.projectSteps && this.projectSteps.length > 0) {
-      return this.projectSteps;
+    const inputSteps = this.projectSteps();
+    const serviceSteps = this.projectState?.projectSteps() ?? [];
+    if (serviceSteps.length > 0) {
+      return serviceSteps;
     }
-    return this.projectState?.projectSteps() ?? [];
+    return inputSteps;
   });
 
   private currentUrl = toSignal(
@@ -54,11 +60,11 @@ export class Stepper {
 
   activeIndex = computed(() => {
     const url = this.currentUrl();
-    return this.steps.findIndex((step) => url.includes(step.path));
+    return this.steps().findIndex((step) => url.includes(step.path));
   });
 
   progressPercent = computed(() => {
-    const total = this.steps.length;
+    const total = this.steps().length;
     const index = this.activeIndex();
     if (total <= 1 || index < 0) return 0;
     return (index / (total - 1)) * 100;
@@ -68,9 +74,10 @@ export class Stepper {
     if (step.path === 'interactive-map') return true;
     const active = this.activeIndex();
     if (index <= active) return true;
-    if (this.furthestStep) {
+    const furthest = this.effectiveFurthestStep();
+    if (furthest) {
       const stepEnum = getStepForRoute(step.path);
-      if (stepEnum && !isStepBeyond(stepEnum, this.furthestStep)) {
+      if (stepEnum && !isStepBeyond(stepEnum, furthest)) {
         return true;
       }
     }
@@ -90,9 +97,10 @@ export class Stepper {
     }
 
     if (state === 'upcoming') {
-      if (this.furthestStep) {
+      const furthest = this.effectiveFurthestStep();
+      if (furthest) {
         const stepEnum = getStepForRoute(step.path);
-        if (stepEnum && !isStepBeyond(stepEnum, this.furthestStep)) {
+        if (stepEnum && !isStepBeyond(stepEnum, furthest)) {
           return [step.path];
         }
       }
@@ -103,14 +111,15 @@ export class Stepper {
   }
 
   onStepClick(step: AnalysisStep): void {
-    console.log('clicou em', step.path, 'station_id:', this.station_id);
-    if (step.path === 'interactive-map' && this.station_id) {
-      this.mapService.selectStation(this.station_id);
+    const stationId = this.station_id();
+    if (step.path === 'interactive-map' && stationId) {
+      this.mapService.selectStation(stationId);
     }
   }
 
   isStepCompleted(stepEnum: StepEnum): boolean {
-    if (this.furthestStep && isStepBeyond(stepEnum, this.furthestStep)) {
+    const furthest = this.effectiveFurthestStep();
+    if (furthest && isStepBeyond(stepEnum, furthest)) {
       return false;
     }
     const steps = this.effectiveProjectSteps();

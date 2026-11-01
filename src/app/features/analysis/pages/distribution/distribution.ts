@@ -276,15 +276,17 @@ export class Distribution implements OnInit, OnDestroy {
 
     this.isAdvancing.set(true);
 
+    this.projectState.updateStepSelection('DISTRIBUTION', selected);
+
     this.projectState.updateFurthestStep('HISTORICAL_IDF').subscribe({
       next: () => {
         this.isAdvancing.set(false);
-        this.router.navigate(['/app/analysis', project.id, 'idf-historica']);
+        this.router.navigate(['/app/analysis', project.id, 'historical-idf']);
       },
       error: (err) => {
         this.isAdvancing.set(false);
         console.error('[Distribution] Erro ao avançar etapa:', err);
-        this.router.navigate(['/app/analysis', project.id, 'idf-historica']);
+        this.router.navigate(['/app/analysis', project.id, 'historical-idf']);
       },
     });
   }

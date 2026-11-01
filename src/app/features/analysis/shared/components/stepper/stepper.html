@@ -1,5 +1,5 @@
 <div class="flex w-full items-start overflow-x-auto sm:overflow-x-visible pb-1 sm:pb-0 scrollbar-none">
-  @for (step of steps; track step.path; let i = $index; let isLast = $last) {
+  @for (step of steps(); track step.path; let i = $index; let isLast = $last) {
   <div class="relative flex flex-1 min-w-[72px] sm:min-w-0 flex-col items-center">
     @if (!isLast) {
     <div class="absolute left-1/2 top-[7px] z-0 h-px w-full bg-border"></div>

@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { Observable, tap, throwError } from 'rxjs';
+import { catchError, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { ProjectsService } from '../../../core/services/api/projects.service';
 import { Project, StepEnum } from '../../../core/models/api/project.model';
 import { ProjectStepsService } from '../../../core/services/api/project-steps.service';
@@ -80,9 +80,15 @@ export class ProjectStateService {
       return throwError(() => new Error('Nenhum projeto ativo para atualizar furthest_step'));
     }
     return this.projectsService.updateFurthestStep(project.id, furthestStep).pipe(
-      tap((updatedProject) => {
+      switchMap((updatedProject) => {
         this.setProject(updatedProject);
-        this.refreshSteps();
+        return this.loadSteps(project.id).pipe(
+          map(() => updatedProject),
+          catchError((err) => {
+            console.error('Erro ao recarregar etapas após atualizar furthest_step:', err);
+            return of(updatedProject);
+          }),
+        );
       }),
     );
   }
@@ -91,7 +97,7 @@ export class ProjectStateService {
     const cached = this.projectsService.getCurrentProject();
     if (cached && cached.id === projectId) {
       this._project.set(cached);
-      this.loadSteps(projectId);
+      this.loadSteps(projectId).subscribe();
       this._loading.set(false);
       this.projectSkeleton.finish();
       return;
@@ -109,7 +115,7 @@ export class ProjectStateService {
     this.projectsService.getProjectById(projectId).subscribe({
       next: (project) => {
         this._project.set(project);
-        this.loadSteps(projectId);
+        this.loadSteps(projectId).subscribe();
         this._loading.set(false);
         this.projectSkeleton.finish();
       },
@@ -121,21 +127,49 @@ export class ProjectStateService {
     });
   }
 
-  loadSteps(projectId?: string): void {
+  loadSteps(projectId?: string): Observable<ProjectStepResponse[]> {
     const id = projectId || this._project()?.id;
-    if (!id) return;
-    this.projectStepsService.getStepsByProject(id).subscribe({
-      next: (steps) => {
-        this._projectSteps.set(steps || []);
-      },
-      error: (err) => {
+    if (!id) return of([]);
+    return this.projectStepsService.getStepsByProject(id).pipe(
+      tap((steps) => {
+        this._projectSteps.update((current) => {
+          const incoming = steps || [];
+          const updated = incoming.map((inc) => {
+            const curr = current.find((c) => c.step === inc.step);
+            if (
+              curr?.params &&
+              !inc.params?.['selected_distribution'] &&
+              curr.params?.['selected_distribution']
+            ) {
+              return {
+                ...inc,
+                params: {
+                  ...inc.params,
+                  selected_distribution: curr.params['selected_distribution'],
+                },
+              };
+            }
+            return inc;
+          });
+
+          for (const c of current) {
+            if (!updated.some((u) => u.step === c.step)) {
+              updated.push(c);
+            }
+          }
+
+          return updated;
+        });
+      }),
+      catchError((err) => {
         console.error('Erro ao carregar etapas do projeto:', err);
-      },
-    });
+        return of(this._projectSteps());
+      }),
+    );
   }
 
-  refreshSteps(): void {
-    this.loadSteps();
+  refreshSteps(): Observable<ProjectStepResponse[]> {
+    return this.loadSteps();
   }
 
   updateStepSelection(step: StepEnum, selectedDistribution: string): void {
