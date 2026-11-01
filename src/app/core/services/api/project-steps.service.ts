@@ -13,6 +13,11 @@ export class ProjectStepsService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/project-steps`;
 
+  // Busca todas as etapas do projeto
+  getStepsByProject(projectId: string): Observable<ProjectStepResponse[]> {
+    return this.http.get<ProjectStepResponse[]>(`${this.apiUrl}/project/${projectId}`);
+  }
+
   // Busca uma etapa específica do projeto
   getProjectStep<T = any>(projectId: string, step: StepEnum): Observable<ProjectStepResponse<T>> {
     return this.http.get<ProjectStepResponse<T>>(`${this.apiUrl}/project/${projectId}/step/${step}`);

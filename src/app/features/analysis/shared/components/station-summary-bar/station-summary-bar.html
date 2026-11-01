@@ -29,8 +29,7 @@
     <div hlmSkeleton class="h-4.5 w-4.5 rounded-sm bg-primary/20"></div>
     <div hlmSkeleton class="h-4 w-28 rounded-md"></div>
   </div>
-  } @else {
-  @if (showTotalRecords()) {
+    } @else {
   <!-- 1. Registros totais -->
   <div class="flex items-center gap-2 shrink-0">
     <ng-icon name="lucideDatabase" size="18" color="var(--primary)" class="stat-icon icon-database"></ng-icon>
@@ -41,7 +40,6 @@
   </div>
 
   <div class="h-5 w-px bg-border shrink-0 mx-1.5 sm:mx-2 lg:mx-3 xl:mx-4 2xl:mx-6" aria-hidden="true"></div>
-  }
 
   <!-- 2. Falhas na série -->
   <div class="flex items-center gap-2 shrink-0">
@@ -76,7 +74,10 @@
   <div class="flex items-center gap-2 shrink-0">
     <ng-icon name="lucideTrendingUp" size="18" color="var(--primary)" class="stat-icon icon-max"></ng-icon>
     <span class="text-muted-foreground font-normal whitespace-nowrap">{{ maxLabel() }}</span>
-    <span class="font-bold text-foreground whitespace-nowrap">
+    <span
+      class="font-bold text-foreground whitespace-nowrap"
+      [hlmTooltip]="stats()?.max_value != null && formattedMaxDate() ? ((stats()?.max_value | number: '1.1-1':'pt-BR') + ' mm (' + formattedMaxDate() + ')') : null"
+    >
       @if (stats()?.max_value != null) {
       {{ stats()?.max_value | number: '1.1-1':'pt-BR' }} mm
       @if (formattedMaxDate(); as maxDate) {
@@ -87,34 +88,5 @@
       }
     </span>
   </div>
-
-  @if (stats()?.filled_station_name; as filledStation) {
-  <div class="h-5 w-px bg-border shrink-0 mx-1.5 sm:mx-2 lg:mx-3 xl:mx-4 2xl:mx-6" aria-hidden="true"></div>
-
-  <!-- 5. Estação de preenchimento -->
-  <div class="flex items-center gap-2 min-w-0 shrink">
-    <ng-icon name="lucideWrench" size="18" color="var(--primary)" class="stat-icon icon-fill shrink-0"></ng-icon>
-    <span class="text-muted-foreground font-normal shrink-0 whitespace-nowrap">Preenchida com</span>
-    <span class="font-bold text-foreground truncate max-w-36 lg:max-w-44 xl:max-w-56" [title]="filledStation | titlecase">
-      {{ filledStation | titlecase }}
-    </span>
-  </div>
-  }
-
-  @if (disaggregationMethod(); as method) {
-  <div class="h-5 w-px bg-border shrink-0 mx-1.5 sm:mx-2 lg:mx-3 xl:mx-4 2xl:mx-6" aria-hidden="true"></div>
-
-  <!-- 6. Método de desagregação temporal -->
-  <div class="flex items-center gap-2 min-w-0 shrink">
-    <ng-icon name="lucideClock" size="18" color="var(--primary)" class="stat-icon shrink-0"></ng-icon>
-    <span class="text-muted-foreground font-normal shrink-0 whitespace-nowrap">Desagregação</span>
-    <span
-      class="font-bold text-foreground truncate max-w-44 lg:max-w-64 cursor-help"
-      [title]="'Desagregada com ' + method"
-    >
-      {{ method }}
-    </span>
-  </div>
-  }
   }
 </div>

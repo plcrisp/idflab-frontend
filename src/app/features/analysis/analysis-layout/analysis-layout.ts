@@ -24,6 +24,7 @@ export class AnalysisLayout implements OnInit, AfterViewInit {
   private sidebarService = inject(HlmSidebarService);
 
   project = this.projectState.project;
+  projectSteps = this.projectState.projectSteps;
   isJobRunning = this.projectState.isJobRunning;
   hasInsufficientData = this.projectState.hasInsufficientData;
 

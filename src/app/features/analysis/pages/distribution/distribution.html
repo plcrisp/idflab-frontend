@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-4 overflow-x-hidden">
   <!-- 1. Barra de Resumo Compacta da Estação (Faixa de KPIs) -->
   <app-station-summary-bar [stats]="stats()" [loading]="isSummaryLoading() || isLoadingState()" [muted]="hasInsufficientData()"
-    [isHourly]="isHourly()" [showTotalRecords]="false" [disaggregationMethod]="disaggregationMethodLabel()" />
+    [isHourly]="isHourly()" />
 
   <!-- 2. Card: MÁXIMOS ANUAIS · {duração} -->
   <div id="annual-max-card"

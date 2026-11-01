@@ -16,7 +16,6 @@
     <a
       [routerLink]="getStepLink(step, stepState(i))"
       (click)="onStepClick(step)"
-      [title]="step.label"
       class="relative z-10 flex flex-col items-center gap-1.5 outline-none group w-full px-1"
       [class.cursor-default]="!isStepClickable(step, i)"
       [class.pointer-events-none]="!isStepClickable(step, i)"
@@ -48,6 +47,19 @@
       >
         {{ step.label }}
       </span>
+
+      @if (stepSubtitle(step); as sub) {
+      <span
+        [hlmTooltip]="sub.tooltip"
+        class="hidden sm:inline-flex items-center justify-center max-w-full min-w-0 text-xs leading-tight select-none mt-0.5"
+        [ngClass]="{
+          'text-primary': stepState(i) === 'active',
+          'text-muted-foreground': stepState(i) !== 'active'
+        }"
+      >
+        <span class="truncate">{{ sub.text }}</span>
+      </span>
+      }
     </a>
   </div>
   }

@@ -16,6 +16,7 @@ export interface GapFillingFilterParams {
 
 export interface GapFillingFillParams {
   neighbor_station_id: string;
+  neighbor_station_name?: string | null;
   method?: string;
 }
 

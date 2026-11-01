@@ -20,10 +20,6 @@ export interface DurationOption {
   label: string;
 }
 
-export interface DisaggregationInfo {
-  method: string;
-  calibration_station_name: string | null;
-}
 
 export interface DistributionSelection {
   selected_distribution: DistributionEnum;
@@ -43,7 +39,6 @@ export interface DistributionStateResponse {
   status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'SKIPPED';
   sample_size_years: number;
   is_small_sample: boolean;
-  disaggregation: DisaggregationInfo;
   available_durations: DurationOption[];
   suggested_distribution: DistributionEnum | null;
   selection: DistributionSelection | null;

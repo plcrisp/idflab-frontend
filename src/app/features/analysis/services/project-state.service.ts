@@ -2,6 +2,8 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { Observable, tap, throwError } from 'rxjs';
 import { ProjectsService } from '../../../core/services/api/projects.service';
 import { Project, StepEnum } from '../../../core/models/api/project.model';
+import { ProjectStepsService } from '../../../core/services/api/project-steps.service';
+import { ProjectStepResponse } from '../../../core/models/api/project-step.model';
 import { NotificationsService } from '../../../core/services/api/notifications.service';
 import { ActiveJobItem, Notification } from '../../../core/models/api/notification.model';
 import { SkeletonLoadingCoordinator } from '../../../core/utils/skeleton-loading-coordinator';
@@ -10,6 +12,10 @@ import { SkeletonLoadingCoordinator } from '../../../core/utils/skeleton-loading
 export class ProjectStateService {
   private projectsService = inject(ProjectsService);
   private notificationsService = inject(NotificationsService);
+  private projectStepsService = inject(ProjectStepsService);
+
+  private _projectSteps = signal<ProjectStepResponse[]>([]);
+  readonly projectSteps = this._projectSteps.asReadonly();
 
   private _project = signal<Project | null>(null);
   private _loading = signal(true);
@@ -76,6 +82,7 @@ export class ProjectStateService {
     return this.projectsService.updateFurthestStep(project.id, furthestStep).pipe(
       tap((updatedProject) => {
         this.setProject(updatedProject);
+        this.refreshSteps();
       }),
     );
   }
@@ -84,6 +91,7 @@ export class ProjectStateService {
     const cached = this.projectsService.getCurrentProject();
     if (cached && cached.id === projectId) {
       this._project.set(cached);
+      this.loadSteps(projectId);
       this._loading.set(false);
       this.projectSkeleton.finish();
       return;
@@ -93,6 +101,7 @@ export class ProjectStateService {
       this._project.set(null);
       this._hasInsufficientData.set(false);
       this._neighborJobId.set(null);
+      this._projectSteps.set([]);
       this.projectSkeleton.reset();
     }
     this._loading.set(true);
@@ -100,6 +109,7 @@ export class ProjectStateService {
     this.projectsService.getProjectById(projectId).subscribe({
       next: (project) => {
         this._project.set(project);
+        this.loadSteps(projectId);
         this._loading.set(false);
         this.projectSkeleton.finish();
       },
@@ -108,6 +118,56 @@ export class ProjectStateService {
         this._loading.set(false);
         this.projectSkeleton.finish();
       },
+    });
+  }
+
+  loadSteps(projectId?: string): void {
+    const id = projectId || this._project()?.id;
+    if (!id) return;
+    this.projectStepsService.getStepsByProject(id).subscribe({
+      next: (steps) => {
+        this._projectSteps.set(steps || []);
+      },
+      error: (err) => {
+        console.error('Erro ao carregar etapas do projeto:', err);
+      },
+    });
+  }
+
+  refreshSteps(): void {
+    this.loadSteps();
+  }
+
+  updateStepSelection(step: StepEnum, selectedDistribution: string): void {
+    this._projectSteps.update((steps) => {
+      const existing = steps.find((s) => s.step === step);
+      if (existing) {
+        return steps.map((s) =>
+          s.step === step
+            ? {
+                ...s,
+                status: 'COMPLETED' as const,
+                params: {
+                  ...(s.params || {}),
+                  selected_distribution: selectedDistribution,
+                },
+              }
+            : s,
+        );
+      }
+      return [
+        ...steps,
+        {
+          id: '',
+          project_id: this._project()?.id ?? '',
+          step,
+          status: 'COMPLETED' as const,
+          params: { selected_distribution: selectedDistribution },
+          result: null,
+          job_id: null,
+          updated_at: new Date().toISOString(),
+        },
+      ];
     });
   }
 }

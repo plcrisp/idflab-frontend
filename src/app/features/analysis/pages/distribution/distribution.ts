@@ -91,15 +91,6 @@ export class Distribution implements OnInit, OnDestroy {
     return getDistributionConfig(code).name;
   });
 
-  readonly disaggregationMethodLabel = computed<string | null>(() => {
-    const method = this.state()?.disaggregation?.method;
-    if (!method) return null;
-    const m = method.toUpperCase();
-    if (m.includes('BARTLETT')) return 'Bartlett-Lewis';
-    if (m.includes('CETESB')) return 'CETESB';
-    if (m.includes('DIRECT') || m.includes('AGREGACAO')) return 'Agregação direta';
-    return method;
-  });
 
   constructor() {
     effect(() => {
@@ -195,10 +186,14 @@ export class Distribution implements OnInit, OnDestroy {
     this.suggestedDistribution.set(resp.suggested_distribution ?? null);
 
     // Distribuição selecionada (mantém seleção salva ou adota a sugerida por padrão)
+    const activeDist = resp.selection?.selected_distribution ?? resp.suggested_distribution;
     if (resp.selection?.selected_distribution) {
       this.selectedDistribution.set(resp.selection.selected_distribution);
     } else if (resp.suggested_distribution) {
       this.selectedDistribution.set(resp.suggested_distribution);
+    }
+    if (activeDist) {
+      this.projectState.updateStepSelection('DISTRIBUTION', activeDist);
     }
 
     // Duração selecionada: padrão 60 min (1 h) se existir, senão a primeira
@@ -254,6 +249,7 @@ export class Distribution implements OnInit, OnDestroy {
       next: (resp) => {
         this.isSavingSelection.set(false);
         this.selectedDistribution.set(resp.selected_distribution);
+        this.projectState.updateStepSelection('DISTRIBUTION', resp.selected_distribution);
         toast.success(`Distribuição ${getDistributionConfig(code).name} selecionada.`);
       },
       error: (err) => {
