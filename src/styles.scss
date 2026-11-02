@@ -67,6 +67,14 @@ body {
     --dist-glo: #06b6d4;
     --dist-pearson-3: #f43f5e;
 
+    // return periods (IDF curves - cold to warm)
+    --chart-tr-2: #14b8a6;
+    --chart-tr-5: #38bdf8;
+    --chart-tr-10: #c084fc;
+    --chart-tr-25: #f472b6;
+    --chart-tr-50: #fb923c;
+    --chart-tr-100: #f87171;
+
     --radius: 0.5rem;
 
     // spartan tokens (dark theme)
@@ -156,6 +164,14 @@ body {
     --chart-bar-selected: var(--primary-700);
     --chart-historical-max: var(--accent-500);
     --chart-bar-filled: #d9480f;
+
+    // return periods (IDF curves - cold to warm)
+    --chart-tr-2: #0f766e;
+    --chart-tr-5: #0284c7;
+    --chart-tr-10: #7e22ce;
+    --chart-tr-25: #be185d;
+    --chart-tr-50: #c2410c;
+    --chart-tr-100: #b91c1c;
   }
 }
 
