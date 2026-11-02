@@ -1,0 +1,116 @@
+<div class="w-full flex flex-col gap-3">
+  <!-- Grade de Valores Unificada (Moldura, Cabeçalho e Células Padronizadas) -->
+  <div class="w-full overflow-x-auto rounded-lg border border-border/80 bg-card">
+    <table class="w-full border-separate border-spacing-0 text-left text-xs">
+      <thead>
+        <tr class="bg-secondary/40">
+          <th
+            class="py-2.5 px-3 font-semibold text-muted-foreground text-left min-w-32 border-b border-border sticky left-0 bg-secondary/40 z-10">
+            TR (anos)
+          </th>
+          @for (dur of data().durations; track dur.duration_minutes) {
+          <th class="py-2.5 px-2.5 font-semibold text-foreground text-right min-w-20 border-b border-border">
+            {{ dur.label }}
+          </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (tr of data().return_periods; track tr) {
+        <tr class="hover:bg-muted/30 transition-colors border-b border-border/60">
+          <td
+            class="py-2.5 px-3 font-semibold text-foreground sticky left-0 bg-card z-10 border-b border-border/60 whitespace-nowrap">
+            <div class="inline-flex items-center gap-2">
+              <span>TR {{ tr }}</span>
+              @if (isExtrapolated(tr)) {
+              <span
+                [hlmTooltip]="'TR superior ao número de anos da amostra (' + data().flags.extrapolation.sample_size_years + '): valor obtido por extrapolação do modelo.'"
+                class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 cursor-help leading-none">
+                Extrapolado
+              </span>
+              }
+            </div>
+          </td>
+          @for (dur of data().durations; track dur.duration_minutes; let durIdx = $index) {
+          @let eqVal = data().equation_mm_h[tr][durIdx];
+          @let errVal = data().relative_error[tr][durIdx];
+          @let qVal = data().quantiles_mm_h[tr][durIdx];
+          @let isMaxErr = mode() === 'error' && tr === data().max_error.return_period && dur.duration_minutes ===
+          data().max_error.duration_minutes;
+          <td
+            class="py-2.5 px-2.5 text-right tabular-nums text-foreground border-b border-border/60 font-medium transition-colors select-none"
+            [class.ring-1]="isMaxErr" [class.ring-inset]="isMaxErr" [class.ring-primary]="isMaxErr"
+            [class.border]="isMaxErr" [class.border-primary]="isMaxErr" [class.font-bold]="isMaxErr"
+            [style]="mode() === 'error' ? getCellBgStyle(errVal) : ''" [hlmTooltip]="cellTooltip" position="top">
+            @if (mode() === 'intensity') {
+            {{ eqVal | number:'1.1-1':'pt-BR' }}
+            } @else {
+            {{ formatSignedPercentage(errVal) }}
+            }
+
+            <ng-template #cellTooltip>
+              <div class="flex flex-col gap-1.5 w-48 p-1 select-none font-sans font-normal leading-normal text-xs">
+                <div class="font-semibold text-xs text-foreground border-b border-border/60 pb-1">
+                  TR {{ tr }} · {{ dur.label }}
+                </div>
+                <div class="flex items-center justify-between gap-2 text-muted-foreground">
+                  <span>Equação:</span>
+                  <strong class="font-semibold text-foreground tabular-nums">{{ eqVal | number:'1.1-1':'pt-BR' }}
+                    mm/h</strong>
+                </div>
+                <div class="flex items-center justify-between gap-2 text-muted-foreground">
+                  <span>Quantil:</span>
+                  <strong class="font-semibold text-foreground tabular-nums">{{ qVal | number:'1.1-1':'pt-BR' }}
+                    mm/h</strong>
+                </div>
+                <div class="flex items-center justify-between gap-2 text-muted-foreground">
+                  <span>Erro relativo:</span>
+                  <strong class="font-semibold text-foreground tabular-nums">{{ formatSignedPercentage(errVal)
+                    }}</strong>
+                </div>
+              </div>
+            </ng-template>
+          </td>
+          }
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Rodapé Visão Intensidade: uma linha, discreto em cinza -->
+  @if (mode() === 'intensity') {
+  <div class="flex items-center text-xs text-muted-foreground pt-1">
+    <span>Intensidade da equação em mm/h.</span>
+  </div>
+  }
+
+  <!-- Rodapé Visão Erro: significado da célula à esquerda e legenda de |erro| à direita -->
+  @if (mode() === 'error') {
+  <div class="flex flex-wrap items-center justify-between gap-3 pt-1 text-xs text-muted-foreground">
+    <span>Erro relativo (equação - quantil) / quantil, em %.</span>
+    <div class="flex items-center gap-3 ml-auto">
+      <div class="flex items-center gap-1.5">
+        <span class="h-3 w-5 rounded-xs inline-block"
+          style="background-color: color-mix(in srgb, var(--primary) 8%, var(--card)); border: 1px solid var(--border);"></span>
+        <span class="text-[11px] tabular-nums">até {{ heatmapCutoffs().c1 }}%</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="h-3 w-5 rounded-xs inline-block"
+          style="background-color: color-mix(in srgb, var(--primary) 18%, var(--card)); border: 1px solid var(--border);"></span>
+        <span class="text-[11px] tabular-nums">{{ heatmapCutoffs().c1 }} - {{ heatmapCutoffs().c2 }}%</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="h-3 w-5 rounded-xs inline-block"
+          style="background-color: color-mix(in srgb, var(--primary) 30%, var(--card)); border: 1px solid var(--border);"></span>
+        <span class="text-[11px] tabular-nums">{{ heatmapCutoffs().c2 }} - {{ heatmapCutoffs().c3 }}%</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="h-3 w-5 rounded-xs inline-block"
+          style="background-color: color-mix(in srgb, var(--primary) 44%, var(--card)); border: 1px solid var(--border);"></span>
+        <span class="text-[11px] tabular-nums">≥ {{ heatmapCutoffs().c3 }}%</span>
+      </div>
+    </div>
+  </div>
+  }
+</div>
