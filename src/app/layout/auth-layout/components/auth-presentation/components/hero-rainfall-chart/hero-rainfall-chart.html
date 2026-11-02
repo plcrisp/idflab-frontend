@@ -1,0 +1,94 @@
+<div class="chart-container-inner">
+  <div class="svg-stage">
+    <svg
+      viewBox="0 0 1000 135"
+      preserveAspectRatio="none"
+      class="hero-svg"
+      aria-hidden="true"
+    >
+      <!-- Linha horizontal tracejada no nível de 151,8 mm -->
+      <line
+        class="svg-dashed-line"
+        x1="0"
+        [attr.y1]="peakLevelY()"
+        x2="690"
+        [attr.y2]="peakLevelY()"
+      />
+
+      <!-- Barras dos máximos anuais com vãos temporais -->
+      @for (bar of svgBars(); track bar.year) {
+        @if (bar.isPeak) {
+          <!-- Barra do recorde histórico de 1988 (coluna limpa em âmbar pleno) -->
+          <rect
+            class="svg-peak-rect"
+            [attr.x]="bar.x"
+            [attr.y]="bar.y"
+            [attr.width]="bar.width"
+            [attr.height]="bar.height"
+            rx="2"
+          >
+            <title>{{ bar.year }}: {{ bar.value }} mm (Recorde Histórico)</title>
+          </rect>
+        } @else {
+          <!-- Barra observada padrão -->
+          <rect
+            class="svg-standard-rect"
+            [style.--bar-i]="bar.index"
+            [attr.x]="bar.x"
+            [attr.y]="bar.y"
+            [attr.width]="bar.width"
+            [attr.height]="bar.height"
+            rx="1.2"
+          >
+            <title>{{ bar.year }}: {{ bar.value }} mm</title>
+          </rect>
+        }
+      }
+
+      <!-- Divisória vertical de 2026 -->
+      <line
+        class="svg-divider-line"
+        x1="698"
+        y1="16"
+        x2="698"
+        [attr.y2]="baseY"
+      />
+
+      <!-- Barras fantasma da zona futura -->
+      @for (fbar of svgFutureBars(); track fbar.index) {
+        <rect
+          class="svg-future-rect"
+          [style.--future-i]="fbar.index"
+          [attr.x]="fbar.x"
+          [attr.y]="fbar.y"
+          [attr.width]="fbar.width"
+          [attr.height]="fbar.height"
+          rx="1.2"
+          [attr.opacity]="fbar.opacity"
+        />
+      }
+
+      <!-- Linha base de apoio do gráfico -->
+      <line
+        x1="0"
+        [attr.y1]="baseY"
+        x2="1000"
+        [attr.y2]="baseY"
+        stroke="rgba(255, 255, 255, 0.08)"
+        stroke-width="1"
+      />
+    </svg>
+  </div>
+
+  <!-- Eixo X minimalista -->
+  <div class="x-axis-bar select-none">
+    <span class="x-axis-year x-year-start">{{ startYear }}</span>
+    <span
+      class="x-axis-year x-year-peak"
+      [style.left.%]="peakXPercent()"
+    >
+      {{ peakInfo().year }}
+    </span>
+    <span class="x-axis-year x-year-end">{{ endYear }}</span>
+  </div>
+</div>

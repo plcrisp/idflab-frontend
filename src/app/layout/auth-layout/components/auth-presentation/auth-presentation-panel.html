@@ -1,0 +1,25 @@
+<section class="auth-presentation-wrapper" aria-label="Apresentação IDFLab">
+  <!-- 1. Marca -->
+  <header class="brand-header">
+    <img src="assets/images/logos/IDFLab_white.png" alt="IDFLab" class="brand-icon" />
+    <span class="brand-name">{{ texts.brand }}</span>
+  </header>
+
+  <!-- 2. Bloco Numérico e Contexto da Estação -->
+  <div class="peak-callout-block">
+    <app-peak-highlight [peak]="peakInfo"></app-peak-highlight>
+  </div>
+
+  <!-- 3. Gráfico herói -->
+  <div class="chart-flex-block">
+    <app-hero-rainfall-chart></app-hero-rainfall-chart>
+  </div>
+
+  <!-- 4. Título e subtítulo principal (largura completa) -->
+  <div class="narrative-block">
+    <h2 class="narrative-title">{{ texts.title }}</h2>
+    <p class="narrative-subtitle">{{ texts.subtitle }}</p>
+  </div>
+
+
+</section>

@@ -1,0 +1,69 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.peak-highlight {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: peakFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.9s both;
+}
+
+.peak-value {
+  color: #ffffff;
+  font-size: 2.85rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-feature-settings: 'tnum' on, 'lnum' on;
+}
+
+.peak-meta-amber {
+  color: var(--chart-historical-max);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.peak-meta-station {
+  color: var(--primary-300);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+@keyframes peakFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1279px) {
+  .peak-value {
+    font-size: 2.25rem;
+  }
+  .peak-meta-amber {
+    font-size: 0.7rem;
+  }
+  .peak-meta-station {
+    font-size: 0.7rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .peak-highlight {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+}
