@@ -6,6 +6,7 @@ import { GapFilling } from './pages/gap-filling/gap-filling';
 import { TemporalDisaggregation } from './pages/temporal-disaggregation/temporal-disaggregation';
 import { Distribution } from './pages/distribution/distribution';
 import { HistoricalIdf } from './pages/historical-idf/historical-idf';
+import { FutureScenarios } from './pages/future-scenarios/future-scenarios';
 import { projectAccessGuard } from '../../core/guards/project-access.guard';
 
 export const ANALYSIS_ROUTES: Routes = [
@@ -84,6 +85,16 @@ export const ANALYSIS_ROUTES: Routes = [
       {
         path: 'idf-historica',
         redirectTo: 'historical-idf',
+        pathMatch: 'full',
+      },
+      {
+        path: 'cenarios-futuros',
+        component: FutureScenarios,
+        title: 'Cenários Futuros | IDFLab',
+      },
+      {
+        path: 'future-scenarios',
+        redirectTo: 'cenarios-futuros',
         pathMatch: 'full',
       },
       {
