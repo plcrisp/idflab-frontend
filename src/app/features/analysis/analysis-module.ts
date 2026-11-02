@@ -34,6 +34,7 @@ import {
   lucideShieldCheck,
   lucideSparkles,
   lucideTable,
+  lucideTrendingDown,
   lucideTrendingUp,
   lucideTriangleAlert,
   lucideWrench,
@@ -79,6 +80,10 @@ import { DistributionFittingChart } from './pages/distribution/components/distri
 import { DistributionSelectionTable } from './pages/distribution/components/distribution-selection-table/distribution-selection-table';
 import { Distribution } from './pages/distribution/distribution';
 import { HistoricalIdf } from './pages/historical-idf/historical-idf';
+import { HistoricalIdfChart } from './pages/historical-idf/components/historical-idf-chart/historical-idf-chart';
+import { HistoricalIdfEquationCard } from './pages/historical-idf/components/historical-idf-equation-card/historical-idf-equation-card';
+import { HistoricalIdfIntensityTable } from './pages/historical-idf/components/historical-idf-intensity-table/historical-idf-intensity-table';
+import { FutureScenarios } from './pages/future-scenarios/future-scenarios';
 
 registerLocaleData(localePt);
 
@@ -104,6 +109,7 @@ registerLocaleData(localePt);
     TemporalDisaggregation,
     Distribution,
     HistoricalIdf,
+    FutureScenarios,
   ],
   exports: [
     StationSummaryBar,
@@ -116,6 +122,10 @@ registerLocaleData(localePt);
     TemporalDisaggregation,
     Distribution,
     HistoricalIdf,
+    HistoricalIdfChart,
+    HistoricalIdfEquationCard,
+    HistoricalIdfIntensityTable,
+    FutureScenarios,
     AnnualMaxTable,
     DistributionFittingChart,
     DistributionSelectionTable,
@@ -148,6 +158,9 @@ registerLocaleData(localePt);
     AnnualMaxTable,
     DistributionFittingChart,
     DistributionSelectionTable,
+    HistoricalIdfChart,
+    HistoricalIdfEquationCard,
+    HistoricalIdfIntensityTable,
     NgIconsModule.withIcons({
       lucideDatabase,
       lucideTriangleAlert,
@@ -177,6 +190,7 @@ registerLocaleData(localePt);
       lucideChartColumn,
       lucideDroplets,
       lucideTable,
+      lucideTrendingDown,
     }),
     ...HlmDropdownMenuImports,
     ...HlmBadgeImports,

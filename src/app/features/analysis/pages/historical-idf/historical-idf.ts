@@ -16,12 +16,16 @@ import { Subscription } from 'rxjs';
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
 import { ProjectStateService } from '../../services/project-state.service';
 import { InitialVisualizationService } from '../../services/initial-visualization.service';
+import { HistoricalIdfService } from '../../services/historical-idf.service';
 import {
   SkeletonLoadingCoordinator,
   trackWithSkeleton,
 } from '../../../../core/utils/skeleton-loading-coordinator';
 import { isSubDailyResolution } from '../../../../core/utils/resolution.utils';
 import { GlobalStats } from '../../shared/models/analysis.models';
+import { HistoricalIdfResponse } from './models/historical-idf.model';
+import { getDistributionColor } from '../distribution/constants/statistical-distribution.constants';
+import { getDistributionFormalName } from './constants/historical-idf.constants';
 
 @Component({
   selector: 'app-historical-idf',
@@ -34,16 +38,26 @@ export class HistoricalIdf implements OnInit, OnDestroy {
   private readonly projectState = inject(ProjectStateService);
   private readonly router = inject(Router);
   private readonly initialVisualizationService = inject(InitialVisualizationService);
+  private readonly historicalIdfService = inject(HistoricalIdfService);
   private readonly destroyRef = inject(DestroyRef);
 
   private summarySub: Subscription | null = null;
+  private idfSub: Subscription | null = null;
+
   private readonly summarySkeleton = new SkeletonLoadingCoordinator({
     delayMs: 350,
     minDurationMs: 250,
     destroyRef: this.destroyRef,
   });
 
+  private readonly idfSkeleton = new SkeletonLoadingCoordinator({
+    delayMs: 350,
+    minDurationMs: 250,
+    destroyRef: this.destroyRef,
+  });
+
   readonly isSummaryLoading = computed<boolean>(() => this.summarySkeleton.showSkeleton());
+  readonly isIdfLoading = computed<boolean>(() => this.idfSkeleton.showSkeleton());
 
   readonly project = this.projectState.project;
   readonly hasInsufficientData = this.projectState.hasInsufficientData;
@@ -53,7 +67,34 @@ export class HistoricalIdf implements OnInit, OnDestroy {
   );
 
   readonly stats = signal<GlobalStats | null>(null);
+  readonly idfData = signal<HistoricalIdfResponse | null>(null);
+  readonly errorMessage = signal<string | null>(null);
+
+  // Toggles de visão unificada
+  readonly activeView = signal<'curves' | 'intensity' | 'error'>('curves');
+  readonly chartScale = signal<'log' | 'linear'>('linear');
+
   private lastLoadedProjectId: string | null = null;
+
+  readonly distributionFullName = computed(() => {
+    const data = this.idfData();
+    if (!data?.distribution) return '';
+    return getDistributionFormalName(data.distribution);
+  });
+
+  readonly distributionColor = computed(() => {
+    const data = this.idfData();
+    if (!data?.distribution) return '';
+    return getDistributionColor(data.distribution);
+  });
+
+  readonly maxErrorDurationLabel = computed(() => {
+    const data = this.idfData();
+    if (!data?.max_error) return '';
+    const durMin = data.max_error.duration_minutes;
+    const match = data.durations?.find((d) => d.duration_minutes === durMin);
+    return match?.label ?? (durMin ? `${durMin} min` : '');
+  });
 
   constructor() {
     effect(() => {
@@ -72,6 +113,7 @@ export class HistoricalIdf implements OnInit, OnDestroy {
         this.lastLoadedProjectId = project.id;
         untracked(() => {
           this.loadSummaryStats(project.id);
+          this.loadHistoricalIdf(project.id);
         });
       }
     });
@@ -82,6 +124,7 @@ export class HistoricalIdf implements OnInit, OnDestroy {
     if (p && this.lastLoadedProjectId !== p.id) {
       this.lastLoadedProjectId = p.id;
       this.loadSummaryStats(p.id);
+      this.loadHistoricalIdf(p.id);
     }
   }
 
@@ -101,8 +144,60 @@ export class HistoricalIdf implements OnInit, OnDestroy {
       });
   }
 
+  loadHistoricalIdf(projectId: string): void {
+    this.idfSub?.unsubscribe();
+    this.errorMessage.set(null);
+
+    this.idfSub = this.historicalIdfService
+      .getHistoricalIdf(projectId)
+      .pipe(trackWithSkeleton(this.idfSkeleton))
+      .subscribe({
+        next: (data) => {
+          this.idfData.set(data);
+          this.errorMessage.set(null);
+
+          // Atualizar o estado global caso o furthest_step do projeto ainda não seja FUTURE_SCENARIOS
+          const proj = this.project();
+          if (proj && proj.furthest_step === 'HISTORICAL_IDF') {
+            this.projectState.setProject({
+              ...proj,
+              furthest_step: 'FUTURE_SCENARIOS',
+            });
+          }
+          this.projectState.refreshSteps().subscribe();
+        },
+        error: (err) => {
+          console.error('[HistoricalIdf] Erro ao carregar IDF histórica:', err);
+          const msg =
+            err?.error?.message ??
+            err?.error?.detail ??
+            'Não foi possível carregar a IDF histórica. Verifique sua conexão e tente novamente.';
+          this.errorMessage.set(msg);
+        },
+      });
+  }
+
+  onRetry(): void {
+    const p = this.project();
+    if (p) {
+      this.loadHistoricalIdf(p.id);
+    }
+  }
+
+  formatSignedPercentage(fraction: number | null | undefined): string {
+    if (fraction == null || Number.isNaN(fraction)) return '0,0%';
+    const pct = fraction * 100;
+    const sign = pct > 0.0001 ? '+' : pct < -0.0001 ? '−' : '';
+    const absFmt = Math.abs(pct).toLocaleString('pt-BR', {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    });
+    return `${sign}${absFmt}%`;
+  }
+
   ngOnDestroy(): void {
     this.summarySub?.unsubscribe();
+    this.idfSub?.unsubscribe();
   }
 
   onBack(): void {
@@ -110,5 +205,10 @@ export class HistoricalIdf implements OnInit, OnDestroy {
     if (!project) return;
     this.router.navigate(['/app/analysis', project.id, 'distribution']);
   }
-}
 
+  onAdvance(): void {
+    const project = this.project();
+    if (!project) return;
+    this.router.navigate(['/app/analysis', project.id, 'cenarios-futuros']);
+  }
+}

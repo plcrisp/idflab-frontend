@@ -1,45 +1,170 @@
 <div class="flex flex-col gap-4 overflow-x-hidden">
   <!-- 1. Barra de Resumo Compacta da Estação -->
-  <app-station-summary-bar
-    [stats]="stats()"
-    [loading]="isSummaryLoading()"
-    [muted]="hasInsufficientData()"
-    [isHourly]="isHourly()"
-  />
+  <app-station-summary-bar [stats]="stats()" [loading]="isSummaryLoading() || isIdfLoading()"
+    [muted]="hasInsufficientData()" [isHourly]="isHourly()" />
 
-  <!-- 2. Card de Esqueleto / Placeholder da IDF Histórica -->
+  <!-- 2. Alerta de Erro (quando a requisição falha) -->
+  @if (errorMessage(); as err) {
   <div
-    class="rounded-xl border border-border bg-card p-8 shadow-xs flex flex-col items-center justify-center text-center min-h-90 gap-4"
-  >
-    <div
-      class="h-14 w-14 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary"
-    >
-      <ng-icon name="lucideTrendingUp" class="text-2xl" />
+    class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl border border-destructive/20 bg-destructive/10 text-destructive text-sm">
+    <div class="flex items-center gap-2.5">
+      <ng-icon name="lucideTriangleAlert" class="text-base shrink-0" />
+      <span>{{ err }}</span>
     </div>
-
-    <div class="space-y-1.5 max-w-md">
-      <h2 class="text-lg font-semibold text-foreground tracking-tight">
-        Curvas IDF Históricas
-      </h2>
-      <p class="text-sm text-muted-foreground">
-        Esta etapa de modelagem e ajuste das curvas Intensidade-Duração-Frequência (IDF) históricas está em desenvolvimento.
-      </p>
+    <div class="flex items-center gap-2">
+      <button hlmBtn variant="outline" size="sm" type="button" (click)="onBack()"
+        class="text-xs border-destructive/30 hover:bg-destructive/20 text-destructive cursor-pointer">
+        Voltar para Distribuição
+      </button>
+      <button hlmBtn variant="outline" size="sm" type="button" (click)="onRetry()"
+        class="text-xs border-destructive/30 hover:bg-destructive/20 text-destructive cursor-pointer">
+        <ng-icon name="lucideRotateCw" class="mr-1.5 text-xs" />
+        Tentar novamente
+      </button>
     </div>
+  </div>
+  }
 
-    <div
-      class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border"
-    >
-      <span class="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
-      Etapa em Construção
+  <!-- 3. Skeleton Loading (quando está calculando ou carregando pela 1ª vez) -->
+  @if (isIdfLoading() && !idfData()) {
+  <!-- Skeleton Card 1: Equação -->
+  <div class="w-full flex flex-col rounded-xl border border-border bg-popover p-5 gap-4 animate-pulse">
+    <div class="flex justify-between items-center border-b border-border pb-3">
+      <div hlmSkeleton class="h-4 w-40 rounded"></div>
+      <div hlmSkeleton class="h-4 w-32 rounded"></div>
+    </div>
+    <div class="flex flex-col sm:flex-row justify-between gap-4">
+      <div hlmSkeleton class="h-12 w-48 rounded-lg"></div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <div hlmSkeleton class="h-12 w-20 rounded-lg"></div>
+        <div hlmSkeleton class="h-12 w-20 rounded-lg"></div>
+        <div hlmSkeleton class="h-12 w-20 rounded-lg"></div>
+        <div hlmSkeleton class="h-12 w-20 rounded-lg"></div>
+      </div>
     </div>
   </div>
 
-  <!-- 3. Rodapé com Ações -->
+  <!-- Skeleton Card 2: Curvas IDF Unificado -->
+  <div class="w-full flex flex-col rounded-xl border border-border bg-popover p-5 gap-4 animate-pulse">
+    <div class="flex justify-between items-center border-b border-border pb-3">
+      <div hlmSkeleton class="h-4 w-32 rounded"></div>
+      <div hlmSkeleton class="h-7 w-52 rounded-lg"></div>
+    </div>
+    <div hlmSkeleton class="h-96 w-full rounded-lg"></div>
+  </div>
+  }
+
+  <!-- 4. Conteúdo Principal da IDF Histórica -->
+  @if (idfData(); as data) {
+  <!-- CARD 1: EQUAÇÃO IDF (Compacto) -->
+  <app-historical-idf-equation-card [data]="data" [distributionName]="distributionFullName()"
+    [distributionColor]="distributionColor()" />
+
+  <!-- CARD 2: CURVAS IDF UNIFICADO (Curvas | Intensidade | Erro) -->
+  <div id="idf-curves-card"
+    class="w-full min-w-0 flex flex-col rounded-xl shadow-xs border border-border bg-popover text-foreground overflow-hidden">
+    <!-- Cabeçalho do Card com R² e Erro Máximo em Texto Inline -->
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
+      <!-- Título e Métricas inline à esquerda -->
+      <div class="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0 text-sm font-normal text-muted-foreground">
+        <h3 class="font-semibold uppercase tracking-wide text-foreground shrink-0">
+          Curvas IDF
+        </h3>
+
+        <span class="select-none">·</span>
+        <span class="tabular-nums shrink-0">
+          R² {{ data.r2 | number:'1.3-4':'pt-BR' }}
+        </span>
+
+        <span class="select-none">·</span>
+        <span class="tabular-nums shrink-0">
+          Erro máximo {{ formatSignedPercentage(data.max_error.value) }} (TR {{ data.max_error.return_period }} · {{
+          maxErrorDurationLabel() }})
+        </span>
+      </div>
+
+      <!-- Controles alinhados à direita -->
+      <div class="flex items-center gap-2 shrink-0 ml-auto">
+        <!-- Toggle Linear | Log-log (visível somente na visão de Curvas, sem deslocar o seletor) -->
+        @if (activeView() === 'curves') {
+        <div class="flex items-center p-0.5 bg-secondary/50 rounded-lg border border-border/70 text-xs shrink-0">
+          <button type="button" (click)="chartScale.set('linear')"
+            class="cursor-pointer px-2.5 py-1 rounded-md font-medium transition-all"
+            [class.bg-card]="chartScale() === 'linear'" [class.text-foreground]="chartScale() === 'linear'"
+            [class.shadow-xs]="chartScale() === 'linear'" [class.text-muted-foreground]="chartScale() !== 'linear'"
+            [class.hover:text-foreground]="chartScale() !== 'linear'">
+            Linear
+          </button>
+          <button type="button" (click)="chartScale.set('log')"
+            class="cursor-pointer px-2.5 py-1 rounded-md font-medium transition-all"
+            [class.bg-card]="chartScale() === 'log'" [class.text-foreground]="chartScale() === 'log'"
+            [class.shadow-xs]="chartScale() === 'log'" [class.text-muted-foreground]="chartScale() !== 'log'"
+            [class.hover:text-foreground]="chartScale() !== 'log'">
+            Log-log
+          </button>
+        </div>
+        }
+
+        <!-- Toggle de Visão Segmentado: Curvas | Intensidade | Erro -->
+        <div class="flex items-center p-0.5 bg-secondary/50 rounded-lg border border-border/70 text-xs shrink-0">
+          <button type="button" (click)="activeView.set('curves')"
+            class="cursor-pointer px-2.5 py-1 rounded-md font-medium transition-all flex items-center gap-1.5"
+            [class.bg-card]="activeView() === 'curves'" [class.text-foreground]="activeView() === 'curves'"
+            [class.shadow-xs]="activeView() === 'curves'" [class.text-muted-foreground]="activeView() !== 'curves'"
+            [class.hover:text-foreground]="activeView() !== 'curves'">
+            <ng-icon name="lucideTrendingDown" class="text-xs" />
+            <span>Curvas</span>
+          </button>
+
+          <button type="button" (click)="activeView.set('intensity')"
+            class="cursor-pointer px-2.5 py-1 rounded-md font-medium transition-all flex items-center gap-1.5"
+            [class.bg-card]="activeView() === 'intensity'" [class.text-foreground]="activeView() === 'intensity'"
+            [class.shadow-xs]="activeView() === 'intensity'"
+            [class.text-muted-foreground]="activeView() !== 'intensity'"
+            [class.hover:text-foreground]="activeView() !== 'intensity'">
+            <ng-icon name="lucideTable" class="text-xs" />
+            <span>Intensidade</span>
+          </button>
+
+          <button type="button" (click)="activeView.set('error')"
+            class="cursor-pointer px-2.5 py-1 rounded-md font-medium transition-all flex items-center gap-1.5"
+            [class.bg-card]="activeView() === 'error'" [class.text-foreground]="activeView() === 'error'"
+            [class.shadow-xs]="activeView() === 'error'" [class.text-muted-foreground]="activeView() !== 'error'"
+            [class.hover:text-foreground]="activeView() !== 'error'">
+            <ng-icon name="lucideActivity" class="text-xs" />
+            <span>Erro</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Corpo do Card conforme a visão ativa -->
+    <div class="p-4 sm:p-5 flex flex-col gap-3">
+      @switch (activeView()) {
+      @case ('curves') {
+      <app-historical-idf-chart [data]="data" [scale]="chartScale()" [loading]="isIdfLoading()" />
+      }
+      @case ('intensity') {
+      <app-historical-idf-intensity-table [data]="data" [mode]="'intensity'" />
+      }
+      @case ('error') {
+      <app-historical-idf-intensity-table [data]="data" [mode]="'error'" [distributionName]="distributionFullName()" />
+      }
+      }
+    </div>
+  </div>
+  }
+
+  <!-- 5. Rodapé da Página: Voltar e Avançar -->
   <div class="flex w-full items-center justify-between gap-3 pt-2">
-    <button hlmBtn variant="outline" (click)="onBack()">
+    <button hlmBtn variant="outline" type="button" (click)="onBack()">
       <ng-icon name="lucideArrowLeft" class="mr-2" />
       Voltar
     </button>
+
+    <button hlmBtn type="button" (click)="onAdvance()" [disabled]="isIdfLoading() || !idfData()">
+      <span>Avançar</span>
+      <ng-icon name="lucideArrowRight" class="ml-2" />
+    </button>
   </div>
 </div>
-
