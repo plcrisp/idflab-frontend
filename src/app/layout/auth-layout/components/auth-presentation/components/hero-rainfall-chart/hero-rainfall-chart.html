@@ -1,94 +1,123 @@
-<div class="chart-container-inner">
-  <div class="svg-stage">
-    <svg
-      viewBox="0 0 1000 135"
-      preserveAspectRatio="none"
-      class="hero-svg"
-      aria-hidden="true"
+<div class="hero-chart-wrapper select-none">
+  <div class="svg-container">
+    <div
+      class="annotation-flag"
+      [style.left.%]="peakXPercent"
+      [style.bottom.%]="flagBottomPercent"
     >
-      <!-- Linha horizontal tracejada no nível de 151,8 mm -->
+      <div class="flag-pole"></div>
+      <div class="flag-content">
+        <div class="annotation-number-row">
+          <span class="annotation-number">{{ displayNumber() }}</span>
+        </div>
+        <div class="annotation-meta-amber">
+          {{ peakRecord.headline }}
+        </div>
+      </div>
+    </div>
+
+    <svg
+      viewBox="0 0 1000 350"
+      preserveAspectRatio="none"
+      class="chart-svg"
+      shape-rendering="crispEdges"
+      role="region"
+      aria-label="Gráfico de precipitação diária máxima anual: 1961 a 2100"
+    >
       <line
-        class="svg-dashed-line"
-        x1="0"
-        [attr.y1]="peakLevelY()"
-        x2="690"
-        [attr.y2]="peakLevelY()"
+        class="dashed-reference-line"
+        [attr.x1]="peakCenterX"
+        [attr.y1]="peakLevelY"
+        [attr.x2]="viewWidth"
+        [attr.y2]="peakLevelY"
       />
 
-      <!-- Barras dos máximos anuais com vãos temporais -->
-      @for (bar of svgBars(); track bar.year) {
+      <circle
+        class="peak-marker-dot"
+        [attr.cx]="peakCenterX"
+        [attr.cy]="peakLevelY"
+        r="3"
+        shape-rendering="geometricPrecision"
+      />
+
+      @for (bar of historicalBars(); track bar.year) {
         @if (bar.isPeak) {
-          <!-- Barra do recorde histórico de 1988 (coluna limpa em âmbar pleno) -->
           <rect
-            class="svg-peak-rect"
+            class="bar-peak"
             [attr.x]="bar.x"
             [attr.y]="bar.y"
             [attr.width]="bar.width"
             [attr.height]="bar.height"
-            rx="2"
-          >
-            <title>{{ bar.year }}: {{ bar.value }} mm (Recorde Histórico)</title>
-          </rect>
+            rx="1.5"
+            tabindex="0"
+            role="graphics-symbol"
+            [attr.aria-label]="bar.tooltipText"
+            [hlmTooltip]="bar.tooltipText"
+            position="top"
+          />
         } @else {
-          <!-- Barra observada padrão -->
           <rect
-            class="svg-standard-rect"
-            [style.--bar-i]="bar.index"
+            class="bar-historical"
+            [style.--i]="bar.index"
             [attr.x]="bar.x"
             [attr.y]="bar.y"
             [attr.width]="bar.width"
             [attr.height]="bar.height"
-            rx="1.2"
-          >
-            <title>{{ bar.year }}: {{ bar.value }} mm</title>
-          </rect>
+            rx="1.5"
+            tabindex="0"
+            role="graphics-symbol"
+            [attr.aria-label]="bar.tooltipText"
+            [hlmTooltip]="bar.tooltipText"
+            position="top"
+          />
         }
       }
 
-      <!-- Divisória vertical de 2026 -->
       <line
-        class="svg-divider-line"
-        x1="698"
-        y1="16"
-        x2="698"
+        class="divider-line"
+        [attr.x1]="dividerX"
+        [attr.y1]="dividerStartY"
+        [attr.x2]="dividerX"
         [attr.y2]="baseY"
       />
 
-      <!-- Barras fantasma da zona futura -->
-      @for (fbar of svgFutureBars(); track fbar.index) {
+      @for (bar of futureBars(); track bar.year) {
         <rect
-          class="svg-future-rect"
-          [style.--future-i]="fbar.index"
-          [attr.x]="fbar.x"
-          [attr.y]="fbar.y"
-          [attr.width]="fbar.width"
-          [attr.height]="fbar.height"
-          rx="1.2"
-          [attr.opacity]="fbar.opacity"
+          class="bar-future"
+          [class.bar-above-record]="bar.isAboveRecord"
+          [style.--future-i]="bar.index"
+          [attr.x]="bar.x"
+          [attr.y]="bar.y"
+          [attr.width]="bar.width"
+          [attr.height]="bar.height"
+          rx="1.5"
+          tabindex="0"
+          role="graphics-symbol"
+          [attr.aria-label]="bar.tooltipText"
+          [hlmTooltip]="bar.tooltipText"
+          position="top"
         />
       }
 
-      <!-- Linha base de apoio do gráfico -->
       <line
+        class="chart-baseline"
         x1="0"
         [attr.y1]="baseY"
-        x2="1000"
+        [attr.x2]="viewWidth"
         [attr.y2]="baseY"
-        stroke="rgba(255, 255, 255, 0.08)"
-        stroke-width="1"
       />
     </svg>
+
+    <div
+      class="cmip6-badge"
+      [style.left]="'calc(' + dividerXPercent + '% + 12px)'"
+    >
+      PROJEÇÃO CMIP6
+    </div>
   </div>
 
-  <!-- Eixo X minimalista -->
-  <div class="x-axis-bar select-none">
-    <span class="x-axis-year x-year-start">{{ startYear }}</span>
-    <span
-      class="x-axis-year x-year-peak"
-      [style.left.%]="peakXPercent()"
-    >
-      {{ peakInfo().year }}
-    </span>
-    <span class="x-axis-year x-year-end">{{ endYear }}</span>
+  <div class="x-axis-row">
+    <span class="x-label x-label-peak" [style.left.%]="peakXPercent">1988</span>
+    <span class="x-label x-label-end" [style.right.%]="lastBarRightPercent">2100</span>
   </div>
 </div>

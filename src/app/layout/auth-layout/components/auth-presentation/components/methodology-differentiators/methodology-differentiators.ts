@@ -1,17 +1,15 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  lucideClock,
-  lucideCpu,
   lucideDatabase,
+  lucideSliders,
   lucideTrendingUp,
 } from '@ng-icons/lucide';
-import { MethodologyDifferentiator } from '../../models/auth-presentation.models';
 import {
-  METHODOLOGY_DIFFERENTIATORS,
-  PRESENTATION_TEXTS,
-} from '../../constants/auth-presentation.constants';
+  LOGIN_HERO_DIFFERENTIATORS,
+  PresentationDifferentiator,
+} from '../../data/login-hero.data';
 
 @Component({
   selector: 'app-methodology-differentiators',
@@ -20,8 +18,7 @@ import {
   providers: [
     provideIcons({
       lucideDatabase,
-      lucideCpu,
-      lucideClock,
+      lucideSliders,
       lucideTrendingUp,
     }),
   ],
@@ -29,8 +26,5 @@ import {
   styleUrl: './methodology-differentiators.scss',
 })
 export class MethodologyDifferentiators {
-  readonly items = input<MethodologyDifferentiator[]>(METHODOLOGY_DIFFERENTIATORS);
-  readonly header = PRESENTATION_TEXTS.differentiatorsHeader;
-  readonly note = PRESENTATION_TEXTS.reproducibilityNote;
+  readonly items: PresentationDifferentiator[] = LOGIN_HERO_DIFFERENTIATORS;
 }
-

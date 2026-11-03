@@ -1,6 +1,6 @@
 export interface AnnualRainfallData {
   year: number;
-  value: number | null; // null representa ano incompleto (vão)
+  value: number | null;
   isPeak?: boolean;
 }
 

@@ -8,7 +8,6 @@ export function createDeterministicPrng(seed: number = 83781) {
   };
 }
 
-// Gera série ilustrativa (55-120 mm) com pico fixado em 151.8 mm
 export function generateHistoricalSeries(
   startYear: number,
   endYear: number,
@@ -42,7 +41,6 @@ export function generateHistoricalSeries(
   return result;
 }
 
-// Barras decorativas da zona futura com opacidade decrescente
 export function generateFutureBars(count: number = 24): FutureRainfallBar[] {
   const prng = createDeterministicPrng(2100);
   const bars: FutureRainfallBar[] = [];

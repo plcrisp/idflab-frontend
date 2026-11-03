@@ -1,25 +1,27 @@
-<section class="auth-presentation-wrapper" aria-label="Apresentação IDFLab">
-  <!-- 1. Marca -->
-  <header class="brand-header">
+<section class="auth-presentation-wrapper" aria-label="Apresentação do IDFLab">
+  <header class="brand-header select-none">
     <img src="assets/images/logos/IDFLab_white.png" alt="IDFLab" class="brand-icon" />
     <span class="brand-name">{{ texts.brand }}</span>
   </header>
 
-  <!-- 2. Bloco Numérico e Contexto da Estação -->
-  <div class="peak-callout-block">
-    <app-peak-highlight [peak]="peakInfo"></app-peak-highlight>
+  <div class="narrative-block select-none">
+    <h1 class="narrative-title">
+      Da série bruta à curva IDF,<br />com método à vista.
+    </h1>
+    <p class="narrative-subtitle">
+      {{ texts.subtitle }}
+    </p>
   </div>
 
-  <!-- 3. Gráfico herói -->
   <div class="chart-flex-block">
     <app-hero-rainfall-chart></app-hero-rainfall-chart>
   </div>
 
-  <!-- 4. Título e subtítulo principal (largura completa) -->
-  <div class="narrative-block">
-    <h2 class="narrative-title">{{ texts.title }}</h2>
-    <p class="narrative-subtitle">{{ texts.subtitle }}</p>
+  <div class="differentiators-block">
+    <app-methodology-differentiators></app-methodology-differentiators>
   </div>
 
-
+  <footer class="presentation-footer select-none">
+    <span class="footer-text">{{ texts.footer }}</span>
+  </footer>
 </section>

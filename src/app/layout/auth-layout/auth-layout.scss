@@ -1,6 +1,6 @@
 .auth-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(560px, 58fr) minmax(420px, 42fr);
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
@@ -11,7 +11,8 @@
   position: relative;
   height: 100%;
   overflow: hidden;
-  background-color: #0c1322;
+  min-width: 560px;
+  background-color: #0f1526;
 }
 
 .right-panel {
@@ -22,6 +23,7 @@
   overflow-y: auto;
   background-color: var(--background);
   position: relative;
+  min-width: 420px;
 
   router-outlet {
     display: none;
@@ -33,14 +35,12 @@
   }
 }
 
-/* Responsividade: Notebook / Tablet paisagem (1024px a 1279px) */
 @media (max-width: 1279px) and (min-width: 1024px) {
   .auth-layout {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(560px, 58fr) minmax(420px, 42fr);
   }
 }
 
-/* Responsividade: Abaixo de 1024px, o painel esquerdo é escondido e o formulário ocupa a tela inteira */
 @media (max-width: 1023px) {
   .auth-layout {
     grid-template-columns: 1fr;
@@ -48,5 +48,9 @@
 
   .left-panel {
     display: none !important;
+  }
+
+  .right-panel {
+    min-width: 0;
   }
 }

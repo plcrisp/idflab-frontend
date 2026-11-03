@@ -1,26 +1,10 @@
-<div class="differentiators-root select-none">
-  <div class="differentiators-title">{{ header }}</div>
-
-  <div class="differentiators-grid">
-    @for (item of items(); track item.id) {
-      <div class="diff-item">
-        <ng-icon
-          [name]="item.icon"
-          class="diff-icon"
-          [class.future-icon]="item.isFuture"
-        ></ng-icon>
-
-        <div class="diff-text">
-          <span class="diff-heading">{{ item.title }}</span>
-          <span class="diff-desc">{{ item.description }}</span>
-        </div>
+<div class="differentiators-row select-none" role="region" aria-label="Diferenciais do IDFLab">
+  @for (item of items; track item.id) {
+    <div class="diff-card">
+      <div class="diff-icon-box">
+        <ng-icon [name]="item.icon" class="diff-icon" aria-hidden="true"></ng-icon>
       </div>
-    }
-  </div>
-
-  <div class="reproducibility-divider"></div>
-
-  <p class="reproducibility-footer">
-    {{ note }}
-  </p>
+      <span class="diff-label">{{ item.label }}</span>
+    </div>
+  }
 </div>

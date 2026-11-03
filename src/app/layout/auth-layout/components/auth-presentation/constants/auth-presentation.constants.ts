@@ -27,7 +27,6 @@ export const PEAK_DATA: StationPeakInfo = {
 
 export const CHART_Y_MAX = 170;
 
-// TODO: Substituir pelos máximos anuais reais de precipitação diária da estação 83781 (INMET - Mirante de Santana)
 export const HISTORICAL_RAINFALL_SERIES: AnnualRainfallData[] = generateHistoricalSeries(
   ANO_INICIAL,
   ANO_FINAL,
