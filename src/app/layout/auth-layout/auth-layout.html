@@ -1,8 +1,8 @@
-<div class="auth-layout">
-  <aside class="left-panel">
-    <app-auth-presentation-panel></app-auth-presentation-panel>
+<div class="grid h-screen h-dvh w-full overflow-hidden bg-background grid-cols-1 lg:grid-cols-[minmax(560px,58fr)_minmax(420px,42fr)]">
+  <aside class="relative hidden h-full overflow-hidden min-w-[560px] lg:block bg-[#0f1526]">
+    <app-auth-presentation-panel class="block h-full w-full"></app-auth-presentation-panel>
   </aside>
-  <main class="right-panel">
+  <main class="relative flex h-full items-center justify-center overflow-y-auto bg-background min-w-0 lg:min-w-[420px] [&>router-outlet]:hidden [&>*:not(router-outlet)]:w-full [&>*:not(router-outlet)]:block">
     <router-outlet></router-outlet>
   </main>
 </div>

@@ -1,56 +1,5 @@
-.auth-layout {
-  display: grid;
-  grid-template-columns: minmax(560px, 58fr) minmax(420px, 42fr);
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
-  background-color: var(--background);
-}
-
-.left-panel {
-  position: relative;
+:host {
+  display: block;
   height: 100%;
-  overflow: hidden;
-  min-width: 560px;
-  background-color: #0f1526;
-}
-
-.right-panel {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  overflow-y: auto;
-  background-color: var(--background);
-  position: relative;
-  min-width: 420px;
-
-  router-outlet {
-    display: none;
-  }
-
-  > *:not(router-outlet) {
-    width: 100%;
-    display: block;
-  }
-}
-
-@media (max-width: 1279px) and (min-width: 1024px) {
-  .auth-layout {
-    grid-template-columns: minmax(560px, 58fr) minmax(420px, 42fr);
-  }
-}
-
-@media (max-width: 1023px) {
-  .auth-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .left-panel {
-    display: none !important;
-  }
-
-  .right-panel {
-    min-width: 0;
-  }
+  width: 100%;
 }

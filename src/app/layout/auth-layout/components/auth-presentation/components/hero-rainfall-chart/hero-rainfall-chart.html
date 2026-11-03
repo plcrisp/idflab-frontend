@@ -1,16 +1,18 @@
-<div class="hero-chart-wrapper select-none">
-  <div class="svg-container">
+<div class="flex flex-col w-full relative select-none">
+  <div class="relative w-full h-[clamp(310px,40vh,410px)] max-h-[800px]:h-[clamp(240px,34vh,310px)] flex mt-0">
     <div
-      class="annotation-flag"
+      class="annotation-flag absolute h-[var(--flag-height,84px)] max-h-[800px]:h-[76px] flex flex-col justify-start z-10 pointer-events-none"
       [style.left.%]="peakXPercent"
       [style.bottom.%]="flagBottomPercent"
     >
       <div class="flag-pole"></div>
-      <div class="flag-content">
-        <div class="annotation-number-row">
-          <span class="annotation-number">{{ displayNumber() }}</span>
+      <div class="flag-content flex flex-col gap-1 pl-3 whitespace-nowrap">
+        <div class="flex items-baseline">
+          <span class="text-[clamp(32px,2.6vw,40px)] max-h-[800px]:text-[clamp(28px,2.2vw,34px)] font-bold leading-none tracking-[-0.035em] text-white [font-feature-settings:'tnum'_on,'lnum'_on] m-0">
+            {{ displayNumber() }}
+          </span>
         </div>
-        <div class="annotation-meta-amber">
+        <div class="text-[12px] font-semibold tracking-[0.03em] uppercase leading-none text-[#f5a623] whitespace-nowrap m-0 p-0">
           {{ peakRecord.headline }}
         </div>
       </div>
@@ -19,7 +21,7 @@
     <svg
       viewBox="0 0 1000 350"
       preserveAspectRatio="none"
-      class="chart-svg"
+      class="w-full h-full block overflow-visible"
       shape-rendering="crispEdges"
       role="region"
       aria-label="Gráfico de precipitação diária máxima anual: 1961 a 2100"
@@ -49,11 +51,9 @@
             [attr.width]="bar.width"
             [attr.height]="bar.height"
             rx="1.5"
+            [hlmTooltip]="peakRecord.valueFormatted + ' · Recorde histórico em ' + bar.year"
             tabindex="0"
-            role="graphics-symbol"
-            [attr.aria-label]="bar.tooltipText"
-            [hlmTooltip]="bar.tooltipText"
-            position="top"
+            [attr.aria-label]="bar.year + ': ' + peakRecord.valueFormatted + ' (Recorde Histórico)'"
           />
         } @else {
           <rect
@@ -64,11 +64,9 @@
             [attr.width]="bar.width"
             [attr.height]="bar.height"
             rx="1.5"
+            [hlmTooltip]="bar.year + ': ' + bar.valueFormatted"
             tabindex="0"
-            role="graphics-symbol"
-            [attr.aria-label]="bar.tooltipText"
-            [hlmTooltip]="bar.tooltipText"
-            position="top"
+            [attr.aria-label]="bar.year + ': ' + bar.valueFormatted"
           />
         }
       }
@@ -91,11 +89,9 @@
           [attr.width]="bar.width"
           [attr.height]="bar.height"
           rx="1.5"
+          [hlmTooltip]="bar.year + ' (CMIP6): ' + bar.valueFormatted"
           tabindex="0"
-          role="graphics-symbol"
-          [attr.aria-label]="bar.tooltipText"
-          [hlmTooltip]="bar.tooltipText"
-          position="top"
+          [attr.aria-label]="bar.year + ' Projeção CMIP6: ' + bar.valueFormatted"
         />
       }
 
@@ -108,16 +104,23 @@
       />
     </svg>
 
-    <div
-      class="cmip6-badge"
-      [style.left]="'calc(' + dividerXPercent + '% + 12px)'"
-    >
+    <span class="cmip6-badge absolute top-[calc(32.29%-var(--flag-height,84px))] max-h-[800px]:top-[calc(32.29%-76px)] left-[calc(47.2%+12px)] text-xs font-bold tracking-wider uppercase text-[#f5a623] bg-[#f5a623]/10 border border-[#f5a623]/25 rounded px-2.5 py-1 pointer-events-none whitespace-nowrap leading-none">
       PROJEÇÃO CMIP6
-    </div>
+    </span>
   </div>
 
-  <div class="x-axis-row">
-    <span class="x-label x-label-peak" [style.left.%]="peakXPercent">1988</span>
-    <span class="x-label x-label-end" [style.right.%]="lastBarRightPercent">2100</span>
+  <div class="relative w-full h-[18px] mt-2.5 text-xs leading-none [font-feature-settings:'tnum'_on] select-none" aria-hidden="true">
+    <span
+      class="absolute -translate-x-1/2 text-[#f5a623] font-bold tracking-wide"
+      [style.left.%]="peakXPercent"
+    >
+      {{ peakRecord.year }}
+    </span>
+    <span
+      class="absolute text-white/70 font-medium tracking-wide"
+      [style.right.%]="lastBarRightPercent"
+    >
+      2100
+    </span>
   </div>
 </div>

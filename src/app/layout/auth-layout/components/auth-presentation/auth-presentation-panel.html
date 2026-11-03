@@ -1,27 +1,29 @@
-<section class="auth-presentation-wrapper" aria-label="Apresentação do IDFLab">
-  <header class="brand-header select-none">
-    <img src="assets/images/logos/IDFLab_white.png" alt="IDFLab" class="brand-icon" />
-    <span class="brand-name">{{ texts.brand }}</span>
+<div class="flex flex-col h-full w-full box-border px-10 py-8 lg:px-14 lg:pt-12 lg:pb-10 justify-between overflow-hidden select-none">
+  <header class="flex items-center gap-3 shrink-0 mb-10 xl:mb-14 max-h-[800px]:mb-8">
+    <img src="assets/images/logos/IDFLab_white.png" alt="IDFLab" class="w-8 h-auto object-contain" />
+    <span class="font-bold text-xl tracking-tight text-white">{{ texts.brand }}</span>
   </header>
 
-  <div class="narrative-block select-none">
-    <h1 class="narrative-title">
-      Da série bruta à curva IDF,<br />com método à vista.
+  <section class="flex flex-col gap-2.5 shrink-0 w-full mb-6 max-h-[800px]:mb-4">
+    <h1 class="text-[clamp(32px,3.2vw,44px)] max-h-[800px]:text-[clamp(30px,2.8vw,38px)] font-extrabold leading-[1.15] tracking-[-0.028em] text-white m-0 w-full">
+      {{ texts.title }}
     </h1>
-    <p class="narrative-subtitle">
+    <p class="text-[clamp(0.9375rem,1vw,1rem)] font-normal leading-relaxed text-slate-400 opacity-80 m-0 w-full text-balance">
       {{ texts.subtitle }}
     </p>
-  </div>
+  </section>
 
-  <div class="chart-flex-block">
+  <main class="flex-1 min-h-[290px] max-h-[440px] max-h-[800px]:min-h-[200px] max-h-[800px]:max-h-[280px] w-full flex flex-col justify-center my-auto relative">
     <app-hero-rainfall-chart></app-hero-rainfall-chart>
-  </div>
+  </main>
 
-  <div class="differentiators-block">
+  <div class="shrink-0 w-full mt-6 max-h-[800px]:mt-4">
     <app-methodology-differentiators></app-methodology-differentiators>
   </div>
 
-  <footer class="presentation-footer select-none">
-    <span class="footer-text">{{ texts.footer }}</span>
+  <footer class="shrink-0 flex items-center mt-3.5">
+    <span class="text-[13px] font-medium text-slate-400/80 tracking-wide">
+      {{ texts.footer }}
+    </span>
   </footer>
-</section>
+</div>
