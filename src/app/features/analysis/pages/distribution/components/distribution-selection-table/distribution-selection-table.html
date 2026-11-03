@@ -1,16 +1,25 @@
 <div class="flex flex-col gap-2 w-full">
   <!-- Cabeçalho das Colunas: alinhamento estrito em 4 colunas com gap generoso -->
-  <div class="grid grid-cols-[16px_1fr_120px_36px] items-center gap-4 px-3.5 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider select-none">
+  <div class="grid grid-cols-[16px_1fr_95px_32px] items-center gap-3 px-3 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider select-none">
     <span class="w-4"></span>
     <span>Distribuição</span>
-    <span class="text-right">SSE total</span>
-    <span class="text-center">Info</span>
+    <div class="flex items-center justify-end gap-1 text-right">
+      <span
+        class="inline-flex items-center text-muted-foreground/70 hover:text-foreground cursor-help transition-colors normal-case"
+        [hlmTooltip]="'Soma dos erros quadráticos (SSE) calculados individualmente para cada duração analisada (ex.: 5 min, 10 min, 1 h, 24 h).'"
+        position="top">
+        <ng-icon name="lucideInfo" class="text-xs" />
+      </span>
+      <span>SSE total</span>
+      
+    </div>
+    <span class="w-7"></span>
   </div>
 
   @if (loading()) {
   <!-- Skeleton Loading das Linhas -->
   @for (i of [1, 2, 3, 4, 5]; track i) {
-  <div class="w-full rounded-xl border border-border/50 bg-card p-3 sm:p-3.5 grid grid-cols-[16px_1fr_120px_36px] items-center gap-4 animate-pulse">
+  <div class="w-full rounded-xl border border-border/50 bg-card p-3 sm:p-3.5 grid grid-cols-[16px_1fr_95px_32px] items-center gap-3 animate-pulse">
     <div hlmSkeleton class="h-4 w-4 rounded-full"></div>
     <div class="flex items-center gap-2 min-w-0">
       <div hlmSkeleton class="h-2.5 w-2.5 rounded-full shrink-0"></div>
@@ -25,7 +34,7 @@
   @for (row of selectionTable(); track row.distribution; let idx = $index) {
   <div
     (click)="onRowClick(row)"
-    class="group w-full relative rounded-xl border transition-all duration-150 p-3 sm:p-3.5 select-none grid grid-cols-[16px_1fr_120px_36px] items-center gap-4 outline-none hover:z-30 focus-within:z-30"
+    class="group w-full relative rounded-xl border transition-all duration-150 p-3 sm:p-3.5 select-none grid grid-cols-[16px_1fr_95px_32px] items-center gap-3 outline-none hover:z-30 focus-within:z-30"
     [class.cursor-pointer]="row.status === 'ok' && !disabled()"
     [class.cursor-not-allowed]="row.status !== 'ok' || disabled()"
     [class.opacity-60]="row.status !== 'ok'"

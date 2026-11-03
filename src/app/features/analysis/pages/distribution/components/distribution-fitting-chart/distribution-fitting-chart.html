@@ -1,14 +1,14 @@
 <div class="relative w-full h-full flex flex-col justify-between">
-  <div class="relative w-full flex-1 min-h-85">
+  <div class="relative w-full flex-1 min-h-96">
     @if (loading() || !detail()) {
     <!-- Skeleton Loading em Overlay Absoluto -->
-    <div class="absolute inset-0 z-10 w-full h-85 rounded-lg bg-muted/20 border border-border/40 p-4 overflow-hidden flex flex-col justify-between select-none animate-pulse">
+    <div class="absolute inset-0 z-10 w-full h-96 rounded-lg bg-muted/20 border border-border/40 p-4 overflow-hidden flex flex-col justify-between select-none animate-pulse">
       <div class="flex justify-between items-center mb-2">
         <div hlmSkeleton class="h-4 w-32 rounded"></div>
         <div hlmSkeleton class="h-4 w-48 rounded"></div>
       </div>
 
-      <!-- Simulação do histograma e curva -->
+      <!-- Simulação do histograma / curvas -->
       <div class="relative flex-1 flex items-end gap-2 pt-2 pb-2 pl-8 pr-2">
         <div class="absolute inset-x-4 top-4 bottom-8 flex flex-col justify-between pointer-events-none opacity-20">
           <div class="border-b border-border/80 w-full"></div>
@@ -31,16 +31,24 @@
     }
 
     <!-- Container do ECharts SEMPRE presente no DOM para inicialização imediata -->
-    <div #chartContainer class="w-full h-85" [class.invisible]="loading() || !detail()"></div>
+    <div #chartContainer class="w-full h-96" [class.invisible]="loading() || !detail()"></div>
   </div>
 
-  <!-- Rodapé com Metadados dos Bins -->
+  <!-- Rodapé com Metadados (PDF vs CDF) -->
   <div class="flex items-center text-xs text-muted-foreground pt-2 mt-2 border-t border-border/40">
     <span class="tabular-nums">
-      @if (detail(); as d) {
-      Bins: Doane · {{ d.n_bins }} classes
+      @if (chartMode() === 'pdf') {
+        @if (detail(); as d) {
+        Bins: Doane · {{ d.n_bins }} classes
+        } @else {
+        Bins: Doane
+        }
       } @else {
-      Bins: Doane
+        @if (detail(); as d) {
+        Distribuição Acumulada · n = {{ d.sample_size_years }} anos
+        } @else {
+        Distribuição Acumulada
+        }
       }
     </span>
   </div>

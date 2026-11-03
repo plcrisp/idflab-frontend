@@ -26,7 +26,10 @@ import {
   DistributionStateResponse,
   DurationDetailResponse,
 } from './models/statistical-distribution.model';
-import { getDistributionConfig } from './constants/statistical-distribution.constants';
+import {
+  getDistributionColor,
+  getDistributionConfig,
+} from './constants/statistical-distribution.constants';
 
 @Component({
   selector: 'app-distribution',
@@ -62,10 +65,14 @@ export class Distribution implements OnInit, OnDestroy {
   readonly state = signal<DistributionStateResponse | null>(null);
   readonly selectedDuration = signal<number | null>(null);
   readonly currentDurationDetail = signal<DurationDetailResponse | null>(null);
+  readonly annualMaxSelectedDuration = signal<number | null>(null);
+  readonly annualMaxDurationDetail = signal<DurationDetailResponse | null>(null);
+  readonly isLoadingAnnualMaxDetail = signal<boolean>(false);
   readonly selectedDistribution = signal<DistributionEnum | null>(null);
   readonly suggestedDistribution = signal<DistributionEnum | null>(null);
 
   readonly activeView = signal<'chart' | 'table'>('chart');
+  readonly chartMode = signal<'pdf' | 'cdf'>('pdf');
   readonly isLoadingState = signal<boolean>(true);
   readonly isLoadingDurationDetail = signal<boolean>(false);
   readonly isSavingSelection = signal<boolean>(false);
@@ -85,10 +92,27 @@ export class Distribution implements OnInit, OnDestroy {
     return match?.label ?? (durMin < 60 ? `${durMin} min` : `${durMin / 60} h`);
   });
 
+  readonly annualMaxDurationLabel = computed<string>(() => {
+    const detail = this.annualMaxDurationDetail();
+    if (detail) return detail.duration_label;
+
+    const durMin = this.annualMaxSelectedDuration();
+    if (!durMin) return '-';
+
+    const match = this.state()?.available_durations?.find((d) => d.duration_minutes === durMin);
+    return match?.label ?? (durMin < 60 ? `${durMin} min` : `${durMin / 60} h`);
+  });
+
   readonly selectedDistributionName = computed<string>(() => {
     const code = this.selectedDistribution();
     if (!code) return '';
     return getDistributionConfig(code).name;
+  });
+
+  readonly selectedDistributionColor = computed<string>(() => {
+    const code = this.selectedDistribution();
+    if (!code) return '#49628b';
+    return getDistributionColor(code);
   });
 
 
@@ -202,6 +226,7 @@ export class Distribution implements OnInit, OnDestroy {
 
     if (defaultDur) {
       this.selectDuration(defaultDur.duration_minutes);
+      this.selectAnnualMaxDuration(defaultDur.duration_minutes);
     }
   }
 
@@ -228,6 +253,35 @@ export class Distribution implements OnInit, OnDestroy {
       error: (err) => {
         console.error('[Distribution] Erro ao carregar detalhe da duração:', err);
         this.isLoadingDurationDetail.set(false);
+        const msg = err?.error?.detail ?? 'Não foi possível carregar os dados desta duração.';
+        toast.error(msg);
+      },
+    });
+  }
+
+  selectAnnualMaxDuration(durationMinutes: number): void {
+    this.annualMaxSelectedDuration.set(durationMinutes);
+
+    const cached = this.durationCache.get(durationMinutes);
+    if (cached) {
+      this.annualMaxDurationDetail.set(cached);
+      return;
+    }
+
+    const p = this.project();
+    if (!p) return;
+
+    this.isLoadingAnnualMaxDetail.set(true);
+
+    this.distributionService.getDurationDetail(p.id, durationMinutes).subscribe({
+      next: (detail) => {
+        this.durationCache.set(durationMinutes, detail);
+        this.annualMaxDurationDetail.set(detail);
+        this.isLoadingAnnualMaxDetail.set(false);
+      },
+      error: (err) => {
+        console.error('[Distribution] Erro ao carregar detalhe da duração dos máximos anuais:', err);
+        this.isLoadingAnnualMaxDetail.set(false);
         const msg = err?.error?.detail ?? 'Não foi possível carregar os dados desta duração.';
         toast.error(msg);
       },

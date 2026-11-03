@@ -5,6 +5,7 @@ import {
   ElementRef,
   inject,
   input,
+  model,
   OnDestroy,
   ViewChild,
 } from '@angular/core';
@@ -42,6 +43,7 @@ export class DistributionFittingChart implements OnDestroy {
   readonly selectedDistribution = input<DistributionEnum | null>(null);
   readonly suggestedDistribution = input<DistributionEnum | null>(null);
   readonly loading = input<boolean>(false);
+  readonly chartMode = model<'pdf' | 'cdf'>('pdf');
 
   @ViewChild('chartContainer', { static: true })
   private chartContainer!: ElementRef<HTMLDivElement>;
@@ -50,6 +52,7 @@ export class DistributionFittingChart implements OnDestroy {
     detail: DurationDetailResponse;
     selected: DistributionEnum | null;
     suggested: DistributionEnum | null;
+    mode: 'pdf' | 'cdf';
   }>;
 
   private readonly chartData = computed(() => {
@@ -59,6 +62,7 @@ export class DistributionFittingChart implements OnDestroy {
       detail: d,
       selected: this.selectedDistribution(),
       suggested: this.suggestedDistribution(),
+      mode: this.chartMode(),
     };
   });
 
@@ -78,28 +82,47 @@ export class DistributionFittingChart implements OnDestroy {
     detail: DurationDetailResponse;
     selected: DistributionEnum | null;
     suggested: DistributionEnum | null;
+    mode: 'pdf' | 'cdf';
   }): EChartsOption {
     const tokens = this.echarts.getTokens();
-    const { detail, selected, suggested } = data;
+    const { detail, selected, mode } = data;
     const binEdges = detail.bin_edges ?? [];
     const empiricalDensity = detail.empirical_density ?? [];
+    const empiricalCdf = detail.empirical_cdf ?? [];
+    const annualMaxs = detail.annual_maximums ?? [];
     const curveX = detail.curve_x ?? [];
     const distributions = detail.distributions ?? [];
 
-    const minX = curveX.length > 0 ? curveX[0] : (binEdges.length > 0 ? binEdges[0] : 0);
-    const maxX = curveX.length > 0 ? curveX[curveX.length - 1] : (binEdges.length > 0 ? binEdges[binEdges.length - 1] : 100);
+    let minX = curveX.length > 0 ? curveX[0] : (binEdges.length > 0 ? binEdges[0] : 0);
+    let maxX = curveX.length > 0 ? curveX[curveX.length - 1] : (binEdges.length > 0 ? binEdges[binEdges.length - 1] : 100);
 
-    // Distribuições válidas (status == 'ok')
-    const validDists = distributions.filter((d) => d.status === 'ok' && d.pdf_density);
+    if (mode === 'cdf' && empiricalCdf.length > 0) {
+      minX = Math.min(minX, empiricalCdf[0].x);
+      maxX = Math.max(maxX, empiricalCdf[empiricalCdf.length - 1].x);
+    }
 
-    // Legenda ECharts com seleção padrão: distribuições válidas visíveis, inválidas desabilitadas
+    // Distribuições válidas conforme o modo selecionado
+    const validDists = distributions.filter((d) =>
+      d.status === 'ok' && (mode === 'pdf' ? !!d.pdf_density : !!d.cdf_probability)
+    );
+
+    // Legenda ECharts com seleção padrão
     const legendData: { name: string; itemStyle?: { color: string } }[] = [];
     const legendSelected: Record<string, boolean> = {};
+
+    if (mode === 'cdf') {
+      const ecdfColor = '#2563eb';
+      legendData.push({
+        name: 'Frequência Acumulada Empírica',
+        itemStyle: { color: ecdfColor },
+      });
+      legendSelected['Frequência Acumulada Empírica'] = true;
+    }
 
     distributions.forEach((d) => {
       const cfg = getDistributionConfig(d.distribution);
       const color = getDistributionColor(d.distribution);
-      const isOk = d.status === 'ok' && !!d.pdf_density;
+      const isOk = d.status === 'ok' && (mode === 'pdf' ? !!d.pdf_density : !!d.cdf_probability);
       legendData.push({
         name: cfg.name,
         itemStyle: { color: isOk ? color : tokens.border },
@@ -107,73 +130,186 @@ export class DistributionFittingChart implements OnDestroy {
       legendSelected[cfg.name] = isOk;
     });
 
-    // Custom Series: Barras do Histograma
-    const histogramSeries: SeriesOption = {
-      name: 'Histograma (Doane)',
-      type: 'custom',
-      renderItem: (params, api) => {
-        const idx = params.dataIndex;
-        if (idx >= binEdges.length - 1) return undefined;
+    let series: SeriesOption[] = [];
 
-        const x0 = binEdges[idx];
-        const x1 = binEdges[idx + 1];
-        const yVal = empiricalDensity[idx] ?? 0;
+    if (mode === 'pdf') {
+      // 1. Custom Series: Barras do Histograma
+      const histogramSeries: SeriesOption = {
+        name: 'Histograma (Doane)',
+        type: 'custom',
+        renderItem: (params, api) => {
+          const idx = params.dataIndex;
+          if (idx >= binEdges.length - 1) return undefined;
 
-        const pt0 = api.coord([x0, yVal]);
-        const pt1 = api.coord([x1, 0]);
+          const x0 = binEdges[idx];
+          const x1 = binEdges[idx + 1];
+          const yVal = empiricalDensity[idx] ?? 0;
 
-        const width = Math.max(1, pt1[0] - pt0[0]);
-        const height = Math.max(1, pt1[1] - pt0[1]);
+          const pt0 = api.coord([x0, yVal]);
+          const pt1 = api.coord([x1, 0]);
+
+          const width = Math.max(1, pt1[0] - pt0[0]);
+          const height = Math.max(1, pt1[1] - pt0[1]);
+
+          return {
+            type: 'rect',
+            shape: {
+              x: pt0[0],
+              y: pt0[1],
+              width,
+              height,
+            },
+            style: {
+              fill: 'rgba(73, 98, 139, 0.22)',
+              stroke: 'rgba(73, 98, 139, 0.65)',
+              lineWidth: 1,
+            },
+          };
+        },
+        data: empiricalDensity.map((dens, i) => [(binEdges[i] + binEdges[i + 1]) / 2, dens]),
+        z: 2,
+      };
+
+      // 2. Series das Curvas de Ajuste (PDF)
+      const curveSeries: SeriesOption[] = validDists.map((d) => {
+        const cfg = getDistributionConfig(d.distribution);
+        const color = getDistributionColor(d.distribution);
+        const isSelected = d.distribution === selected;
+        const lineWidth = isSelected ? 3.0 : 1.6;
+        const points = (d.pdf_density || []).map((val, idx) => [curveX[idx], val]);
 
         return {
-          type: 'rect',
-          shape: {
-            x: pt0[0],
-            y: pt0[1],
-            width,
-            height,
+          name: cfg.name,
+          type: 'line',
+          smooth: 0.25,
+          symbol: 'none',
+          clip: true,
+          data: points,
+          lineStyle: {
+            color,
+            width: lineWidth,
+            type: 'solid',
           },
-          style: {
-            fill: 'rgba(73, 98, 139, 0.22)',
-            stroke: 'rgba(73, 98, 139, 0.65)',
-            lineWidth: 1,
+          itemStyle: {
+            color,
           },
+          z: isSelected ? 5 : 4,
         };
-      },
-      data: empiricalDensity.map((dens, i) => [(binEdges[i] + binEdges[i + 1]) / 2, dens]),
-      z: 2,
-    };
+      });
 
-    // Series das Curvas de Ajuste (PDF)
-    const curveSeries: SeriesOption[] = validDists.map((d) => {
-      const cfg = getDistributionConfig(d.distribution);
-      const color = getDistributionColor(d.distribution);
-      const isSelected = d.distribution === selected;
-      const lineWidth = isSelected ? 3.0 : 1.6;
-      const points = (d.pdf_density || []).map((val, idx) => [curveX[idx], val]);
-
-      return {
-        name: cfg.name,
+      series = [histogramSeries, ...curveSeries];
+    } else {
+      // Modo CDF:
+      // 1. Série Empírica (ECDF em degraus)
+      const ecdfColor = '#2563eb';
+      const ecdfSeries: SeriesOption = {
+        name: 'Frequência Acumulada Empírica',
         type: 'line',
-        smooth: 0.25,
-        symbol: 'none',
-        clip: true,
-        data: points,
+        step: 'end',
+        symbol: 'circle',
+        symbolSize: 4,
+        data: empiricalCdf.map((p) => [p.x, p.probability]),
         lineStyle: {
-          color,
-          width: lineWidth,
-          type: 'solid',
+          color: ecdfColor,
+          width: 2,
         },
         itemStyle: {
-          color,
+          color: ecdfColor,
         },
-        z: isSelected ? 5 : 4,
+        z: 3,
       };
-    });
+
+      // 2. Séries Teóricas (CDF)
+      const cdfCurves: SeriesOption[] = validDists.map((d) => {
+        const cfg = getDistributionConfig(d.distribution);
+        const color = getDistributionColor(d.distribution);
+        const isSelected = d.distribution === selected;
+        const lineWidth = isSelected ? 3.0 : 1.6;
+        const points = (d.cdf_probability || []).map((val, idx) => [curveX[idx], val]);
+
+        return {
+          name: cfg.name,
+          type: 'line',
+          smooth: 0.25,
+          symbol: 'none',
+          clip: true,
+          data: points,
+          lineStyle: {
+            color,
+            width: lineWidth,
+            type: 'solid',
+          },
+          itemStyle: {
+            color,
+          },
+          z: isSelected ? 5 : 4,
+        };
+      });
+
+      // 3. Marcadores Rug Plot no Eixo X
+      const rugSeries: SeriesOption = {
+        name: 'Máximas Anuais Observadas',
+        type: 'scatter',
+        symbol: 'rect',
+        symbolSize: [1.5, 8],
+        data: annualMaxs.map((m) => [m.value, 0]),
+        itemStyle: { color: tokens.text ?? '#333' },
+        z: 2,
+      };
+
+      series = [ecdfSeries, ...cdfCurves, rugSeries];
+    }
 
     const tooltipBase = buildTooltipBase(tokens);
     const maxEmpirical = empiricalDensity.length > 0 ? Math.max(...empiricalDensity, 0) : 0;
     const maxY = maxEmpirical > 0 ? Number((maxEmpirical * 1.5).toFixed(4)) : undefined;
+
+    const yAxisConfig =
+      mode === 'pdf'
+        ? {
+            type: 'value' as const,
+            min: 0,
+            max: maxY,
+            name: 'Densidade de Probabilidade',
+            nameLocation: 'end' as const,
+            nameTextStyle: {
+              color: tokens.textMuted,
+              fontFamily: tokens.fontFamily,
+              fontSize: 11,
+              fontWeight: 500,
+              align: 'left' as const,
+              padding: [0, 0, 8, -14],
+            },
+            axisLine: buildAxisLineStyle(tokens),
+            axisTick: { show: false },
+            axisLabel: {
+              ...buildAxisLabelBase(tokens),
+              formatter: (val: number) => val.toFixed(3).replace('.', ','),
+            },
+            splitLine: buildSplitLineStyle(tokens),
+          }
+        : {
+            type: 'value' as const,
+            min: 0,
+            max: 1,
+            name: 'Probabilidade Acumulada P(X ≤ x)',
+            nameLocation: 'end' as const,
+            nameTextStyle: {
+              color: tokens.textMuted,
+              fontFamily: tokens.fontFamily,
+              fontSize: 11,
+              fontWeight: 500,
+              align: 'left' as const,
+              padding: [0, 0, 8, -14],
+            },
+            axisLine: buildAxisLineStyle(tokens),
+            axisTick: { show: false },
+            axisLabel: {
+              ...buildAxisLabelBase(tokens),
+              formatter: (val: number) => `${Math.round(val * 100)}%`,
+            },
+            splitLine: buildSplitLineStyle(tokens),
+          };
 
     return {
       textStyle: { fontFamily: tokens.fontFamily },
@@ -212,59 +348,92 @@ export class DistributionFittingChart implements OnDestroy {
           const firstPoint = params[0];
           const xVal = Array.isArray(firstPoint.value) ? firstPoint.value[0] : Number(firstPoint.name);
 
-          // Localiza o bin correspondente a xVal
-          let binIndex = -1;
-          for (let i = 0; i < binEdges.length - 1; i++) {
-            if (xVal >= binEdges[i] && (xVal <= binEdges[i + 1] || i === binEdges.length - 2)) {
-              binIndex = i;
-              break;
+          if (mode === 'pdf') {
+            // Localiza o bin correspondente a xVal
+            let binIndex = -1;
+            for (let i = 0; i < binEdges.length - 1; i++) {
+              if (xVal >= binEdges[i] && (xVal <= binEdges[i + 1] || i === binEdges.length - 2)) {
+                binIndex = i;
+                break;
+              }
             }
-          }
 
-          const binRange =
-            binIndex >= 0
-              ? `${binEdges[binIndex].toLocaleString('pt-BR', { maximumFractionDigits: 1 })} a ${binEdges[binIndex + 1].toLocaleString('pt-BR', { maximumFractionDigits: 1 })} mm/h`
-              : '-';
+            const binRange =
+              binIndex >= 0
+                ? `${binEdges[binIndex].toLocaleString('pt-BR', { maximumFractionDigits: 1 })} a ${binEdges[binIndex + 1].toLocaleString('pt-BR', { maximumFractionDigits: 1 })} mm/h`
+                : '-';
 
-          const empDensity =
-            binIndex >= 0 && empiricalDensity[binIndex] != null
-              ? empiricalDensity[binIndex].toFixed(4).replace('.', ',')
-              : '-';
+            const empDensity =
+              binIndex >= 0 && empiricalDensity[binIndex] != null
+                ? empiricalDensity[binIndex].toFixed(4).replace('.', ',')
+                : '-';
 
-          let curvesHtml = '';
-          params.forEach((p: any) => {
-            if (p.seriesName === 'Histograma (Doane)') return;
-            const y = Array.isArray(p.value) ? p.value[1] : p.value;
-            if (y == null || isNaN(y)) return;
+            let curvesHtml = '';
+            params.forEach((p: any) => {
+              if (p.seriesName === 'Histograma (Doane)') return;
+              const y = Array.isArray(p.value) ? p.value[1] : p.value;
+              if (y == null || isNaN(y)) return;
 
-            const yFmt = Number(y).toFixed(4).replace('.', ',');
-            curvesHtml += `
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:2px;">
-                <span style="display:inline-flex;align-items:center;gap:6px;">
-                  <span style="width:8px;height:8px;border-radius:2px;background-color:${p.color};"></span>
-                  <span style="color:${tokens.text};font-weight:500;">${p.seriesName}:</span>
-                </span>
-                <strong style="color:${tokens.text};font-variant-numeric:tabular-nums;">${yFmt}</strong>
+              const yFmt = Number(y).toFixed(4).replace('.', ',');
+              curvesHtml += `
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:2px;">
+                  <span style="display:inline-flex;align-items:center;gap:6px;">
+                    <span style="width:8px;height:8px;border-radius:2px;background-color:${p.color};"></span>
+                    <span style="color:${tokens.text};font-weight:500;">${p.seriesName}:</span>
+                  </span>
+                  <strong style="color:${tokens.text};font-variant-numeric:tabular-nums;">${yFmt}</strong>
+                </div>
+              `;
+            });
+
+            return `
+              <div style="font-family:${tokens.fontFamily};font-size:12px;line-height:1.5;min-width:210px;">
+                <div style="font-weight:600;color:${tokens.text};margin-bottom:6px;border-bottom:1px solid ${tokens.border};padding-bottom:4px;">
+                  Intensidade: ${Number(xVal).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} mm/h
+                </div>
+                <div style="margin-bottom:4px;display:flex;justify-content:space-between;gap:8px;">
+                  <span style="color:${tokens.textMuted};">Faixa do bin:</span>
+                  <span style="color:${tokens.text};font-weight:500;">${binRange}</span>
+                </div>
+                <div style="margin-bottom:6px;display:flex;justify-content:space-between;gap:8px;">
+                  <span style="color:${tokens.textMuted};">Densidade empírica:</span>
+                  <strong style="color:${tokens.text};font-variant-numeric:tabular-nums;">${empDensity}</strong>
+                </div>
+                ${curvesHtml ? `<div style="border-top:1px dashed ${tokens.borderSubtle};padding-top:4px;margin-top:4px;">${curvesHtml}</div>` : ''}
               </div>
             `;
-          });
+          } else {
+            // Modo CDF
+            let curvesHtml = '';
+            params.forEach((p: any) => {
+              if (p.seriesName === 'Máximas Anuais Observadas') return;
+              const y = Array.isArray(p.value) ? p.value[1] : p.value;
+              if (y == null || isNaN(y)) return;
 
-          return `
-            <div style="font-family:${tokens.fontFamily};font-size:12px;line-height:1.5;min-width:210px;">
-              <div style="font-weight:600;color:${tokens.text};margin-bottom:6px;border-bottom:1px solid ${tokens.border};padding-bottom:4px;">
-                Intensidade: ${Number(xVal).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} mm/h
+              const yFmt = `${(Number(y) * 100).toFixed(1).replace('.', ',')}%`;
+              curvesHtml += `
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:2px;">
+                  <span style="display:inline-flex;align-items:center;gap:6px;">
+                    <span style="width:8px;height:8px;border-radius:2px;background-color:${p.color};"></span>
+                    <span style="color:${tokens.text};font-weight:500;">${p.seriesName}:</span>
+                  </span>
+                  <strong style="color:${tokens.text};font-variant-numeric:tabular-nums;">${yFmt}</strong>
+                </div>
+              `;
+            });
+
+            return `
+              <div style="font-family:${tokens.fontFamily};font-size:12px;line-height:1.5;min-width:220px;">
+                <div style="font-weight:600;color:${tokens.text};margin-bottom:6px;border-bottom:1px solid ${tokens.border};padding-bottom:4px;">
+                  Intensidade: ${Number(xVal).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} mm/h
+                </div>
+                <div style="color:${tokens.textMuted};font-size:11px;margin-bottom:4px;">
+                  Probabilidade Acumulada P(X ≤ x):
+                </div>
+                ${curvesHtml ? `<div style="padding-top:2px;">${curvesHtml}</div>` : ''}
               </div>
-              <div style="margin-bottom:4px;display:flex;justify-content:space-between;gap:8px;">
-                <span style="color:${tokens.textMuted};">Faixa do bin:</span>
-                <span style="color:${tokens.text};font-weight:500;">${binRange}</span>
-              </div>
-              <div style="margin-bottom:6px;display:flex;justify-content:space-between;gap:8px;">
-                <span style="color:${tokens.textMuted};">Densidade empírica:</span>
-                <strong style="color:${tokens.text};font-variant-numeric:tabular-nums;">${empDensity}</strong>
-              </div>
-              ${curvesHtml ? `<div style="border-top:1px dashed ${tokens.borderSubtle};padding-top:4px;margin-top:4px;">${curvesHtml}</div>` : ''}
-            </div>
-          `;
+            `;
+          }
         },
       },
       xAxis: {
@@ -289,30 +458,8 @@ export class DistributionFittingChart implements OnDestroy {
         },
         splitLine: buildSplitLineStyle(tokens),
       },
-      yAxis: {
-        type: 'value',
-        min: 0,
-        max: maxY,
-        name: 'Densidade',
-        nameLocation: 'end',
-        nameTextStyle: {
-          color: tokens.textMuted,
-          fontFamily: tokens.fontFamily,
-          fontSize: 11,
-          fontWeight: 500,
-          align: 'left',
-          padding: [0, 0, 8, -14],
-        },
-        axisLine: buildAxisLineStyle(tokens),
-        axisTick: { show: false },
-        axisLabel: {
-          ...buildAxisLabelBase(tokens),
-          formatter: (val: number) => val.toFixed(3).replace('.', ','),
-        },
-        splitLine: buildSplitLineStyle(tokens),
-      },
-      series: [histogramSeries, ...curveSeries],
+      yAxis: yAxisConfig,
+      series,
     };
   }
 }
-

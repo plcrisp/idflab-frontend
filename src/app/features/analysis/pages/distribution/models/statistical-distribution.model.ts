@@ -20,7 +20,6 @@ export interface DurationOption {
   label: string;
 }
 
-
 export interface DistributionSelection {
   selected_distribution: DistributionEnum;
   selection_origin: SelectionOrigin;
@@ -50,12 +49,18 @@ export interface AnnualMaximumItem {
   value: number;
 }
 
+export interface EmpiricalCdfItem {
+  x: number;
+  probability: number;
+}
+
 export interface DurationDistributionItem {
   distribution: DistributionEnum;
   status: FitStatus;
   error?: string | null;
   error_message?: string | null;
   pdf_density?: (number | null)[] | null;
+  cdf_probability?: (number | null)[] | null;
   sse?: number | null;
   quantiles?: QuantilesMmH | null;
 }
@@ -70,6 +75,7 @@ export interface DurationDetailResponse {
   n_bins: number;
   bin_edges: number[];
   empirical_density: number[];
+  empirical_cdf: EmpiricalCdfItem[];
   curve_x: number[];
   distributions: DurationDistributionItem[];
 }
@@ -85,4 +91,3 @@ export interface DistributionSelectionResponse {
   selected_distribution: DistributionEnum;
   selection_origin: SelectionOrigin;
 }
-
