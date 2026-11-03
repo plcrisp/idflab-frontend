@@ -67,16 +67,6 @@ export class HistoricalIdfChart implements OnDestroy {
     });
   }
 
-  private formatSignedPercentage(fraction: number | null | undefined): string {
-    if (fraction == null || Number.isNaN(fraction)) return '0,0%';
-    const pct = fraction * 100;
-    const sign = pct > 0.0001 ? '+' : pct < -0.0001 ? '−' : '';
-    const absFmt = Math.abs(pct).toLocaleString('pt-BR', {
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 1,
-    });
-    return `${sign}${absFmt}%`;
-  }
 
   ngOnDestroy(): void {
     this.echarts.destroy();
@@ -146,27 +136,6 @@ export class HistoricalIdfChart implements OnDestroy {
         z: 2,
       });
 
-      // Buffer de hover transparente para facilitar captura ao passar o mouse sobre a curva
-      seriesList.push({
-        name: seriesName,
-        type: 'line',
-        data: lineData,
-        symbol: 'none',
-        smooth: false,
-        triggerLineEvent: true,
-        lineStyle: {
-          width: 14,
-          color: 'transparent',
-        },
-        emphasis: {
-          lineStyle: {
-            width: 14,
-            color: 'transparent',
-          },
-        },
-        cursor: 'pointer',
-        z: 3,
-      });
 
       // 2. Pontos de quantil da distribuição ajustada (visíveis somente na escala Log-log)
       if (isLog) {
@@ -179,6 +148,7 @@ export class HistoricalIdfChart implements OnDestroy {
         seriesList.push({
           name: seriesName,
           type: 'scatter',
+          tooltip: { show: false },
           data: scatterData,
           symbol: 'circle',
           symbolSize: 7,
@@ -211,6 +181,7 @@ export class HistoricalIdfChart implements OnDestroy {
       seriesList.push({
         name: 'Quantil da distribuição',
         type: 'scatter',
+        tooltip: { show: false },
         data: [],
         symbol: 'circle',
         silent: true,
@@ -247,78 +218,82 @@ export class HistoricalIdfChart implements OnDestroy {
       },
       tooltip: {
         ...buildTooltipBase(tokens),
-        trigger: 'item',
+        trigger: 'axis',
+        axisPointer: {
+          type: 'line',
+          lineStyle: { color: tokens.border, type: 'dashed' },
+        },
         formatter: (params: any) => {
-          const p = Array.isArray(params) ? params[0] : params;
-          if (!p || !p.seriesName || p.seriesName === 'Quantil da distribuição') return '';
+          if (!Array.isArray(params) || params.length === 0) return '';
 
-          const trMatch = p.seriesName.match(/\d+/);
-          if (!trMatch) return '';
-          const tr = trMatch[0];
+          // Filtra séries de linha ativas (ignora scatter e séries vazias)
+          const validParams = params.filter(
+            (p) =>
+              p &&
+              p.seriesName &&
+              p.seriesName !== 'Quantil da distribuição' &&
+              p.seriesType === 'line'
+          );
+          if (validParams.length === 0) return '';
 
-          const rawX = Array.isArray(p.value) ? p.value[0] : p.value;
+          // Ordena decrescente por TR (ex: TR 100 -> TR 2) para refletir a ordem visual de cima para baixo no gráfico
+          validParams.sort((a, b) => {
+            const trA = Number(a.seriesName.match(/\d+/)?.[0] ?? 0);
+            const trB = Number(b.seriesName.match(/\d+/)?.[0] ?? 0);
+            return trB - trA;
+          });
+
+          const rawX = Array.isArray(validParams[0].value)
+            ? validParams[0].value[0]
+            : validParams[0].value;
           const durNum = Number(rawX);
           if (isNaN(durNum)) return '';
 
-          // Detecção por proximidade ao eixo X: localiza a duração da etapa mais próxima
-          let closestDur = durations[0];
-          let minDiff = Infinity;
-          for (const d of durations) {
-            const diff = isLog
-              ? Math.abs(Math.log(d.duration_minutes) - Math.log(durNum))
-              : Math.abs(d.duration_minutes - durNum);
-            if (diff < minDiff) {
-              minDiff = diff;
-              closestDur = d;
-            }
+          // Localiza rótulo amigável da duração
+          const exactDur = durations.find(
+            (d) => Math.abs(d.duration_minutes - durNum) < 0.01
+          );
+          let durLabel: string;
+          if (exactDur) {
+            durLabel = exactDur.label;
+          } else if (durationMap[durNum]) {
+            durLabel = durationMap[durNum];
+          } else if (durNum >= 60 && Math.abs(durNum % 60) < 0.01) {
+            durLabel = `${Math.round(durNum / 60)} h`;
+          } else if (durNum >= 10) {
+            durLabel = `${Math.round(durNum)} min`;
+          } else {
+            durLabel = `${durNum.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} min`;
           }
 
-          const durLabel = closestDur ? closestDur.label : `${durNum} min`;
-          const durIdx = closestDur
-            ? durations.findIndex((d) => d.duration_minutes === closestDur.duration_minutes)
-            : -1;
+          let rowsHtml = '';
+          for (const p of validParams) {
+            const yVal = Array.isArray(p.value) ? p.value[1] : p.value;
+            if (yVal == null || isNaN(Number(yVal))) continue;
 
-          const eqVal = durIdx !== -1 ? (data.equation_mm_h[tr]?.[durIdx] ?? null) : null;
-          const qVal = durIdx !== -1 ? (data.quantiles_mm_h[tr]?.[durIdx] ?? null) : null;
-          const errVal = durIdx !== -1 ? (data.relative_error[tr]?.[durIdx] ?? null) : null;
+            const valFmt = Number(yVal).toLocaleString('pt-BR', {
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            });
 
-          const eqFmt =
-            eqVal != null
-              ? eqVal.toLocaleString('pt-BR', {
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-              }) + ' mm/h'
-              : '—';
-          const qFmt =
-            qVal != null
-              ? qVal.toLocaleString('pt-BR', {
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-              }) + ' mm/h'
-              : '—';
-          const errFmt =
-            errVal != null
-              ? this.formatSignedPercentage(errVal)
-              : '—';
+            rowsHtml += `
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 3px;">
+                <span style="display: inline-flex; align-items: center; gap: 6px;">
+                  <span style="width: 8px; height: 8px; border-radius: 2px; background-color: ${p.color}; shrink-0;"></span>
+                  <span style="color: ${tokens.text}; font-weight: 500;">${p.seriesName}:</span>
+                </span>
+                <strong style="color: ${tokens.text}; font-variant-numeric: tabular-nums;">${valFmt} mm/h</strong>
+              </div>
+            `;
+          }
 
           return `
-            <div style="font-family: ${tokens.fontFamily}; width: 190px; padding: 2px; box-sizing: border-box; user-select: none;">
-              <div style="font-weight: 600; color: ${tokens.text}; font-size: 12px; border-bottom: 1px solid ${tokens.border}; padding-bottom: 5px; margin-bottom: 6px;">
-                TR ${tr} · ${durLabel}
+            <div style="font-family: ${tokens.fontFamily}; min-width: 175px; padding: 2px; box-sizing: border-box; user-select: none;">
+              <div style="font-weight: 600; color: ${tokens.text}; font-size: 12px; border-bottom: 1px solid ${tokens.border}; padding-bottom: 5px; margin-bottom: 4px;">
+                Duração: ${durLabel}
               </div>
-              <div style="display: flex; flex-direction: column; gap: 4px; font-size: 11px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                  <span style="color: ${tokens.textMuted};">Equação:</span>
-                  <strong style="color: ${tokens.text}; font-weight: 600; font-variant-numeric: tabular-nums;">${eqFmt}</strong>
-                </div>
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                  <span style="color: ${tokens.textMuted};">Quantil:</span>
-                  <strong style="color: ${tokens.text}; font-weight: 600; font-variant-numeric: tabular-nums;">${qFmt}</strong>
-                </div>
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                  <span style="color: ${tokens.textMuted};">Erro relativo:</span>
-                  <strong style="color: ${tokens.text}; font-weight: 600; font-variant-numeric: tabular-nums;">${errFmt}</strong>
-                </div>
+              <div style="display: flex; flex-direction: column; gap: 2px; font-size: 11px;">
+                ${rowsHtml}
               </div>
             </div>
           `;
