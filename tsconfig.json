@@ -41,7 +41,8 @@
       "@spartan-ng/helm/calendar": ["./libs/ui/calendar/src/index.ts"],
       "@spartan-ng/helm/select": ["./libs/ui/select/src/index.ts"],
       "@spartan-ng/helm/badge": ["./libs/ui/badge/src/index.ts"],
-      "@spartan-ng/helm/progress": ["./libs/ui/progress/src/index.ts"]
+      "@spartan-ng/helm/progress": ["./libs/ui/progress/src/index.ts"],
+      "@spartan-ng/helm/accordion": ["./libs/ui/accordion/src/index.ts"]
     }
   },
   "angularCompilerOptions": {

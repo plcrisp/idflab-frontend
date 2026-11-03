@@ -24,6 +24,20 @@
 
     <div class="w-px h-6 bg-(--border-alt)"></div>
 
+    <!-- Gatilho de Ajuda Contextual -->
+    <button
+      type="button"
+      (click)="helpService.toggle()"
+      [hlmTooltip]="'Ajuda'"
+      position="bottom"
+      aria-label="Ajuda"
+      class="relative flex items-center justify-center w-9 h-9 rounded-md bg-transparent text-(--neutral-50) transition-colors hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+    >
+      <ng-icon name="lucideCircleQuestionMark" class="text-lg"></ng-icon>
+    </button>
+
+    <div class="w-px h-6 bg-(--border-alt)"></div>
+
     <app-theme-toggle [isFixed]="false"></app-theme-toggle>
 
     <div class="w-px h-6 bg-(--border-alt)"></div>

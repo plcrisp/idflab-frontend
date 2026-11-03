@@ -14,6 +14,7 @@ import {
   lucideChevronRight,
   lucideCircle,
   lucideCircleCheck,
+  lucideCircleHelp,
   lucideCircleX,
   lucideClock,
   lucideCloudOff,
@@ -40,6 +41,7 @@ import {
   lucideTrash2,
   lucideTriangleAlert,
   lucideUser,
+  lucideCircleQuestionMark
 } from '@ng-icons/lucide';
 import { Navbar } from './components/navbar/navbar';
 import { Sidebar } from './components/sidebar/sidebar';
@@ -60,6 +62,7 @@ import { StatCard } from './components/stat-card/stat-card';
 import { HlmProgressImports } from '@spartan-ng/helm/progress';
 import { JobProgressCard } from './components/job-progress-card/job-progress-card';
 import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
+import { ContextualHelpSheet } from './components/contextual-help/contextual-help-sheet';
 
 @NgModule({
   declarations: [
@@ -98,6 +101,7 @@ import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
       lucideHouse,
       lucideCircleX,
       lucideCircleCheck,
+      lucideCircleHelp,
       lucideBellOff,
       lucideLogOut,
       lucideUser,
@@ -112,6 +116,7 @@ import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
       lucideTriangleAlert,
       lucideRotateCw,
       lucideInfo,
+      lucideCircleQuestionMark
     }),
     ...HlmButtonImports,
     ...HlmSidebarImports,
@@ -125,6 +130,7 @@ import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
     ...HlmBadgeImports,
     ...HlmProgressImports,
     ...HlmTooltipImports,
+    ContextualHelpSheet,
   ],
   exports: [
     ThemeToggle,
@@ -133,6 +139,7 @@ import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
     LoadingOverlay,
     StatCard,
     JobProgressCard,
+    ContextualHelpSheet,
     ...HlmSkeletonImports,
     ...HlmEmptyImports,
     ...HlmSpinnerImports,

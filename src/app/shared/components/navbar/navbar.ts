@@ -1,6 +1,7 @@
 import { Component, ElementRef, HostListener, inject, Input } from '@angular/core';
 import { AuthService } from '../../../features/auth/services/auth.service';
 import { MainLayoutService } from '../../../core/services/state/main-layout.service';
+import { ContextualHelpService } from '../../../core/services/state/contextual-help.service';
 import { Breadcrumb } from '../../../core/models/utils/main-layout.model';
 
 @Component({
@@ -13,6 +14,7 @@ export class Navbar {
   private auth = inject(AuthService);
   private eRef = inject(ElementRef);
   mainLayoutService = inject(MainLayoutService);
+  readonly helpService = inject(ContextualHelpService);
 
   @Input() breadcrumbs: Breadcrumb[] = [];
   @Input() isProcessing: boolean = false;

@@ -78,7 +78,7 @@
     </span>
   </div>
 
-  <!-- 3. Progresso -->
+  <!-- 3. Progresso (8 etapas: Mapa -> Cenários futuros) -->
   <div class="space-y-1.5">
     <div class="flex items-center justify-between text-xs">
       <div class="flex items-center gap-1.5 min-w-0">
@@ -94,13 +94,13 @@
       </div>
 
       <span class="text-xs text-muted-foreground shrink-0 tabular-nums ml-2">
-        {{ stepInfo().number }} de 7
+        {{ stepInfo().number }} de {{ stepInfo().total }}
       </span>
     </div>
 
-    <!-- Barra de progresso segmentada em 7 partes -->
-    <div class="grid grid-cols-7 gap-1 w-full">
-      @for (segment of [1, 2, 3, 4, 5, 6, 7]; track segment) {
+    <!-- Barra de progresso segmentada em 8 partes -->
+    <div class="grid grid-cols-8 gap-1 w-full">
+      @for (segment of [1, 2, 3, 4, 5, 6, 7, 8]; track segment) {
         <div
           class="h-1 rounded-full transition-colors duration-200"
           [ngClass]="segment <= stepInfo().number ? 'bg-primary' : 'bg-muted'"

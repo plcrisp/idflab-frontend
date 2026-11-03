@@ -1,0 +1,8 @@
+@for (token of tokens(); track $index) {
+  @if (token.type === 'text') {
+    <span>{{ token.value }}</span>
+  } @else {
+    <app-help-term [term]="token.term" [definition]="token.definition" />
+  }
+}
+

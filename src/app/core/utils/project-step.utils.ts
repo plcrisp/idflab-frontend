@@ -81,22 +81,29 @@ export const ANALYSIS_STEPS: readonly AnalysisStepDef[] = [
   { label: 'Cenários futuros', path: 'cenarios-futuros' },
 ] as const;
 
-export const PROJECT_PIPELINE_STEPS = ANALYSIS_STEPS.filter(
-  (step) => step.path !== 'interactive-map',
-);
+export const PROJECT_PIPELINE_STEPS: readonly AnalysisStepDef[] = ANALYSIS_STEPS;
 
-export function getProjectPipelineStepInfo(furthestStep: StepEnum): {
+export function getProjectPipelineStepInfo(furthestStep?: StepEnum | null): {
   number: number;
   total: number;
   label: string;
   percent: number;
 } {
+  const total = PROJECT_PIPELINE_STEPS.length;
+  if (!furthestStep) {
+    return {
+      number: 1,
+      total,
+      label: PROJECT_PIPELINE_STEPS[0].label,
+      percent: Math.round((1 / total) * 100),
+    };
+  }
+
   const route = getRouteForStep(furthestStep);
   const index = PROJECT_PIPELINE_STEPS.findIndex((s) => s.path === route);
   const stepIndex = index >= 0 ? index : 0;
   const current = PROJECT_PIPELINE_STEPS[stepIndex];
   const number = stepIndex + 1;
-  const total = PROJECT_PIPELINE_STEPS.length;
   const percent = Math.round((number / total) * 100);
 
   return {
@@ -106,4 +113,3 @@ export function getProjectPipelineStepInfo(furthestStep: StepEnum): {
     percent,
   };
 }
-

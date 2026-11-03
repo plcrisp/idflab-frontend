@@ -1,0 +1,129 @@
+<hlm-sheet
+  [state]="isOpen() ? 'open' : 'closed'"
+  (stateChanged)="onStateChanged($event)"
+  side="right"
+>
+  <hlm-sheet-content
+    *brnSheetContent="let ctx"
+    [showCloseButton]="false"
+    class="w-full max-sm:w-screen max-sm:max-w-none sm:max-w-lg md:max-w-lg h-full p-0 flex flex-col gap-0 border-l border-border bg-card shadow-2xl transition-all duration-200"
+  >
+    <!-- 1. CABEÇALHO FIXO -->
+    <header class="flex items-start justify-between px-6 pt-5 pb-4 border-b border-border bg-card shrink-0 z-20">
+      <div class="flex flex-col min-w-0 pr-3">
+        <h2 class="text-xl font-bold text-foreground tracking-tight leading-tight">
+          Ajuda
+        </h2>
+        <p class="text-xs text-muted-foreground mt-0.5 truncate">
+          @if (activeTab() === 'overview') {
+            Visão geral do fluxo
+          } @else {
+            Etapa {{ viewingStepIndex() + 1 }} de 8 · {{ viewingStepContent().title }}
+          }
+        </p>
+      </div>
+
+      <button
+        hlmBtn
+        variant="ghost"
+        size="icon-sm"
+        class="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md cursor-pointer shrink-0 mt-0.5"
+        (click)="helpService.close()"
+        aria-label="Fechar painel de ajuda"
+      >
+        <ng-icon name="lucideX" class="text-lg" />
+      </button>
+    </header>
+
+    <!-- 2. ABAS ("Esta etapa" e "Visão geral") -->
+    <div class="px-6 border-b border-border bg-card shrink-0 z-10" role="tablist" aria-label="Navegação da ajuda">
+      <div class="flex items-center gap-6 -mb-px">
+        <button
+          type="button"
+          role="tab"
+          id="tab-step"
+          aria-controls="panel-step"
+          [attr.aria-selected]="activeTab() === 'step'"
+          (click)="onTabClick('step')"
+          class="py-3 text-sm font-semibold border-b-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          [ngClass]="activeTab() === 'step' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
+        >
+          Esta etapa
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          id="tab-overview"
+          aria-controls="panel-overview"
+          [attr.aria-selected]="activeTab() === 'overview'"
+          (click)="onTabClick('overview')"
+          class="py-3 text-sm font-semibold border-b-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          [ngClass]="activeTab() === 'overview' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
+        >
+          Visão geral
+        </button>
+      </div>
+    </div>
+
+    <!-- 3. CORPO ROLÁVEL -->
+    <div
+      #scrollContainer
+      (scroll)="onBodyScroll()"
+      data-slot="sheet-body"
+      class="flex-1 min-h-0 overflow-y-auto px-6 py-5 scrollbar-thin focus-visible:outline-none"
+      tabindex="-1"
+    >
+      @if (activeTab() === 'step') {
+        <div id="panel-step" role="tabpanel" aria-labelledby="tab-step">
+          <app-help-step-tab [step]="viewingStepContent()" />
+        </div>
+      } @else {
+        <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview">
+          <app-help-overview-tab
+            [currentStepIndex]="helpService.currentStepIndex()"
+            [generalReferences]="helpService.generalReferences"
+            (stepSelect)="onOverviewStepSelected($event)"
+          />
+        </div>
+      }
+    </div>
+
+    <!-- 4. RODAPÉ FIXO (oculto na aba "Visão geral" quando não há etapa atual) -->
+    @if (shouldShowFooter()) {
+      <footer class="flex items-center justify-between px-6 py-3 border-t border-border bg-card shrink-0 z-20">
+        <button
+          hlmBtn
+          variant="ghost"
+          size="sm"
+          type="button"
+          class="text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          [disabled]="!helpService.hasPreviousStep() || activeTab() === 'overview'"
+          (click)="helpService.goToPreviousStep()"
+        >
+          <ng-icon name="lucideArrowLeft" class="text-sm mr-1.5" />
+          <span>Etapa anterior</span>
+        </button>
+
+        <span class="text-[11px] font-medium text-muted-foreground select-none">
+          @if (activeTab() === 'step') {
+            {{ viewingStepIndex() + 1 }} de 8
+          }
+        </span>
+
+        <button
+          hlmBtn
+          variant="ghost"
+          size="sm"
+          type="button"
+          class="text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          [disabled]="!helpService.hasNextStep() || activeTab() === 'overview'"
+          (click)="helpService.goToNextStep()"
+        >
+          <span>Próxima etapa</span>
+          <ng-icon name="lucideArrowRight" class="text-sm ml-1.5" />
+        </button>
+      </footer>
+    }
+  </hlm-sheet-content>
+</hlm-sheet>
