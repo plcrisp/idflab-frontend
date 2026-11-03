@@ -24,15 +24,14 @@ export class HistoricalIdfEquationCard {
   readonly distributionName = input<string>('');
   readonly distributionColor = input<string>('');
 
-  getThetaTooltip(flags?: HistoricalIdfFlags): string {
-    if (flags?.theta_bound?.at_bound) {
+  getT0Tooltip(flags?: HistoricalIdfFlags): string {
+    if (flags?.t0_bound?.at_bound) {
       const boundType =
-        flags.theta_bound.bound === 'lower'
+        flags.t0_bound.bound === 'lower'
           ? 'inferior (0,1 min)'
           : 'superior (10,0 min)';
-      return `Parâmetro θ atingiu o limite ${boundType} do intervalo [0,1; 10,0] min`;
+      return `Parâmetro t₀ atingiu o limite ${boundType} do intervalo [0,1; 10,0] min`;
     }
-    return 'Duração de referência da bacia (θ) em minutos';
+    return 'Parâmetro t₀ somado à duração em minutos';
   }
 }
-

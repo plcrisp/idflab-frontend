@@ -9,11 +9,13 @@ export interface MaxRelativeError {
   duration_minutes: number; // ex: 5
 }
 
-export interface ThetaBoundFlag {
+export interface T0BoundFlag {
   at_bound: boolean;
   bound: 'lower' | 'upper' | null;
   limit_value: number | null; // 0.1 ou 10.0 quando at_bound === true
 }
+
+export type ThetaBoundFlag = T0BoundFlag;
 
 export interface ExtrapolationFlag {
   has_extrapolation: boolean;
@@ -22,7 +24,7 @@ export interface ExtrapolationFlag {
 }
 
 export interface HistoricalIdfFlags {
-  theta_bound: ThetaBoundFlag;
+  t0_bound: T0BoundFlag;
   extrapolation: ExtrapolationFlag;
 }
 
@@ -35,10 +37,10 @@ export interface HistoricalIdfResponse {
   project_id: string;
   step_id: string;
   status: 'COMPLETED';
-  lambda: number;
-  kappa: number;
-  eta: number;
-  theta: number;
+  k: number;
+  m: number;
+  n: number;
+  t0: number;
   r2: number;
   max_error: MaxRelativeError;
   distribution: DistributionEnum;
@@ -51,4 +53,3 @@ export interface HistoricalIdfResponse {
   library_versions: Record<string, string>;
   dense_grid: DenseGrid;
 }
-

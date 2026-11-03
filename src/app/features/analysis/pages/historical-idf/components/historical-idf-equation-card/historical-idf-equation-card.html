@@ -22,69 +22,69 @@
     <!-- Esquerda: Fórmula e Unidades -->
     <div class="flex flex-col select-all shrink-0">
       <div class="text-lg sm:text-xl font-bold tracking-tight text-foreground tabular-nums">
-        i = λ · T<sup>κ</sup> / (d + θ)<sup>η</sup>
+        i = K · TR<sup>m</sup> / (d + t₀)<sup>n</sup>
       </div>
       <div class="text-[11px] text-muted-foreground mt-0.5">
-        i em mm/h · d em min · T em anos
+        i em mm/h · d em min · TR em anos
       </div>
     </div>
 
     <!-- Direita: 4 Tiles de Parâmetros Calibrados em linha -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 w-full md:w-auto">
-      <!-- Parâmetro λ -->
-      <div [hlmTooltip]="'Coeficiente de escala da intensidade (λ)'"
+      <!-- Parâmetro K -->
+      <div [hlmTooltip]="'Coeficiente de ajuste da localidade (K)'"
         class="group flex flex-col items-center justify-center px-3 py-1.5 sm:py-2 min-w-22 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center cursor-help">
         <span
           class="text-[10px] sm:text-[11px] font-semibold tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">
-          λ
+          K
         </span>
         <span class="mt-0.5 text-sm sm:text-base font-bold text-foreground tabular-nums">
-          {{ data().lambda | number:'1.1-1':'pt-BR' }}
+          {{ data().k | number:'1.1-1':'pt-BR' }}
         </span>
       </div>
 
-      <!-- Parâmetro κ -->
-      <div [hlmTooltip]="'Expoente do tempo de retorno (κ)'"
+      <!-- Parâmetro m -->
+      <div [hlmTooltip]="'Expoente do tempo de retorno (m)'"
         class="group flex flex-col items-center justify-center px-3 py-1.5 sm:py-2 min-w-22 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center cursor-help">
         <span
           class="text-[10px] sm:text-[11px] font-semibold tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">
-          κ
+          m
         </span>
         <span class="mt-0.5 text-sm sm:text-base font-bold text-foreground tabular-nums">
-          {{ data().kappa | number:'1.3-3':'pt-BR' }}
+          {{ data().m | number:'1.3-3':'pt-BR' }}
         </span>
       </div>
 
-      <!-- Parâmetro η -->
-      <div [hlmTooltip]="'Expoente de decaimento com a duração (η)'"
+      <!-- Parâmetro n -->
+      <div [hlmTooltip]="'Expoente da duração (n)'"
         class="group flex flex-col items-center justify-center px-3 py-1.5 sm:py-2 min-w-22 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center cursor-help">
         <span
           class="text-[10px] sm:text-[11px] font-semibold tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">
-          η
+          n
         </span>
         <span class="mt-0.5 text-sm sm:text-base font-bold text-foreground tabular-nums">
-          {{ data().eta | number:'1.3-3':'pt-BR' }}
+          {{ data().n | number:'1.3-3':'pt-BR' }}
         </span>
       </div>
 
-      <!-- Parâmetro θ (min) -->
-      <div [hlmTooltip]="getThetaTooltip(data().flags)"
+      <!-- Parâmetro t₀ (min) -->
+      <div [hlmTooltip]="getT0Tooltip(data().flags)"
         class="group flex flex-col items-center justify-center px-3 py-1.5 sm:py-2 min-w-22 rounded-lg border transition-colors text-center cursor-help"
-        [class.border-warning/50]="data().flags.theta_bound.at_bound"
-        [class.bg-warning/5]="data().flags.theta_bound.at_bound"
-        [class.border-border/70]="!data().flags.theta_bound.at_bound"
-        [class.bg-secondary/30]="!data().flags.theta_bound.at_bound"
-        [class.hover:bg-secondary/60]="!data().flags.theta_bound.at_bound"
-        [class.hover:border-border]="!data().flags.theta_bound.at_bound">
+        [class.border-warning/50]="data().flags.t0_bound.at_bound"
+        [class.bg-warning/5]="data().flags.t0_bound.at_bound"
+        [class.border-border/70]="!data().flags.t0_bound.at_bound"
+        [class.bg-secondary/30]="!data().flags.t0_bound.at_bound"
+        [class.hover:bg-secondary/60]="!data().flags.t0_bound.at_bound"
+        [class.hover:border-border]="!data().flags.t0_bound.at_bound">
         <span
           class="text-[10px] sm:text-[11px] font-semibold tracking-wider text-muted-foreground group-hover:text-foreground transition-colors flex items-center justify-center gap-1">
-          <span>θ (min)</span>
-          @if (data().flags.theta_bound.at_bound) {
+          <span>t₀ (min)</span>
+          @if (data().flags.t0_bound.at_bound) {
           <ng-icon name="lucideTriangleAlert" class="text-xs text-warning shrink-0" />
           }
         </span>
         <span class="mt-0.5 text-sm sm:text-base font-bold text-foreground tabular-nums">
-          {{ data().theta | number:'1.1-2':'pt-BR' }}
+          {{ data().t0 | number:'1.1-2':'pt-BR' }}
         </span>
       </div>
     </div>
