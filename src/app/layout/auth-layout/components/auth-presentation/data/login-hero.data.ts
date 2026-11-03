@@ -140,7 +140,7 @@ export const LOGIN_HERO_DIFFERENTIATORS: PresentationDifferentiator[] = [
   {
     id: 2,
     icon: 'lucideSliders',
-    label: 'Você escolhe cada método',
+    label: 'Tudo registrado e reprodutível',
   },
   {
     id: 3,
@@ -151,7 +151,7 @@ export const LOGIN_HERO_DIFFERENTIATORS: PresentationDifferentiator[] = [
 
 export const LOGIN_HERO_TEXTS: PresentationTexts = {
   brand: 'IDFLab',
-  title: 'Da série bruta à curva IDF,\ncom método à vista.',
-  subtitle: 'Séries reais, tratadas e ajustadas passo a passo, sem escrever código.',
+  title: 'Da série bruta à curva IDF,\netapa por etapa.',
+  subtitle: 'Um fluxo guiado: você escolhe os métodos, o IDFLab executa e registra cada resultado.',
   footer: 'Projeto de pesquisa · UNIFEI',
 };
