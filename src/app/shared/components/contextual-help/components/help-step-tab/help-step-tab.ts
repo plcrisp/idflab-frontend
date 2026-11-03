@@ -11,11 +11,21 @@ import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideActivity,
+  lucideAlertCircle,
+  lucideBookOpen,
+  lucideCheck,
+  lucideCheckCircle2,
   lucideChevronDown,
   lucideExternalLink,
-  lucideMousePointerClick,
+  lucideGauge,
+  lucideSlidersHorizontal,
+  lucideSparkles,
+  lucideTriangleAlert,
 } from '@ng-icons/lucide';
-import { HelpStepContent } from '../../../../../core/models/contextual-help.model';
+import {
+  HELP_STEP_ORDER,
+  HelpStepContent,
+} from '../../../../../core/models/contextual-help.model';
 import { HelpFigure } from '../help-figure/help-figure';
 import { HelpFormattedText } from '../help-formatted-text/help-formatted-text';
 
@@ -26,9 +36,16 @@ import { HelpFormattedText } from '../help-formatted-text/help-formatted-text';
   providers: [
     provideIcons({
       lucideActivity,
+      lucideAlertCircle,
+      lucideBookOpen,
+      lucideCheck,
+      lucideCheckCircle2,
       lucideChevronDown,
       lucideExternalLink,
-      lucideMousePointerClick,
+      lucideGauge,
+      lucideSlidersHorizontal,
+      lucideSparkles,
+      lucideTriangleAlert,
     }),
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,6 +61,11 @@ export class HelpStepTab {
   readonly openHowItWorks = signal<boolean>(false);
   readonly openInterpret = signal<boolean>(false);
   readonly openReferences = signal<boolean>(false);
+
+  readonly stepNumber = computed(() => {
+    const idx = HELP_STEP_ORDER.indexOf(this.step().id);
+    return idx >= 0 ? String(idx + 1).padStart(2, '0') : '';
+  });
 
   readonly hasInterpretItems = computed(() => {
     const i = this.step().interpret;
@@ -61,7 +83,7 @@ export class HelpStepTab {
   });
 
   constructor() {
-    // Whenever viewing step changes, collapse all disclosures by default
+    // Ao alternar a etapa visualizada, mantém os cartões de fundamentos fechados por padrão
     effect(() => {
       this.step();
       untracked(() => {

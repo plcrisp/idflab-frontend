@@ -38,6 +38,7 @@ export interface HelpStepContent {
   icon: string;
   figure: HelpFigureKey;
   summary: string;
+  whyItMatters?: string;
   decision?: string;
   howItWorks?: string[];
   interpret?: HelpInterpretation;

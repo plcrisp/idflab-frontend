@@ -48,12 +48,26 @@ export class DistributionSelectionTable {
   readonly selectionTable = input<DistributionTableItem[]>([]);
   readonly selectedDistribution = input<DistributionEnum | null>(null);
   readonly suggestedDistribution = input<DistributionEnum | null>(null);
+  readonly hoveredDistribution = input<DistributionEnum | null>(null);
   readonly durationDetail = input<DurationDetailResponse | null>(null);
   readonly durationLabel = input<string>('1 h');
   readonly loading = input<boolean>(false);
   readonly disabled = input<boolean>(false);
 
   readonly distributionSelected = output<DistributionEnum>();
+  readonly distributionHovered = output<DistributionEnum | null>();
+
+  onRowHover(code: DistributionEnum | null): void {
+    this.distributionHovered.emit(code);
+  }
+
+  onRowKeydown(event: KeyboardEvent, row: DistributionTableItem): void {
+    if (event.target !== event.currentTarget) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.onRowClick(row);
+    }
+  }
 
   getConfig(code: DistributionEnum): DistributionConfig {
     return getDistributionConfig(code);

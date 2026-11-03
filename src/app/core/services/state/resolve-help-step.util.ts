@@ -12,8 +12,6 @@ export function resolveHelpStep(url: string | null | undefined): HelpStepId | nu
 
   // Explicit non-step routes
   if (
-    cleanUrl === '/app/interactive-map' ||
-    cleanUrl === '/interactive-map' ||
     cleanUrl.startsWith('/app/projects') ||
     cleanUrl.startsWith('/projects') ||
     cleanUrl.startsWith('/app/dashboard') ||
@@ -29,17 +27,18 @@ export function resolveHelpStep(url: string | null | undefined): HelpStepId | nu
     return null;
   }
 
-  // 1. Map step (only when inside the analysis flow / project context)
+  // 1. Map step
   if (
-    (cleanUrl.includes('/analysis/') || cleanUrl.includes('/analise/')) &&
-    (cleanUrl.includes('/interactive-map') ||
-      cleanUrl.includes('/mapa') ||
-      cleanUrl.endsWith('/map') ||
-      cleanUrl.includes('/map/'))
+    cleanUrl === '/app/interactive-map' ||
+    cleanUrl === '/interactive-map' ||
+    cleanUrl === '/map' ||
+    cleanUrl === 'map' ||
+    ((cleanUrl.includes('/analysis/') || cleanUrl.includes('/analise/')) &&
+      (cleanUrl.includes('/interactive-map') ||
+        cleanUrl.includes('/mapa') ||
+        cleanUrl.endsWith('/map') ||
+        cleanUrl.includes('/map/')))
   ) {
-    return 'map';
-  }
-  if (cleanUrl === '/map' || cleanUrl === 'map') {
     return 'map';
   }
 

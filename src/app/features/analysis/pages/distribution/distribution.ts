@@ -70,6 +70,7 @@ export class Distribution implements OnInit, OnDestroy {
   readonly isLoadingAnnualMaxDetail = signal<boolean>(false);
   readonly selectedDistribution = signal<DistributionEnum | null>(null);
   readonly suggestedDistribution = signal<DistributionEnum | null>(null);
+  readonly hoveredDistribution = signal<DistributionEnum | null>(null);
 
   readonly activeView = signal<'chart' | 'table'>('chart');
   readonly chartMode = signal<'pdf' | 'cdf'>('pdf');

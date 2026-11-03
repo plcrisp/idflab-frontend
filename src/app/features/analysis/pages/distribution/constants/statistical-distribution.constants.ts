@@ -81,3 +81,11 @@ export function getDistributionColor(code: DistributionEnum): string {
   return cfg?.fallbackColor ?? '#49628b';
 }
 
+export function getDistributionByName(name: string): DistributionEnum | null {
+  for (const [code, cfg] of Object.entries(DISTRIBUTION_CONFIGS)) {
+    if (cfg.name === name) {
+      return code as DistributionEnum;
+    }
+  }
+  return null;
+}

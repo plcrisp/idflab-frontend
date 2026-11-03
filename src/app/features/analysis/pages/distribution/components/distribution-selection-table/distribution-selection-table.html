@@ -34,14 +34,21 @@
   @for (row of selectionTable(); track row.distribution; let idx = $index) {
   <div
     (click)="onRowClick(row)"
-    class="group w-full relative rounded-xl border transition-all duration-150 p-3 sm:p-3.5 select-none grid grid-cols-[16px_1fr_95px_32px] items-center gap-3 outline-none hover:z-30 focus-within:z-30"
+    (mouseenter)="row.status === 'ok' && !disabled() && onRowHover(row.distribution)"
+    (mouseleave)="onRowHover(null)"
+    (focusin)="row.status === 'ok' && !disabled() && onRowHover(row.distribution)"
+    (focusout)="onRowHover(null)"
+    (keydown)="onRowKeydown($event, row)"
+    [attr.tabindex]="row.status === 'ok' && !disabled() ? 0 : -1"
+    class="group w-full relative rounded-xl border transition-all duration-150 p-3 sm:p-3.5 select-none grid grid-cols-[16px_1fr_95px_32px] items-center gap-3 outline-none hover:z-30 focus-within:z-30 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
     [class.cursor-pointer]="row.status === 'ok' && !disabled()"
     [class.cursor-not-allowed]="row.status !== 'ok' || disabled()"
     [class.opacity-60]="row.status !== 'ok'"
     [class.border-primary]="selectedDistribution() === row.distribution"
     [class.bg-primary-5]="selectedDistribution() === row.distribution"
     [class.shadow-xs]="selectedDistribution() === row.distribution"
-    [class.border-border/70]="selectedDistribution() !== row.distribution"
+    [class.border-primary/50]="hoveredDistribution() === row.distribution && selectedDistribution() !== row.distribution"
+    [class.border-border/70]="selectedDistribution() !== row.distribution && hoveredDistribution() !== row.distribution"
     [class.bg-card]="selectedDistribution() !== row.distribution"
     [class.hover:bg-secondary/40]="selectedDistribution() !== row.distribution && row.status === 'ok' && !disabled()"
   >

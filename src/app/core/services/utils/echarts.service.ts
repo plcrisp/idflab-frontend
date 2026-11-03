@@ -24,6 +24,7 @@ export interface ChartTokens {
   historicalMax: string;
   incompleteCoverage: string;
   incompleteBorder: string;
+  empiricalLine: string;
 }
 
 const themeTick = signal(0);
@@ -43,6 +44,7 @@ function ensureThemeObserver(): void {
 function readTokens(): ChartTokens {
   const styles = getComputedStyle(document.documentElement);
   const v = (name: string, fallback: string) => styles.getPropertyValue(name).trim() || fallback;
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
 
   return {
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
@@ -73,6 +75,7 @@ function readTokens(): ChartTokens {
     historicalMax: v('--chart-historical-max', '#f59e0b'),
     incompleteCoverage: v('--chart-incomplete-coverage', 'rgba(239, 68, 68, 0.2)'),
     incompleteBorder: v('--chart-incomplete-border', '#ef4444'),
+    empiricalLine: v('--chart-empirical', isLight ? '#475569' : '#94a3b8'),
   };
 }
 
@@ -114,6 +117,7 @@ export class EchartsService<T = unknown> {
     buildOption: (data: T) => EChartsOption;
     onClick?: (params: echarts.ECElementEvent) => void;
     onDataZoom?: (params: any) => void;
+    onInit?: (chart: echarts.ECharts) => void;
     renderer?: 'canvas' | 'svg';
   }): void {
     effect(() => {
@@ -135,6 +139,7 @@ export class EchartsService<T = unknown> {
         if (config.onDataZoom) {
           this.chart.on('datazoom', config.onDataZoom);
         }
+        config.onInit?.(this.chart);
       }
       this.chart.setOption(config.buildOption(data), true);
     });

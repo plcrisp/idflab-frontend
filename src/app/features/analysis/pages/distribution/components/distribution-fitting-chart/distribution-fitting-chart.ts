@@ -7,10 +7,13 @@ import {
   input,
   model,
   OnDestroy,
+  output,
+  signal,
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EChartsOption, SeriesOption } from 'echarts';
+import * as echarts from 'echarts';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 
 import { EchartsService } from '../../../../../../core/services/utils/echarts.service';
@@ -21,6 +24,7 @@ import {
 import {
   getDistributionColor,
   getDistributionConfig,
+  getDistributionByName,
 } from '../../constants/statistical-distribution.constants';
 import {
   buildAxisLabelBase,
@@ -42,18 +46,28 @@ export class DistributionFittingChart implements OnDestroy {
   readonly detail = input<DurationDetailResponse | null>(null);
   readonly selectedDistribution = input<DistributionEnum | null>(null);
   readonly suggestedDistribution = input<DistributionEnum | null>(null);
+  readonly hoveredDistribution = input<DistributionEnum | null>(null);
   readonly loading = input<boolean>(false);
   readonly chartMode = model<'pdf' | 'cdf'>('pdf');
 
+  readonly distributionHovered = output<DistributionEnum | null>();
+
   @ViewChild('chartContainer', { static: true })
   private chartContainer!: ElementRef<HTMLDivElement>;
+
+  private readonly internalHoveredDistribution = signal<DistributionEnum | null>(null);
 
   private readonly echarts = inject(EchartsService) as EchartsService<{
     detail: DurationDetailResponse;
     selected: DistributionEnum | null;
     suggested: DistributionEnum | null;
+    hovered: DistributionEnum | null;
     mode: 'pdf' | 'cdf';
   }>;
+
+  private readonly activeHovered = computed(() => {
+    return this.hoveredDistribution() ?? this.internalHoveredDistribution();
+  });
 
   private readonly chartData = computed(() => {
     const d = this.detail();
@@ -62,6 +76,7 @@ export class DistributionFittingChart implements OnDestroy {
       detail: d,
       selected: this.selectedDistribution(),
       suggested: this.suggestedDistribution(),
+      hovered: this.activeHovered(),
       mode: this.chartMode(),
     };
   });
@@ -71,6 +86,7 @@ export class DistributionFittingChart implements OnDestroy {
       container: () => this.chartContainer?.nativeElement,
       data: this.chartData,
       buildOption: (data) => this.buildOption(data),
+      onInit: (chart) => this.attachChartEvents(chart),
     });
   }
 
@@ -78,20 +94,65 @@ export class DistributionFittingChart implements OnDestroy {
     this.echarts.destroy();
   }
 
+  private attachChartEvents(chart: echarts.ECharts): void {
+    chart.on('legendmouseover', (params: any) => {
+      const dist = getDistributionByName(params.name);
+      if (dist) {
+        this.internalHoveredDistribution.set(dist);
+        this.distributionHovered.emit(dist);
+      }
+    });
+
+    chart.on('legendmouseout', () => {
+      this.internalHoveredDistribution.set(null);
+      this.distributionHovered.emit(null);
+    });
+
+    chart.on('mouseover', (params: any) => {
+      if (params.seriesType === 'line' && params.seriesName) {
+        const dist = getDistributionByName(params.seriesName);
+        if (dist) {
+          this.internalHoveredDistribution.set(dist);
+          this.distributionHovered.emit(dist);
+        }
+      }
+    });
+
+    chart.on('mouseout', (params: any) => {
+      if (params.seriesType === 'line') {
+        this.internalHoveredDistribution.set(null);
+        this.distributionHovered.emit(null);
+      }
+    });
+
+    chart.getZr()?.on('globalout', () => {
+      this.internalHoveredDistribution.set(null);
+      this.distributionHovered.emit(null);
+    });
+  }
+
   private buildOption(data: {
     detail: DurationDetailResponse;
     selected: DistributionEnum | null;
     suggested: DistributionEnum | null;
+    hovered: DistributionEnum | null;
     mode: 'pdf' | 'cdf';
   }): EChartsOption {
     const tokens = this.echarts.getTokens();
-    const { detail, selected, mode } = data;
+    const { detail, selected, hovered, mode } = data;
     const binEdges = detail.bin_edges ?? [];
     const empiricalDensity = detail.empirical_density ?? [];
     const empiricalCdf = detail.empirical_cdf ?? [];
     const annualMaxs = detail.annual_maximums ?? [];
     const curveX = detail.curve_x ?? [];
     const distributions = detail.distributions ?? [];
+
+    const focusedDist = hovered ?? selected;
+
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+    const animDuration = prefersReducedMotion ? 0 : 200;
 
     let minX = curveX.length > 0 ? curveX[0] : (binEdges.length > 0 ? binEdges[0] : 0);
     let maxX = curveX.length > 0 ? curveX[curveX.length - 1] : (binEdges.length > 0 ? binEdges[binEdges.length - 1] : 100);
@@ -111,10 +172,9 @@ export class DistributionFittingChart implements OnDestroy {
     const legendSelected: Record<string, boolean> = {};
 
     if (mode === 'cdf') {
-      const ecdfColor = '#2563eb';
       legendData.push({
         name: 'Frequência Acumulada Empírica',
-        itemStyle: { color: ecdfColor },
+        itemStyle: { color: tokens.empiricalLine },
       });
       legendSelected['Frequência Acumulada Empírica'] = true;
     }
@@ -174,8 +234,10 @@ export class DistributionFittingChart implements OnDestroy {
       const curveSeries: SeriesOption[] = validDists.map((d) => {
         const cfg = getDistributionConfig(d.distribution);
         const color = getDistributionColor(d.distribution);
-        const isSelected = d.distribution === selected;
-        const lineWidth = isSelected ? 3.0 : 1.6;
+        const isFocused = d.distribution === focusedDist;
+        const lineWidth = isFocused ? 2.8 : 1.2;
+        const opacity = isFocused ? 1.0 : 0.35;
+        const zIndex = isFocused ? 10 : 4;
         const points = (d.pdf_density || []).map((val, idx) => [curveX[idx], val]);
 
         return {
@@ -188,12 +250,16 @@ export class DistributionFittingChart implements OnDestroy {
           lineStyle: {
             color,
             width: lineWidth,
+            opacity,
             type: 'solid',
           },
           itemStyle: {
             color,
           },
-          z: isSelected ? 5 : 4,
+          emphasis: {
+            disabled: true,
+          },
+          z: zIndex,
         };
       });
 
@@ -201,20 +267,23 @@ export class DistributionFittingChart implements OnDestroy {
     } else {
       // Modo CDF:
       // 1. Série Empírica (ECDF em degraus)
-      const ecdfColor = '#2563eb';
       const ecdfSeries: SeriesOption = {
         name: 'Frequência Acumulada Empírica',
         type: 'line',
         step: 'end',
-        symbol: 'circle',
-        symbolSize: 4,
+        symbol: 'none',
+        showSymbol: false,
         data: empiricalCdf.map((p) => [p.x, p.probability]),
         lineStyle: {
-          color: ecdfColor,
-          width: 2,
+          color: tokens.empiricalLine,
+          width: 1.2,
+          type: 'solid',
         },
         itemStyle: {
-          color: ecdfColor,
+          color: tokens.empiricalLine,
+        },
+        emphasis: {
+          disabled: true,
         },
         z: 3,
       };
@@ -223,8 +292,10 @@ export class DistributionFittingChart implements OnDestroy {
       const cdfCurves: SeriesOption[] = validDists.map((d) => {
         const cfg = getDistributionConfig(d.distribution);
         const color = getDistributionColor(d.distribution);
-        const isSelected = d.distribution === selected;
-        const lineWidth = isSelected ? 3.0 : 1.6;
+        const isFocused = d.distribution === focusedDist;
+        const lineWidth = isFocused ? 2.8 : 1.2;
+        const opacity = isFocused ? 1.0 : 0.35;
+        const zIndex = isFocused ? 10 : 4;
         const points = (d.cdf_probability || []).map((val, idx) => [curveX[idx], val]);
 
         return {
@@ -237,12 +308,16 @@ export class DistributionFittingChart implements OnDestroy {
           lineStyle: {
             color,
             width: lineWidth,
+            opacity,
             type: 'solid',
           },
           itemStyle: {
             color,
           },
-          z: isSelected ? 5 : 4,
+          emphasis: {
+            disabled: true,
+          },
+          z: zIndex,
         };
       });
 
@@ -253,7 +328,7 @@ export class DistributionFittingChart implements OnDestroy {
         symbol: 'rect',
         symbolSize: [1.5, 8],
         data: annualMaxs.map((m) => [m.value, 0]),
-        itemStyle: { color: tokens.text ?? '#333' },
+        itemStyle: { color: tokens.empiricalLine },
         z: 2,
       };
 
@@ -312,6 +387,10 @@ export class DistributionFittingChart implements OnDestroy {
           };
 
     return {
+      animation: !prefersReducedMotion,
+      animationDuration: animDuration,
+      animationDurationUpdate: animDuration,
+      animationEasingUpdate: 'cubicOut',
       textStyle: { fontFamily: tokens.fontFamily },
       legend: {
         show: true,
@@ -349,7 +428,6 @@ export class DistributionFittingChart implements OnDestroy {
           const xVal = Array.isArray(firstPoint.value) ? firstPoint.value[0] : Number(firstPoint.name);
 
           if (mode === 'pdf') {
-            // Localiza o bin correspondente a xVal
             let binIndex = -1;
             for (let i = 0; i < binEdges.length - 1; i++) {
               if (xVal >= binEdges[i] && (xVal <= binEdges[i + 1] || i === binEdges.length - 2)) {
