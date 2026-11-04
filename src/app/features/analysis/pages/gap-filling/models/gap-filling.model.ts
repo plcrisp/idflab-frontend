@@ -70,6 +70,7 @@ export interface GapFillingFilterYearItem {
   suggested_action: 'include' | 'exclude';
   is_overridden: boolean;
   final_action: 'include' | 'exclude';
+  is_suspicious_max?: boolean;
 }
 
 export interface GapFillingFilterPreviewResponse {

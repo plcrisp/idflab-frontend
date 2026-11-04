@@ -12,7 +12,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { catchError, debounceTime, of, Subject, Subscription, switchMap } from 'rxjs';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideInfo, lucideRotateCcw } from '@ng-icons/lucide';
+import { lucideInfo, lucideRotateCcw, lucideTriangleAlert } from '@ng-icons/lucide';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
@@ -49,6 +49,7 @@ export interface YearFilterState {
     provideIcons({
       lucideInfo,
       lucideRotateCcw,
+      lucideTriangleAlert,
     }),
   ],
   templateUrl: './year-data-availability.html',
@@ -96,6 +97,9 @@ export class YearDataAvailability implements OnInit {
   readonly isLowYears = computed<boolean>(
     () => this.keptCount() > 0 && this.keptCount() < 30,
   );
+  readonly suspiciousYears = computed<GapFillingFilterYearItem[]>(() => {
+    return (this.preview()?.years ?? []).filter((y) => y.is_suspicious_max);
+  });
 
   readonly sliderTrackBackground = computed<string>(() => {
     const val = this.threshold();

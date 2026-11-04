@@ -79,35 +79,68 @@
       }
       } @else {
       @for (cell of preview()?.years ?? []; track cell.year) {
-      <div class="relative group hover:z-50">
+      <div class="relative group hover:z-50 focus-within:z-50">
         <button type="button" (click)="toggleYearAction(cell)"
           class="w-3.5 h-5 rounded-sm transition-opacity duration-150 hover:opacity-80 cursor-pointer block border-none p-0 focus:outline-hidden"
           [ngClass]="[
             cellColor(cell.completeness),
-            cell.final_action === 'exclude' ? '!opacity-25' : 'opacity-100'
+            cell.final_action === 'exclude' ? '!opacity-25' : 'opacity-100',
+            cell.is_suspicious_max ? 'ring-2 ring-warning ring-offset-1 ring-offset-popover' : ''
           ]"></button>
 
-        <!-- Tooltip com Z-Index Alto, Máximo Anual e Dados do Ano -->
+        <!-- Tooltip Rico / Popover Contextual com Z-Index Alto -->
         <div
-          class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap rounded-lg bg-popover border border-border px-3.5 py-2.5 invisible opacity-0 scale-95 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-hover:scale-100 z-50 shadow-[0_4px_16px_rgba(16,24,40,0.12)]">
-          <p class="font-semibold text-xs text-foreground">{{ cell.year }}</p>
-          <p class="text-xs text-muted-foreground mt-0.5">
+          class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 rounded-lg bg-popover border border-border px-3.5 py-2.5 invisible opacity-0 scale-95 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-hover:scale-100 group-focus-within:visible group-focus-within:opacity-100 group-focus-within:scale-100 z-50 shadow-md text-left"
+          [class.w-72]="cell.is_suspicious_max"
+          [class.whitespace-normal]="cell.is_suspicious_max"
+          [class.whitespace-nowrap]="!cell.is_suspicious_max">
+          @if (cell.is_suspicious_max) {
+          <div class="flex items-center gap-1.5 font-semibold text-xs text-amber-500" style="color: var(--warning);">
+            <ng-icon name="lucideTriangleAlert" color="var(--warning)" class="text-xs shrink-0 text-amber-500" />
+            <span>Ano {{ cell.year }} - Valor Atípico</span>
+          </div>
+          <p class="text-[11px] text-muted-foreground mt-0.5">
             {{ cell.completeness.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) }}%
-            completo · {{ cell.final_action === 'include' ? 'incluído' : 'excluído' }}
+            completo · {{ cell.final_action === 'include' ? 'Incluído' : 'Excluído' }}
           </p>
           @if (cell.max_value != null) {
           <p class="text-xs text-foreground font-medium mt-1">
-            Máximo: {{ cell.max_value.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) }} mm
-            @if (cell.max_value_date) {
-            <span class="text-muted-foreground font-normal">({{ formatMaxDate(cell.max_value_date) }})</span>
-            }
+            Máximo: {{ cell.max_value.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) }} mm@if (cell.max_value_date) {
+            <span class="text-muted-foreground font-normal"> ({{ formatMaxDate(cell.max_value_date) }})</span>}
           </p>
+          }
+          } @else {
+          <p class="font-semibold text-xs text-foreground">Ano {{ cell.year }}</p>
+          <p class="text-xs text-muted-foreground mt-0.5">
+            {{ cell.completeness.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) }}%
+            completo · {{ cell.final_action === 'include' ? 'Incluído' : 'Excluído' }}
+          </p>
+          @if (cell.max_value != null) {
+          <p class="text-xs text-foreground font-medium mt-1">
+            Máximo: {{ cell.max_value.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) }} mm@if (cell.max_value_date) {
+            <span class="text-muted-foreground font-normal"> ({{ formatMaxDate(cell.max_value_date) }})</span>}
+          </p>
+          }
           }
         </div>
       </div>
       }
       }
     </div>
+
+    <!-- Callout Compacto de Valores Atípicos (Abaixo do Grid, Imediatamente Acima da Legenda) -->
+    @if (suspiciousYears().length > 0) {
+    <div class="flex flex-col gap-1.5 py-2 px-3 rounded-r-md border-l-[3px] border-l-warning bg-warning/[0.04] text-xs">
+      @for (item of suspiciousYears(); track item.year) {
+      <div class="flex items-center gap-2 text-foreground/90">
+        <ng-icon name="lucideTriangleAlert" color="var(--warning)" class="text-[13px] shrink-0 text-amber-500" />
+        <span class="leading-normal">
+          <strong class="font-medium">Ano {{ item.year }}:</strong> máximo atípico de {{ item.max_value?.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) }} mm@if (item.max_value_date) { em {{ formatMaxDate(item.max_value_date) }}.}@else {.} Possível inconsistência nos dados brutos.@if (item.final_action === 'exclude') { <span class="text-muted-foreground font-normal"> (Ano excluído)</span>}
+        </span>
+      </div>
+      }
+    </div>
+    }
 
     <!-- Rodapé: Legenda Mínima -->
     <div class="flex flex-wrap items-center gap-4 text-xs text-muted-foreground pt-2 border-t border-border/60">
@@ -126,6 +159,10 @@
       <span class="flex items-center gap-1.5">
         <span class="w-2.5 h-3.5 rounded-xs bg-(--success) opacity-25 border border-(--success)/40 inline-block"></span>
         <span>Esmaecido = excluído</span>
+      </span>
+      <span class="flex items-center gap-1.5">
+        <span class="w-2.5 h-3.5 rounded-xs bg-(--success) ring-2 ring-warning inline-block"></span>
+        <span>Contorno = valor atípico</span>
       </span>
     </div>
 
