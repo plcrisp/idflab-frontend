@@ -22,8 +22,8 @@ export class ThemeService {
 
     if (saved) return saved;
 
-    // fallback
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    // fallback padrão
+    return 'light';
   }
 
   toggleTheme() {
