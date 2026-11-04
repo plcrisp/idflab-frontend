@@ -19,6 +19,8 @@ export function resolveHelpStep(url: string | null | undefined): HelpStepId | nu
     cleanUrl.startsWith('/app/projetos') ||
     cleanUrl.startsWith('/projetos') ||
     cleanUrl.startsWith('/auth') ||
+    cleanUrl.startsWith('/app/profile') ||
+    cleanUrl.startsWith('/app/perfil') ||
     cleanUrl.startsWith('/profile') ||
     cleanUrl.startsWith('/perfil') ||
     cleanUrl.startsWith('/settings') ||
@@ -101,4 +103,3 @@ export function resolveHelpStep(url: string | null | undefined): HelpStepId | nu
 
   return null;
 }
-

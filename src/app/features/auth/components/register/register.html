@@ -17,6 +17,7 @@
             hlmInputGroupInput
             type="text"
             id="name"
+            name="name"
             formControlName="name"
             autocomplete="name"
             [class.border-destructive]="registerForm.get('name')?.invalid && registerForm.get('name')?.touched"
@@ -34,8 +35,10 @@
             hlmInputGroupInput
             type="email"
             id="email"
+            name="email"
             formControlName="email"
-            autocomplete="email"
+            autocomplete="username"
+            spellcheck="false"
             [class.border-destructive]="registerForm.get('email')?.errors && registerForm.get('email')?.touched"
           />
           <hlm-input-group-addon>
@@ -51,36 +54,40 @@
       </div>
 
       <div class="flex flex-col gap-2">
+        <label hlmFieldLabel for="institution">Instituição</label>
+        <hlm-input-group>
+          <input
+            hlmInputGroupInput
+            type="text"
+            id="institution"
+            name="institution"
+            formControlName="institution"
+            autocomplete="organization"
+            [class.border-destructive]="registerForm.get('institution')?.invalid && registerForm.get('institution')?.touched"
+          />
+          <hlm-input-group-addon>
+            <ng-icon name="lucideBuilding2" class="text-muted-foreground"></ng-icon>
+          </hlm-input-group-addon>
+        </hlm-input-group>
+      </div>
+
+      <div class="flex flex-col gap-2">
         <label hlmFieldLabel>Ocupação</label>
 
         <hlm-toggle-group
           formControlName="user_type"
           type="single"
           variant="outline"
+          [nullable]="false"
           class="w-full"
         >
           <button
+            *ngFor="let opt of userTypeOptions"
             hlmToggleGroupItem
-            value="STUDENT"
+            [value]="opt.value"
             class="flex-1"
           >
-            Estudante
-          </button>
-
-          <button
-            hlmToggleGroupItem
-            value="RESEARCHER"
-            class="flex-1"
-          >
-            Pesquisador
-          </button>
-
-          <button
-            hlmToggleGroupItem
-            value="PROFESSOR"
-            class="flex-1"
-          >
-            Professor
+            {{ opt.label }}
           </button>
         </hlm-toggle-group>
 
@@ -99,6 +106,7 @@
             hlmInputGroupInput
             type="password"
             id="password"
+            name="password"
             formControlName="password"
             autocomplete="new-password"
             [class.border-destructive]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
@@ -122,6 +130,7 @@
             hlmInputGroupInput
             type="password"
             id="confirm_password"
+            name="confirm_password"
             formControlName="confirm_password"
             autocomplete="new-password"
             [class.border-destructive]="registerForm.hasError('passwordMismatch') && registerForm.get('confirm_password')?.touched"
@@ -137,14 +146,14 @@
         >
           As senhas não coincidem.
         </p>
-
-        <p
-          class="mt-1 text-xs font-normal text-destructive"
-          *ngIf="errorMessage && !(registerForm.hasError('passwordMismatch'))"
-        >
-          {{ errorMessage }}
-        </p>
       </div>
+
+      <p
+        class="mt-1 text-xs font-normal text-destructive"
+        *ngIf="errorMessage && !(registerForm.hasError('passwordMismatch'))"
+      >
+        {{ errorMessage }}
+      </p>
 
       <button hlmBtn class="mt-2 w-full" type="submit" [disabled]="isLoading">
         <hlm-spinner *ngIf="isLoading" data-icon="inline-start"></hlm-spinner>

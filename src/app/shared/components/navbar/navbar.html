@@ -59,25 +59,17 @@
         ></ng-icon>
       </button>
 
-      <ng-template #menu>
-        <hlm-dropdown-menu class="w-43">
-          <button hlmDropdownMenuItem>Perfil</button>
-          <hlm-dropdown-menu-separator />
-          <button hlmDropdownMenuItem (click)="logout()">Sair</button>
-        </hlm-dropdown-menu>
-      </ng-template>
-
       <ng-template #menuProfile>
         <hlm-dropdown-menu class="w-43">
           <hlm-dropdown-menu-group>
-            <button hlmDropdownMenuItem>
+            <button hlmDropdownMenuItem routerLink="/app/profile" class="cursor-pointer">
               <ng-icon name="lucideUser" />
               Perfil
             </button>
           </hlm-dropdown-menu-group>
           <hlm-dropdown-menu-separator />
           <hlm-dropdown-menu-group>
-            <button hlmDropdownMenuItem (click)="logout()">
+            <button hlmDropdownMenuItem (click)="logout()" class="cursor-pointer">
               <ng-icon name="lucideLogOut" />
               Sair
             </button>

@@ -290,13 +290,6 @@ export class ProjectsMap implements AfterViewInit, OnDestroy {
     `;
   }
 
-  private getSourceColor(source?: string): string {
-    const s = source?.toLowerCase() || '';
-    if (s === 'cemaden') return MAP_COLORS.cemaden;
-    if (s === 'ana') return MAP_COLORS.ana;
-    return MAP_COLORS.inmet;
-  }
-
   private extractCoordinates(project: Project): { lon: number; lat: number } | null {
     const st = project.station as any;
     const rawLat = st?.latitude ?? st?.lat ?? project.latitude ?? (project as any)?.lat;
@@ -362,7 +355,7 @@ export class ProjectsMap implements AfterViewInit, OnDestroy {
 
       this.map.fitBounds(bounds, {
         padding: { top: 40, bottom: 40, left: 40, right: 40 },
-        maxZoom: 9,
+        maxZoom: 7,
         duration,
       });
     }

@@ -1,0 +1,281 @@
+<div class="flex flex-col w-full min-w-0 gap-4 bg-background transition-colors duration-300 ease-out p-6 max-w-4xl mx-auto">
+  @if (!user()) {
+    <!-- Skeletons de Carregamento Alinhados -->
+    <div class="rounded-xl border border-border bg-popover p-6 shadow-xs flex items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div hlmSkeleton class="h-14 w-14 rounded-full shrink-0"></div>
+        <div class="space-y-2">
+          <div hlmSkeleton class="h-5 w-44 rounded-md"></div>
+          <div hlmSkeleton class="h-3.5 w-56 rounded-md"></div>
+        </div>
+      </div>
+      <div class="hidden sm:flex items-center gap-2">
+        <div hlmSkeleton class="h-7 w-24 rounded-md"></div>
+        <div hlmSkeleton class="h-7 w-28 rounded-md"></div>
+        <div hlmSkeleton class="h-7 w-36 rounded-md"></div>
+      </div>
+    </div>
+
+    <div class="rounded-xl border border-border bg-popover p-6 shadow-xs space-y-5">
+      <div class="space-y-1.5 border-b border-border pb-4">
+        <div hlmSkeleton class="h-4 w-48 rounded-md"></div>
+        <div hlmSkeleton class="h-3.5 w-72 rounded-md"></div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div hlmSkeleton class="h-9 w-full rounded-md"></div>
+        <div hlmSkeleton class="h-9 w-full rounded-md"></div>
+      </div>
+      <div hlmSkeleton class="h-9 w-full rounded-md"></div>
+      <div hlmSkeleton class="h-9 w-full rounded-md"></div>
+    </div>
+
+    <div class="rounded-xl border border-border bg-popover p-6 shadow-xs flex items-center justify-between gap-4">
+      <div class="space-y-2">
+        <div hlmSkeleton class="h-4 w-40 rounded-md"></div>
+        <div hlmSkeleton class="h-3.5 w-80 rounded-md"></div>
+      </div>
+      <div hlmSkeleton class="h-8 w-44 rounded-md"></div>
+    </div>
+  } @else if (user(); as currentUser) {
+    <!-- 1. Cabeçalho de Identidade da Conta -->
+    <section
+      class="rounded-xl border border-border bg-popover p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 animate-in fade-in duration-150"
+    >
+      <div class="flex items-center gap-4 min-w-0">
+        <hlm-avatar class="h-14 w-14 text-base font-semibold shrink-0 after:border-none">
+          <span hlmAvatarFallback class="text-base font-semibold">
+            {{ userInitials() }}
+          </span>
+        </hlm-avatar>
+
+        <div class="min-w-0">
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <h1 class="text-base sm:text-lg font-semibold text-foreground truncate m-0 leading-snug">
+              {{ currentUser.name }}
+            </h1>
+            <span hlmBadge variant="secondary" class="text-xs font-medium">
+              {{ userTypeLabel() }}
+            </span>
+          </div>
+
+          <p class="text-xs text-muted-foreground truncate m-0 mt-0.5">
+            {{ currentUser.email }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Chips de Metadados Alinhados à Direita -->
+      <div class="flex items-center gap-2 flex-wrap shrink-0">
+        @if (currentUser.institution) {
+          <span
+            class="inline-flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary px-2.5 py-1 rounded-md border border-border shrink-0"
+          >
+            <ng-icon name="lucideBuilding2" class="text-xs text-primary shrink-0" />
+            <span>{{ currentUser.institution }}</span>
+          </span>
+        }
+
+        <span
+          class="inline-flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary px-2.5 py-1 rounded-md border border-border shrink-0"
+        >
+          <ng-icon name="lucideShieldCheck" class="text-xs text-primary shrink-0" />
+          <span>{{ authProviderLabel() }}</span>
+        </span>
+
+        @if (currentUser.created_at) {
+          <span
+            class="inline-flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary px-2.5 py-1 rounded-md border border-border shrink-0"
+          >
+            <ng-icon name="lucideCalendar" class="text-xs text-primary shrink-0" />
+            <span>Membro desde {{ currentUser.created_at | date: 'dd/MM/yyyy' }}</span>
+          </span>
+        }
+      </div>
+    </section>
+
+    <!-- 2. Formulário de Informações da Conta -->
+    <section
+      class="rounded-xl border border-border bg-popover shadow-xs overflow-hidden animate-in fade-in duration-150"
+    >
+      <div class="px-6 py-4 border-b border-border">
+        <h2 class="text-sm font-semibold text-foreground m-0">Informações da Conta</h2>
+        <p class="text-xs text-muted-foreground m-0 mt-0.5">
+          Visualize e edite seus dados cadastrais e vínculo institucional no IDFLab.
+        </p>
+      </div>
+
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <div class="p-6 flex flex-col gap-5">
+          <!-- Nome completo + Instituição lado a lado -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-2">
+              <label hlmFieldLabel for="profile-name">Nome completo</label>
+              <hlm-input-group>
+                <input
+                  hlmInputGroupInput
+                  type="text"
+                  id="profile-name"
+                  name="name"
+                  formControlName="name"
+                  autocomplete="name"
+                  placeholder="Informe seu nome completo"
+                  [class.border-destructive]="
+                    profileForm.get('name')?.invalid && profileForm.get('name')?.touched
+                  "
+                />
+                <hlm-input-group-addon>
+                  <ng-icon name="lucideUser" class="text-muted-foreground"></ng-icon>
+                </hlm-input-group-addon>
+              </hlm-input-group>
+              @if (profileForm.get('name')?.invalid && profileForm.get('name')?.touched) {
+                <p class="text-xs font-normal text-destructive m-0">
+                  O nome completo é obrigatório.
+                </p>
+              }
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label hlmFieldLabel for="profile-institution">Instituição</label>
+              <hlm-input-group>
+                <input
+                  hlmInputGroupInput
+                  type="text"
+                  id="profile-institution"
+                  name="institution"
+                  formControlName="institution"
+                  autocomplete="organization"
+                  placeholder="Ex: UNIFEI, USP, ANA..."
+                />
+                <hlm-input-group-addon>
+                  <ng-icon name="lucideBuilding2" class="text-muted-foreground"></ng-icon>
+                </hlm-input-group-addon>
+              </hlm-input-group>
+            </div>
+          </div>
+
+          <!-- E-mail (Somente leitura) -->
+          <div class="flex flex-col gap-2">
+            <label hlmFieldLabel for="profile-email">E-mail de acesso</label>
+            <hlm-input-group class="opacity-70">
+              <input
+                hlmInputGroupInput
+                type="email"
+                id="profile-email"
+                name="email"
+                [value]="currentUser.email"
+                disabled
+                readonly
+                aria-describedby="profile-email-hint"
+              />
+              <hlm-input-group-addon>
+                <ng-icon name="lucideMail" class="text-muted-foreground"></ng-icon>
+              </hlm-input-group-addon>
+            </hlm-input-group>
+            <p id="profile-email-hint" class="text-xs text-muted-foreground m-0">
+              O endereço de e-mail é utilizado como identificador único da conta e não pode ser alterado.
+            </p>
+          </div>
+
+          <!-- Ocupação -->
+          @if (currentUser.user_type !== 'ADMIN') {
+            <div class="flex flex-col gap-2">
+              <label hlmFieldLabel>Ocupação</label>
+              <hlm-toggle-group
+                formControlName="user_type"
+                type="single"
+                variant="outline"
+                [nullable]="false"
+                class="w-full"
+              >
+                @for (opt of userTypeOptions; track opt.value) {
+                  <button
+                    hlmToggleGroupItem
+                    [value]="opt.value"
+                    class="flex-1 cursor-pointer"
+                  >
+                    {{ opt.label }}
+                  </button>
+                }
+              </hlm-toggle-group>
+            </div>
+          }
+        </div>
+
+        <!-- Rodapé de Ações -->
+        <div
+          class="px-6 py-3.5 border-t border-border bg-muted/20 flex items-center justify-end gap-2.5"
+        >
+          <button
+            type="button"
+            hlmBtn
+            variant="outline"
+            size="sm"
+            class="text-xs cursor-pointer"
+            [disabled]="!hasChanges() || isSaving()"
+            (click)="onReset()"
+          >
+            Descartar
+          </button>
+
+          <button
+            type="submit"
+            hlmBtn
+            variant="default"
+            size="sm"
+            class="gap-1.5 text-xs font-medium cursor-pointer"
+            [disabled]="isSaving()"
+          >
+            @if (isSaving()) {
+              <hlm-spinner class="w-3.5 h-3.5" />
+              <span>Salvando...</span>
+            } @else {
+              <ng-icon name="lucideCheck" class="w-3.5 h-3.5" />
+              <span>Salvar alterações</span>
+            }
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- 3. Senha e Segurança (Alinhado na mesma largura) -->
+    <section
+      class="rounded-xl border border-border bg-popover p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in duration-150"
+    >
+      <div class="flex items-start gap-3.5 min-w-0">
+        <div
+          class="h-9 w-9 rounded-lg bg-secondary border border-border flex items-center justify-center text-primary shrink-0 mt-0.5"
+        >
+          <ng-icon name="lucideKeyRound" class="text-base" />
+        </div>
+        <div class="min-w-0">
+          <h2 class="text-sm font-semibold text-foreground m-0">Senha e Segurança</h2>
+          <p class="text-xs text-muted-foreground m-0 mt-0.5 leading-relaxed">
+            Envie um link de redefinição de senha para
+            <strong class="font-medium text-foreground">{{ currentUser.email }}</strong>
+            para atualizar sua credencial de acesso.
+          </p>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        hlmBtn
+        variant="outline"
+        size="sm"
+        class="gap-1.5 text-xs font-medium shrink-0 cursor-pointer self-start sm:self-center"
+        [disabled]="isSendingReset() || !timerService.canResend"
+        (click)="onSendPasswordReset()"
+      >
+        @if (isSendingReset()) {
+          <hlm-spinner class="w-3.5 h-3.5" />
+          <span>Enviando...</span>
+        } @else if (!timerService.canResend) {
+          <span>Reenviar em {{ timerService.resendCountdown }}s</span>
+        } @else {
+          <ng-icon name="lucideSend" class="w-3.5 h-3.5 text-primary" />
+          <span>Redefinir senha por e-mail</span>
+        }
+      </button>
+    </section>
+  }
+</div>

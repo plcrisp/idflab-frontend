@@ -8,6 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { USER_TYPE_OPTIONS } from '../../models/user.model';
 import { TimerService } from '../../../../core/services/utils/timer.service';
 import { TokenService } from '../../../../core/services/utils/token.service';
 import { Router } from '@angular/router';
@@ -35,6 +36,8 @@ export class Register implements OnInit {
   registerForm: FormGroup;
   errorMessage: string = '';
 
+  readonly userTypeOptions = USER_TYPE_OPTIONS;
+
   isGoogleAuth: boolean = false;
 
   isLoading: boolean = false;
@@ -53,6 +56,7 @@ export class Register implements OnInit {
       {
         name: ['', [Validators.required]],
         email: ['', [Validators.required, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)]],
+        institution: ['', [Validators.required]],
         password: ['', [Validators.required, Validators.minLength(8)]],
         confirm_password: ['', Validators.required],
         user_type: ['STUDENT', Validators.required],
@@ -90,7 +94,7 @@ export class Register implements OnInit {
 
   onSubmit() {
     if (this.registerForm.invalid) {
-      this.registerForm.markAllAsTouched(); // show errors if there is one not filled field
+      this.registerForm.markAllAsTouched();
       return;
     }
 
@@ -102,22 +106,23 @@ export class Register implements OnInit {
         name: this.registerForm.value.name,
         email: history.state.email,
         user_type: this.registerForm.value.user_type,
+        institution: this.registerForm.value.institution,
       };
 
       this.auth.registerWithGoogle(payloadGoogle).subscribe({
         next: (response) => {
           this.tokenService.saveTokens(response.access_token, response.refresh_token);
-          console.log('Criação de conta realizada com sucesso!');
           this.router.navigate(['/app']);
         },
         error: (error) => {
-          this.errorMessage = error?.error?.message || 'Erro ao criar conta';
+          this.isLoading = false;
+          this.errorMessage = error?.error?.detail || error?.error?.message || 'Erro ao criar conta';
+          this.cdr.detectChanges();
         },
       });
     } else {
       this.auth.register(this.registerForm.value).subscribe({
-        next: (response) => {
-          console.log('Conta criada com sucesso!', response);
+        next: () => {
           this.isLoading = false;
           this.isRegistered = true;
           this.timerService.startResendTimer(30, () => this.cdr.detectChanges());
@@ -125,7 +130,7 @@ export class Register implements OnInit {
         },
         error: (error) => {
           this.isLoading = false;
-          this.errorMessage = error?.error?.message || 'Erro ao criar conta';
+          this.errorMessage = error?.error?.detail || error?.error?.message || 'Erro ao criar conta';
           this.cdr.detectChanges();
         },
       });

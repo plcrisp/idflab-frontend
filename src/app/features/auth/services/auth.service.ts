@@ -9,6 +9,7 @@ import {
   ResetPasswordPayload,
   User,
   UserRegistration,
+  UserUpdate,
 } from '../models/user.model';
 
 import { environment } from '../../../../environments/environment';
@@ -27,7 +28,7 @@ export class AuthService {
   userInitials = computed(() => {
     const name = this.userSignal()?.name;
     if (!name) return 'U';
-    const names = name.split(' ');
+    const names = name.trim().split(/\s+/);
     return names.length >= 2
       ? `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
       : name.substring(0, 2).toUpperCase();
@@ -72,6 +73,12 @@ export class AuthService {
   getMe(): Observable<User> {
     return this.http
       .get<User>(`${this.baseUrl}/me`)
+      .pipe(tap((userData) => this.userSignal.set(userData)));
+  }
+
+  updateProfile(data: UserUpdate): Observable<User> {
+    return this.http
+      .patch<User>(`${this.baseUrl}/me`, data)
       .pipe(tap((userData) => this.userSignal.set(userData)));
   }
 

@@ -23,6 +23,7 @@ const routes: Routes = [
 
       { path: 'dashboard', redirectTo: 'projects', pathMatch: 'full' },
       { path: 'projetos', redirectTo: 'projects', pathMatch: 'full' },
+      { path: 'perfil', redirectTo: 'profile', pathMatch: 'full' },
 
       {
         path: 'projects',
@@ -36,6 +37,12 @@ const routes: Routes = [
           import('./features/interactive-map/interactive-map-module').then(
             (m) => m.InteractiveMapModule,
           ),
+      },
+
+      {
+        path: 'profile',
+        loadChildren: () =>
+          import('./features/profile/profile-module').then((m) => m.ProfileModule),
       },
 
       {
