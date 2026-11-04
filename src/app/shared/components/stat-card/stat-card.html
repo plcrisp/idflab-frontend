@@ -82,14 +82,17 @@
   [class.bg-popover]="variant() === 'card'" [class.p-3]="variant() === 'card'" [class.shadow-sm]="variant() === 'card'"
   [class.bg-transparent]="variant() === 'plain'" [class.p-0]="variant() === 'plain'" [class.opacity-50]="muted()"
   [class.grayscale-50]="muted()">
-  <div class="flex items-center gap-1.5 mb-2">
-    <div class="flex shrink-0 items-center justify-center rounded-md h-7 w-7 sm:h-8 sm:w-8"
-      [ngStyle]="iconContainerStyle()" [class.opacity-70]="muted()">
-      <ng-icon name="{{ icon() }}" size="16"></ng-icon>
+  <div class="flex items-center justify-between gap-1.5 mb-2">
+    <div class="flex items-center gap-1.5 min-w-0">
+      <div class="flex shrink-0 items-center justify-center rounded-md h-7 w-7 sm:h-8 sm:w-8"
+        [ngStyle]="iconContainerStyle()" [class.opacity-70]="muted()">
+        <ng-icon name="{{ icon() }}" size="16"></ng-icon>
+      </div>
+      <p class="font-medium text-muted-foreground text-xs sm:text-sm truncate">
+        {{ label() }}
+      </p>
     </div>
-    <p class="font-medium text-muted-foreground text-xs sm:text-sm">
-      {{ label() }}
-    </p>
+    <ng-content select="[card-header-action]" />
   </div>
 
   @if (loading()) {
@@ -120,6 +123,7 @@
 
     @if (badge(); as b) {
     <span class="font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center shrink-0 border"
+      role="status" [attr.aria-label]="'Classificação: ' + b.label"
       [ngClass]="badgeClass()">
       {{ b.label }}
     </span>
@@ -128,14 +132,20 @@
 
   @switch (footer()?.type) {
   @case ('text') {
-  <p class="text-xs text-muted-foreground mt-3.5 pt-1">
+  <p class="text-xs text-muted-foreground mt-3.5 pt-1 leading-relaxed">
     {{ $any(footer()).content != null ? $any(footer()).content : '-' }}
   </p>
   }
   @case ('progress') {
   <div class="space-y-1 mt-1.5 pt-1">
-    <hlm-progress [value]="progressPercent()" class="h-1.5">
+    <hlm-progress [value]="progressPercent()" class="h-1.5 relative">
       <hlm-progress-indicator [ngClass]="progressIndicatorClass()" [style.background-color]="progressColorStyle()" />
+      @if (progressMarks(); as marks) {
+      @for (mark of marks; track mark) {
+      <span class="absolute top-0 bottom-0 w-[1.5px] -translate-x-1/2 bg-background/80 pointer-events-none z-10"
+        [style.left.%]="mark"></span>
+      }
+      }
     </hlm-progress>
 
     @if ($any(footer()).label || $any(footer()).subtext) {

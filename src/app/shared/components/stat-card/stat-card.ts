@@ -24,6 +24,7 @@ export class StatCard {
   layout = input<'default' | 'wide'>('default');
   iconVariant = input<StatCardSemanticVariant>('default');
   badge = input<{ label: string; variant?: StatCardSemanticVariant } | null>(null);
+  progressMarks = input<number[] | null>(null);
 
   readonly badgeClass = computed<string>(() => {
     const b = this.badge();

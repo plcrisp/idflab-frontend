@@ -18,6 +18,7 @@ import {
   lucideCalendar,
   lucideCpu,
   lucideGauge,
+  lucideInfo,
   lucideLoader2,
   lucideMapPin,
   lucideRotateCw,
@@ -28,6 +29,7 @@ import {
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
+import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 import { HlmDateRangePicker } from '@spartan-ng/helm/date-picker';
 
 import { SharedModule } from '../../../../../../shared/shared-module';
@@ -38,6 +40,11 @@ import {
   GapFillingVisualizationResponse,
 } from '../../models/gap-filling.model';
 import { GapFillingService } from '../../../../services/gap-filling.service';
+import { StatCardFooter } from '../../../../shared/models/analysis.models';
+import {
+  getQualityAssessment,
+  QualityAssessment,
+} from '../../constants/gap-filling-post-metrics.constants';
 import { TimeSeriesDetailChart } from '../../../initial-visualization/components/time-series-detail-chart/time-series-detail-chart';
 
 @Component({
@@ -51,6 +58,7 @@ import { TimeSeriesDetailChart } from '../../../initial-visualization/components
     ...HlmBadgeImports,
     ...HlmButtonImports,
     ...HlmSpinnerImports,
+    ...HlmTooltipImports,
     HlmDateRangePicker,
     TimeSeriesDetailChart,
   ],
@@ -60,6 +68,7 @@ import { TimeSeriesDetailChart } from '../../../initial-visualization/components
       lucideCalendar,
       lucideCpu,
       lucideGauge,
+      lucideInfo,
       lucideLoader2,
       lucideMapPin,
       lucideRotateCw,
@@ -93,6 +102,35 @@ export class GapFillingPostMetricsCard {
   private visualizationSub: Subscription | null = null;
   private lastLoadedProjectId: string | null = null;
   readonly skeletonBars = [35, 60, 20, 45, 80, 25, 50, 70, 40, 65, 30, 85, 55, 20, 60, 45, 75, 30, 50, 90, 40, 65, 35, 80];
+
+  readonly qualityAssessment = computed<QualityAssessment>(() =>
+    getQualityAssessment(this.metrics()?.model_score_r2),
+  );
+
+  readonly qualityBadge = computed(() => {
+    const q = this.qualityAssessment();
+    return {
+      label: q.badgeLabel,
+      variant: q.badgeVariant,
+    };
+  });
+
+  readonly qualityFooter = computed<StatCardFooter>(() => {
+    const q = this.qualityAssessment();
+    if (!q.isAvailable || q.progressPercent == null) {
+      return {
+        type: 'text',
+        content: q.phrase,
+      };
+    }
+    return {
+      type: 'progress',
+      value: q.progressPercent,
+      max: 100,
+      variant: q.badgeVariant,
+      description: q.phrase,
+    };
+  });
 
   constructor() {
     this.destroyRef.onDestroy(() => {
@@ -195,8 +233,8 @@ export class GapFillingPostMetricsCard {
 
     if (start.getTime() > end.getTime()) {
       const temp = start;
-      start = end;
-      end = temp;
+      end = start;
+      start = temp;
     }
 
     const MAX_SPAN_MS = 365 * 24 * 60 * 60 * 1000;

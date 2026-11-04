@@ -67,7 +67,7 @@
   </div>
   } @else if (metrics(); as m) {
   <div class="p-4 sm:p-5 flex flex-col gap-4">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 items-stretch">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 items-stretch">
 
       <!-- StatCard 1: Dias Preenchidos -->
       <app-stat-card [label]="m.mode === 'hourly' ? 'Horas Preenchidas' : 'Dias Preenchidos'"
@@ -84,7 +84,42 @@
         [unit]="totalYears() ? 'de ' + totalYears() : undefined" icon="lucideCalendar"
         [footer]="{ type: 'progress', value: m.complete_years_after, max: totalYears() ?? 1, label: 'Completude ≥ 90%' }" />
 
+      <!-- StatCard 4: Qualidade do Preenchimento -->
+      <app-stat-card label="Qualidade do preenchimento" [value]="qualityAssessment().valueFormatted"
+        [unit]="qualityAssessment().isAvailable ? 'R²' : undefined" icon="lucideShieldCheck"
+        [badge]="qualityBadge()" [footer]="qualityFooter()"
+        [progressMarks]="qualityAssessment().isAvailable ? [50, 75] : null">
+        <div card-header-action class="flex items-center shrink-0">
+          <button type="button" [hlmTooltip]="qualityTooltipTpl" position="top"
+            class="cursor-help inline-flex items-center justify-center rounded-full p-1 text-muted-foreground hover:text-foreground hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors"
+            aria-label="Como ler a qualidade do preenchimento">
+            <ng-icon name="lucideInfo" class="text-xs sm:text-sm" />
+          </button>
+        </div>
+      </app-stat-card>
+
     </div>
+
+    <!-- Template do Tooltip do Card de Qualidade -->
+    <ng-template #qualityTooltipTpl>
+      <div class="flex flex-col gap-1.5 max-w-xs text-left p-1 text-xs">
+        <span class="font-semibold text-foreground">Como ler</span>
+        <p class="text-muted-foreground leading-snug">
+          O R² indica quanto da variação diária da chuva o modelo explica (1,0 seria perfeito).
+        </p>
+        <div class="border-t border-border/60 my-0.5"></div>
+        <ul class="space-y-1 text-muted-foreground list-disc list-inside">
+          <li>
+            <strong class="font-medium text-foreground">Erro médio (MAE):</strong>
+            {{ formatDecimal(m.model_mae, 2) }} mm
+          </li>
+          <li>
+            <strong class="font-medium text-foreground">Erro em dias de chuva forte (RMSE):</strong>
+            {{ formatDecimal(m.model_rmse, 2) }} mm
+          </li>
+        </ul>
+      </div>
+    </ng-template>
 
     <!-- Seção de Visualização Temporal Pós-Preenchimento -->
     <div class="border-t border-border pt-4 flex flex-col gap-3">

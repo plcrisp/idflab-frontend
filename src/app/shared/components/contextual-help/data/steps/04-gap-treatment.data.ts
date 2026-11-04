@@ -17,11 +17,11 @@ export const GAP_TREATMENT_STEP_HELP: HelpStepContent = {
     'Confira o resultado. O sistema mostra os novos anos completos e as métricas de validação do modelo ([[R²]], RMSE e MAE).',
   ],
   interpret: {
-    good: 'No preenchimento, correlação |r| ≥ 0,70, sobreposição ≥ 10 anos e [[R²]] ≥ 0,75. No filtro, mais de 15 a 20 anos completos mantidos.',
+    good: 'Correlação (r) ≥ 0,70, sobreposição ≥ 10 anos e qualidade do preenchimento (R²) ≥ 0,75. Após o filtro, 20 anos completos ou mais.',
     warning:
-      'Correlação moderada (|r| entre 0,50 e 0,70), sobreposição curta (< 10 anos), lacunas contínuas acima de 30 dias ou corte excessivo de anos pelo filtro.',
+      'Correlação (r) entre 0,50 e 0,70, sobreposição menor que 10 anos ou R² entre 0,50 e 0,75. Também vale checar se houver falhas contínuas acima de 30 dias ou se o filtro mantiver entre 5 e 19 anos completos.',
     problem:
-      'Correlação fraca (|r| < 0,50), nenhum período em comum entre as estações ou menos de 5 anos restantes após a filtragem.',
+      'Correlação (r) abaixo de 0,50, sem período em comum entre as estações, R² abaixo de 0,50 ou menos de 5 anos completos após o filtro. Tente outra estação vizinha ou reduza o limiar do filtro.',
   },
   references: [],
 };
