@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { Station } from '../../../../core/models/api/station.model';
 import { MapService } from '../../../../core/services/utils/map.service';
+import { BRAZIL_STATES } from '../../../../shared/utils/brazil-states.constants';
 
 @Component({
   selector: 'app-map-floating-panel',
@@ -9,10 +9,13 @@ import { MapService } from '../../../../core/services/utils/map.service';
   styleUrl: './map-floating-panel.scss',
 })
 export class MapFloatingPanel {
-  private mapService = inject(MapService);
+  readonly mapService = inject(MapService);
 
-  stations = this.mapService.selectedCityStations;
-  station = this.mapService.selectedStation;
+  readonly stations = this.mapService.selectedCityStations;
+  readonly station = this.mapService.selectedStation;
+  readonly isLoadingStation = this.mapService.isLoadingStation;
+  readonly loadingMarker = this.mapService.loadingStationMarker;
+  readonly states = BRAZIL_STATES;
 
   showStationTypeModal: boolean = false;
 

@@ -1,7 +1,102 @@
 <div class="absolute top-4 left-4 w-80 sm:w-[340px] max-h-[calc(100%-2rem)] flex flex-col bg-card border border-border rounded-xl shadow-lg z-10 overflow-hidden">
   <app-station-search />
 
-  @if (station()) {
+  @if (isLoadingStation()) {
+    <div class="p-4 flex flex-col gap-3.5 overflow-y-auto max-h-[calc(100vh-10rem)] animate-in fade-in duration-200">
+      <!-- Breadcrumb de Navegação com botão de cancelar/voltar -->
+      <div class="flex items-center gap-1.5 text-xs text-muted-foreground pb-0.5">
+        <button
+          type="button"
+          hlmBtn
+          variant="ghost"
+          size="sm"
+          class="h-7 px-2 -ml-2 text-xs font-medium gap-1 text-muted-foreground hover:text-foreground cursor-pointer"
+          (click)="mapService.clearStation()"
+        >
+          <ng-icon name="lucideChevronLeft" class="w-3.5 h-3.5" />
+          <span>{{ stations().length !== 0 ? 'Estações' : 'Visão Geral' }}</span>
+        </button>
+        <span class="text-border">/</span>
+        <span class="truncate text-foreground font-medium text-xs">
+          {{ (loadingMarker()?.name || 'Carregando...') | titlecase }}
+        </span>
+      </div>
+
+      <!-- Cabeçalho da Estação com dados parciais ou skeleton -->
+      <div class="flex flex-col gap-1">
+        <div class="flex items-center justify-between gap-2">
+          @if (loadingMarker(); as marker) {
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {{ marker.city ? marker.city + ', ' : '' }}{{ states[marker.state] || marker.state || 'ND' }}
+            </span>
+          } @else {
+            <div hlmSkeleton class="h-3 w-24 rounded-md"></div>
+          }
+
+          <div class="flex items-center gap-1.5 shrink-0">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-primary">
+              Conectando
+            </span>
+          </div>
+        </div>
+
+        @if (loadingMarker()?.name; as name) {
+          <h3 class="text-base font-semibold text-foreground leading-snug truncate" [title]="name | titlecase">
+            {{ name | titlecase }}
+          </h3>
+        } @else {
+          <div hlmSkeleton class="h-5 w-44 rounded-md"></div>
+        }
+      </div>
+
+      <!-- Badge de Rede -->
+      <div class="flex items-center justify-between gap-2 pb-3 border-b border-border">
+        <div class="flex items-center gap-1.5 flex-wrap">
+          @if (loadingMarker(); as marker) {
+            <span
+              hlmBadge
+              [ngClass]="marker.source.toLowerCase()"
+              class="border-none font-medium text-xs px-2 py-0.5 rounded-md flex items-center"
+            >
+              <span class="h-1.5 w-1.5 rounded-full bg-current mr-1.5"></span>
+              {{ marker.source }}
+            </span>
+          } @else {
+            <div hlmSkeleton class="h-5 w-20 rounded-md"></div>
+          }
+        </div>
+      </div>
+
+      <!-- Skeletons das Seções de Disponibilidade e Configuração -->
+      <div class="grid grid-cols-2 gap-2">
+        <div class="flex flex-col p-2.5 rounded-lg bg-secondary/30 border border-border/40 gap-1.5">
+          <div hlmSkeleton class="h-2.5 w-20 rounded-sm"></div>
+          <div hlmSkeleton class="h-4 w-16 rounded-sm"></div>
+        </div>
+        <div class="flex flex-col p-2.5 rounded-lg bg-secondary/30 border border-border/40 gap-1.5">
+          <div hlmSkeleton class="h-2.5 w-16 rounded-sm"></div>
+          <div hlmSkeleton class="h-4 w-16 rounded-sm"></div>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-3 pt-1">
+        <div hlmSkeleton class="h-3 w-28 rounded-md"></div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div class="flex flex-col gap-1.5">
+            <div hlmSkeleton class="h-2.5 w-16 rounded-sm"></div>
+            <div hlmSkeleton class="h-9 w-full rounded-md"></div>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <div hlmSkeleton class="h-2.5 w-14 rounded-sm"></div>
+            <div hlmSkeleton class="h-9 w-full rounded-md"></div>
+          </div>
+        </div>
+
+        <div hlmSkeleton class="h-9 w-full rounded-md mt-1"></div>
+      </div>
+    </div>
+  } @else if (station()) {
     <app-select-station (open)="toggleModal()" />
   } @else if (stations().length > 0) {
     <app-station-list />

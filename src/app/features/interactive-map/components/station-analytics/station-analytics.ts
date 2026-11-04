@@ -12,4 +12,5 @@ export class StationAnalytics {
   private analytics = inject(StationAnalyticsService);
 
   stats = this.analytics.stats;
+  loading = this.analytics.isLoading;
 }

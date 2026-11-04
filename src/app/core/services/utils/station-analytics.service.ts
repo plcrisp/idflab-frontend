@@ -19,6 +19,8 @@ export class StationAnalyticsService {
   private readonly visibleStations = signal<Marker[]>([]);
   private readonly mapZoom = signal<number>(3.5);
 
+  readonly isLoading = signal<boolean>(true);
+
   readonly stats = computed<SidebarDashboardStats>(() => {
     const stations = this.visibleStations();
     const total = stations.length;
@@ -71,5 +73,10 @@ export class StationAnalyticsService {
   updateVisibleStations(stations: Marker[], zoom: number): void {
     this.mapZoom.set(zoom);
     this.visibleStations.set(stations);
+    this.isLoading.set(false);
+  }
+
+  setLoading(loading: boolean): void {
+    this.isLoading.set(loading);
   }
 }

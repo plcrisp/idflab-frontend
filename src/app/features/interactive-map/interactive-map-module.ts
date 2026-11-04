@@ -36,6 +36,7 @@ import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmDatePickerImports } from '@spartan-ng/helm/date-picker';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
+import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 
 @NgModule({
   declarations: [
@@ -57,6 +58,7 @@ import { HlmFieldImports } from '@spartan-ng/helm/field';
     ...HlmInputImports,
     ...HlmDatePickerImports,
     ...HlmFieldImports,
+    ...HlmSkeletonImports,
     NgIconsModule.withIcons({
       lucideSearch,
       lucideX,

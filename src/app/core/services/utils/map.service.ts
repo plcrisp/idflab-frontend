@@ -2,6 +2,7 @@ import { Injectable, OnDestroy, signal } from '@angular/core';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import * as mapboxgl from 'mapbox-gl';
 import { ThemeService } from './theme.service';
+import { toast } from '@spartan-ng/brain/sonner';
 import { environment } from '../../../../environments/environment';
 import { Marker, Station, StationBBoxRequest } from '../../models/api/station.model';
 import { StationService } from '../api/stations.service';
@@ -59,6 +60,10 @@ export class MapService implements OnDestroy {
   readonly selectedCityStations = signal<Station[]>([]);
   readonly selectedCityCenter = signal<[number, number] | null>(null);
   readonly selectedStation = signal<Station | null>(null);
+
+  readonly isLoadingStation = signal<boolean>(false);
+  readonly loadingStationMarker = signal<Marker | null>(null);
+  private stationSelectSub?: Subscription;
 
   constructor(
     private themeService: ThemeService,
@@ -151,21 +156,40 @@ export class MapService implements OnDestroy {
   selectStation(stationId: string): void {
     if (!stationId) return;
 
-    this.stationService.getStationByIdFromProvider(stationId).subscribe({
+    this.stationSelectSub?.unsubscribe();
+    this.isLoadingStation.set(true);
+
+    const marker = this.allMarkers.find((m) => m.id === stationId) || null;
+    this.loadingStationMarker.set(marker);
+
+    // Feedback imediato no mapa: se temos as coordenadas do marcador, voa para ele na hora
+    if (this.isReady$.value && this.map && marker) {
+      this.flyToStation(marker.latitude, marker.longitude);
+    }
+
+    this.stationSelectSub = this.stationService.getStationByIdFromProvider(stationId).subscribe({
       next: (station: Station) => {
         this.selectedStation.set(station);
+        this.isLoadingStation.set(false);
+        this.loadingStationMarker.set(null);
 
-        if (this.isReady$.value && this.map) {
+        if (this.isReady$.value && this.map && !marker) {
           this.flyToStation(station.latitude, station.longitude);
         }
       },
       error: (err) => {
         console.error('Erro ao buscar estação no provedor:', err);
+        this.isLoadingStation.set(false);
+        this.loadingStationMarker.set(null);
+        toast.error('Não foi possível obter dados da estação do provedor em tempo real. Tente novamente.');
       },
     });
   }
 
   clearStation(moveCamera: boolean = true): void {
+    this.stationSelectSub?.unsubscribe();
+    this.isLoadingStation.set(false);
+    this.loadingStationMarker.set(null);
     this.selectedStation.set(null);
 
     if (!moveCamera) return;
@@ -203,6 +227,7 @@ export class MapService implements OnDestroy {
   }
 
   private loadInitialMarkers(): void {
+    this.analyticsService.setLoading(true);
     this.stationService.getMarkers(this.brazilBBox).subscribe({
       next: (markers) => {
         this.allMarkers = markers;
@@ -211,7 +236,10 @@ export class MapService implements OnDestroy {
         if (this.map) {
           const bounds = this.map.getBounds();
           const currentZoom = this.map!.getZoom();
-          if (!bounds) return;
+          if (!bounds) {
+            this.analyticsService.setLoading(false);
+            return;
+          }
           const initialVisible = this.allMarkers.filter(
             (m) =>
               m.longitude >= bounds.getWest() &&
@@ -220,9 +248,14 @@ export class MapService implements OnDestroy {
               m.latitude <= bounds.getNorth(),
           );
           this.analyticsService.updateVisibleStations(initialVisible, currentZoom);
+        } else {
+          this.analyticsService.setLoading(false);
         }
       },
-      error: (err) => console.error('Erro ao carregar estações:', err),
+      error: (err) => {
+        console.error('Erro ao carregar estações:', err);
+        this.analyticsService.setLoading(false);
+      },
     });
   }
 
