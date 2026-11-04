@@ -64,36 +64,7 @@ export class NeighborStationsManagerService {
     effect(() => {
       const jobId = this.neighborJobId();
       const panel = this.notificationsService.panel();
-      if (!panel) return;
-
-      // Auto-reconexão se a tela for recarregada (F5) enquanto o download estiver rodando
-      if (!jobId) {
-        const projectId = this.projectState.project()?.id;
-        if (!projectId) return;
-
-        const activeJob = panel.active_jobs.find(
-          (j) => j.project_id === projectId && j.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA',
-        );
-        if (activeJob) {
-          untracked(() => {
-            this.neighborJobId.set(activeJob.job_id);
-            this.projectState.setNeighborJobId(activeJob.job_id);
-            this.hasSeenActiveJob = true;
-            this.confirmationStatus.set('loading');
-            this.isLoadingNeighborData.set(true);
-            this.isSelectionLocked.set(true);
-
-            const stationId = (activeJob.details as any)?.station_id;
-            if (stationId) {
-              const currentActive = this.activeNeighborStation();
-              if (!currentActive || currentActive.id !== stationId) {
-                this.applyStation(stationId, activeJob.job_id, projectId);
-              }
-            }
-          });
-        }
-        return;
-      }
+      if (!panel || !jobId) return;
 
       const isCurrentlyActive = panel.active_jobs.some(
         (j) => String(j.job_id).toLowerCase() === String(jobId).toLowerCase(),

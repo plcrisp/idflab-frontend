@@ -10,6 +10,7 @@ import {
   RenderedNotification,
 } from '../../../core/utils/notification-render.util';
 import { JobsService } from '../../../core/services/api/jobs.service';
+import { ProjectStepsService } from '../../../core/services/api/project-steps.service';
 import { Job } from '../../../core/models/api/job.model';
 import { CdkMenuTrigger } from '@angular/cdk/menu';
 
@@ -30,6 +31,7 @@ export class NotificationsBell {
   private jobsService = inject(JobsService);
   private mapService = inject(MapService);
   private router = inject(Router);
+  private projectStepsService = inject(ProjectStepsService);
 
   panel = this.notificationsService.panel;
 
@@ -67,11 +69,35 @@ export class NotificationsBell {
     this.notificationsService.markAsRead(notificationId).subscribe();
   }
 
+  private navigateForNeighborJob(projectId: string, jobId: string | null): void {
+    if (!jobId) {
+      this.router.navigateByUrl(`/app/analysis/${projectId}`);
+      return;
+    }
+    this.projectStepsService.getStepsByProject(projectId).subscribe({
+      next: (steps) => {
+        const matchingStep = steps?.find(
+          (s) => s.job_id && String(s.job_id).toLowerCase() === String(jobId).toLowerCase(),
+        );
+        if (matchingStep?.step === 'GAP_FILLING') {
+          this.router.navigateByUrl(`/app/analysis/${projectId}/gap-filling`);
+        } else if (matchingStep?.step === 'TEMPORAL_RESOLUTION') {
+          this.router.navigateByUrl(`/app/analysis/${projectId}/temporal-disaggregation`);
+        } else {
+          this.router.navigateByUrl(`/app/analysis/${projectId}/consistency-check`);
+        }
+      },
+      error: () => {
+        this.router.navigateByUrl(`/app/analysis/${projectId}/consistency-check`);
+      },
+    });
+  }
+
   openJob(job: ActiveJobItem): void {
     if (!job.project_id) return;
     this.menuTrigger.close();
     if (job.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA') {
-      this.router.navigateByUrl(`/app/analysis/${job.project_id}/consistency-check`);
+      this.navigateForNeighborJob(job.project_id, job.job_id);
     } else if (job.task_type === 'GAP_FILLING') {
       this.router.navigateByUrl(`/app/analysis/${job.project_id}/gap-filling`);
     } else {
@@ -87,7 +113,7 @@ export class NotificationsBell {
     if (notif.type === 'TIMEOUT') {
       this.retryTimeoutNotif(notif.job_id);
       if (notif.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA' && notif.project_id) {
-        this.router.navigateByUrl(`/app/analysis/${notif.project_id}/consistency-check`);
+        this.navigateForNeighborJob(notif.project_id, notif.job_id);
       } else if (notif.task_type === 'GAP_FILLING' && notif.project_id) {
         this.router.navigateByUrl(`/app/analysis/${notif.project_id}/gap-filling`);
       }
@@ -100,7 +126,7 @@ export class NotificationsBell {
     if (notif.type === 'SUCCESS') {
       if (notif.project_id) {
         if (notif.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA') {
-          this.router.navigateByUrl(`/app/analysis/${notif.project_id}/consistency-check`);
+          this.navigateForNeighborJob(notif.project_id, notif.job_id);
         } else if (notif.task_type === 'GAP_FILLING') {
           this.router.navigateByUrl(`/app/analysis/${notif.project_id}/gap-filling`);
         } else {
@@ -113,7 +139,7 @@ export class NotificationsBell {
     if (notif.type === 'FAILED') {
       if (notif.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA') {
         if (notif.project_id) {
-          this.router.navigateByUrl(`/app/analysis/${notif.project_id}/consistency-check`);
+          this.navigateForNeighborJob(notif.project_id, notif.job_id);
         }
         return;
       }

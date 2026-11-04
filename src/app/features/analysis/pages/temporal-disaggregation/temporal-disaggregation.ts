@@ -259,7 +259,7 @@ export class TemporalDisaggregation {
       });
     });
 
-    // 3. Auto-reconexão aos jobs (Bartlett-Lewis ou Download CEMADEN) caso haja job ativo no painel de notificações
+    // 3. Auto-reconexão ao job de Bartlett-Lewis caso haja job ativo no painel de notificações
     effect(() => {
       const p = this.project();
       if (!p) return;
@@ -278,16 +278,6 @@ export class TemporalDisaggregation {
             this.neighborManager.applyStation(calibStationId, null, p.id);
           }
           this.startBlJobPolling(p.id, blJob.job_id);
-        });
-        return;
-      }
-
-      const dlJob = panel.active_jobs.find(
-        (j) => j.project_id === p.id && j.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA',
-      );
-      if (dlJob) {
-        untracked(() => {
-          this.selectedMethod.set('bartlett-lewis');
         });
       }
     });

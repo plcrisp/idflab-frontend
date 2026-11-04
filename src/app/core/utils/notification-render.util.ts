@@ -33,7 +33,7 @@ const SOURCE_LABEL: Record<JobDetails['source'], string> = {
 
 const NEXT_STEP: Partial<Record<TaskType, string>> = {
   DOWNLOAD_STATION_DATA: 'Mapa Interativo',
-  DOWNLOAD_NEIGHBOR_STATION_DATA: 'Verificação de Consistência',
+  DOWNLOAD_NEIGHBOR_STATION_DATA: 'Estação Secundária',
   GAP_FILLING: 'Verificação de Consistência',
   QUALITY_ANALYSIS: 'Resolução Temporal',
   GENERATE_IDF: 'IDF Histórica',

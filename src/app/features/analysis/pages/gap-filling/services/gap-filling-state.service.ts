@@ -338,13 +338,25 @@ export class GapFillingStateService {
           }
 
           if (stationId) {
+            const panel = this.notificationsService.panel();
+            const isNeighborJobActive =
+              !!step?.job_id &&
+              !postMetrics &&
+              !!panel?.active_jobs.some(
+                (j) =>
+                  String(j.job_id).toLowerCase() === String(step.job_id).toLowerCase() &&
+                  j.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA',
+              );
+            const runningNeighborJobId =
+              step?.status === 'PENDING' && isNeighborJobActive ? step.job_id : null;
+
             if (postMetrics && neighborId) {
               this.neighborManager.loadNeighbors(stationId, neighborId, null, projectId);
             } else if (neighborId) {
               this.neighborManager.loadNeighbors(
                 stationId,
                 neighborId,
-                null,
+                runningNeighborJobId,
                 projectId,
               );
             } else {
