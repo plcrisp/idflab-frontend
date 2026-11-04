@@ -32,6 +32,26 @@ export interface HelpInterpretation {
   problem?: string;
 }
 
+export type HelpNumberVisualType =
+  | 'stat-number'
+  | 'operability-bar'
+  | 'network-chips'
+  | 'cluster-circle';
+
+export interface HelpNumberItem {
+  visual: HelpNumberVisualType;
+  title: string;
+  description: string;
+  value?: string;
+}
+
+export type HelpHowItWorksItem =
+  | string
+  | {
+      title?: string;
+      text: string;
+    };
+
 export interface HelpStepContent {
   id: HelpStepId;
   title: string;
@@ -39,12 +59,11 @@ export interface HelpStepContent {
   figure: HelpFigureKey;
   summary: string;
   whyItMatters?: string;
-  decision?: string;
-  howItWorks?: string[];
+  howItWorks?: HelpHowItWorksItem[];
   interpret?: HelpInterpretation;
+  numbersGuide?: HelpNumberItem[];
   glossary?: Record<string, string>;
   references?: HelpReference[];
-  insight?: (state: any) => string | null;
 }
 
 export type HelpTextToken =

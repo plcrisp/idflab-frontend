@@ -6,22 +6,20 @@ export const MAP_STEP_HELP: HelpStepContent = {
   icon: 'lucideMap',
   figure: 'map',
   summary:
-    'Localize e selecione a estação pluviométrica de interesse e defina a janela temporal histórica para iniciar a aquisição dos dados brutos.',
+    'Escolha a estação e o período que vão alimentar toda a análise.',
   whyItMatters:
-    'A representatividade espacial e a extensão temporal definem a qualidade de todo o estudo. Selecionar uma estação distante da bacia ou com histórico inferior a 15–20 anos introduz incertezas que se propagam por todas as etapas seguintes.',
-  decision:
-    'Escolha a estação com a melhor cobertura espacial para a sua bacia hidrográfica e defina as datas inicial e final do histórico de chuva.',
+    'Todas as etapas subsequentes derivam desta escolha. Uma estação longe da bacia, ou com menos de 15-20 anos de dados, gera incertezas que se acumulam em todas as etapas seguintes.',
   howItWorks: [
-    'Filtre estações no mapa ou na busca textual entre as redes oficiais da ANA (diária), INMET (horária/diária) e CEMADEN (sub-horária 10 min).',
-    'Defina a janela temporal respeitando os limites da estação: data mínima a partir do início de operação e máxima até o último dado telemétrico.',
-    'Ao iniciar a análise, um job em segundo plano baixa e consolida os registros brutos da estação no banco de dados.',
+    'Encontre sua estação. Navegue pelo mapa ou busque uma cidade. Você pode escolher entre: ANA (diária), INMET (horária/diária) ou CEMADEN (a cada 10 min).',
+    'Defina o período. O sistema limita as datas ao que a estação oferece: do início da operação ao último dado recebido.',
+    'Inicie a análise. Pronto: buscamos e organizamos os dados em segundo plano. Você pode seguir para a próxima etapa.',
   ],
   interpret: {
-    good: 'Estação com status cadastral Operante e série histórica contínua superior a 20 ou 30 anos.',
+    good: 'Estação Operante e série contínua com mais de 20-30 anos.',
     warning:
-      'Estação com status de Pane ou Falha no cadastro oficial, ou período histórico inferior a 15 anos.',
+      'Estação em Pane ou Falha no cadastro oficial, ou com menos de 15 anos de histórico. É possível utilizar, porém com cautela.',
     problem:
-      'Data inicial posterior à final (bloqueia o formulário) ou intervalo sem nenhuma medição registrada no provedor.',
+      'Período sem nenhuma medição registrada.',
   },
   references: [],
 };

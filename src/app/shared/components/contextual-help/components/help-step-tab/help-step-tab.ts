@@ -18,6 +18,7 @@ import {
   lucideChevronDown,
   lucideExternalLink,
   lucideGauge,
+  lucideHash,
   lucideSlidersHorizontal,
   lucideTriangleAlert,
 } from '@ng-icons/lucide';
@@ -42,6 +43,7 @@ import { HelpFormattedText } from '../help-formatted-text/help-formatted-text';
       lucideChevronDown,
       lucideExternalLink,
       lucideGauge,
+      lucideHash,
       lucideSlidersHorizontal,
       lucideTriangleAlert,
     }),
@@ -59,7 +61,31 @@ export class HelpStepTab {
   // Accordions iniciam fechados por padrão
   readonly openHowItWorks = signal<boolean>(false);
   readonly openInterpret = signal<boolean>(false);
+  readonly openNumbers = signal<boolean>(false);
   readonly openReferences = signal<boolean>(false);
+
+  readonly parsedHowItWorks = computed(() => {
+    const items = this.step().howItWorks;
+    if (!items) return [];
+    return items.map((item) => {
+      if (typeof item !== 'string') {
+        return {
+          title: item.title,
+          text: item.text,
+        };
+      }
+      const dotIndex = item.indexOf('. ');
+      if (dotIndex > 0 && dotIndex < item.length - 2) {
+        return {
+          title: item.slice(0, dotIndex + 1).trim(),
+          text: item.slice(dotIndex + 2).trim(),
+        };
+      }
+      return {
+        text: item,
+      };
+    });
+  });
 
   readonly stepNumber = computed(() => {
     const idx = HELP_STEP_ORDER.indexOf(this.step().id);
@@ -71,14 +97,8 @@ export class HelpStepTab {
     return !!(i && (i.good || i.warning || i.problem));
   });
 
-  readonly insightText = computed(() => {
-    const fn = this.step().insight;
-    if (!fn) return null;
-    try {
-      return fn(this.analysisState());
-    } catch {
-      return null;
-    }
+  readonly hasNumbersGuide = computed(() => {
+    return (this.step().numbersGuide?.length ?? 0) > 0;
   });
 
   constructor() {
@@ -88,6 +108,7 @@ export class HelpStepTab {
       untracked(() => {
         this.openHowItWorks.set(false);
         this.openInterpret.set(false);
+        this.openNumbers.set(false);
         this.openReferences.set(false);
       });
     });
@@ -103,6 +124,13 @@ export class HelpStepTab {
   toggleInterpret(card?: HTMLElement) {
     this.openInterpret.update((v) => !v);
     if (this.openInterpret() && card) {
+      this.scrollToAccordion(card);
+    }
+  }
+
+  toggleNumbers(card?: HTMLElement) {
+    this.openNumbers.update((v) => !v);
+    if (this.openNumbers() && card) {
       this.scrollToAccordion(card);
     }
   }

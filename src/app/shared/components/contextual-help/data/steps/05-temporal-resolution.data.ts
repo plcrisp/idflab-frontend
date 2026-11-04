@@ -6,23 +6,20 @@ export const TEMPORAL_RESOLUTION_STEP_HELP: HelpStepContent = {
   icon: 'lucideClock',
   figure: 'temporal-resolution',
   summary:
-    'Obtenha as séries de precipitação máxima para durações de interesse por desagregação estatística ou agregação direta dos registros.',
+    'Gere as séries de chuva máxima para durações curtas (5 min a 24 h) a partir dos dados disponíveis.',
   whyItMatters:
-    'Projetos de drenagem urbana exigem intensidades em durações de minutos (5 min a 1 h), mas a maioria das estações do país registra apenas acumulados diários de 24 horas. A desagregação traduz volumes diários em intensidades sub-horárias com embasamento físico.',
-  decision:
-    'Para séries diárias ou horárias, escolha entre [[CETESB]] (coeficientes empíricos) ou [[Bartlett-Lewis]] (modelo estocástico calibrado). Para séries sub-horárias do CEMADEN, dispare a Agregação Direta.',
+    'Projetos de drenagem urbana precisam de intensidades em minutos, mas a maioria das estações do país só registra o acumulado diário. A desagregação converte volumes diários em intensidades sub-horárias com base física.',
   howItWorks: [
-    'Séries sub-horárias (CEMADEN): dispensa desagregação e agrega diretamente as medições de 10 min nas durações compatíveis (10 min até 24 h).',
-    'Séries diárias via [[CETESB]]: aplica relações empíricas multiplicativas consagradas para obter os máximos anuais de 5 min a 24 h.',
-    'Séries diárias via [[Bartlett-Lewis]]: calibra 5 parâmetros físicos estocásticos com base em uma estação CEMADEN próxima para simular o sinal sub-horário.',
-    'Séries horárias (INMET): adota cálculo híbrido, utilizando medições reais para durações a partir de 1 h e desagregação para intervalos inferiores.',
+    'Veja o método da sua série. O sistema sugere o caminho conforme a resolução dos dados. Séries sub-horárias (CEMADEN) dispensam configuração, e as horárias (INMET) usam cálculo híbrido.',
+    'Em séries diárias, escolha entre [[CETESB]] e [[Hyetos-Minute Bartlett-Lewis]]. O primeiro é o caminho rápido; o segundo é mais preciso e usa uma estação CEMADEN próxima.',
+    'Selecione a estação de calibração e confira o resultado. Veja a curva de decaimento ou a tabela anual.',
   ],
   interpret: {
-    good: 'Curva com decaimento monotônico da intensidade com a duração. No Bartlett-Lewis: calibração convergindo com estação representativa próxima.',
+    good: 'Curva com intensidade decrescente conforme a duração aumenta. No [[Hyetos-Minute Bartlett-Lewis]], calibração com estação próxima e representativa.',
     warning:
-      'Estação de calibração do Bartlett-Lewis situada a mais de 50–100 km da área de estudo, o que pode atenuar a representatividade local.',
+      'Estação de calibração a mais de 50 a 100 km da área de estudo, o que pode reduzir a representatividade local.',
     problem:
-      'Estação de calibração com menos de 180 dias de registros válidos ou menos de 30 eventos de chuva (inviabiliza a parametrização do Bartlett-Lewis).',
+      'Estação de calibração com menos de 180 dias de registros válidos ou menos de 30 eventos de chuva (inviabiliza a parametrização).',
   },
   references: [],
 };

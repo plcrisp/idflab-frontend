@@ -9,9 +9,11 @@ export const GLOBAL_GLOSSARY: Record<string, string> = {
   'Random Forest':
     'Algoritmo de aprendizado de máquina por conjunto de árvores de decisão. No IDFLab, estima dados ausentes combinando a estação vizinha com sazonalidade e defasagens temporais.',
   CETESB:
-    'Relações empíricas consolidadas pelo DAEE/CETESB para desagregação de chuvas diárias em durações menores (5 min a 24 h) no território brasileiro.',
+    'Relações empíricas desenvolvidas a partir de dados de chuva do estado de São Paulo (DAEE/CETESB) para converter chuvas diárias em durações menores, de 5 min a 24 h. Rápido, mas calibrado para a realidade paulista.',
+  'Hyetos-Minute Bartlett-Lewis':
+    'Modelo estocástico (Hyetos-Minute) que simula a estrutura das tempestades em escala sub-horária, a partir de parâmetros calibrados em uma estação de alta resolução próxima.',
   'Bartlett-Lewis':
-    'Modelo estocástico de pulsos retangulares (Hyetos-Minute) que simula a física de tempestades em escala sub-horária a partir de parâmetros calibrados.',
+    'Modelo estocástico (Hyetos-Minute) que simula a estrutura das tempestades em escala sub-horária, a partir de parâmetros calibrados em uma estação de alta resolução próxima.',
   Gumbel:
     'Distribuição de extremos Tipo I com 2 parâmetros (posição e escala). Modelo clássico e parcimonioso mais utilizado em obras de drenagem.',
   GEV: 'Distribuição Generalizada de Valores Extremos com 3 parâmetros (posição, escala e forma). Modelo de referência na hidrologia moderna.',

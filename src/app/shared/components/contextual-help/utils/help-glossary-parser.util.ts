@@ -1,7 +1,5 @@
 import { HelpTextToken } from '../../../../core/models/contextual-help.model';
 
-const GLOSSARY_REGEX = /\[\[(.*?)\]\]/g;
-
 /**
  * Parses a string containing glossary markers like `[[TERM]]`
  * and converts it into structured tokens for rendering.
@@ -14,11 +12,12 @@ export function parseGlossaryTokens(
     return [];
   }
 
+  const regex = /\[\[(.*?)\]\]/g;
   const tokens: HelpTextToken[] = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
-  while ((match = GLOSSARY_REGEX.exec(text)) !== null) {
+  while ((match = regex.exec(text)) !== null) {
     const matchStart = match.index;
     const matchEnd = match.index + match[0].length;
 
@@ -31,7 +30,14 @@ export function parseGlossaryTokens(
     }
 
     const termKey = match[1].trim();
-    const definition = glossary ? glossary[termKey] : undefined;
+    let definition = glossary ? glossary[termKey] : undefined;
+    if (!definition && glossary) {
+      const lower = termKey.toLowerCase();
+      const foundKey = Object.keys(glossary).find((k) => k.toLowerCase() === lower);
+      if (foundKey) {
+        definition = glossary[foundKey];
+      }
+    }
 
     if (definition) {
       tokens.push({

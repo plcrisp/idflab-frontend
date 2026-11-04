@@ -6,39 +6,22 @@ export const STATISTICAL_DISTRIBUTION_STEP_HELP: HelpStepContent = {
   icon: 'lucideTrendingUp',
   figure: 'statistical-distribution',
   summary:
-    'Ajuste distribuições teóricas de probabilidade às séries de máximos anuais para estimar precipitações associadas a tempos de retorno raros.',
+    'Escolha a distribuição que melhor representa seus máximos anuais para estimar chuvas de tempos de retorno raros.',
   whyItMatters:
-    'Obras hidráulicas são dimensionadas para tempos de retorno raros (ex.: 25, 50 ou 100 anos), que vão além da amostra observada. O ajuste probabilístico permite extrapolar a curva com rigor matemático e selecionar o modelo de menor incerteza.',
-  decision:
-    'Escolha a distribuição de probabilidade que irá alimentar as curvas IDF. O IDFLab sugere o modelo com melhor qualidade de ajuste pelo critério do [[SSE]].',
+    'Obras hidráulicas são dimensionadas para tempos de retorno raros (25, 50 ou 100 anos), que vão além do período observado. O ajuste probabilístico permite extrapolar com rigor e escolher o modelo de menor incerteza.',
   howItWorks: [
-    'Extrai as intensidades máximas anuais para cada uma das durações de chuva processadas na etapa anterior.',
-    'Gera o histograma empírico de frequências utilizando a regra de [[Doane]], adequada para amostras com forte assimetria positiva.',
-    'Ajusta 5 modelos clássicos: [[Gumbel]] (2 parâmetros), [[GEV]] (3p), [[Log-Normal]] (3p), [[GLO]] (3p) e [[Pearson Tipo III]] (3p).',
-    'Classifica o ajuste de cada distribuição pelo [[SSE]] médio e calcula as chuvas de projeto para [[TR]] de 10, 50 e 100 anos.',
+    'Visualize cada duração. O gráfico de barras mostra as intensidades máximas anuais da duração selecionada, vindas da etapa anterior.',
+    'Compare as distribuições. O sistema ajusta [[Gumbel]], [[GEV]], [[Log-Normal]], [[GLO]] e [[Pearson Tipo III]] e as ordena pelo [[SSE]]. A de menor erro recebe o selo “Melhor ajuste”.',
+    'Selecione a distribuição. Confira se a curva acompanha o histograma, principalmente na cauda direita. Use o ícone de info para ver as intensidades por [[TR]].',
+    'Avance com a escolhida. Ela alimenta o cálculo das chuvas de projeto para [[TR]] grandes.',
   ],
   interpret: {
-    good: 'Menor [[SSE]] e curva teórica ajustando-se com fidelidade ao histograma, sobretudo no decaimento da cauda direita.',
+    good: 'Menor [[SSE]] e curva teórica ajustada ao histograma, sobretudo na cauda direita.',
     warning:
-      'Modelos com [[SSE]] semelhante: priorize a formulação mais parcimoniosa ([[Gumbel]], 2p). Séries com menos de 20 anos exigem cautela com modelos de 3 parâmetros.',
+      'Modelos com [[SSE]] parecido: prefira o mais simples ([[Gumbel]], 2p). Séries com menos de 20 anos pedem cautela com modelos de 3 parâmetros.',
     problem:
-      'Curva teórica deslocada das barras de frequência ou estimativas físicas discrepantes para tempos de retorno elevados.',
+      'Curva teórica deslocada das barras ou estimativas físicas discrepantes para tempos de retorno elevados.',
   },
   references: [],
-  insight: (state: any) => {
-    if (!state || !state.bestDistribution) return null;
-    const sse =
-      state.sse != null
-        ? Number(state.sse).toLocaleString('pt-BR', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : null;
-    const count = state.candidateCount ?? 5;
-    if (!sse) {
-      return `${state.bestDistribution} é a distribuição com melhor ajuste.`;
-    }
-    return `${state.bestDistribution} obteve o menor erro médio (SSE ${sse}) entre as ${count} distribuições avaliadas.`;
-  },
 };
 
