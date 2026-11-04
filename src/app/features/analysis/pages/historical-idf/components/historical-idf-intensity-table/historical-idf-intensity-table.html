@@ -44,6 +44,8 @@
             [style]="mode() === 'error' ? getCellBgStyle(errVal) : ''" [hlmTooltip]="cellTooltip" position="top">
             @if (mode() === 'intensity') {
             {{ eqVal | number:'1.1-1':'pt-BR' }}
+            } @else if (mode() === 'quantiles') {
+            {{ qVal | number:'1.1-1':'pt-BR' }}
             } @else {
             {{ formatSignedPercentage(errVal) }}
             }
@@ -81,7 +83,14 @@
   <!-- Rodapé Visão Intensidade: uma linha, discreto em cinza -->
   @if (mode() === 'intensity') {
   <div class="flex items-center text-xs text-muted-foreground pt-1">
-    <span>Intensidade da equação em mm/h.</span>
+    <span>Intensidade calculada pela equação IDF, em mm/h.</span>
+  </div>
+  }
+
+  <!-- Rodapé Visão Quantis: intensidades estimadas diretamente pela distribuição -->
+  @if (mode() === 'quantiles') {
+  <div class="flex items-center text-xs text-muted-foreground pt-1">
+    <span>Intensidade estimada pela distribuição {{ distributionLabel() }} ajustada aos dados observados, em mm/h. A equação IDF aproxima esses valores.</span>
   </div>
   }
 

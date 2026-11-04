@@ -126,6 +126,16 @@
             <span>Intensidade</span>
           </button>
 
+          <button type="button" (click)="activeView.set('quantiles')"
+            class="cursor-pointer px-2.5 py-1 rounded-md font-medium transition-all flex items-center gap-1.5"
+            [class.bg-card]="activeView() === 'quantiles'" [class.text-foreground]="activeView() === 'quantiles'"
+            [class.shadow-xs]="activeView() === 'quantiles'"
+            [class.text-muted-foreground]="activeView() !== 'quantiles'"
+            [class.hover:text-foreground]="activeView() !== 'quantiles'">
+            <ng-icon name="lucidePercent" class="text-xs" />
+            <span>Quantis</span>
+          </button>
+
           <button type="button" (click)="activeView.set('error')"
             class="cursor-pointer px-2.5 py-1 rounded-md font-medium transition-all flex items-center gap-1.5"
             [class.bg-card]="activeView() === 'error'" [class.text-foreground]="activeView() === 'error'"
@@ -146,6 +156,9 @@
       }
       @case ('intensity') {
       <app-historical-idf-intensity-table [data]="data" [mode]="'intensity'" />
+      }
+      @case ('quantiles') {
+      <app-historical-idf-intensity-table [data]="data" [mode]="'quantiles'" [distributionName]="distributionName()" />
       }
       @case ('error') {
       <app-historical-idf-intensity-table [data]="data" [mode]="'error'" [distributionName]="distributionFullName()" />

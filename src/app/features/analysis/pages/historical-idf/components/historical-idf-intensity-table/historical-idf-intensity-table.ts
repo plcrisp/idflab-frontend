@@ -8,6 +8,7 @@ import { CommonModule, DecimalPipe } from '@angular/common';
 import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 
 import { HistoricalIdfResponse } from '../../models/historical-idf.model';
+import { getDistributionConfig } from '../../../distribution/constants/statistical-distribution.constants';
 
 @Component({
   selector: 'app-historical-idf-intensity-table',
@@ -19,8 +20,16 @@ import { HistoricalIdfResponse } from '../../models/historical-idf.model';
 })
 export class HistoricalIdfIntensityTable {
   readonly data = input.required<HistoricalIdfResponse>();
-  readonly mode = input<'intensity' | 'error'>('intensity');
+  readonly mode = input<'intensity' | 'quantiles' | 'error'>('intensity');
   readonly distributionName = input<string>('');
+
+  readonly distributionLabel = computed<string>(() => {
+    const custom = this.distributionName();
+    if (custom) return custom;
+    const dist = this.data()?.distribution;
+    if (!dist) return '';
+    return getDistributionConfig(dist).name;
+  });
 
   readonly maxAbsPct = computed<number>(() => {
     const d = this.data();

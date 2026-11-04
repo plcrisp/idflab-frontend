@@ -24,7 +24,10 @@ import {
 import { isSubDailyResolution } from '../../../../core/utils/resolution.utils';
 import { GlobalStats } from '../../shared/models/analysis.models';
 import { HistoricalIdfResponse } from './models/historical-idf.model';
-import { getDistributionColor } from '../distribution/constants/statistical-distribution.constants';
+import {
+  getDistributionColor,
+  getDistributionConfig,
+} from '../distribution/constants/statistical-distribution.constants';
 import { getDistributionFormalName } from './constants/historical-idf.constants';
 
 @Component({
@@ -71,10 +74,16 @@ export class HistoricalIdf implements OnInit, OnDestroy {
   readonly errorMessage = signal<string | null>(null);
 
   // Toggles de visão unificada
-  readonly activeView = signal<'curves' | 'intensity' | 'error'>('curves');
+  readonly activeView = signal<'curves' | 'intensity' | 'quantiles' | 'error'>('curves');
   readonly chartScale = signal<'log' | 'linear'>('linear');
 
   private lastLoadedProjectId: string | null = null;
+
+  readonly distributionName = computed(() => {
+    const data = this.idfData();
+    if (!data?.distribution) return '';
+    return getDistributionConfig(data.distribution).name;
+  });
 
   readonly distributionFullName = computed(() => {
     const data = this.idfData();
