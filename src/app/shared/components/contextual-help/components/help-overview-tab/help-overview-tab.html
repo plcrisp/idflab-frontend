@@ -1,86 +1,83 @@
-<div class="space-y-6">
-  <!-- 1. HERO BANNER: Cartão com profundidade e identidade do IDFLab -->
-  <div class="rounded-xl border border-primary/20 bg-gradient-to-br from-primary/[0.08] via-secondary/30 to-card p-4 shadow-xs">
+<div>
+  <!-- 1. HERO BANNER: Cartão inicial limpo e coerente com os containers do app -->
+  <div class="rounded-xl border border-border bg-card p-4">
     <div class="flex items-center gap-2 mb-2">
-      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-primary/15 text-primary border border-primary/20">
-        Pipeline Hidrológico
+      <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-primary/10 text-primary">
+        Pipeline hidrológico
       </span>
-      <span class="text-xs text-muted-foreground font-medium">· 8 Etapas Guiadas</span>
+      <span class="text-xs text-muted-foreground font-medium">· 8 etapas guiadas</span>
     </div>
     <p class="text-sm font-semibold text-foreground leading-snug text-balance">
       Do dado bruto à projeção climática de longo prazo.
     </p>
-    <p class="text-xs text-muted-foreground mt-1 leading-relaxed text-pretty">
+    <p class="text-[13px] text-muted-foreground mt-1.5 leading-[1.5] text-pretty">
       Cada etapa aplica métodos consolidados da hidrologia para gerar curvas de Intensidade-Duração-Frequência confiáveis.
     </p>
   </div>
 
-  <!-- 2. FLUXO METODOLÓGICO: Pipeline de cartões interativos -->
-  <div class="space-y-3">
-    <div class="flex items-center justify-between">
-      <h3 class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-        Etapas da Modelagem
+  <!-- 2. FLUXO METODOLÓGICO: Linha do tempo vertical compacta -->
+  <!-- Margem entre o card de abertura e o rótulo "ETAPAS DA MODELAGEM": 20px (mt-5) -->
+  <div class="mt-5">
+    <div class="flex items-center justify-between mb-2">
+      <h3 class="text-[11px] font-semibold text-foreground uppercase tracking-[0.07em]">
+        ETAPAS DA MODELAGEM
       </h3>
     </div>
 
-    <nav aria-label="Etapas da análise" class="space-y-1.5 relative">
+    <nav aria-label="Etapas da análise" class="flex flex-col px-1">
       @for (step of stepperSteps; track step.id; let i = $index) {
         <button
           type="button"
           [attr.aria-current]="i === currentStepIndex() && hasCurrentStep() ? 'step' : null"
           (click)="stepSelect.emit(step.id)"
-          class="w-full p-2.5 rounded-xl border text-left transition-all duration-150 cursor-pointer group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring select-none flex items-center justify-between gap-3"
-          [ngClass]="{
-            'bg-primary/[0.07] border-primary/30 shadow-xs': i === currentStepIndex() && hasCurrentStep(),
-            'bg-card border-border/70 hover:bg-muted/40 hover:border-border': !(i === currentStepIndex() && hasCurrentStep()),
-            'opacity-80': hasCurrentStep() && i > currentStepIndex()
-          }"
+          class="timeline-item w-full min-h-[36px] py-1.5 px-2.5 rounded-lg text-left transition-colors duration-150 cursor-pointer group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring flex items-start gap-3 select-none hover:bg-muted/40"
+          [class.is-current]="hasCurrentStep() && i === currentStepIndex()"
+          [class.rail-primary]="hasCurrentStep() && i < currentStepIndex()"
+          [class.rail-muted]="!(hasCurrentStep() && i < currentStepIndex())"
         >
-          <!-- Lado Esquerdo: Número/Ícone + Título e Subtítulo -->
-          <div class="flex items-center gap-3 min-w-0">
-            <!-- Caixa de Ícone / Marcador -->
-            <div
-              class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors"
-              [ngClass]="{
-                'bg-primary text-primary-foreground shadow-xs border border-primary': i === currentStepIndex() && hasCurrentStep(),
-                'bg-primary/10 text-primary group-hover:bg-primary/15 group-hover:border-primary/25': !(i === currentStepIndex() && hasCurrentStep())
-              }"
-            >
-              @if (hasCurrentStep() && i < currentStepIndex()) {
-                <ng-icon name="lucideCheck" class="text-base stroke-[2.5]" />
-              } @else {
-                <ng-icon [name]="step.icon" class="text-lg" />
+          <!-- Coluna 1: Marcador (20px de largura, 16px centralizado no trilho e alinhado ao centro da primeira linha do título) -->
+          <div class="relative z-10 w-5 h-[18px] flex items-center justify-center shrink-0">
+            @if (hasCurrentStep() && i < currentStepIndex()) {
+              <!-- Concluída: círculo 16px preenchido em primary com check branco 10px -->
+              <div class="w-4 h-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+                <ng-icon name="lucideCheck" class="text-[10px] stroke-[3]" />
+              </div>
+            } @else if (hasCurrentStep() && i === currentStepIndex()) {
+              <!-- Atual: círculo 16px preenchido em primary com anel externo de 3px a 25% opacidade -->
+              <div class="w-4 h-4 rounded-full bg-primary ring-[3px] ring-primary/25 shrink-0"></div>
+            } @else {
+              <!-- Pendente: círculo 16px com fundo do painel e borda 2px na cor de borda do app -->
+              <div class="w-4 h-4 rounded-full bg-card border border-border shrink-0"></div>
+            }
+          </div>
+
+          <!-- Coluna 2: Conteúdo (Título linha única + Descrição sob demanda) -->
+          <div class="min-w-0 flex-1 flex flex-col pt-0">
+            <div class="flex items-center justify-between gap-2 h-[18px]">
+              <span
+                class="text-sm font-semibold truncate leading-[1.3] transition-colors"
+                [ngClass]="{
+                  'text-primary': hasCurrentStep() && i === currentStepIndex(),
+                  'text-foreground': hasCurrentStep() && i < currentStepIndex(),
+                  'text-foreground/80 dark:text-foreground/75': !(hasCurrentStep() && i <= currentStepIndex())
+                }"
+              >
+                {{ step.title }}
+              </span>
+
+              @if (hasCurrentStep() && i === currentStepIndex()) {
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-primary/10 text-primary shrink-0 leading-none">
+                  Atual
+                </span>
               }
             </div>
 
-            <!-- Textos -->
-            <div class="min-w-0 flex flex-col">
-              <div class="flex items-baseline gap-2">
-                <span class="text-xs font-mono font-medium text-muted-foreground/80 tabular-nums">
-                  {{ step.stepNumber }}
-                </span>
-                <span
-                  class="text-sm font-semibold truncate transition-colors"
-                  [ngClass]="i === currentStepIndex() && hasCurrentStep() ? 'text-primary' : 'text-foreground group-hover:text-primary'"
-                >
-                  {{ step.title }}
-                </span>
-              </div>
-              <span class="text-xs text-muted-foreground truncate mt-0.5">
+            <!-- Descrição sob demanda (max 2 linhas, 12.5px, leading 1.35) -->
+            <div class="timeline-desc-wrapper min-w-0">
+              <p class="timeline-desc text-[12.5px] leading-[1.35] text-muted-foreground line-clamp-2 text-pretty">
                 {{ step.description }}
-              </span>
+              </p>
             </div>
-          </div>
-
-          <!-- Lado Direito: Badge de Status -->
-          <div class="shrink-0 flex items-center">
-            @if (hasCurrentStep() && i === currentStepIndex()) {
-              <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md bg-primary/15 text-primary border border-primary/20">
-                Atual
-              </span>
-            } @else {
-              <ng-icon name="lucideChevronRight" class="text-muted-foreground/40 text-base group-hover:text-muted-foreground transition-colors" />
-            }
           </div>
         </button>
       }
@@ -88,21 +85,22 @@
   </div>
 
   <!-- 3. FUNDAMENTOS METODOLÓGICOS: Cards Colapsáveis Delimitados -->
-  <div class="space-y-3">
-    <h3 class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-      Fundamentos do IDFLab
+  <!-- Margem entre o fim da linha do tempo e o rótulo "FUNDAMENTOS DO IDFLAB": 24px (mt-6) -->
+  <div class="mt-6 space-y-3">
+    <h3 class="text-[11px] font-semibold text-foreground uppercase tracking-[0.07em]">
+      FUNDAMENTOS DO IDFLAB
     </h3>
 
     <div class="space-y-2.5">
       <!-- Card a) O que é uma curva IDF? -->
-      <div class="rounded-xl border border-border/80 bg-card shadow-xs overflow-hidden transition-colors">
+      <div class="rounded-xl border border-border bg-card overflow-hidden transition-colors">
         <button
           type="button"
-          class="w-full flex items-center justify-between p-3.5 text-left font-semibold text-sm text-foreground hover:bg-muted/30 transition-colors cursor-pointer select-none group focus-visible:outline-none"
+          class="w-full min-h-[48px] px-4 py-3 flex items-center justify-between text-left font-semibold text-sm text-foreground hover:bg-muted/40 transition-colors cursor-pointer select-none group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           [attr.aria-expanded]="openIdf()"
           (click)="toggleIdf()"
         >
-          <div class="flex items-center gap-2.5">
+          <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <ng-icon name="lucideTrendingUp" class="text-base" />
             </div>
@@ -110,7 +108,7 @@
           </div>
           <ng-icon
             name="lucideChevronDown"
-            class="text-muted-foreground group-hover:text-primary text-base transition-transform duration-200"
+            class="text-muted-foreground group-hover:text-foreground text-[16px] transition-transform duration-200"
             [class.rotate-180]="openIdf()"
           />
         </button>
@@ -121,29 +119,29 @@
               Relaciona a intensidade de uma chuva (<strong class="text-foreground">mm/h</strong>), sua duração (<strong class="text-foreground">minutos ou horas</strong>) e o tempo de retorno (<strong class="text-foreground">anos</strong>). É a base técnica para dimensionamento de drenagem, bueiros e controle de cheias.
             </p>
 
-            <!-- Equação idêntica à tela de IDF Histórica -->
-            <div class="rounded-lg bg-secondary/40 border border-border p-3 text-center my-2 select-all">
+            <!-- Equação idêntica à tela de IDF Histórica (apenas fundo sutil, sem borda) -->
+            <div class="rounded-lg bg-secondary/40 p-3 text-center my-2 select-all">
               <div class="text-base sm:text-lg font-bold tracking-tight text-foreground tabular-nums">
                 i = K · TR<sup>m</sup> / (d + t₀)<sup>n</sup>
               </div>
-              <div class="text-[11px] text-muted-foreground mt-1">
+              <div class="text-xs text-muted-foreground mt-1.5">
                 i em mm/h · d em min · TR em anos
               </div>
             </div>
 
-            <!-- Chips discretos dos parâmetros -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-center text-[11px]">
-              <div class="px-2 py-1 rounded-md bg-secondary/60 border border-border/60">
-                <span class="font-bold text-foreground">K</span> localidade
+            <!-- Chips discretos dos parâmetros (sem borda, min 12px) -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+              <div class="px-2.5 py-1.5 rounded-md bg-secondary/60 text-muted-foreground">
+                <span class="font-semibold text-foreground">K</span> localidade
               </div>
-              <div class="px-2 py-1 rounded-md bg-secondary/60 border border-border/60">
-                <span class="font-bold text-foreground">m</span> retorno
+              <div class="px-2.5 py-1.5 rounded-md bg-secondary/60 text-muted-foreground">
+                <span class="font-semibold text-foreground">m</span> retorno
               </div>
-              <div class="px-2 py-1 rounded-md bg-secondary/60 border border-border/60">
-                <span class="font-bold text-foreground">n</span> duração
+              <div class="px-2.5 py-1.5 rounded-md bg-secondary/60 text-muted-foreground">
+                <span class="font-semibold text-foreground">n</span> duração
               </div>
-              <div class="px-2 py-1 rounded-md bg-secondary/60 border border-border/60">
-                <span class="font-bold text-foreground">t₀</span> ajuste
+              <div class="px-2.5 py-1.5 rounded-md bg-secondary/60 text-muted-foreground">
+                <span class="font-semibold text-foreground">t₀</span> ajuste
               </div>
             </div>
           </div>
@@ -151,14 +149,14 @@
       </div>
 
       <!-- Card b) Por que isso importa? -->
-      <div class="rounded-xl border border-border/80 bg-card shadow-xs overflow-hidden transition-colors">
+      <div class="rounded-xl border border-border bg-card overflow-hidden transition-colors">
         <button
           type="button"
-          class="w-full flex items-center justify-between p-3.5 text-left font-semibold text-sm text-foreground hover:bg-muted/30 transition-colors cursor-pointer select-none group focus-visible:outline-none"
+          class="w-full min-h-[48px] px-4 py-3 flex items-center justify-between text-left font-semibold text-sm text-foreground hover:bg-muted/40 transition-colors cursor-pointer select-none group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           [attr.aria-expanded]="openWhy()"
           (click)="toggleWhy()"
         >
-          <div class="flex items-center gap-2.5">
+          <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <ng-icon name="lucideCircleHelp" class="text-base" />
             </div>
@@ -166,7 +164,7 @@
           </div>
           <ng-icon
             name="lucideChevronDown"
-            class="text-muted-foreground group-hover:text-primary text-base transition-transform duration-200"
+            class="text-muted-foreground group-hover:text-foreground text-[16px] transition-transform duration-200"
             [class.rotate-180]="openWhy()"
           />
         </button>
@@ -174,9 +172,9 @@
         @if (openWhy()) {
           <div class="px-4 pb-4 pt-1 space-y-3 border-t border-border/50">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
-              <!-- Subdimensionar -->
-              <div class="p-3 rounded-lg border border-border/80 bg-secondary/30 space-y-1">
-                <div class="flex items-center gap-1.5 text-amber-500 font-semibold text-xs">
+              <!-- Subdimensionar (sem borda, fundo tintado leve âmbar) -->
+              <div class="p-3 rounded-lg bg-amber-500/[0.08] dark:bg-amber-500/10 space-y-1">
+                <div class="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-semibold text-xs">
                   <ng-icon name="lucideTriangleAlert" class="text-sm shrink-0" />
                   <span>Subdimensionamento</span>
                 </div>
@@ -185,8 +183,8 @@
                 </p>
               </div>
 
-              <!-- Superdimensionar -->
-              <div class="p-3 rounded-lg border border-border/80 bg-secondary/30 space-y-1">
+              <!-- Superdimensionar (sem borda, fundo tintado leve neutro) -->
+              <div class="p-3 rounded-lg bg-secondary/60 dark:bg-secondary/40 space-y-1">
                 <div class="flex items-center gap-1.5 text-foreground font-semibold text-xs">
                   <ng-icon name="lucideCoins" class="text-sm text-muted-foreground shrink-0" />
                   <span>Superdimensionamento</span>
@@ -198,7 +196,7 @@
             </div>
 
             <p class="text-xs text-muted-foreground leading-relaxed pt-1 text-pretty">
-              Modelos tradicionais assumem estacionariedade climática. O IDFLab incorpora projeções do <strong>CLIMBra</strong> para antecipar chuvas extremas até 2100.
+              Modelos tradicionais assumem estacionariedade climática. O IDFLab incorpora projeções do <strong class="text-foreground">CLIMBra</strong> para antecipar chuvas extremas até 2100.
             </p>
           </div>
         }

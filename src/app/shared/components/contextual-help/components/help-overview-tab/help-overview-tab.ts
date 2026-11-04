@@ -51,14 +51,14 @@ interface PlatformDifferentiator {
 }
 
 const STEPPER_ITEMS: OverviewStepItem[] = [
-  { id: 'map', stepNumber: '01', title: 'Mapa', description: 'Escolha da estação e período histórico.', icon: 'lucideMap' },
-  { id: 'initial-visualization', stepNumber: '02', title: 'Visualização inicial', description: 'Inspeção de falhas e extensão temporal.', icon: 'lucideActivity' },
-  { id: 'consistency-check', stepNumber: '03', title: 'Verificação de Consistência', description: 'Dupla massa com estação vizinha de apoio.', icon: 'lucideShieldCheck' },
-  { id: 'gap-treatment', stepNumber: '04', title: 'Tratamento de falhas', description: 'Preenchimento ou seleção de anos válidos.', icon: 'lucideFilter' },
-  { id: 'temporal-resolution', stepNumber: '05', title: 'Resolução temporal', description: 'Desagregação diária para sub-horária.', icon: 'lucideClock' },
-  { id: 'statistical-distribution', stepNumber: '06', title: 'Distribuição estatística', description: 'Ajuste probabilístico aos máximos anuais.', icon: 'lucideTrendingUp' },
-  { id: 'historical-idf', stepNumber: '07', title: 'IDF histórica', description: 'Parâmetros calibrados e curvas ajustadas.', icon: 'lucideDroplets' },
-  { id: 'future-scenarios', stepNumber: '08', title: 'Cenários futuros', description: 'Projeções climáticas até 2100 (CLIMBra).', icon: 'lucideSparkles' },
+  { id: 'map', stepNumber: '01', title: 'Mapa', description: 'Escolha da estação e período histórico', icon: 'lucideMap' },
+  { id: 'initial-visualization', stepNumber: '02', title: 'Visualização inicial', description: 'Inspeção de falhas e extensão temporal', icon: 'lucideActivity' },
+  { id: 'consistency-check', stepNumber: '03', title: 'Verificação de consistência', description: 'Dupla massa com estação vizinha de apoio', icon: 'lucideShieldCheck' },
+  { id: 'gap-treatment', stepNumber: '04', title: 'Tratamento de falhas', description: 'Preenchimento ou seleção de anos válidos', icon: 'lucideFilter' },
+  { id: 'temporal-resolution', stepNumber: '05', title: 'Resolução temporal', description: 'Desagregação diária para sub-horária', icon: 'lucideClock' },
+  { id: 'statistical-distribution', stepNumber: '06', title: 'Distribuição estatística', description: 'Ajuste probabilístico aos máximos anuais', icon: 'lucideTrendingUp' },
+  { id: 'historical-idf', stepNumber: '07', title: 'IDF histórica', description: 'Parâmetros calibrados e curvas ajustadas', icon: 'lucideDroplets' },
+  { id: 'future-scenarios', stepNumber: '08', title: 'Cenários futuros', description: 'Projeções climáticas até 2100 (CLIMBra)', icon: 'lucideSparkles' },
 ];
 
 const PLATFORM_DIFFERENTIATORS: PlatformDifferentiator[] = [
@@ -128,6 +128,7 @@ const PLATFORM_DIFFERENTIATORS: PlatformDifferentiator[] = [
     class: 'block w-full',
   },
   templateUrl: './help-overview-tab.html',
+  styleUrl: './help-overview-tab.scss',
 })
 export class HelpOverviewTab {
   readonly currentStepIndex = input<number>(-1);

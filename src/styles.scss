@@ -80,6 +80,7 @@ body {
     --chart-tr-100: #f87171;
 
     --radius: 0.5rem;
+    --sheet-shadow: -10px 0 30px -4px rgba(0, 0, 0, 0.45);
 
     // spartan tokens (dark theme)
     color-scheme: dark;
@@ -159,6 +160,7 @@ body {
 
     --border: var(--neutral-200);
     --input: var(--neutral-200);
+    --sheet-shadow: -6px 0 20px -2px rgba(15, 23, 42, 0.08);
     --ring: var(--primary-600);
 
     --chart-incomplete-coverage: rgba(239, 68, 68, 0.15);
@@ -275,6 +277,117 @@ hlm-skeleton {
 
   &:active {
     background-color: color-mix(in srgb, var(--foreground) 30%, transparent);
+  }
+}
+
+// Sheet de Ajuda Contextual
+.help-sheet-panel {
+  box-shadow: var(--sheet-shadow, -6px 0 20px -2px rgba(15, 23, 42, 0.08));
+}
+
+.help-sheet-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--border) 75%, transparent) transparent;
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 16px), transparent 100%);
+  mask-image: linear-gradient(to bottom, black calc(100% - 16px), transparent 100%);
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--border) 75%, transparent);
+    border-radius: 4px;
+
+    &:hover {
+      background-color: var(--muted-foreground);
+    }
+  }
+}
+
+@supports (not (mask-image: linear-gradient(to bottom, black, transparent))) and
+  (not (-webkit-mask-image: linear-gradient(to bottom, black, transparent))) {
+  .help-sheet-scroll {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 16px;
+      background: linear-gradient(to bottom, transparent, var(--card));
+      pointer-events: none;
+      z-index: 10;
+    }
+  }
+}
+
+// Linha do tempo da Ajuda Contextual
+.timeline-item {
+  position: relative;
+
+  &:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 15px;
+    bottom: -15px;
+    width: 2px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  &.rail-primary:not(:last-child)::before {
+    background-color: var(--primary);
+  }
+
+  &.rail-muted:not(:last-child)::before {
+    background-color: var(--border);
+  }
+}
+
+.timeline-desc-wrapper {
+  overflow: hidden;
+  transition: max-height 150ms ease-out, opacity 150ms ease-out, margin-top 150ms ease-out;
+}
+
+.timeline-item:not(.is-current) .timeline-desc-wrapper {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+}
+
+.timeline-item.is-current .timeline-desc-wrapper {
+  max-height: 48px;
+  opacity: 1;
+  margin-top: 3px;
+}
+
+.timeline-item:not(.is-current):hover .timeline-desc-wrapper,
+.timeline-item:not(.is-current):focus-visible .timeline-desc-wrapper,
+.timeline-item:not(.is-current):focus-within .timeline-desc-wrapper {
+  max-height: 48px;
+  opacity: 1;
+  margin-top: 3px;
+}
+
+@media (hover: none) {
+  .timeline-item .timeline-desc-wrapper {
+    max-height: 48px !important;
+    opacity: 1 !important;
+    margin-top: 3px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline-desc-wrapper {
+    transition: none !important;
   }
 }
 

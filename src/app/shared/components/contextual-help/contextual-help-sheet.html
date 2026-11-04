@@ -6,10 +6,10 @@
   <hlm-sheet-content
     *brnSheetContent="let ctx"
     [showCloseButton]="false"
-    class="w-full max-sm:w-screen max-sm:max-w-none sm:max-w-lg md:max-w-lg h-full p-0 flex flex-col gap-0 border-l border-border bg-card shadow-2xl transition-all duration-200"
+    class="help-sheet-panel w-full max-sm:w-screen max-sm:max-w-none sm:max-w-lg md:max-w-lg h-full p-0 flex flex-col gap-0 border-l border-border bg-card transition-all duration-200"
   >
     <!-- 1. CABEÇALHO FIXO -->
-    <header class="flex items-start justify-between px-6 pt-5 pb-4 border-b border-border bg-card shrink-0 z-20">
+    <header class="flex items-start justify-between px-5 pt-5 pb-4 border-b border-border bg-card shrink-0 z-20">
       <div class="flex flex-col min-w-0 pr-3">
         <h2 class="text-xl font-bold text-foreground tracking-tight leading-tight">
           Ajuda
@@ -36,7 +36,7 @@
     </header>
 
     <!-- 2. ABAS ("Esta etapa" e "Visão geral") -->
-    <div class="px-6 border-b border-border bg-card shrink-0 z-10" role="tablist" aria-label="Navegação da ajuda">
+    <div class="px-5 border-b border-border bg-card shrink-0 z-10" role="tablist" aria-label="Navegação da ajuda">
       <div class="flex items-center gap-6 -mb-px">
         <button
           type="button"
@@ -71,7 +71,7 @@
       #scrollContainer
       (scroll)="onBodyScroll()"
       data-slot="sheet-body"
-      class="flex-1 min-h-0 overflow-y-auto px-6 py-5 scrollbar-thin focus-visible:outline-none"
+      class="help-sheet-scroll flex-1 min-h-0 overflow-y-auto px-5 py-5 focus-visible:outline-none"
       tabindex="-1"
     >
       @if (activeTab() === 'step') {
@@ -89,26 +89,24 @@
       }
     </div>
 
-    <!-- 4. RODAPÉ FIXO (oculto na aba "Visão geral" quando não há etapa atual) -->
+    <!-- 4. RODAPÉ FIXO (exibido apenas fora da "Visão geral", na aba "Esta etapa") -->
     @if (shouldShowFooter()) {
-      <footer class="flex items-center justify-between px-6 py-3 border-t border-border bg-card shrink-0 z-20">
+      <footer class="flex items-center justify-between px-5 py-3 border-t border-border bg-card shrink-0 z-20">
         <button
           hlmBtn
           variant="ghost"
           size="sm"
           type="button"
           class="text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-          [disabled]="!helpService.hasPreviousStep() || activeTab() === 'overview'"
+          [disabled]="!helpService.hasPreviousStep()"
           (click)="helpService.goToPreviousStep()"
         >
           <ng-icon name="lucideArrowLeft" class="text-sm mr-1.5" />
           <span>Etapa anterior</span>
         </button>
 
-        <span class="text-[11px] font-medium text-muted-foreground select-none">
-          @if (activeTab() === 'step') {
-            {{ viewingStepIndex() + 1 }} de 8
-          }
+        <span class="text-xs font-medium text-muted-foreground select-none">
+          {{ viewingStepIndex() + 1 }} de 8
         </span>
 
         <button
@@ -117,7 +115,7 @@
           size="sm"
           type="button"
           class="text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-          [disabled]="!helpService.hasNextStep() || activeTab() === 'overview'"
+          [disabled]="!helpService.hasNextStep()"
           (click)="helpService.goToNextStep()"
         >
           <span>Próxima etapa</span>

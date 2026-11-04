@@ -49,12 +49,7 @@ export class ContextualHelpSheet {
   private overviewScrollTop = 0;
 
   readonly shouldShowFooter = computed(() => {
-    // Na aba "Esta etapa" o rodapé sempre aparece
-    if (this.activeTab() === 'step') {
-      return true;
-    }
-    // Na aba "Visão geral", o rodapé só aparece se houver uma etapa atual na análise
-    return this.helpService.hasCurrentStep();
+    return this.activeTab() !== 'overview';
   });
 
   constructor() {
