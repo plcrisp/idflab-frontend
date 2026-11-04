@@ -1,6 +1,6 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { catchError, Observable, of, tap } from 'rxjs';
 
 import { TokenService } from '../../../core/services/utils/token.service';
 import { TokenResponse } from '../../../core/models/utils/token.model';
@@ -14,12 +14,14 @@ import {
 
 import { environment } from '../../../../environments/environment';
 import { Router } from '@angular/router';
+import { ProjectsService } from '../../../core/services/api/projects.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private baseUrl = `${environment.apiUrl}${environment.endpoints.auth}`;
+  private projectsService = inject(ProjectsService);
 
   private userSignal = signal<User | null>(null);
 
@@ -43,7 +45,7 @@ export class AuthService {
   login(
     email: string,
     password: string,
-    route: string = '/app/projects',
+    route?: string,
   ): Observable<TokenResponse> {
     return this.http
       .post<TokenResponse>(`${this.baseUrl}/login`, {
@@ -53,9 +55,27 @@ export class AuthService {
       .pipe(
         tap((response) => {
           this.tokenService.saveTokens(response.access_token, response.refresh_token);
-          this.router.navigateByUrl(route);
+          this.navigateAfterLogin(route);
         }),
       );
+  }
+
+  navigateAfterLogin(targetRoute?: string): void {
+    if (targetRoute && targetRoute !== '/app' && targetRoute !== '/app/projects') {
+      this.router.navigateByUrl(targetRoute);
+      return;
+    }
+
+    this.projectsService
+      .getSidebarProjects()
+      .pipe(catchError(() => of([])))
+      .subscribe((projects) => {
+        if (!projects || projects.length === 0) {
+          this.router.navigateByUrl('/app/interactive-map');
+        } else {
+          this.router.navigateByUrl('/app/projects');
+        }
+      });
   }
 
   register(user: UserRegistration): Observable<User> {

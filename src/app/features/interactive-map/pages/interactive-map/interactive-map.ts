@@ -27,7 +27,6 @@ export class InteractiveMap implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.mainLayoutService.setBreadcrumbs([
-      { label: 'Central de Projetos', url: '/app/projects' },
       { label: 'Mapa Interativo', url: '/app/interactive-map', active: true },
     ]);
   }

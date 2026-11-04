@@ -1,8 +1,8 @@
 import { Injectable, NgZone } from '@angular/core';
-import { environment } from '../../../../environments/environment';
 import { AuthService } from './auth.service';
-import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 import { TokenService } from '../../../core/services/utils/token.service';
+import { Router } from '@angular/router';
 
 declare const google: any;
 
@@ -11,25 +11,22 @@ declare const google: any;
 })
 export class GoogleAuthService {
   constructor(
-    private ngZone: NgZone,
     private auth: AuthService,
-    private router: Router,
     private tokenService: TokenService,
+    private ngZone: NgZone,
+    private router: Router,
   ) {}
 
-  initializeGoogleAuth(): Promise<void> {
-    return new Promise((resolve) => {
-      google.accounts.id.initialize({
-        client_id: environment.googleClientId,
-        callback: (response: any) => {
-          this.ngZone.run(() => this.onGoogleLoginSuccess(response));
-        },
-      });
-      resolve();
+  initializeGoogleAuth(): void {
+    if (typeof google === 'undefined') return;
+
+    google.accounts.id.initialize({
+      client_id: environment.googleClientId,
+      callback: (response: any) => this.onGoogleLoginSuccess(response),
     });
   }
 
-  openPopup(route: string = '/app/projects'): void {
+  openPopup(route?: string): void {
     google.accounts.oauth2
       .initTokenClient({
         client_id: environment.googleClientId,
@@ -41,7 +38,7 @@ export class GoogleAuthService {
       .requestAccessToken({ prompt: 'select_account' });
   }
 
-  private onGoogleLoginSuccess(googleToken: any, route: string = '/app/projects') {
+  private onGoogleLoginSuccess(googleToken: any, route?: string) {
     this.auth.loginWithGoogle(googleToken.access_token).subscribe({
       next: (response) => {
         if (response.needs_registration) {
@@ -50,7 +47,7 @@ export class GoogleAuthService {
           });
         } else {
           this.tokenService.saveTokens(response.access_token, response.refresh_token);
-          this.router.navigateByUrl(route);
+          this.auth.navigateAfterLogin(route);
           console.log('Login com Google realizado com sucesso!');
         }
       },

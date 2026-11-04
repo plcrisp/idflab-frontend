@@ -5,6 +5,7 @@ import { MainLayout } from './layout/main-layout/main-layout';
 import { guestGuard } from './core/guards/guest.guard';
 import { authGuard } from './core/guards/auth.guard';
 import { projectAccessGuard } from './core/guards/project-access.guard';
+import { initialRouteGuard } from './core/guards/initial-route.guard';
 import { NotFound } from './shared/components/not-found/not-found';
 
 const routes: Routes = [
@@ -19,7 +20,12 @@ const routes: Routes = [
     component: MainLayout,
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'projects', pathMatch: 'full' },
+      {
+        path: '',
+        pathMatch: 'full',
+        canActivate: [initialRouteGuard],
+        children: [],
+      },
 
       { path: 'dashboard', redirectTo: 'projects', pathMatch: 'full' },
       { path: 'projetos', redirectTo: 'projects', pathMatch: 'full' },

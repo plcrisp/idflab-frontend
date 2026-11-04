@@ -58,38 +58,52 @@ export class Register implements OnInit {
         email: ['', [Validators.required, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)]],
         institution: ['', [Validators.required]],
         password: ['', [Validators.required, Validators.minLength(8)]],
-        confirm_password: ['', Validators.required],
-        user_type: ['STUDENT', Validators.required],
-        auth_provider: ['LOCAL', Validators.required],
+        confirm_password: ['', [Validators.required]],
+        user_type: ['', [Validators.required]],
       },
-      {
-        validators: passwordMatchValidator,
-      },
+      { validators: passwordMatchValidator },
     );
   }
 
-  ngOnInit() {
-    const state = history.state;
+  ngOnInit(): void {
+    const navigationState = history.state;
 
-    if (state && state.isGoogleAuth) {
+    if (navigationState && navigationState.isGoogleAuth) {
       this.isGoogleAuth = true;
 
       this.registerForm.patchValue({
-        name: state.name,
-        email: state.email,
-        auth_provider: 'GOOGLE',
+        name: navigationState.name || '',
+        email: navigationState.email || '',
       });
 
       this.registerForm.get('email')?.disable();
-
       this.registerForm.get('password')?.clearValidators();
-      this.registerForm.get('confirm_password')?.clearValidators();
-
       this.registerForm.get('password')?.updateValueAndValidity();
+      this.registerForm.get('confirm_password')?.clearValidators();
       this.registerForm.get('confirm_password')?.updateValueAndValidity();
 
-      this.cdr.detectChanges();
+      this.registerForm.clearValidators();
+      this.registerForm.updateValueAndValidity();
     }
+  }
+
+  get name() {
+    return this.registerForm.get('name');
+  }
+  get email() {
+    return this.registerForm.get('email');
+  }
+  get institution() {
+    return this.registerForm.get('institution');
+  }
+  get user_type() {
+    return this.registerForm.get('user_type');
+  }
+  get password() {
+    return this.registerForm.get('password');
+  }
+  get confirm_password() {
+    return this.registerForm.get('confirm_password');
   }
 
   onSubmit() {
@@ -112,7 +126,7 @@ export class Register implements OnInit {
       this.auth.registerWithGoogle(payloadGoogle).subscribe({
         next: (response) => {
           this.tokenService.saveTokens(response.access_token, response.refresh_token);
-          this.router.navigate(['/app']);
+          this.auth.navigateAfterLogin();
         },
         error: (error) => {
           this.isLoading = false;
