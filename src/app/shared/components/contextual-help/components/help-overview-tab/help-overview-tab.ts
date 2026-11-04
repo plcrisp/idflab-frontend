@@ -147,15 +147,37 @@ export class HelpOverviewTab {
     return this.currentStepIndex() >= 0;
   });
 
-  toggleIdf() {
+  toggleIdf(card?: HTMLElement) {
     this.openIdf.update((v) => !v);
+    if (this.openIdf() && card) {
+      this.scrollToAccordion(card);
+    }
   }
 
-  toggleWhy() {
+  toggleWhy(card?: HTMLElement) {
     this.openWhy.update((v) => !v);
+    if (this.openWhy() && card) {
+      this.scrollToAccordion(card);
+    }
   }
 
-  toggleHow() {
+  toggleHow(card?: HTMLElement) {
     this.openHow.update((v) => !v);
+    if (this.openHow() && card) {
+      this.scrollToAccordion(card);
+    }
+  }
+
+  private scrollToAccordion(element: HTMLElement) {
+    setTimeout(() => {
+      const prefersReducedMotion =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      element.scrollIntoView({
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        block: 'start',
+      });
+    }, 60);
   }
 }

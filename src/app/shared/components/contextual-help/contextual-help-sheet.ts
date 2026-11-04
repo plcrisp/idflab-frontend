@@ -44,6 +44,8 @@ export class ContextualHelpSheet {
   readonly viewingStepIndex = this.helpService.viewingStepIndex;
   readonly viewingStepContent = this.helpService.viewingStepContent;
 
+  readonly stepIndices = [0, 1, 2, 3, 4, 5, 6, 7];
+
   @ViewChild('scrollContainer') private scrollContainer?: ElementRef<HTMLDivElement>;
 
   private overviewScrollTop = 0;

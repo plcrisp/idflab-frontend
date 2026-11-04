@@ -19,7 +19,6 @@ import {
   lucideExternalLink,
   lucideGauge,
   lucideSlidersHorizontal,
-  lucideSparkles,
   lucideTriangleAlert,
 } from '@ng-icons/lucide';
 import {
@@ -44,7 +43,6 @@ import { HelpFormattedText } from '../help-formatted-text/help-formatted-text';
       lucideExternalLink,
       lucideGauge,
       lucideSlidersHorizontal,
-      lucideSparkles,
       lucideTriangleAlert,
     }),
   ],
@@ -58,6 +56,7 @@ export class HelpStepTab {
   readonly step = input.required<HelpStepContent>();
   readonly analysisState = input<any>(null);
 
+  // Accordions iniciam fechados por padrão
   readonly openHowItWorks = signal<boolean>(false);
   readonly openInterpret = signal<boolean>(false);
   readonly openReferences = signal<boolean>(false);
@@ -83,7 +82,7 @@ export class HelpStepTab {
   });
 
   constructor() {
-    // Ao alternar a etapa visualizada, mantém os cartões de fundamentos fechados por padrão
+    // Ao alternar a etapa visualizada, todos os accordions vêm fechados
     effect(() => {
       this.step();
       untracked(() => {
@@ -94,15 +93,37 @@ export class HelpStepTab {
     });
   }
 
-  toggleHowItWorks() {
+  toggleHowItWorks(card?: HTMLElement) {
     this.openHowItWorks.update((v) => !v);
+    if (this.openHowItWorks() && card) {
+      this.scrollToAccordion(card);
+    }
   }
 
-  toggleInterpret() {
+  toggleInterpret(card?: HTMLElement) {
     this.openInterpret.update((v) => !v);
+    if (this.openInterpret() && card) {
+      this.scrollToAccordion(card);
+    }
   }
 
-  toggleReferences() {
+  toggleReferences(card?: HTMLElement) {
     this.openReferences.update((v) => !v);
+    if (this.openReferences() && card) {
+      this.scrollToAccordion(card);
+    }
+  }
+
+  private scrollToAccordion(element: HTMLElement) {
+    setTimeout(() => {
+      const prefersReducedMotion =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      element.scrollIntoView({
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        block: 'start',
+      });
+    }, 60);
   }
 }

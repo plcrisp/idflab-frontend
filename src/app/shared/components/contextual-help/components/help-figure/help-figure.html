@@ -1,17 +1,4 @@
-<div class="w-full h-[142px] relative select-none rounded-lg overflow-hidden bg-card/60">
-  <!-- Container do gráfico ECharts -->
+<div class="w-full h-[110px] relative select-none" aria-hidden="true">
+  <!-- Container do gráfico ECharts (puramente decorativo, sem badges ou texto) -->
   <div #chartContainer class="w-full h-full"></div>
-
-  <!-- Micro badge flutuante de identificação da etapa -->
-  <span
-    class="absolute top-2 right-2 text-[10px] font-mono font-medium px-2 py-0.5 rounded border pointer-events-none transition-colors shadow-2xs z-10"
-    [ngClass]="{
-      'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30': badge().variant === 'amber',
-      'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30': badge().variant === 'emerald',
-      'bg-primary/10 text-primary border-primary/25': badge().variant === 'primary',
-      'bg-secondary/80 text-muted-foreground border-border/60': badge().variant === 'muted'
-    }"
-  >
-    {{ badge().text }}
-  </span>
 </div>

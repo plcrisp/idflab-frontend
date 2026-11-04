@@ -52,7 +52,7 @@ export class ContextualHelpService {
   });
 
   /** The step currently being viewed inside the help drawer (can be navigated independently of the route) */
-  readonly viewingStepId = signal<HelpStepId>('statistical-distribution');
+  readonly viewingStepId = signal<HelpStepId>(HELP_STEP_ORDER[0]);
 
   readonly viewingStepIndex = computed<number>(() => {
     return HELP_STEP_ORDER.indexOf(this.viewingStepId());
@@ -87,6 +87,7 @@ export class ContextualHelpService {
             this.viewingStepId.set(stepId);
             this.activeTab.set('step');
           } else {
+            this.viewingStepId.set(HELP_STEP_ORDER[0]);
             this.activeTab.set('overview');
           }
         });
@@ -106,6 +107,7 @@ export class ContextualHelpService {
         this.viewingStepId.set(current);
         this.activeTab.set('step');
       } else {
+        this.viewingStepId.set(HELP_STEP_ORDER[0]);
         this.activeTab.set('overview');
       }
     }

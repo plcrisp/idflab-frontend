@@ -97,7 +97,7 @@
           variant="ghost"
           size="sm"
           type="button"
-          class="text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          class="text-xs font-medium text-foreground hover:bg-muted/60 cursor-pointer disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
           [disabled]="!helpService.hasPreviousStep()"
           (click)="helpService.goToPreviousStep()"
         >
@@ -105,16 +105,33 @@
           <span>Etapa anterior</span>
         </button>
 
-        <span class="text-xs font-medium text-muted-foreground select-none">
-          {{ viewingStepIndex() + 1 }} de 8
-        </span>
+        <!-- Mini-linha do tempo de progresso (8 etapas) -->
+        <div
+          class="flex items-center gap-1.5 px-2 select-none"
+          role="progressbar"
+          [attr.aria-valuenow]="viewingStepIndex() + 1"
+          aria-valuemin="1"
+          aria-valuemax="8"
+          [attr.aria-label]="'Etapa ' + (viewingStepIndex() + 1) + ' de 8'"
+        >
+          @for (s of stepIndices; track s) {
+            <span
+              class="h-1.5 rounded-md transition-all duration-200"
+              [class.w-4]="s === viewingStepIndex()"
+              [class.w-2]="s !== viewingStepIndex()"
+              [class.bg-primary]="s <= viewingStepIndex()"
+              [class.opacity-70]="s < viewingStepIndex()"
+              [class.bg-border]="s > viewingStepIndex()"
+            ></span>
+          }
+        </div>
 
         <button
           hlmBtn
           variant="ghost"
           size="sm"
           type="button"
-          class="text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          class="text-xs font-medium text-foreground hover:bg-muted/60 cursor-pointer disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
           [disabled]="!helpService.hasNextStep()"
           (click)="helpService.goToNextStep()"
         >
