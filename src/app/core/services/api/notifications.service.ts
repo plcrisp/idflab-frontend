@@ -1,4 +1,5 @@
-import { effect, Injectable, signal } from '@angular/core';
+import { effect, Injectable, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subscription } from 'rxjs';
 import { NotificationsPanelResponse, Notification } from '../../models/api/notification.model';
@@ -12,6 +13,7 @@ const POLL_INTERVAL_MS = 6000;
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
+  private router = inject(Router);
   private baseUrl = `${environment.apiUrl}/notifications`;
 
   private readonly _panel = signal<NotificationsPanelResponse | null>(null);
@@ -118,10 +120,18 @@ export class NotificationsService {
     const { title, message } = renderNotification(notification);
     const toastContent = `${message}`;
 
+    const action = notification.project_id
+      ? {
+          label: 'Abrir análise',
+          onClick: () => this.router.navigateByUrl(`/app/analysis/${notification.project_id}`),
+        }
+      : undefined;
+
     if (notification.type === 'SUCCESS') {
       toast.success(toastContent, {
         duration: 8000,
         position: 'bottom-center',
+        action,
       });
     } else if (notification.type === 'FAILED') {
       toast.error(toastContent, {

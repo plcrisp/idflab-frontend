@@ -50,7 +50,9 @@ const renderDownloadStationData: Renderer = (notification) => {
   if (notification.type === 'SUCCESS') {
     return {
       title: 'Estação pronta para análise',
-      message: `Os dados da estação do projeto ${project} foram baixados.`,
+      message: notification.job_id
+        ? `Os dados da estação do projeto ${project} foram baixados.`
+        : `Os dados da estação do projeto ${project} já estão disponíveis.`,
       tone: 'success',
       icon: 'lucideCircleCheck',
     };

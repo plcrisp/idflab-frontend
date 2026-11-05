@@ -139,24 +139,24 @@ export class SelectStation implements OnInit {
     };
 
     this.projectsService.createProject(payload).subscribe({
-      next: () => {
+      next: (response) => {
+        this.mapService.resetAll();
+        this.sidebarService.setOpen(true);
+        this.isSubmitting = false;
+        this.projectsService.refetch();
         this.notificationsState.refetch();
+
+        if (response.status === 'processing') {
+          toast.info(`Os dados para o projeto ${project_name} estão sendo requisitados.`, {
+            duration: 8000,
+            position: 'bottom-center',
+          });
+        }
       },
       error: (err) => {
         console.error('Erro ao iniciar análise', err);
         this.submitError = 'Não foi possível iniciar a análise. Tente novamente.';
         this.isSubmitting = false;
-      },
-      complete: () => {
-        toast.success(`Os dados para o projeto ${project_name} estão sendo requisitados.`, {
-          duration: 8000,
-          position: 'bottom-center',
-        });
-
-        this.mapService.resetAll();
-        this.sidebarService.setOpen(true);
-        this.isSubmitting = false;
-        this.projectsService.refetch();
       },
     });
   }
