@@ -54,6 +54,8 @@ export class AnnualMaxOverviewChart implements OnDestroy {
   isHourly = input<boolean>(false);
   showGaps = input<boolean>(true);
   showSelectedYear = input<boolean>(true);
+  showMaxPoint = input<boolean>(true);
+  referenceLineLabel = input<string | null>(null);
   clickable = input<boolean>(true);
   yAxisInterval = input<number | 'auto' | null>(null);
   yearClick = output<number>();
@@ -67,6 +69,8 @@ export class AnnualMaxOverviewChart implements OnDestroy {
     historicalMaxValue: number | null;
     isHourly: boolean;
     seriesName: string;
+    referenceLineLabel: string | null;
+    showMaxPoint: boolean;
   }>;
 
   private readonly chartInput = computed(() => ({
@@ -75,6 +79,8 @@ export class AnnualMaxOverviewChart implements OnDestroy {
     historicalMaxValue: this.historicalMaxValue(),
     isHourly: this.isHourly(),
     seriesName: this.seriesName(),
+    referenceLineLabel: this.referenceLineLabel(),
+    showMaxPoint: this.showMaxPoint(),
   }));
 
   constructor() {
@@ -191,17 +197,20 @@ export class AnnualMaxOverviewChart implements OnDestroy {
       : [];
 
     const labelStep = Math.max(1, Math.round(years.length / 10));
+    const refLabel = this.referenceLineLabel() ?? CHART_LEGEND_LABELS.maxObservado;
 
     return {
       useUTC: true,
       textStyle: { fontFamily: t.fontFamily },
       legend: buildLegend(
         this.seriesName(),
-        CHART_LEGEND_LABELS.maxObservado,
+        refLabel,
         t.primaryDark,
         t,
         null,
         selectedYearStr !== null ? CHART_LEGEND_LABELS.anoSelecionado : null,
+        null,
+        this.showGaps(),
       ),
       grid: buildGrid(12),
       tooltip: {
@@ -305,10 +314,10 @@ export class AnnualMaxOverviewChart implements OnDestroy {
           cursor: this.clickable() ? 'pointer' : 'default',
           itemStyle: { color: t.primaryDark, borderRadius: [3, 3, 0, 0] },
           emphasis: { itemStyle: { color: t.primaryMid } },
-          markPoint: buildMarkPoint(annualMaxData, t),
-          markLine: buildHistoricalMaxMarkLine(histMax, t, this.unit()),
+          markPoint: this.showMaxPoint() ? buildMarkPoint(annualMaxData, t) : undefined,
+          markLine: buildHistoricalMaxMarkLine(histMax, t, this.unit(), refLabel),
         },
-        buildMaxObservadoLegendSeries(t, CHART_LEGEND_LABELS.maxObservado, { symbol: 'scatter' }),
+        buildMaxObservadoLegendSeries(t, refLabel, { symbol: 'scatter' }),
         ...(this.showGaps() ? [buildFalhaLegendSeries(t, 'scatter')] : []),
         ...(selectedYearStr !== null
           ? [buildSelectedYearLegendSeries(t, CHART_LEGEND_LABELS.anoSelecionado)]

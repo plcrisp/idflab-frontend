@@ -7,6 +7,19 @@
     [isHourly]="isHourly()"
   />
 
+  <!-- Alerta de Estado Bloqueado (CEMADEN / Sobreposição insuficiente / Fora da cobertura) -->
+  @if (isBlocked()) {
+    <div
+      class="w-full p-4 rounded-xl border border-warning/30 bg-warning/10 text-warning text-xs sm:text-sm flex items-start gap-3 font-medium"
+    >
+      <ng-icon name="lucideTriangleAlert" class="text-base shrink-0 mt-0.5" />
+      <div class="flex flex-col gap-1">
+        <span class="font-semibold">Cenários futuros indisponíveis para esta estação</span>
+        <span class="text-xs text-warning/90 leading-relaxed">{{ blockedMessage() }}</span>
+      </div>
+    </div>
+  }
+
   <!-- 2. Seletor de Método de Correção de Viés (QM / DBC / EQM) -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
     @for (opt of methodOptions; track opt.value) {
@@ -267,9 +280,9 @@
             [disabled]="!canApply()"
             class="cursor-pointer font-medium inline-flex items-center gap-1.5 shadow-xs"
           >
-            @if (isApplying()) {
+            @if (isProcessing()) {
               <ng-icon name="lucideLoader2" class="animate-spin text-xs mr-1" />
-              <span>Aplicando…</span>
+              <span>Processando…</span>
             } @else {
               <span>Aplicar correção</span>
             }
@@ -279,9 +292,236 @@
     </div>
   </div>
 
-  <!-- 4. Rodapé da Página: Voltar e Avançar -->
+  <!-- 4. Estado ERROR: Mensagem sanitizada + Botão "Tentar novamente" -->
+  @if (isError()) {
+    <div
+      id="future-scenarios-result-card"
+      class="w-full min-w-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-xl border border-destructive/30 bg-destructive/10 text-destructive text-xs sm:text-sm"
+    >
+      <div class="flex items-start gap-3">
+        <ng-icon name="lucideTriangleAlert" class="text-base shrink-0 mt-0.5" />
+        <div class="flex flex-col gap-1">
+          <span class="font-semibold">Erro ao processar correção de viés</span>
+          <span class="text-xs text-destructive/90 leading-relaxed">{{ errorMessage() }}</span>
+        </div>
+      </div>
+
+      <button
+        hlmBtn
+        variant="outline"
+        size="sm"
+        type="button"
+        (click)="onApply()"
+        [disabled]="!canApply()"
+        class="text-xs border-destructive/30 hover:bg-destructive/20 text-destructive shrink-0 cursor-pointer self-end sm:self-center"
+      >
+        <ng-icon name="lucideRotateCw" class="mr-1.5 text-xs" />
+        <span>Tentar novamente</span>
+      </button>
+    </div>
+  }
+
+  <!-- 5. Card: RESULTADO DA CORREÇÃO (aparece em PROCESSING, RESULT e OUTDATED) -->
+  @if (showResultCard()) {
+    <div
+      id="future-scenarios-result-card"
+      class="w-full min-w-0 flex flex-col rounded-xl shadow-xs border border-border bg-popover text-foreground overflow-hidden"
+    >
+      <!-- Cabeçalho do Card -->
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-border px-4 py-3">
+        <div class="flex flex-wrap items-center gap-2 min-w-0">
+          <h3 class="text-sm font-semibold uppercase tracking-wide text-foreground">
+            Resultado da correção
+          </h3>
+
+          @if (resultHeaderSubtitle()) {
+            <span class="text-sm font-normal text-muted-foreground truncate">
+              · {{ resultHeaderSubtitle() }}
+            </span>
+          }
+        </div>
+
+        <!-- Selo de Status no Canto Direito -->
+        @if (isProcessing()) {
+          <span
+            hlmBadge
+            variant="outline"
+            class="text-xs font-medium px-2.5 py-0.5 rounded-md border inline-flex items-center gap-1.5 bg-primary/10 text-primary border-primary/25 shrink-0"
+          >
+            <ng-icon name="lucideLoader2" class="animate-spin text-xs text-primary" />
+            <span>Em processamento</span>
+          </span>
+        } @else if (isOutdated()) {
+          <span
+            hlmBadge
+            variant="outline"
+            class="text-xs font-medium px-2.5 py-0.5 rounded-md border inline-flex items-center gap-1.5 bg-warning/15 text-warning border-warning/30 shrink-0"
+          >
+            <span class="h-1.5 w-1.5 rounded-full bg-warning"></span>
+            <span>Desatualizado</span>
+          </span>
+        } @else {
+          <span
+            hlmBadge
+            variant="outline"
+            class="text-xs font-medium px-2.5 py-0.5 rounded-md border inline-flex items-center gap-1.5 bg-success/15 text-success border-success/30 shrink-0"
+          >
+            <span class="h-1.5 w-1.5 rounded-full bg-success"></span>
+            <span>Correção concluída</span>
+          </span>
+        }
+      </div>
+
+      <!-- Corpo do Card -->
+      @if (isProcessing()) {
+        <div class="analysis-loading-wrapper p-4 sm:p-5 w-full flex flex-col">
+          <app-job-progress-card
+            variant="full"
+            [customTitle]="'Correção de Viés (' + (selectedMethod() ?? '') + ' · ' + selectedModel() + ' · ' + selectedSspLabel() + ')'"
+            [customSource]="'CLIMBra'"
+            [customDescription]="'Seleção das células no raio de 25 km, calibração na janela de referência e projeção da série futura.'"
+            [customMessage]="progressMessage()"
+            [customProgress]="progressPercentage()"
+            class="block [&>div]:border-none [&>div]:shadow-none [&>div]:bg-transparent"
+          />
+        </div>
+      } @else if (state()?.result; as r) {
+        <!-- Aviso de Estado Desatualizado (OUTDATED) -->
+        @if (isOutdated()) {
+          <div
+            class="mx-4 mt-4 p-3 rounded-lg border border-warning/30 bg-warning/10 text-warning text-xs flex items-center gap-2 font-medium"
+          >
+            <ng-icon name="lucideTriangleAlert" class="shrink-0 text-sm" />
+            <span>{{ outdatedMessage() }}</span>
+          </div>
+        }
+
+        <div
+          class="p-4 sm:p-5 flex flex-col gap-5 transition-opacity"
+          [class.opacity-50]="isOutdated()"
+          [class.pointer-events-none]="isOutdated()"
+          [class.select-none]="isOutdated()"
+        >
+          <!-- 3 Cards de Métrica (comparação na janela de referência) -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-stretch">
+            <!-- Card 1: Observado -->
+            <app-stat-card
+              label="Observado"
+              [value]="formatMm(r.cards.observed_mean_mm)"
+              unit="mm"
+              icon="lucideDroplets"
+              [footer]="{
+                type: 'text',
+                content: 'Janela de referência (' + r.cards.reference_window_label + ')'
+              }"
+            />
+
+            <!-- Card 2: Modelo bruto -->
+            <app-stat-card
+              label="Modelo bruto"
+              [value]="formatMm(r.cards.raw_model_mean_mm)"
+              unit="mm"
+              icon="lucideDatabase"
+              [badge]="{
+                label: formatDeltaPct(r.cards.raw_model_delta_pct),
+                variant: getDeltaBadgeVariant(r.cards.raw_model_delta_pct)
+              }"
+              [footer]="{
+                type: 'text',
+                content: 'Δ% vs observado (' + r.cards.reference_window_label + ')'
+              }"
+            />
+
+            <!-- Card 3: Modelo corrigido -->
+            <app-stat-card
+              label="Modelo corrigido"
+              [value]="formatMm(r.cards.corrected_model_mean_mm)"
+              unit="mm"
+              icon="lucideShieldCheck"
+              [badge]="{
+                label: formatDeltaPct(r.cards.corrected_model_delta_pct),
+                variant: getDeltaBadgeVariant(r.cards.corrected_model_delta_pct)
+              }"
+              [footer]="{
+                type: 'text',
+                content: 'Δ% vs observado (' + r.cards.reference_window_label + ')'
+              }"
+            />
+          </div>
+
+          <!-- Gráfico de Máximos Anuais Diários do Período Futuro -->
+          <div class="border-t border-border pt-4 flex flex-col gap-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center gap-2 min-w-0">
+                <h4 class="text-xs font-semibold uppercase tracking-wide text-foreground">
+                  Máximos anuais diários do período futuro
+                </h4>
+                @if (futureSeriesSubtitle()) {
+                  <span class="text-xs font-medium text-muted-foreground tabular-nums">
+                    · {{ futureSeriesSubtitle() }}
+                  </span>
+                }
+              </div>
+
+              <!-- Toggle Bruto | Corrigido (padrão: Corrigido) -->
+              <div
+                class="flex items-center p-0.5 bg-secondary/50 rounded-lg border border-border/70 text-xs shrink-0"
+              >
+                <button
+                  type="button"
+                  (click)="futureChartMode.set('raw')"
+                  class="cursor-pointer px-2.5 py-1 rounded-md font-medium transition-all flex items-center gap-1.5"
+                  [class.bg-card]="futureChartMode() === 'raw'"
+                  [class.text-foreground]="futureChartMode() === 'raw'"
+                  [class.shadow-xs]="futureChartMode() === 'raw'"
+                  [class.text-muted-foreground]="futureChartMode() !== 'raw'"
+                  [class.hover:text-foreground]="futureChartMode() !== 'raw'"
+                >
+                  <span>Bruto</span>
+                </button>
+
+                <button
+                  type="button"
+                  (click)="futureChartMode.set('corrected')"
+                  class="cursor-pointer px-2.5 py-1 rounded-md font-medium transition-all flex items-center gap-1.5"
+                  [class.bg-card]="futureChartMode() === 'corrected'"
+                  [class.text-foreground]="futureChartMode() === 'corrected'"
+                  [class.shadow-xs]="futureChartMode() === 'corrected'"
+                  [class.text-muted-foreground]="futureChartMode() !== 'corrected'"
+                  [class.hover:text-foreground]="futureChartMode() !== 'corrected'"
+                >
+                  <span>Corrigido</span>
+                </button>
+              </div>
+            </div>
+
+            <app-annual-max-overview-chart
+              [data]="futureChartData()"
+              [unit]="'mm'"
+              [seriesName]="futureChartSeriesName()"
+              [historicalMaxValue]="r.future_series.observed_reference_mean_mm"
+              [referenceLineLabel]="'Média observada (referência)'"
+              [showMaxPoint]="false"
+              [showGaps]="false"
+              [showSelectedYear]="false"
+              [clickable]="false"
+              [yAxisInterval]="'auto'"
+            />
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- 6. Rodapé da Página: Voltar e Avançar -->
   <div class="flex w-full items-center justify-between gap-3 pt-2">
-    <button hlmBtn variant="outline" type="button" (click)="onBack()" [disabled]="isProcessing()">
+    <button
+      hlmBtn
+      variant="outline"
+      type="button"
+      (click)="onBack()"
+      [disabled]="isProcessing() || isAdvancing()"
+    >
       <ng-icon name="lucideArrowLeft" class="mr-2" />
       Voltar
     </button>
@@ -290,8 +530,11 @@
       hlmBtn
       type="button"
       (click)="onAdvance()"
-      [disabled]="!(state()?.can_advance) || isProcessing()"
+      [disabled]="!canAdvance()"
     >
+      @if (isAdvancing()) {
+        <ng-icon name="lucideLoader2" class="animate-spin mr-2" />
+      }
       <span>Avançar</span>
       <ng-icon name="lucideArrowRight" class="ml-2" />
     </button>

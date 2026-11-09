@@ -50,6 +50,7 @@ export function buildLegend(
   maxPeriodName: string | null = null,
   selectedYearName: string | null = null,
   filledDataName: string | null = null,
+  showGaps: boolean = true,
 ): EChartsOption['legend'] {
   const data: any[] = [{ name: seriesName, icon: 'roundRect', itemStyle: { color: seriesColor } }];
 
@@ -84,15 +85,17 @@ export function buildLegend(
     });
   }
 
-  data.push({
-    name: CHART_LEGEND_LABELS.falha,
-    icon: 'roundRect',
-    itemStyle: {
-      color: tokens.incompleteCoverage,
-      borderColor: tokens.incompleteBorder,
-      borderWidth: 1,
-    },
-  });
+  if (showGaps) {
+    data.push({
+      name: CHART_LEGEND_LABELS.falha,
+      icon: 'roundRect',
+      itemStyle: {
+        color: tokens.incompleteCoverage,
+        borderColor: tokens.incompleteBorder,
+        borderWidth: 1,
+      },
+    });
+  }
 
   return {
     type: 'scroll',
@@ -230,6 +233,7 @@ export function buildHistoricalMaxMarkLine(
   maxValue: number | null | undefined,
   tokens: ChartTokens,
   unit: string = 'mm',
+  labelName: string = CHART_LEGEND_LABELS.maxObservado,
 ) {
   if (maxValue === null || maxValue === undefined || Number.isNaN(maxValue) || maxValue <= 0) {
     return undefined;
@@ -242,7 +246,7 @@ export function buildHistoricalMaxMarkLine(
     label: { show: false },
     data: [
       {
-        name: CHART_LEGEND_LABELS.maxObservado,
+        name: labelName,
         yAxis: maxValue,
         lineStyle: {
           color: tokens.historicalMax,
