@@ -85,6 +85,7 @@ import { HistoricalIdfChart } from './pages/historical-idf/components/historical
 import { HistoricalIdfEquationCard } from './pages/historical-idf/components/historical-idf-equation-card/historical-idf-equation-card';
 import { HistoricalIdfIntensityTable } from './pages/historical-idf/components/historical-idf-intensity-table/historical-idf-intensity-table';
 import { FutureScenarios } from './pages/future-scenarios/future-scenarios';
+import { FutureScenariosMap } from './pages/future-scenarios/components/future-scenarios-map/future-scenarios-map';
 import { Results } from './pages/results/results';
 
 registerLocaleData(localePt);
@@ -129,6 +130,7 @@ registerLocaleData(localePt);
     HistoricalIdfEquationCard,
     HistoricalIdfIntensityTable,
     FutureScenarios,
+    FutureScenariosMap,
     Results,
     AnnualMaxTable,
     DistributionFittingChart,
@@ -165,6 +167,7 @@ registerLocaleData(localePt);
     HistoricalIdfChart,
     HistoricalIdfEquationCard,
     HistoricalIdfIntensityTable,
+    FutureScenariosMap,
     NgIconsModule.withIcons({
       lucideDatabase,
       lucideTriangleAlert,
