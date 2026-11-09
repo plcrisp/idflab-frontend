@@ -1,0 +1,40 @@
+<div class="flex flex-col gap-4 overflow-x-hidden">
+  <app-station-summary-bar
+    [stats]="stats()"
+    [loading]="isSummaryLoading()"
+    [muted]="hasInsufficientData()"
+    [isHourly]="isHourly()"
+  />
+
+  <div
+    class="rounded-xl border border-border bg-card p-8 shadow-xs flex flex-col items-center justify-center text-center min-h-90 gap-4"
+  >
+    <div
+      class="h-14 w-14 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary"
+    >
+      <ng-icon name="lucideSparkles" class="text-2xl" />
+    </div>
+
+    <div class="space-y-1.5 max-w-md">
+      <h2 class="text-lg font-semibold text-foreground tracking-tight">
+        Resultados
+      </h2>
+      <p class="text-sm text-muted-foreground">
+        Comparação entre a IDF histórica e a IDF projetada para cenários futuros.
+      </p>
+    </div>
+  </div>
+
+  <div class="flex w-full items-center justify-between gap-3 pt-2">
+    <button hlmBtn variant="outline" type="button" (click)="onBack()">
+      <ng-icon name="lucideArrowLeft" class="mr-2" />
+      Voltar
+    </button>
+
+    <button hlmBtn type="button" (click)="onFinish()">
+      <span>Concluir análise</span>
+      <ng-icon name="lucideCheck" class="ml-2" />
+    </button>
+  </div>
+</div>
+

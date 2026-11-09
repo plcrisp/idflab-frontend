@@ -7,6 +7,7 @@ import { TemporalDisaggregation } from './pages/temporal-disaggregation/temporal
 import { Distribution } from './pages/distribution/distribution';
 import { HistoricalIdf } from './pages/historical-idf/historical-idf';
 import { FutureScenarios } from './pages/future-scenarios/future-scenarios';
+import { Results } from './pages/results/results';
 import { projectAccessGuard } from '../../core/guards/project-access.guard';
 
 export const ANALYSIS_ROUTES: Routes = [
@@ -99,12 +100,12 @@ export const ANALYSIS_ROUTES: Routes = [
       },
       {
         path: 'resultados',
-        redirectTo: 'cenarios-futuros',
-        pathMatch: 'full',
+        component: Results,
+        title: 'Resultados | IDFLab',
       },
       {
         path: 'results',
-        redirectTo: 'cenarios-futuros',
+        redirectTo: 'resultados',
         pathMatch: 'full',
       },
     ],

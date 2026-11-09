@@ -8,6 +8,7 @@ export const STEP_ORDER: readonly StepEnum[] = [
   'DISTRIBUTION',
   'HISTORICAL_IDF',
   'FUTURE_SCENARIOS',
+  'RESULTS',
 ] as const;
 
 export const STEP_ROUTE_MAP: Record<StepEnum, string> = {
@@ -18,7 +19,7 @@ export const STEP_ROUTE_MAP: Record<StepEnum, string> = {
   DISTRIBUTION: 'distribution',
   HISTORICAL_IDF: 'historical-idf',
   FUTURE_SCENARIOS: 'cenarios-futuros',
-  RESULTS: 'cenarios-futuros',
+  RESULTS: 'resultados',
 };
 
 export const ROUTE_STEP_MAP: Record<string, StepEnum> = {
@@ -37,8 +38,8 @@ export const ROUTE_STEP_MAP: Record<string, StepEnum> = {
   'historical-idf': 'HISTORICAL_IDF',
   'cenarios-futuros': 'FUTURE_SCENARIOS',
   'future-scenarios': 'FUTURE_SCENARIOS',
-  'resultados': 'FUTURE_SCENARIOS',
-  'results': 'FUTURE_SCENARIOS',
+  'resultados': 'RESULTS',
+  'results': 'RESULTS',
 };
 
 export function getRouteForStep(step: StepEnum): string {
@@ -50,9 +51,6 @@ export function getStepForRoute(routeSegment: string): StepEnum | null {
 }
 
 export function getStepIndex(step: StepEnum): number {
-  if (step === 'RESULTS') {
-    return STEP_ORDER.indexOf('FUTURE_SCENARIOS');
-  }
   return STEP_ORDER.indexOf(step);
 }
 
@@ -79,6 +77,7 @@ export const ANALYSIS_STEPS: readonly AnalysisStepDef[] = [
   { label: 'Distribuição estatística', path: 'distribution' },
   { label: 'IDF histórica', path: 'historical-idf' },
   { label: 'Cenários futuros', path: 'cenarios-futuros' },
+  { label: 'Resultados', path: 'resultados' },
 ] as const;
 
 export const PROJECT_PIPELINE_STEPS: readonly AnalysisStepDef[] = ANALYSIS_STEPS;

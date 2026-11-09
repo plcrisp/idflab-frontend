@@ -85,6 +85,7 @@ import { HistoricalIdfChart } from './pages/historical-idf/components/historical
 import { HistoricalIdfEquationCard } from './pages/historical-idf/components/historical-idf-equation-card/historical-idf-equation-card';
 import { HistoricalIdfIntensityTable } from './pages/historical-idf/components/historical-idf-intensity-table/historical-idf-intensity-table';
 import { FutureScenarios } from './pages/future-scenarios/future-scenarios';
+import { Results } from './pages/results/results';
 
 registerLocaleData(localePt);
 
@@ -111,6 +112,7 @@ registerLocaleData(localePt);
     Distribution,
     HistoricalIdf,
     FutureScenarios,
+    Results,
   ],
   exports: [
     StationSummaryBar,
@@ -127,6 +129,7 @@ registerLocaleData(localePt);
     HistoricalIdfEquationCard,
     HistoricalIdfIntensityTable,
     FutureScenarios,
+    Results,
     AnnualMaxTable,
     DistributionFittingChart,
     DistributionSelectionTable,

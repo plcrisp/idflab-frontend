@@ -276,11 +276,45 @@ const renderTemporalDisaggregation: Renderer = (notification) => {
   };
 };
 
+const renderFutureScenarios: Renderer = (notification) => {
+  const project = projectName(notification);
+  const details = notification.details as JobDetails;
+
+  if (notification.type === 'SUCCESS') {
+    return {
+      title: 'Correção de cenários futuros concluída',
+      message: `A correção de viés das séries futuras do projeto ${project} foi concluída com sucesso.`,
+      tone: 'success',
+      icon: 'lucideCircleCheck',
+    };
+  }
+
+  if (notification.type === 'TIMEOUT') {
+    return {
+      title: 'Tempo esgotado',
+      message: `O processamento de cenários futuros do projeto ${project} não respondeu a tempo.`,
+      tone: 'warning',
+      icon: 'lucideClock',
+    };
+  }
+
+  return {
+    title: 'Falha nos cenários futuros',
+    message: details?.error_log
+      ? `Falha ao processar cenários futuros do projeto ${project}: ${details.error_log}`
+      : `Não foi possível processar os cenários futuros do projeto ${project}.`,
+    tone: 'error',
+    icon: 'lucideCircleX',
+  };
+};
+
 const RENDERERS: Partial<Record<TaskType, Renderer>> = {
   DOWNLOAD_STATION_DATA: renderDownloadStationData,
   DOWNLOAD_NEIGHBOR_STATION_DATA: renderDownloadNeighborStationData,
   GAP_FILLING: renderGapFilling,
   TEMPORAL_DISAGGREGATION: renderTemporalDisaggregation,
+  FUTURE_SCENARIOS: renderFutureScenarios,
+  BIAS_CORRECTION: renderFutureScenarios,
 };
 
 export function renderNotification(notification: Notification): RenderedNotification {

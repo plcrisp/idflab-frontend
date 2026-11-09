@@ -216,6 +216,31 @@ export class Stepper {
       };
     }
 
+    if (stepEnum === 'FUTURE_SCENARIOS') {
+      const applied =
+        (result['applied_params'] as Record<string, unknown> | undefined) ??
+        params;
+      const model = applied['model'] ? String(applied['model']) : null;
+      const sspRaw = applied['ssp'] ? String(applied['ssp']) : null;
+      const ssp =
+        sspRaw === 'SSP245'
+          ? 'SSP2-4.5'
+          : sspRaw === 'SSP585'
+            ? 'SSP5-8.5'
+            : sspRaw;
+      const periodRaw = applied['period'] ? String(applied['period']) : null;
+      const period = periodRaw ? periodRaw.replace('-', '–') : null;
+      const method = applied['method'] ? String(applied['method']) : null;
+
+      const parts = [model, ssp, period, method].filter(Boolean);
+      if (parts.length === 0) return null;
+      const text = parts.join(' · ');
+      return {
+        text,
+        tooltip: text,
+      };
+    }
+
     return null;
   }
 }

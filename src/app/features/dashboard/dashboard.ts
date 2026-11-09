@@ -127,7 +127,7 @@ export class Dashboard implements OnInit {
   }
 
   isCompleted(project: Project): boolean {
-    return project.furthest_step === 'FUTURE_SCENARIOS' || project.furthest_step === 'RESULTS';
+    return project.furthest_step === 'RESULTS';
   }
 
   isProjectProcessing(projectId: string): boolean {

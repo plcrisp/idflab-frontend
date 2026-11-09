@@ -21,12 +21,19 @@ export class FileDownloadService {
   }
  
   private extractFilename(response: HttpResponse<Blob>): string | null {
+    const xFilename =
+      response.headers.get('x-filename') ||
+      response.headers.get('X-Filename');
+    if (xFilename?.trim()) {
+      return xFilename.trim();
+    }
+
     const contentDisposition =
       response.headers.get('content-disposition') ||
       response.headers.get('Content-Disposition');
- 
+
     if (!contentDisposition) return null;
- 
+
     const match = contentDisposition.match(/filename="?([^";]+)"?/i);
     return match?.[1]?.trim() ?? null;
   }

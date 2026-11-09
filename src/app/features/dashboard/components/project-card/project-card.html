@@ -98,9 +98,9 @@
       </span>
     </div>
 
-    <!-- Barra de progresso segmentada em 8 partes -->
-    <div class="grid grid-cols-8 gap-1 w-full">
-      @for (segment of [1, 2, 3, 4, 5, 6, 7, 8]; track segment) {
+    <!-- Barra de progresso segmentada em 9 partes -->
+    <div class="grid grid-cols-9 gap-1 w-full">
+      @for (segment of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track segment) {
         <div
           class="h-1 rounded-full transition-colors duration-200"
           [ngClass]="segment <= stepInfo().number ? 'bg-primary' : 'bg-muted'"

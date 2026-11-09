@@ -110,5 +110,11 @@ export class FutureScenarios implements OnInit, OnDestroy {
     if (!project) return;
     this.router.navigate(['/app/analysis', project.id, 'historical-idf']);
   }
+
+  onAdvance(): void {
+    const project = this.project();
+    if (!project) return;
+    this.router.navigate(['/app/analysis', project.id, 'resultados']);
+  }
 }
 
