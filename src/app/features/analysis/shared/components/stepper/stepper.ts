@@ -217,8 +217,16 @@ export class Stepper {
     }
 
     if (stepEnum === 'FUTURE_SCENARIOS') {
+      const resultsStep = steps.find((s) => s.step === 'RESULTS');
+      const resultsData = (resultsStep?.result as Record<string, unknown> | undefined) ?? {};
+      const configSubtitle =
+        (resultsData['config_subtitle'] as string | undefined) ??
+        (result['config_subtitle'] as string | undefined) ??
+        null;
+
       const applied =
         (result['applied_params'] as Record<string, unknown> | undefined) ??
+        (resultsData['applied_params'] as Record<string, unknown> | undefined) ??
         params;
       const model = applied['model'] ? String(applied['model']) : null;
       const sspRaw = applied['ssp'] ? String(applied['ssp']) : null;
@@ -233,11 +241,11 @@ export class Stepper {
       const method = applied['method'] ? String(applied['method']) : null;
 
       const parts = [model, ssp, period, method].filter(Boolean);
-      if (parts.length === 0) return null;
-      const text = parts.join(' · ');
+      const shortText = parts.length > 0 ? parts.join(' · ') : configSubtitle;
+      if (!shortText) return null;
       return {
-        text,
-        tooltip: text,
+        text: shortText,
+        tooltip: configSubtitle || shortText,
       };
     }
 

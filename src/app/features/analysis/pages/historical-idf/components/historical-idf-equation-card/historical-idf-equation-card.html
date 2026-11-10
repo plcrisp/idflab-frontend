@@ -15,8 +15,170 @@
       </span>
       }
     </div>
+
+    @if (configSubtitle()) {
+    <span
+      [hlmTooltip]="configSubtitle()"
+      class="text-xs font-medium text-muted-foreground truncate max-w-full sm:max-w-md cursor-default"
+    >
+      {{ configSubtitle() }}
+    </span>
+    }
   </div>
 
+  @if (futureData(); as fut) {
+  <!-- Modo Duplo (Tela de Resultados: Equação exibida uma única vez + 2 linhas Histórica e Futura) -->
+  <div class="p-4 sm:px-5 sm:py-4 flex flex-col xl:flex-row xl:items-center justify-between gap-5">
+    <!-- Esquerda: Fórmula única e Unidades -->
+    <div class="flex flex-col select-all shrink-0">
+      <div class="text-lg sm:text-xl font-bold tracking-tight text-foreground tabular-nums">
+        i = K · TR<sup>m</sup> / (d + t₀)<sup>n</sup>
+      </div>
+      <div class="text-[11px] text-muted-foreground mt-0.5">
+        i em mm/h · d em min · TR em anos
+      </div>
+    </div>
+
+    <!-- Direita: Duas linhas de parâmetros (Histórica e Futura) -->
+    <div class="flex flex-col gap-2.5 w-full xl:w-auto">
+      <!-- Linha 1: Histórica -->
+      <div class="flex flex-col lg:flex-row lg:items-center justify-end gap-2.5">
+        <div class="flex items-center justify-between lg:justify-start gap-2 min-w-28 shrink-0">
+          <span class="inline-flex items-center gap-2 text-xs font-semibold text-foreground">
+            <span class="w-4 h-0.5 bg-foreground/80 rounded-full shrink-0"></span>
+            <span>Histórica</span>
+          </span>
+          <span class="text-xs text-muted-foreground tabular-nums lg:hidden">
+            R² {{ data().r2 | number:'1.4-4':'pt-BR' }} · Erro máx. ±{{ formatAbsErrorPercentage(data().max_error.value) }}
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full lg:w-auto">
+          <div [hlmTooltip]="'Coeficiente de ajuste da localidade K (λ)'"
+            class="group flex flex-col items-center justify-center px-3 py-1.5 min-w-21 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center cursor-help">
+            <span class="text-[10px] font-semibold tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">
+              K
+            </span>
+            <span class="mt-0.5 text-sm font-bold text-foreground tabular-nums">
+              {{ data().k | number:'1.1-1':'pt-BR' }}
+            </span>
+          </div>
+
+          <div [hlmTooltip]="'Expoente do tempo de retorno m (κ)'"
+            class="group flex flex-col items-center justify-center px-3 py-1.5 min-w-21 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center cursor-help">
+            <span class="text-[10px] font-semibold tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">
+              m
+            </span>
+            <span class="mt-0.5 text-sm font-bold text-foreground tabular-nums">
+              {{ data().m | number:'1.3-3':'pt-BR' }}
+            </span>
+          </div>
+
+          <div [hlmTooltip]="'Expoente da duração n (η)'"
+            class="group flex flex-col items-center justify-center px-3 py-1.5 min-w-21 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center cursor-help">
+            <span class="text-[10px] font-semibold tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">
+              n
+            </span>
+            <span class="mt-0.5 text-sm font-bold text-foreground tabular-nums">
+              {{ data().n | number:'1.3-3':'pt-BR' }}
+            </span>
+          </div>
+
+          <div [hlmTooltip]="getT0Tooltip(data().flags)"
+            class="group flex flex-col items-center justify-center px-3 py-1.5 min-w-21 rounded-lg border transition-colors text-center cursor-help"
+            [class.border-warning/50]="data().flags.t0_bound.at_bound"
+            [class.bg-warning/5]="data().flags.t0_bound.at_bound"
+            [class.border-border/70]="!data().flags.t0_bound.at_bound"
+            [class.bg-secondary/30]="!data().flags.t0_bound.at_bound"
+            [class.hover:bg-secondary/60]="!data().flags.t0_bound.at_bound"
+            [class.hover:border-border]="!data().flags.t0_bound.at_bound">
+            <span class="text-[10px] font-semibold tracking-wider text-muted-foreground group-hover:text-foreground transition-colors flex items-center justify-center gap-1">
+              <span>t₀ (min)</span>
+              @if (data().flags.t0_bound.at_bound) {
+              <ng-icon name="lucideTriangleAlert" class="text-xs text-warning shrink-0" />
+              }
+            </span>
+            <span class="mt-0.5 text-sm font-bold text-foreground tabular-nums">
+              {{ data().t0 | number:'1.1-2':'pt-BR' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="hidden lg:flex items-center text-xs text-muted-foreground tabular-nums whitespace-nowrap min-w-48 pl-1">
+          <span>R² {{ data().r2 | number:'1.4-4':'pt-BR' }} · Erro máx. ±{{ formatAbsErrorPercentage(data().max_error.value) }}</span>
+        </div>
+      </div>
+
+      <!-- Linha 2: Futura -->
+      <div class="flex flex-col lg:flex-row lg:items-center justify-end gap-2.5 pt-2 border-t border-border/50">
+        <div class="flex items-center justify-between lg:justify-start gap-2 min-w-28 shrink-0">
+          <span class="inline-flex items-center gap-2 text-xs font-semibold text-primary">
+            <span class="w-4 border-t-2 border-dashed border-primary shrink-0"></span>
+            <span>Futura</span>
+          </span>
+          <span class="text-xs text-muted-foreground tabular-nums lg:hidden">
+            R² {{ fut.r2 | number:'1.4-4':'pt-BR' }} · Erro máx. ±{{ formatAbsErrorPercentage(fut.max_error.value) }}
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full lg:w-auto">
+          <div [hlmTooltip]="'Coeficiente de ajuste da localidade K (λ)'"
+            class="group flex flex-col items-center justify-center px-3 py-1.5 min-w-21 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center cursor-help">
+            <span class="text-[10px] font-semibold tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">
+              K
+            </span>
+            <span class="mt-0.5 text-sm font-bold text-foreground tabular-nums">
+              {{ fut.k | number:'1.1-1':'pt-BR' }}
+            </span>
+          </div>
+
+          <div [hlmTooltip]="'Expoente do tempo de retorno m (κ)'"
+            class="group flex flex-col items-center justify-center px-3 py-1.5 min-w-21 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center cursor-help">
+            <span class="text-[10px] font-semibold tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">
+              m
+            </span>
+            <span class="mt-0.5 text-sm font-bold text-foreground tabular-nums">
+              {{ fut.m | number:'1.3-3':'pt-BR' }}
+            </span>
+          </div>
+
+          <div [hlmTooltip]="'Expoente da duração n (η)'"
+            class="group flex flex-col items-center justify-center px-3 py-1.5 min-w-21 rounded-lg border border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-colors text-center cursor-help">
+            <span class="text-[10px] font-semibold tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">
+              n
+            </span>
+            <span class="mt-0.5 text-sm font-bold text-foreground tabular-nums">
+              {{ fut.n | number:'1.3-3':'pt-BR' }}
+            </span>
+          </div>
+
+          <div [hlmTooltip]="getT0Tooltip(fut.flags)"
+            class="group flex flex-col items-center justify-center px-3 py-1.5 min-w-21 rounded-lg border transition-colors text-center cursor-help"
+            [class.border-warning/50]="fut.flags.t0_bound.at_bound"
+            [class.bg-warning/5]="fut.flags.t0_bound.at_bound"
+            [class.border-border/70]="!fut.flags.t0_bound.at_bound"
+            [class.bg-secondary/30]="!fut.flags.t0_bound.at_bound"
+            [class.hover:bg-secondary/60]="!fut.flags.t0_bound.at_bound"
+            [class.hover:border-border]="!fut.flags.t0_bound.at_bound">
+            <span class="text-[10px] font-semibold tracking-wider text-muted-foreground group-hover:text-foreground transition-colors flex items-center justify-center gap-1">
+              <span>t₀ (min)</span>
+              @if (fut.flags.t0_bound.at_bound) {
+              <ng-icon name="lucideTriangleAlert" class="text-xs text-warning shrink-0" />
+              }
+            </span>
+            <span class="mt-0.5 text-sm font-bold text-foreground tabular-nums">
+              {{ fut.t0 | number:'1.1-2':'pt-BR' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="hidden lg:flex items-center text-xs text-muted-foreground tabular-nums whitespace-nowrap min-w-48 pl-1">
+          <span>R² {{ fut.r2 | number:'1.4-4':'pt-BR' }} · Erro máx. ±{{ formatAbsErrorPercentage(fut.max_error.value) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  } @else {
   <!-- Corpo do Card: Faixa única compacta (Equação à esquerda, 4 Tiles à direita) -->
   <div class="p-3.5 sm:px-5 sm:py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-4">
     <!-- Esquerda: Fórmula e Unidades -->
@@ -89,4 +251,5 @@
       </div>
     </div>
   </div>
+  }
 </div>

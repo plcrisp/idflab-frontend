@@ -1,4 +1,18 @@
-<div class="relative w-full h-full flex flex-col justify-between">
+<div class="relative w-full h-full flex flex-col justify-between gap-2">
+  @if (futureDenseGrid() && !loading() && data()) {
+    <div class="flex items-center justify-end gap-3 text-xs text-muted-foreground px-1">
+      <span class="inline-flex items-center gap-1.5">
+        <span class="w-4 h-0.5 bg-foreground/75 rounded-full inline-block"></span>
+        <span>Sólida = histórica</span>
+      </span>
+      <span class="select-none">·</span>
+      <span class="inline-flex items-center gap-1.5">
+        <span class="w-4 border-t-2 border-dashed border-foreground/75 inline-block"></span>
+        <span>Tracejada = futura</span>
+      </span>
+    </div>
+  }
+
   <div class="relative w-full flex-1 min-h-96">
     @if (loading() || !data()) {
     <!-- Skeleton Loading em Overlay Absoluto -->
@@ -39,4 +53,3 @@
     ></div>
   </div>
 </div>
-

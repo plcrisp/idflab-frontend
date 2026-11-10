@@ -20,8 +20,10 @@ import { getDistributionConfig } from '../../../distribution/constants/statistic
 })
 export class HistoricalIdfIntensityTable {
   readonly data = input.required<HistoricalIdfResponse>();
-  readonly mode = input<'intensity' | 'quantiles' | 'error'>('intensity');
+  readonly mode = input<'intensity' | 'quantiles' | 'error' | 'variation'>('intensity');
   readonly distributionName = input<string>('');
+  readonly variationPct = input<Record<string, number[]> | null>(null);
+  readonly historicalEquationMmH = input<Record<string, number[]> | null>(null);
 
   readonly distributionLabel = computed<string>(() => {
     const custom = this.distributionName();
@@ -74,6 +76,16 @@ export class HistoricalIdfIntensityTable {
     if (fraction == null || Number.isNaN(fraction)) return '0,0%';
     const pct = fraction * 100;
     const sign = pct > 0.0001 ? '+' : pct < -0.0001 ? '−' : '';
+    const absFmt = Math.abs(pct).toLocaleString('pt-BR', {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    });
+    return `${sign}${absFmt}%`;
+  }
+
+  formatVariationPercentage(pct: number | null | undefined): string {
+    if (pct == null || Number.isNaN(pct)) return '0,0%';
+    const sign = pct > 0.049 ? '+' : pct < -0.049 ? '-' : '';
     const absFmt = Math.abs(pct).toLocaleString('pt-BR', {
       minimumFractionDigits: 1,
       maximumFractionDigits: 1,

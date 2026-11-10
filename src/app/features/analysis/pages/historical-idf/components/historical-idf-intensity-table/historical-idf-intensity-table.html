@@ -35,6 +35,8 @@
           @let eqVal = data().equation_mm_h[tr][durIdx];
           @let errVal = data().relative_error[tr][durIdx];
           @let qVal = data().quantiles_mm_h[tr][durIdx];
+          @let varVal = variationPct()?.[tr]?.[durIdx] ?? null;
+          @let histEqVal = historicalEquationMmH()?.[tr]?.[durIdx] ?? null;
           @let isMaxErr = mode() === 'error' && tr === data().max_error.return_period && dur.duration_minutes ===
           data().max_error.duration_minutes;
           <td
@@ -46,15 +48,33 @@
             {{ eqVal | number:'1.1-1':'pt-BR' }}
             } @else if (mode() === 'quantiles') {
             {{ qVal | number:'1.1-1':'pt-BR' }}
+            } @else if (mode() === 'variation') {
+            {{ formatVariationPercentage(varVal) }}
             } @else {
             {{ formatSignedPercentage(errVal) }}
             }
 
             <ng-template #cellTooltip>
-              <div class="flex flex-col gap-1.5 w-48 p-1 select-none font-sans font-normal leading-normal text-xs">
+              <div class="flex flex-col gap-1.5 w-52 p-1 select-none font-sans font-normal leading-normal text-xs">
                 <div class="font-semibold text-xs text-foreground border-b border-border/60 pb-1">
                   TR {{ tr }} · {{ dur.label }}
                 </div>
+                @if (historicalEquationMmH() && variationPct()) {
+                <div class="flex items-center justify-between gap-2 text-muted-foreground">
+                  <span>IDF Histórica:</span>
+                  <strong class="font-semibold text-foreground tabular-nums">{{ histEqVal | number:'1.1-1':'pt-BR' }}
+                    mm/h</strong>
+                </div>
+                <div class="flex items-center justify-between gap-2 text-muted-foreground">
+                  <span>IDF Futura:</span>
+                  <strong class="font-semibold text-foreground tabular-nums">{{ eqVal | number:'1.1-1':'pt-BR' }}
+                    mm/h</strong>
+                </div>
+                <div class="flex items-center justify-between gap-2 text-muted-foreground">
+                  <span>Variação:</span>
+                  <strong class="font-semibold text-foreground tabular-nums">{{ formatVariationPercentage(varVal) }}</strong>
+                </div>
+                } @else {
                 <div class="flex items-center justify-between gap-2 text-muted-foreground">
                   <span>Equação:</span>
                   <strong class="font-semibold text-foreground tabular-nums">{{ eqVal | number:'1.1-1':'pt-BR' }}
@@ -70,6 +90,7 @@
                   <strong class="font-semibold text-foreground tabular-nums">{{ formatSignedPercentage(errVal)
                     }}</strong>
                 </div>
+                }
               </div>
             </ng-template>
           </td>
@@ -84,6 +105,13 @@
   @if (mode() === 'intensity') {
   <div class="flex items-center text-xs text-muted-foreground pt-1">
     <span>Intensidade calculada pela equação IDF, em mm/h.</span>
+  </div>
+  }
+
+  <!-- Rodapé Visão Variação (%): nota abaixo conforme spec -->
+  @if (mode() === 'variation') {
+  <div class="flex items-center text-xs text-muted-foreground pt-1">
+    <span>Variação da intensidade em relação à IDF histórica.</span>
   </div>
   }
 

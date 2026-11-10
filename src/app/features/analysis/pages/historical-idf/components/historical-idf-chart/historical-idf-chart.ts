@@ -14,7 +14,7 @@ import { EChartsOption, SeriesOption } from 'echarts';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 
 import { EchartsService } from '../../../../../../core/services/utils/echarts.service';
-import { HistoricalIdfResponse } from '../../models/historical-idf.model';
+import { DenseGrid, HistoricalIdfResponse } from '../../models/historical-idf.model';
 import { getHistoricalIdfTrColor } from '../../constants/historical-idf.constants';
 import {
   buildAxisLabelBase,
@@ -34,6 +34,7 @@ import {
 })
 export class HistoricalIdfChart implements OnDestroy {
   readonly data = input<HistoricalIdfResponse | null>(null);
+  readonly futureDenseGrid = input<DenseGrid | null>(null);
   readonly scale = input<'log' | 'linear'>('linear');
   readonly loading = input<boolean>(false);
 
@@ -42,6 +43,7 @@ export class HistoricalIdfChart implements OnDestroy {
 
   private readonly echarts = inject(EchartsService) as EchartsService<{
     data: HistoricalIdfResponse;
+    futureDenseGrid: DenseGrid | null;
     scale: 'log' | 'linear';
   }>;
 
@@ -50,6 +52,7 @@ export class HistoricalIdfChart implements OnDestroy {
     if (!d || this.loading()) return null;
     return {
       data: d,
+      futureDenseGrid: this.futureDenseGrid(),
       scale: this.scale(),
     };
   });
@@ -67,19 +70,20 @@ export class HistoricalIdfChart implements OnDestroy {
     });
   }
 
-
   ngOnDestroy(): void {
     this.echarts.destroy();
   }
 
   private buildOption(payload: {
     data: HistoricalIdfResponse;
+    futureDenseGrid: DenseGrid | null;
     scale: 'log' | 'linear';
   }): EChartsOption {
     const tokens = this.echarts.getTokens();
-    const { data, scale } = payload;
+    const { data, futureDenseGrid, scale } = payload;
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
     const isLog = scale === 'log';
+    const hasFuture = !!futureDenseGrid;
 
     const durations = data.durations ?? [];
     const firstDur = durations.length > 0 ? durations[0].duration_minutes : 5;
@@ -97,7 +101,6 @@ export class HistoricalIdfChart implements OnDestroy {
       itemStyle?: { color: string; borderColor?: string; borderWidth?: number };
     }[] = [];
 
-    // Séries por tempo de retorno (TR)
     for (const tr of data.return_periods) {
       const seriesName = `TR ${tr} anos`;
       const color = getHistoricalIdfTrColor(tr, isLight);
@@ -108,7 +111,6 @@ export class HistoricalIdfChart implements OnDestroy {
         itemStyle: { color },
       });
 
-      // 1. Curva contínua da equação calculada via dense_grid
       const denseDurations = data.dense_grid?.durations_minutes ?? [];
       const denseIntensities = data.dense_grid?.intensities_mm_h?.[String(tr)] ?? [];
       const lineData: [number, number][] = denseDurations.map((d, i) => [
@@ -117,6 +119,7 @@ export class HistoricalIdfChart implements OnDestroy {
       ]);
 
       seriesList.push({
+        id: `hist-${tr}`,
         name: seriesName,
         type: 'line',
         data: lineData,
@@ -126,6 +129,7 @@ export class HistoricalIdfChart implements OnDestroy {
         lineStyle: {
           width: 2.5,
           color,
+          type: 'solid',
         },
         emphasis: {
           lineStyle: {
@@ -136,9 +140,38 @@ export class HistoricalIdfChart implements OnDestroy {
         z: 2,
       });
 
+      if (hasFuture && futureDenseGrid) {
+        const futDurations = futureDenseGrid.durations_minutes ?? [];
+        const futIntensities = futureDenseGrid.intensities_mm_h?.[String(tr)] ?? [];
+        const futLineData: [number, number][] = futDurations.map((d, i) => [
+          d,
+          futIntensities[i] ?? 0,
+        ]);
 
-      // 2. Pontos de quantil da distribuição ajustada (visíveis somente na escala Log-log)
-      if (isLog) {
+        seriesList.push({
+          id: `fut-${tr}`,
+          name: seriesName,
+          type: 'line',
+          data: futLineData,
+          symbol: 'none',
+          smooth: false,
+          triggerLineEvent: true,
+          lineStyle: {
+            width: 2.5,
+            color,
+            type: 'dashed',
+          },
+          emphasis: {
+            lineStyle: {
+              width: 3.5,
+            },
+          },
+          cursor: 'pointer',
+          z: 3,
+        });
+      }
+
+      if (isLog && !hasFuture) {
         const quantiles = data.quantiles_mm_h?.[String(tr)] ?? [];
         const scatterData: [number, number][] = durations.map((d, idx) => [
           d.duration_minutes,
@@ -166,8 +199,7 @@ export class HistoricalIdfChart implements OnDestroy {
       }
     }
 
-    // Indicador visual na legenda para o quantil da distribuição (apenas na escala Log-log)
-    if (isLog) {
+    if (isLog && !hasFuture) {
       legendData.push({
         name: 'Quantil da distribuição',
         icon: 'circle',
@@ -223,35 +255,32 @@ export class HistoricalIdfChart implements OnDestroy {
           type: 'line',
           lineStyle: { color: tokens.border, type: 'dashed' },
         },
-        formatter: (params: any) => {
+        formatter: (params: unknown) => {
           if (!Array.isArray(params) || params.length === 0) return '';
 
-          // Filtra séries de linha ativas (ignora scatter e séries vazias)
-          const validParams = params.filter(
+          const validParams = (params as Array<{
+            seriesId?: string;
+            seriesName?: string;
+            seriesType?: string;
+            color?: string;
+            value?: [number, number] | number;
+          }>).filter(
             (p) =>
               p &&
               p.seriesName &&
               p.seriesName !== 'Quantil da distribuição' &&
-              p.seriesType === 'line'
+              p.seriesType === 'line',
           );
           if (validParams.length === 0) return '';
-
-          // Ordena decrescente por TR (ex: TR 100 -> TR 2) para refletir a ordem visual de cima para baixo no gráfico
-          validParams.sort((a, b) => {
-            const trA = Number(a.seriesName.match(/\d+/)?.[0] ?? 0);
-            const trB = Number(b.seriesName.match(/\d+/)?.[0] ?? 0);
-            return trB - trA;
-          });
 
           const rawX = Array.isArray(validParams[0].value)
             ? validParams[0].value[0]
             : validParams[0].value;
           const durNum = Number(rawX);
-          if (isNaN(durNum)) return '';
+          if (Number.isNaN(durNum)) return '';
 
-          // Localiza rótulo amigável da duração
           const exactDur = durations.find(
-            (d) => Math.abs(d.duration_minutes - durNum) < 0.01
+            (d) => Math.abs(d.duration_minutes - durNum) < 0.01,
           );
           let durLabel: string;
           if (exactDur) {
@@ -266,10 +295,81 @@ export class HistoricalIdfChart implements OnDestroy {
             durLabel = `${durNum.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} min`;
           }
 
+          if (hasFuture) {
+            const byTr = new Map<
+              number,
+              { color: string; hist?: number; fut?: number }
+            >();
+
+            for (const p of validParams) {
+              const tr = Number(p.seriesName?.match(/\d+/)?.[0] ?? 0);
+              if (!tr) continue;
+              const yVal = Array.isArray(p.value) ? p.value[1] : p.value;
+              if (yVal == null || Number.isNaN(Number(yVal))) continue;
+
+              const entry = byTr.get(tr) ?? { color: p.color ?? tokens.primary };
+              if (p.seriesId?.startsWith('fut-')) {
+                entry.fut = Number(yVal);
+              } else {
+                entry.hist = Number(yVal);
+              }
+              byTr.set(tr, entry);
+            }
+
+            const sortedTrs = Array.from(byTr.keys()).sort((a, b) => b - a);
+            let rowsHtml = '';
+            for (const tr of sortedTrs) {
+              const item = byTr.get(tr)!;
+              const histFmt =
+                item.hist != null
+                  ? item.hist.toLocaleString('pt-BR', {
+                      minimumFractionDigits: 1,
+                      maximumFractionDigits: 1,
+                    })
+                  : '—';
+              const futFmt =
+                item.fut != null
+                  ? item.fut.toLocaleString('pt-BR', {
+                      minimumFractionDigits: 1,
+                      maximumFractionDigits: 1,
+                    })
+                  : '—';
+
+              rowsHtml += `
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 3px;">
+                  <span style="display: inline-flex; align-items: center; gap: 6px;">
+                    <span style="width: 8px; height: 8px; border-radius: 2px; background-color: ${item.color};"></span>
+                    <span style="color: ${tokens.text}; font-weight: 500;">TR ${tr} anos:</span>
+                  </span>
+                  <span style="color: ${tokens.text}; font-variant-numeric: tabular-nums;">
+                    Hist. <strong>${histFmt}</strong> · Fut. <strong>${futFmt}</strong> mm/h
+                  </span>
+                </div>
+              `;
+            }
+
+            return `
+              <div style="font-family: ${tokens.fontFamily}; min-width: 240px; padding: 2px; box-sizing: border-box; user-select: none;">
+                <div style="font-weight: 600; color: ${tokens.text}; font-size: 12px; border-bottom: 1px solid ${tokens.border}; padding-bottom: 5px; margin-bottom: 4px;">
+                  Duração: ${durLabel}
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 2px; font-size: 11px;">
+                  ${rowsHtml}
+                </div>
+              </div>
+            `;
+          }
+
+          validParams.sort((a, b) => {
+            const trA = Number(a.seriesName?.match(/\d+/)?.[0] ?? 0);
+            const trB = Number(b.seriesName?.match(/\d+/)?.[0] ?? 0);
+            return trB - trA;
+          });
+
           let rowsHtml = '';
           for (const p of validParams) {
             const yVal = Array.isArray(p.value) ? p.value[1] : p.value;
-            if (yVal == null || isNaN(Number(yVal))) continue;
+            if (yVal == null || Number.isNaN(Number(yVal))) continue;
 
             const valFmt = Number(yVal).toLocaleString('pt-BR', {
               minimumFractionDigits: 1,
@@ -301,99 +401,99 @@ export class HistoricalIdfChart implements OnDestroy {
       },
       xAxis: isLog
         ? {
-          type: 'log',
-          min: firstDur,
-          max: lastDur,
-          name: 'Duração',
-          nameLocation: 'middle',
-          nameGap: 26,
-          nameTextStyle: {
-            color: tokens.textMuted,
-            fontFamily: tokens.fontFamily,
-            fontSize: 11,
-            fontWeight: 500,
-          },
-          axisLine: buildAxisLineStyle(tokens),
-          axisTick: {
-            show: true,
-            lineStyle: { color: tokens.border },
-            customValues: durations.map((d) => d.duration_minutes),
-          },
-          axisLabel: {
-            ...buildAxisLabelBase(tokens),
-            customValues: durations.map((d) => d.duration_minutes),
-            formatter: (val: number) =>
-              durationMap[val] ??
-              (val >= 60 && val % 60 === 0 ? `${val / 60} h` : `${val} min`),
-          },
-          splitLine: buildSplitLineStyle(tokens),
-        }
-        : {
-          type: 'value',
-          min: 0,
-          max: lastDur,
-          name: 'Duração',
-          nameLocation: 'middle',
-          nameGap: 26,
-          nameTextStyle: {
-            color: tokens.textMuted,
-            fontFamily: tokens.fontFamily,
-            fontSize: 11,
-            fontWeight: 500,
-          },
-          axisLine: buildAxisLineStyle(tokens),
-          axisLabel: {
-            ...buildAxisLabelBase(tokens),
-            formatter: (val: number) => {
-              if (val === 0) return '0';
-              if (val >= 60 && val % 60 === 0) return `${val / 60} h`;
-              return `${val} min`;
+            type: 'log',
+            min: firstDur,
+            max: lastDur,
+            name: 'Duração',
+            nameLocation: 'middle',
+            nameGap: 26,
+            nameTextStyle: {
+              color: tokens.textMuted,
+              fontFamily: tokens.fontFamily,
+              fontSize: 11,
+              fontWeight: 500,
             },
+            axisLine: buildAxisLineStyle(tokens),
+            axisTick: {
+              show: true,
+              lineStyle: { color: tokens.border },
+              customValues: durations.map((d) => d.duration_minutes),
+            },
+            axisLabel: {
+              ...buildAxisLabelBase(tokens),
+              customValues: durations.map((d) => d.duration_minutes),
+              formatter: (val: number) =>
+                durationMap[val] ??
+                (val >= 60 && val % 60 === 0 ? `${val / 60} h` : `${val} min`),
+            },
+            splitLine: buildSplitLineStyle(tokens),
+          }
+        : {
+            type: 'value',
+            min: 0,
+            max: lastDur,
+            name: 'Duração',
+            nameLocation: 'middle',
+            nameGap: 26,
+            nameTextStyle: {
+              color: tokens.textMuted,
+              fontFamily: tokens.fontFamily,
+              fontSize: 11,
+              fontWeight: 500,
+            },
+            axisLine: buildAxisLineStyle(tokens),
+            axisLabel: {
+              ...buildAxisLabelBase(tokens),
+              formatter: (val: number) => {
+                if (val === 0) return '0';
+                if (val >= 60 && val % 60 === 0) return `${val / 60} h`;
+                return `${val} min`;
+              },
+            },
+            splitLine: buildSplitLineStyle(tokens),
           },
-          splitLine: buildSplitLineStyle(tokens),
-        },
       yAxis: isLog
         ? {
-          type: 'log',
-          name: 'Intensidade (mm/h)',
-          nameLocation: 'end',
-          nameGap: 14,
-          nameTextStyle: {
-            color: tokens.textMuted,
-            fontFamily: tokens.fontFamily,
-            fontSize: 11,
-            fontWeight: 500,
-            align: 'left',
-            padding: [0, 0, 6, -20],
-          },
-          axisLine: buildAxisLineStyle(tokens),
-          axisLabel: {
-            ...buildAxisLabelBase(tokens),
-            formatter: (val: number) => val.toLocaleString('pt-BR'),
-          },
-          splitLine: buildSplitLineStyle(tokens),
-        }
+            type: 'log',
+            name: 'Intensidade (mm/h)',
+            nameLocation: 'end',
+            nameGap: 14,
+            nameTextStyle: {
+              color: tokens.textMuted,
+              fontFamily: tokens.fontFamily,
+              fontSize: 11,
+              fontWeight: 500,
+              align: 'left',
+              padding: [0, 0, 6, -20],
+            },
+            axisLine: buildAxisLineStyle(tokens),
+            axisLabel: {
+              ...buildAxisLabelBase(tokens),
+              formatter: (val: number) => val.toLocaleString('pt-BR'),
+            },
+            splitLine: buildSplitLineStyle(tokens),
+          }
         : {
-          type: 'value',
-          min: 0,
-          name: 'Intensidade (mm/h)',
-          nameLocation: 'end',
-          nameGap: 14,
-          nameTextStyle: {
-            color: tokens.textMuted,
-            fontFamily: tokens.fontFamily,
-            fontSize: 11,
-            fontWeight: 500,
-            align: 'left',
-            padding: [0, 0, 6, -20],
+            type: 'value',
+            min: 0,
+            name: 'Intensidade (mm/h)',
+            nameLocation: 'end',
+            nameGap: 14,
+            nameTextStyle: {
+              color: tokens.textMuted,
+              fontFamily: tokens.fontFamily,
+              fontSize: 11,
+              fontWeight: 500,
+              align: 'left',
+              padding: [0, 0, 6, -20],
+            },
+            axisLine: buildAxisLineStyle(tokens),
+            axisLabel: {
+              ...buildAxisLabelBase(tokens),
+              formatter: (val: number) => val.toLocaleString('pt-BR'),
+            },
+            splitLine: buildSplitLineStyle(tokens),
           },
-          axisLine: buildAxisLineStyle(tokens),
-          axisLabel: {
-            ...buildAxisLabelBase(tokens),
-            formatter: (val: number) => val.toLocaleString('pt-BR'),
-          },
-          splitLine: buildSplitLineStyle(tokens),
-        },
       series: seriesList,
     };
   }
