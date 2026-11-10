@@ -5,6 +5,7 @@ export const MAP_COLORS = {
   inmet: '#49628b',
   cemaden: '#0891b2',
   ana: '#0f766e',
+  climbra: '#6366f1',
   warning: '#f59e0b',
   border: '#ffffff',
   shadow: 'rgba(0,0,0,0.15)',
