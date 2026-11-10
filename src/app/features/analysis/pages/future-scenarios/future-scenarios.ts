@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { Subscription, switchMap, takeWhile, tap, timer } from 'rxjs';
+import { Subscription, switchMap, takeUntil, takeWhile, tap, timer } from 'rxjs';
 import { toast } from '@spartan-ng/brain/sonner';
 
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
@@ -33,9 +33,15 @@ import {
   FutureScenariosApplyRequest,
   FutureScenariosStateResponse,
   FutureScenariosUiState,
+  getDefaultFutureEndYear,
+  getDefaultFutureStartYear,
   SspScenario,
 } from './models/future-scenarios.model';
-import { getDistributionConfig } from '../distribution/constants/statistical-distribution.constants';
+import {
+  getDistributionColor,
+  getDistributionConfig,
+} from '../distribution/constants/statistical-distribution.constants';
+import { getDistributionFormalName } from '../historical-idf/constants/historical-idf.constants';
 import { DistributionEnum } from '../distribution/models/statistical-distribution.model';
 
 @Component({
@@ -87,8 +93,8 @@ export class FutureScenarios implements OnInit, OnDestroy {
   readonly selectedMethod = signal<BiasCorrectionMethod | null>('EQM');
   readonly selectedModel = signal<ClimateModel>('MIROC6');
   readonly selectedSsp = signal<SspScenario>('SSP245');
-  readonly startYear = signal<number>(2041);
-  readonly endYear = signal<number>(2070);
+  readonly startYear = signal<number>(getDefaultFutureStartYear());
+  readonly endYear = signal<number>(getDefaultFutureEndYear());
 
   private lastLoadedProjectId: string | null = null;
 
@@ -110,15 +116,31 @@ export class FutureScenarios implements OnInit, OnDestroy {
     return this.state()?.result?.analysis_radius_km ?? 10;
   });
 
-  readonly inheritedDistributionText = computed<string>(() => {
-    const dist =
+  readonly distributionCode = computed<DistributionEnum | null>(() => {
+    return (
       this.state()?.inherited_distribution ??
       this.state()?.result?.inherited_distribution ??
-      this.getFallbackDistributionFromSteps();
+      this.getFallbackDistributionFromSteps()
+    );
+  });
+
+  readonly distributionFullName = computed<string>(() => {
+    const code = this.distributionCode();
+    if (!code) return '';
+    return getDistributionFormalName(code);
+  });
+
+  readonly distributionColor = computed<string>(() => {
+    const code = this.distributionCode();
+    if (!code) return '';
+    return getDistributionColor(code);
+  });
+
+  readonly inheritedDistributionText = computed<string>(() => {
+    const dist = this.distributionCode();
     if (!dist) return '—';
     const cfg = getDistributionConfig(dist);
-    const label = cfg?.name || dist;
-    return `${label} (herdada)`;
+    return cfg?.name || dist;
   });
 
   readonly inheritedDisaggregationText = computed<string>(() => {
@@ -126,15 +148,15 @@ export class FutureScenarios implements OnInit, OnDestroy {
       this.state()?.inherited_disaggregation ??
       this.state()?.result?.inherited_disaggregation ??
       this.getFallbackDisaggregationFromSteps();
-    if (!disagg) return '—';
+    if (!disagg) return 'Fatores CETESB';
     const upper = String(disagg).toUpperCase();
-    if (upper.includes('BARTLETT')) return 'Bartlett-Lewis (herdada)';
-    if (upper.includes('DIRECT')) return 'Agregação direta (herdada)';
-    return 'Fatores CETESB (herdada)';
+    if (upper.includes('BARTLETT')) return 'Hyetos-Minute Bartlett-Lewis';
+    if (upper.includes('DIRECT')) return 'Agregação direta';
+    return 'Fatores CETESB';
   });
 
   readonly referenceWindowText = computed<string>(() => {
-    return this.state()?.result?.effective_reference_window?.label ?? '1980–2013';
+    return this.state()?.result?.effective_reference_window?.label ?? '1980 - 2013';
   });
 
   readonly isSelectionOutdated = computed<boolean>(() => {
@@ -192,12 +214,12 @@ export class FutureScenarios implements OnInit, OnDestroy {
     const st = this.state();
     if (st?.message) return st.message;
     if (st?.block_reason === 'CEMADEN') {
-      return 'Estações do CEMADEN possuem dados apenas a partir de 2015 e não têm sobreposição com a janela histórica do CLIMBra (1980–2013). Utilize uma estação ANA ou INMET.';
+      return 'Estações do CEMADEN possuem dados apenas a partir de 2015 e não têm sobreposição com a janela histórica do CLIMBra (1980 - 2013). Utilize uma estação ANA ou INMET.';
     }
     if (st?.block_reason === 'OUT_OF_COVERAGE') {
       return 'Estação fora da área coberta pelo CLIMBra.';
     }
-    return 'A estação não possui série histórica suficiente na janela de referência (1980–2013) para calibrar a correção de viés.';
+    return 'A estação não possui série histórica suficiente na janela de referência (1980 - 2013) para calibrar a correção de viés.';
   });
 
   readonly errorMessage = computed<string>(() => {
@@ -409,6 +431,7 @@ export class FutureScenarios implements OnInit, OnDestroy {
 
     this.pollSub = timer(0, 2000)
       .pipe(
+        takeUntil(timer(180_000)),
         switchMap(() => this.jobsService.getJob(jobId)),
         tap((job) => {
           if (job.progress != null) {
@@ -462,6 +485,14 @@ export class FutureScenarios implements OnInit, OnDestroy {
           console.error('[FutureScenarios] Erro no polling do job:', err);
           this.stopJobPolling();
         },
+        complete: () => {
+          if (this.isPolling()) {
+            this.stopJobPolling();
+            toast.error(
+              'O processamento está demorando mais que o esperado. Acompanhe pelo sino de notificações.',
+            );
+          }
+        },
       });
   }
 
@@ -494,16 +525,23 @@ export class FutureScenarios implements OnInit, OnDestroy {
       this.selectedSsp.set(ssp);
     }
 
-    const sYear = source?.start_year ?? params?.start_year;
-    const eYear = source?.end_year ?? params?.end_year;
+    const sYear = source?.start_year;
+    const eYear = source?.end_year;
     if (sYear && eYear) {
       this.startYear.set(sYear);
       this.endYear.set(eYear);
+    } else {
+      this.startYear.set(getDefaultFutureStartYear());
+      this.endYear.set(getDefaultFutureEndYear());
     }
   }
 
   private getFallbackDistributionFromSteps(): DistributionEnum | null {
     const steps = this.projectState.projectSteps();
+    const idfStep = steps.find((s) => s.step === 'HISTORICAL_IDF');
+    if (idfStep?.result?.['distribution']) {
+      return String(idfStep.result['distribution']).toUpperCase() as DistributionEnum;
+    }
     const distStep = steps.find((s) => s.step === 'DISTRIBUTION');
     const raw =
       distStep?.params?.['selected_distribution'] ??

@@ -131,7 +131,7 @@ export class FutureScenariosMap implements AfterViewInit, OnDestroy {
 
     if (!bounds.isEmpty()) {
       this.map.fitBounds(bounds, {
-        padding: { top: 12, bottom: 12, left: 12, right: 12 },
+        padding: { top: 20, bottom: 20, left: 20, right: 20 },
         maxZoom: 11,
         duration,
       });

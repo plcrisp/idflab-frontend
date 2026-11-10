@@ -27,12 +27,13 @@
     [disabled]="isProcessing() || isBlocked()"
   />
 
-  <!-- 3. Card: Configuração da Projeção (Mini-mapa + Controles compactos + Chips + Botão aplicar) -->
+  <!-- 3. Card: Configuração da Projeção (Mapa ampliado + Controles + Card de contexto + Botão aplicar) -->
   <app-future-scenarios-config-card
     [station]="project()?.station ?? null"
     [cells]="cells()"
     [radiusKm]="analysisRadiusKm()"
-    [inheritedDistribution]="inheritedDistributionText()"
+    [distributionName]="distributionFullName()"
+    [distributionColor]="distributionColor()"
     [inheritedDisaggregation]="inheritedDisaggregationText()"
     [referenceWindow]="referenceWindowText()"
     [isProcessing]="isProcessing()"

@@ -2,204 +2,303 @@
   id="future-scenarios-config-card"
   class="w-full min-w-0 flex flex-col rounded-xl shadow-xs border border-border bg-popover text-foreground overflow-hidden"
 >
-  <!-- Cabeçalho do Card -->
-  <div class="flex flex-wrap items-center justify-between gap-4 border-b border-border px-4 py-3">
-    <div class="flex items-center gap-2 min-w-0">
-      <h3 class="text-sm font-semibold uppercase tracking-wide text-foreground">
+  <!-- Cabeçalho do Card: Título + Distribuição + Chips de Desagregação e Referência + Chip CLIMBra -->
+  <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-2.5 sm:py-3">
+    <div class="flex flex-wrap items-center gap-2.5 min-w-0 text-sm font-normal text-muted-foreground">
+      <h3 class="font-semibold uppercase tracking-wide text-foreground shrink-0">
         Configuração da projeção
       </h3>
+      @if (distributionName()) {
+        <span class="select-none">·</span>
+        <span class="flex items-center gap-1.5 min-w-0">
+          <span>Distribuição</span>
+          <span class="h-2 w-2 rounded-full shrink-0" [style.background-color]="distributionColor()"></span>
+          <span class="font-medium text-foreground truncate">{{ distributionName() }}</span>
+        </span>
+      }
+
+      <span class="select-none hidden sm:inline">·</span>
+
+      <!-- Chip Desagregação -->
+      <span
+        [hlmTooltip]="'Método de desagregação temporal selecionado na etapa anterior'"
+        class="cursor-help inline-flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary/80 px-2.5 py-0.5 rounded-md border border-border shrink-0"
+      >
+        <ng-icon name="lucideClock" class="text-xs text-primary shrink-0" />
+        <span>{{ inheritedDisaggregation() }}</span>
+      </span>
+
+      <!-- Chip Referência com Tooltip explicativo da janela histórica -->
+      <span
+        [hlmTooltip]="'Período em que o modelo é comparado com a série observada para estimar o viés, aplicado depois à janela futura escolhida.'"
+        class="cursor-help inline-flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary/80 px-2.5 py-0.5 rounded-md border border-border shrink-0"
+      >
+        <ng-icon name="lucideCalendar" class="text-xs text-primary shrink-0" />
+        <span>Referência {{ referenceWindow() }}</span>
+      </span>
     </div>
+
+    <!-- Chip de Fonte CLIMBra no canto superior direito -->
+    <span
+      hlmBadge
+      class="climbra flex items-center gap-1.5 border-none font-semibold text-xs px-2.5 py-0.5 rounded-md shrink-0 uppercase tracking-wider"
+    >
+      <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+      CLIMBra
+    </span>
   </div>
 
-  <!-- Corpo do Card: Mini-mapa + Bloco Integrado de Controles -->
-  <div class="flex flex-col lg:flex-row gap-5 items-stretch p-4 sm:p-5">
-    <!-- Mini-mapa Compacto (260x165 px) -->
-    <div class="w-full lg:w-[260px] h-[165px] shrink-0">
+  <!-- Corpo do Card: Duas colunas (Mapa à esquerda + Lista de Modelos Climáticos à direita) -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 p-4 sm:p-5 items-stretch">
+    <!-- Coluna Esquerda: Mapa (lg:col-span-5 ~ 38-40% da largura) -->
+    <div class="lg:col-span-5 flex flex-col h-full">
       <app-future-scenarios-map
-        class="w-full h-full block"
+        class="w-full h-full flex-1 flex flex-col"
         [station]="station()"
         [cells]="cells()"
         [radiusKm]="radiusKm()"
       />
     </div>
 
-    <!-- Seção de Parâmetros e Ação -->
-    <div class="flex-1 min-w-0 flex flex-col justify-between gap-3.5">
-      <!-- 1. Linha Superior: Chips Discretos de Contexto Herdado -->
-      <div class="flex flex-wrap items-center gap-2">
-        <span
-          [hlmTooltip]="'Distribuição estatística selecionada na etapa anterior'"
-          class="cursor-help inline-flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary/80 px-2.5 py-1 rounded-md border border-border shrink-0"
-        >
-          <ng-icon name="lucideActivity" class="text-xs text-primary shrink-0" />
-          <span>{{ inheritedDistribution() }}</span>
-        </span>
-
-        <span
-          [hlmTooltip]="'Método de desagregação temporal selecionado na etapa anterior'"
-          class="cursor-help inline-flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary/80 px-2.5 py-1 rounded-md border border-border shrink-0"
-        >
-          <ng-icon name="lucideClock" class="text-xs text-primary shrink-0" />
-          <span>{{ inheritedDisaggregation() }}</span>
-        </span>
-
-        <span
-          [hlmTooltip]="'Raio de busca no entorno da estação para seleção de células do CLIMBra'"
-          class="cursor-help inline-flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary/80 px-2.5 py-1 rounded-md border border-border shrink-0"
-        >
-          <ng-icon name="lucideMapPin" class="text-xs text-primary shrink-0" />
-          <span>Raio {{ radiusKm() }} km</span>
-        </span>
-
-        <span
-          [hlmTooltip]="'Janela histórica de referência da estação para calibração com o modelo'"
-          class="cursor-help inline-flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary/80 px-2.5 py-1 rounded-md border border-border shrink-0"
-        >
-          <ng-icon name="lucideCalendar" class="text-xs text-primary shrink-0" />
-          <span>Referência {{ referenceWindow() }}</span>
-        </span>
+    <!-- Coluna Direita: Lista de Modelos Climáticos (lg:col-span-7) -->
+    <div class="lg:col-span-7 flex flex-col justify-between h-full">
+      <div class="flex items-center justify-between pb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider select-none">
+        <span>Modelo climático (CMIP6 / CLIMBra)</span>
+        <span class="text-[11px] font-normal normal-case text-muted-foreground">Resolução nativa</span>
       </div>
 
-      <!-- 2. Linha Integrada de Controles (larguras naturais + botão de ação na mesma linha) -->
-      <div class="flex flex-wrap items-end gap-3 pt-1">
-        <!-- Modelo Climático -->
-        <div class="flex flex-col gap-1.5 min-w-[160px] max-w-[200px]">
-          <label class="text-xs font-medium text-muted-foreground">
-            Modelo climático
-          </label>
-          <button
-            type="button"
-            hlmBtn
-            variant="outline"
-            size="sm"
-            [disabled]="isProcessing() || isBlocked()"
-            [hlmDropdownMenuTrigger]="modelMenu"
-            class="w-full h-9 px-3 text-xs sm:text-sm font-medium inline-flex items-center justify-between gap-2 cursor-pointer bg-card hover:bg-secondary/50 border-border/80"
+      <!-- Lista de cards de rádio sem scroll forçado -->
+      <div class="flex flex-col gap-2">
+        @for (model of climateModels; track model.code) {
+          <div
+            (click)="selectModel(model.code)"
+            class="group w-full relative rounded-xl border transition-all duration-150 p-2.5 sm:p-3 select-none flex items-center justify-between gap-3 outline-none cursor-pointer"
+            [class.border-primary]="selectedModel() === model.code"
+            [class.bg-primary/5]="selectedModel() === model.code"
+            [class.shadow-xs]="selectedModel() === model.code"
+            [class.border-border/70]="selectedModel() !== model.code"
+            [class.bg-card]="selectedModel() !== model.code"
+            [class.hover:bg-secondary/40]="selectedModel() !== model.code && !isProcessing() && !isBlocked()"
+            [class.opacity-60]="isProcessing() || isBlocked()"
+            [class.pointer-events-none]="isProcessing() || isBlocked()"
           >
-            <span class="truncate">{{ selectedModel() }}</span>
-            <ng-icon name="lucideChevronDown" class="text-xs text-muted-foreground shrink-0" />
-          </button>
-          <ng-template #modelMenu>
-            <hlm-dropdown-menu class="w-52">
-              @for (m of modelOptions; track m) {
-                <button
-                  hlmDropdownMenuItem
-                  type="button"
-                  (click)="selectModel(m)"
-                  class="text-xs flex items-center justify-between cursor-pointer"
-                  [class.font-semibold]="selectedModel() === m"
-                  [class.bg-secondary/50]="selectedModel() === m"
-                >
-                  <span>{{ m }}</span>
-                  @if (selectedModel() === m) {
-                    <ng-icon name="lucideCheck" class="text-xs text-primary" />
-                  }
-                </button>
-              }
-            </hlm-dropdown-menu>
-          </ng-template>
-        </div>
+            <!-- Lado Esquerdo: Rádio + Ponto Decorativo + Nome + Badge de Resolução -->
+            <div class="flex items-center gap-2.5 min-w-0">
+              <!-- Rádio Button Visual -->
+              <div
+                class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors"
+                [class.border-primary]="selectedModel() === model.code"
+                [class.border-muted-foreground/40]="selectedModel() !== model.code"
+              >
+                @if (selectedModel() === model.code) {
+                  <div class="w-2 h-2 rounded-full bg-primary"></div>
+                }
+              </div>
 
-        <!-- Cenário (SSP) -->
-        <div class="flex flex-col gap-1.5 min-w-[130px] max-w-[160px]">
-          <label class="text-xs font-medium text-muted-foreground">
-            Cenário (SSP)
-          </label>
-          <button
-            type="button"
-            hlmBtn
-            variant="outline"
-            size="sm"
-            [disabled]="isProcessing() || isBlocked()"
-            [hlmDropdownMenuTrigger]="sspMenu"
-            class="w-full h-9 px-3 text-xs sm:text-sm font-medium inline-flex items-center justify-between gap-2 cursor-pointer bg-card hover:bg-secondary/50 border-border/80"
-          >
-            <span class="truncate">{{ selectedSspLabel() }}</span>
-            <ng-icon name="lucideChevronDown" class="text-xs text-muted-foreground shrink-0" />
-          </button>
-          <ng-template #sspMenu>
-            <hlm-dropdown-menu class="w-44">
-              @for (s of sspOptions; track s.value) {
-                <button
-                  hlmDropdownMenuItem
-                  type="button"
-                  (click)="selectSsp(s.value)"
-                  class="text-xs flex items-center justify-between cursor-pointer"
-                  [class.font-semibold]="selectedSsp() === s.value"
-                  [class.bg-secondary/50]="selectedSsp() === s.value"
-                >
-                  <span>{{ s.label }}</span>
-                  @if (selectedSsp() === s.value) {
-                    <ng-icon name="lucideCheck" class="text-xs text-primary" />
-                  }
-                </button>
-              }
-            </hlm-dropdown-menu>
-          </ng-template>
-        </div>
+              <!-- Ponto Colorido Decorativo (Paleta estável) -->
+              <span
+                class="h-2.5 w-2.5 rounded-full shrink-0"
+                [style.background-color]="model.color"
+              ></span>
 
-        <!-- Período da Projeção (Unificado: Início a Fim com larguras compactas) -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-muted-foreground">
-            Período da projeção
-          </label>
-          <div class="flex items-center gap-1.5">
-            <input
-              type="number"
-              [min]="currentModelRange().minYear"
-              [max]="currentModelRange().maxYear - 1"
-              [value]="startYear()"
-              [disabled]="isProcessing() || isBlocked()"
-              (input)="onStartYearInput($event)"
-              class="w-20 h-9 px-2.5 text-center rounded-md border border-border/80 bg-card text-xs sm:text-sm font-medium text-foreground tabular-nums outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-            />
-            <span class="text-xs text-muted-foreground font-medium select-none">a</span>
-            <input
-              type="number"
-              [min]="currentModelRange().minYear + 1"
-              [max]="currentModelRange().maxYear"
-              [value]="endYear()"
-              [disabled]="isProcessing() || isBlocked()"
-              (input)="onEndYearInput($event)"
-              class="w-20 h-9 px-2.5 text-center rounded-md border border-border/80 bg-card text-xs sm:text-sm font-medium text-foreground tabular-nums outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-            />
+              <!-- Nome do Modelo -->
+              <span class="font-semibold text-sm text-foreground truncate">
+                {{ model.name }}
+              </span>
+
+              <!-- Badge de Resolução Espacial Nativa -->
+              <span class="text-[11px] font-medium text-muted-foreground bg-secondary/80 px-1.5 py-0.5 rounded border border-border/50 shrink-0">
+                {{ model.resolutionBadge }}
+              </span>
+            </div>
+
+            <!-- Lado Direito: Botão de Info com Tooltip Factual -->
+            <div class="flex items-center justify-center shrink-0" (click)="$event.stopPropagation()">
+              <button
+                type="button"
+                [hlmTooltip]="modelTooltip"
+                position="left"
+                class="h-7 w-7 rounded-md inline-flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/80 focus-visible:ring-2 focus-visible:ring-primary outline-none transition-colors cursor-help"
+                [attr.aria-label]="'Informações do modelo ' + model.name"
+              >
+                <ng-icon name="lucideInfo" class="text-sm" />
+              </button>
+
+              <ng-template #modelTooltip>
+                <div class="flex flex-col gap-2 w-64 p-1 select-none font-sans font-normal leading-normal text-xs">
+                  <!-- Cabeçalho do Tooltip -->
+                  <div class="flex items-center justify-between pb-1.5 border-b border-border/60">
+                    <div class="flex items-center gap-2 min-w-0">
+                      <span
+                        class="h-2.5 w-2.5 rounded-full shrink-0"
+                        [style.background-color]="model.color"
+                      ></span>
+                      <span class="font-semibold text-xs text-foreground truncate">
+                        {{ model.name }}
+                      </span>
+                    </div>
+                    <span class="text-[10px] font-medium text-muted-foreground bg-secondary/80 px-2 py-0.5 rounded-md border border-border/40 shrink-0">
+                      {{ model.resolutionBadge }}
+                    </span>
+                  </div>
+
+                  <!-- Metadados Factuais -->
+                  <div class="flex flex-col gap-1.5 text-[11px]">
+                    <div class="flex items-baseline justify-between gap-2">
+                      <span class="font-medium text-foreground shrink-0">Instituição:</span>
+                      <span class="text-muted-foreground text-right truncate" [title]="model.institution">{{ model.institution }}</span>
+                    </div>
+                    <div class="flex items-baseline justify-between gap-2">
+                      <span class="font-medium text-foreground shrink-0">Resolução nativa:</span>
+                      <span class="text-muted-foreground text-right">{{ model.resolutionDetails }}</span>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+            </div>
           </div>
-        </div>
-
-        <!-- Botão "Aplicar correção" no fim da linha de ação -->
-        <div class="ml-auto flex items-center">
-          <button
-            hlmBtn
-            type="button"
-            (click)="onApplyClick()"
-            [disabled]="!canApply()"
-            class="h-9 px-4 cursor-pointer font-medium inline-flex items-center gap-1.5 shadow-xs shrink-0"
-          >
-            @if (isProcessing()) {
-              <ng-icon name="lucideLoader2" class="animate-spin text-xs mr-1" />
-              <span>Processando…</span>
-            } @else {
-              <span>Aplicar correção</span>
-            }
-          </button>
-        </div>
-      </div>
-
-      <!-- 3. Mensagens de Validação e Avisos Inline -->
-      <div class="min-h-5 flex items-center">
-        @if (periodErrorMessage(); as err) {
-          <span class="text-xs text-destructive flex items-center gap-1.5 font-medium">
-            <ng-icon name="lucideTriangleAlert" class="text-xs shrink-0" />
-            <span>{{ err }}</span>
-          </span>
-        } @else if (periodWarningMessage(); as warn) {
-          <span class="text-xs text-warning/90 flex items-center gap-1.5 font-normal">
-            <ng-icon name="lucideInfo" class="text-xs text-warning shrink-0" />
-            <span>{{ warn }}</span>
-          </span>
         }
       </div>
     </div>
   </div>
-</div>
 
+  <!-- Rodapé de Ação do Card: Padrão Verificação de Consistência -->
+  <div class="border-t border-border px-4 sm:px-5 py-3 bg-muted/10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    <!-- Esquerda: Frase de Resumo com Modelo em Negrito + Chip de Resolução -->
+    <div class="flex items-center gap-2 min-w-0 flex-wrap">
+      <span class="text-xs sm:text-sm text-muted-foreground tracking-tight">
+        Corrigir a projeção com o modelo <strong class="text-foreground font-semibold">{{ selectedModel() }}</strong>
+      </span>
+      @if (selectedModelConfig(); as cfg) {
+        <span class="text-[11px] font-medium text-muted-foreground bg-secondary/80 px-1.5 py-0.5 rounded border border-border/50 shrink-0">
+          {{ cfg.resolutionBadge }}
+        </span>
+      }
+    </div>
+
+    <!-- Direita: Cenário (SSP) + Período + Botão Aplicar Correção -->
+    <div class="flex flex-wrap items-center justify-end gap-3 shrink-0 ml-auto lg:ml-0">
+      <!-- Seletor de Cenário (SSP) com Botão de Info -->
+      <div class="flex items-center gap-1.5">
+        <span class="text-xs font-medium text-muted-foreground hidden sm:inline">Cenário:</span>
+        <button
+          type="button"
+          hlmBtn
+          variant="outline"
+          size="sm"
+          [disabled]="isProcessing() || isBlocked()"
+          [hlmDropdownMenuTrigger]="sspMenu"
+          class="h-8 px-3 text-xs sm:text-sm font-medium inline-flex items-center justify-between gap-1.5 cursor-pointer bg-card hover:bg-secondary/50 border-border/80 min-w-[105px]"
+        >
+          <span>{{ selectedSspLabel() }}</span>
+          <ng-icon name="lucideChevronDown" class="text-xs text-muted-foreground shrink-0" />
+        </button>
+        <ng-template #sspMenu>
+          <hlm-dropdown-menu class="w-44">
+            @for (s of sspOptions; track s.value) {
+              <button
+                hlmDropdownMenuItem
+                type="button"
+                (click)="selectSsp(s.value)"
+                class="text-xs flex items-center justify-between cursor-pointer"
+                [class.font-semibold]="selectedSsp() === s.value"
+                [class.bg-secondary/50]="selectedSsp() === s.value"
+              >
+                <span>{{ s.label }}</span>
+                @if (selectedSsp() === s.value) {
+                  <ng-icon name="lucideCheck" class="text-xs text-primary" />
+                }
+              </button>
+            }
+          </hlm-dropdown-menu>
+        </ng-template>
+
+        <!-- Botão de Info com Descrição de Uma Linha dos Cenários SSP -->
+        <button
+          type="button"
+          [hlmTooltip]="sspInfoTooltip"
+          position="top"
+          class="h-7 w-7 rounded-md inline-flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/80 focus-visible:ring-2 focus-visible:ring-primary outline-none transition-colors cursor-help"
+          aria-label="Informações dos cenários de emissões SSP"
+        >
+          <ng-icon name="lucideInfo" class="text-sm" />
+        </button>
+        <ng-template #sspInfoTooltip>
+          <div class="flex flex-col gap-2 w-68 p-1 select-none font-sans font-normal leading-normal text-xs">
+            <div class="font-semibold text-xs text-foreground border-b border-border/60 pb-1">
+              Cenários de Emissões (CMIP6)
+            </div>
+            <div class="flex flex-col gap-2 text-[11px]">
+              <div class="leading-relaxed">
+                <strong class="font-semibold text-foreground">SSP2-4.5:</strong>
+                <span class="text-muted-foreground ml-1">{{ sspScenarioInfos['SSP245'].description }}</span>
+              </div>
+              <div class="leading-relaxed">
+                <strong class="font-semibold text-foreground">SSP5-8.5:</strong>
+                <span class="text-muted-foreground ml-1">{{ sspScenarioInfos['SSP585'].description }}</span>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Seletor de Período da Projeção -->
+      <div class="flex flex-col items-center">
+        <div
+          class="flex items-center gap-1.5"
+          [hlmTooltip]="'Disponível para ' + selectedModel() + ': ' + currentModelRange().minYear + ' - ' + currentModelRange().maxYear"
+        >
+          <span class="text-xs font-medium text-muted-foreground hidden sm:inline">Período:</span>
+          <input
+            type="number"
+            [min]="currentModelRange().minYear"
+            [max]="currentModelRange().maxYear - 1"
+            [value]="startYear()"
+            [disabled]="isProcessing() || isBlocked()"
+            (input)="onStartYearInput($event)"
+            class="w-18 h-8 px-2 text-center rounded-md border border-border/80 bg-card text-xs sm:text-sm font-medium text-foreground tabular-nums outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          />
+          <span class="text-xs text-muted-foreground font-medium select-none">a</span>
+          <input
+            type="number"
+            [min]="currentModelRange().minYear + 1"
+            [max]="currentModelRange().maxYear"
+            [value]="endYear()"
+            [disabled]="isProcessing() || isBlocked()"
+            (input)="onEndYearInput($event)"
+            class="w-18 h-8 px-2 text-center rounded-md border border-border/80 bg-card text-xs sm:text-sm font-medium text-foreground tabular-nums outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          />
+        </div>
+      </div>
+
+      <!-- Botão Aplicar Correção -->
+      <button
+        hlmBtn
+        type="button"
+        size="sm"
+        (click)="onApplyClick()"
+        [disabled]="!canApply()"
+      >
+        @if (isProcessing()) {
+          <ng-icon name="lucideLoader2" class="animate-spin text-xs" />
+          <span>Processando…</span>
+        } @else {
+          <span>Aplicar correção</span>
+        }
+      </button>
+    </div>
+  </div>
+
+  <!-- Barra de Validação / Aviso de Período (Aparece se houver erro ou aviso de < 30 anos) -->
+  @if (periodErrorMessage(); as err) {
+    <div class="px-4 sm:px-5 py-2 border-t border-destructive/20 bg-destructive/5 text-destructive text-xs flex items-center gap-1.5 font-medium">
+      <ng-icon name="lucideTriangleAlert" class="text-xs shrink-0" />
+      <span>{{ err }}</span>
+    </div>
+  } @else if (periodWarningMessage(); as warn) {
+    <div class="px-4 sm:px-5 py-2 border-t border-warning/20 bg-warning/5 text-warning/90 text-xs flex items-center gap-1.5 font-normal">
+      <ng-icon name="lucideInfo" class="text-xs text-warning shrink-0" />
+      <span>{{ warn }}</span>
+    </div>
+  }
+</div>

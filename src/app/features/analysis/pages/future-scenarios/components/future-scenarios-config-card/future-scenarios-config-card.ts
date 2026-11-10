@@ -17,19 +17,27 @@ import {
   lucideInfo,
   lucideLoader2,
   lucideMapPin,
+  lucideSparkles,
   lucideTriangleAlert,
 } from '@ng-icons/lucide';
+import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 
 import { StationSummary } from '../../../../../../core/models/api/station.model';
 import {
+  CLIMATE_MODEL_CONFIGS,
+  CLIMATE_MODEL_LIST,
   CLIMATE_MODEL_YEAR_RANGES,
   ClimateModel,
+  ClimateModelConfig,
   ClimbraCell,
   FutureScenariosApplyRequest,
+  getDefaultFutureEndYear,
+  getDefaultFutureStartYear,
   ModelYearRange,
+  SSP_SCENARIO_INFOS,
   SspScenario,
 } from '../../models/future-scenarios.model';
 import { FutureScenariosMap } from '../future-scenarios-map/future-scenarios-map';
@@ -41,6 +49,7 @@ import { FutureScenariosMap } from '../future-scenarios-map/future-scenarios-map
     CommonModule,
     NgIcon,
     FutureScenariosMap,
+    ...HlmBadgeImports,
     ...HlmButtonImports,
     ...HlmDropdownMenuImports,
     ...HlmTooltipImports,
@@ -55,6 +64,7 @@ import { FutureScenariosMap } from '../future-scenarios-map/future-scenarios-map
       lucideInfo,
       lucideLoader2,
       lucideMapPin,
+      lucideSparkles,
       lucideTriangleAlert,
     }),
   ],
@@ -67,9 +77,11 @@ export class FutureScenariosConfigCard {
   readonly station = input<StationSummary | null>(null);
   readonly cells = input<ClimbraCell[] | null>(null);
   readonly radiusKm = input<number>(10);
+  readonly distributionName = input<string>('');
+  readonly distributionColor = input<string>('');
   readonly inheritedDistribution = input<string>('—');
   readonly inheritedDisaggregation = input<string>('—');
-  readonly referenceWindow = input<string>('1980–2013');
+  readonly referenceWindow = input<string>('1980 - 2013');
   readonly isProcessing = input<boolean>(false);
   readonly isBlocked = input<boolean>(false);
   readonly canApplyBackend = input<boolean>(true);
@@ -77,10 +89,17 @@ export class FutureScenariosConfigCard {
 
   readonly selectedModel = model<ClimateModel>('MIROC6');
   readonly selectedSsp = model<SspScenario>('SSP245');
-  readonly startYear = model<number>(2041);
-  readonly endYear = model<number>(2070);
+  readonly startYear = model<number>(getDefaultFutureStartYear());
+  readonly endYear = model<number>(getDefaultFutureEndYear());
 
   readonly apply = output<void>();
+
+  readonly climateModels = CLIMATE_MODEL_LIST;
+  readonly sspScenarioInfos = SSP_SCENARIO_INFOS;
+
+  readonly selectedModelConfig = computed<ClimateModelConfig>(() => {
+    return CLIMATE_MODEL_CONFIGS[this.selectedModel()] ?? CLIMATE_MODEL_CONFIGS['MIROC6'];
+  });
 
   readonly modelOptions: readonly ClimateModel[] = [
     'MIROC6',

@@ -1,22 +1,29 @@
-<div class="map-container relative w-full h-full rounded-lg border border-border overflow-hidden bg-muted/20">
-  <div [id]="containerId" class="w-full h-full"></div>
+<div class="flex flex-col w-full h-full">
+  <div class="relative w-full flex-1 min-h-[250px] rounded-lg border border-border overflow-hidden bg-muted/20">
+    <div [id]="containerId" class="absolute inset-0 w-full h-full"></div>
 
-  @if (station()) {
-    <div class="absolute top-2 left-2 z-30 pointer-events-none">
-      <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-popover/90 border border-border/70 shadow-xs backdrop-blur-sm text-[10px] font-medium text-foreground">
-        <span class="flex items-center gap-1">
-          <ng-icon name="lucideMapPin" class="text-[10px] shrink-0" [style.color]="getMainStationColor()" />
-          <span>Principal</span>
-        </span>
-
-        @if ((cells()?.length ?? 0) > 0) {
-          <span class="h-2.5 w-px bg-border"></span>
-          <span class="flex items-center gap-1 text-muted-foreground font-normal">
-            <span class="w-2 h-2 rounded-xs border border-teal-500 bg-teal-500/25 shrink-0"></span>
-            <span>Células ({{ cells()!.length }})</span>
+    @if (station()) {
+      <div class="absolute top-2 left-2 z-30 pointer-events-none">
+        <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-popover/90 border border-border/70 shadow-xs backdrop-blur-sm text-[10px] font-medium text-foreground">
+          <span class="flex items-center gap-1">
+            <ng-icon name="lucideMapPin" class="text-[10px] shrink-0" [style.color]="getMainStationColor()" />
+            <span>Principal</span>
           </span>
-        }
+
+          @if ((cells()?.length ?? 0) > 0) {
+            <span class="h-2.5 w-px bg-border"></span>
+            <span class="flex items-center gap-1 text-muted-foreground font-normal">
+              <span class="w-2 h-2 rounded-xs border border-teal-500 bg-teal-500/25 shrink-0"></span>
+              <span>Células CLIMBra</span>
+            </span>
+          }
+        </div>
       </div>
-    </div>
-  }
+    }
+  </div>
+
+  <!-- Rodapé discreto do mapa no padrão de legenda textual -->
+  <div class="flex items-center text-xs text-muted-foreground pt-1.5 px-0.5 select-none">
+    <span>Raio de análise: {{ radiusKm() }} km@if ((cells()?.length ?? 0) > 0) { · {{ cells()!.length }} {{ cells()!.length === 1 ? 'célula CLIMBra' : 'células CLIMBra' }}}</span>
+  </div>
 </div>

@@ -83,10 +83,10 @@ export class FutureScenariosResultCard {
   readonly resultPeriodLabel = computed<string>(() => {
     const ap = this.result()?.applied_params;
     if (ap?.start_year && ap?.end_year) {
-      return `${ap.start_year}–${ap.end_year}`;
+      return `${ap.start_year} - ${ap.end_year}`;
     }
     if (ap?.period) {
-      return ap.period.replace('-', '–');
+      return ap.period.replace('-', ' - ');
     }
     return '';
   });
