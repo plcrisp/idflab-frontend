@@ -1,36 +1,22 @@
-<div class="map-container relative w-full h-full min-h-60 rounded-xl border border-border overflow-hidden bg-muted/20">
-  <div [id]="containerId" class="w-full h-full min-h-60"></div>
+<div class="map-container relative w-full h-full rounded-lg border border-border overflow-hidden bg-muted/20">
+  <div [id]="containerId" class="w-full h-full"></div>
 
   @if (station()) {
-    <div class="absolute top-2.5 right-2.5 z-30 flex items-center gap-1.5">
-      <button
-        type="button"
-        (click)="fitCircleBounds()"
-        title="Enquadrar área de análise"
-        aria-label="Enquadrar área de análise no mapa"
-        class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-popover/90 hover:bg-popover text-foreground border border-border shadow-sm backdrop-blur-md text-[11px] font-medium transition-all cursor-pointer"
-      >
-        <ng-icon name="lucideScan" class="text-xs text-primary" />
-        <span class="hidden sm:inline">Enquadrar</span>
-      </button>
-    </div>
-
-    <div class="absolute top-2.5 left-2.5 z-30 pointer-events-none">
-      <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-popover/90 border border-border shadow-sm backdrop-blur-md text-[11px] font-medium text-foreground">
-        <span class="flex items-center gap-1.5">
-          <ng-icon name="lucideMapPin" class="text-xs shrink-0" [style.color]="getMainStationColor()" />
+    <div class="absolute top-2 left-2 z-30 pointer-events-none">
+      <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-popover/90 border border-border/70 shadow-xs backdrop-blur-sm text-[10px] font-medium text-foreground">
+        <span class="flex items-center gap-1">
+          <ng-icon name="lucideMapPin" class="text-[10px] shrink-0" [style.color]="getMainStationColor()" />
           <span>Principal</span>
         </span>
 
         @if ((cells()?.length ?? 0) > 0) {
-          <span class="h-3 w-px bg-border"></span>
-          <span class="flex items-center gap-1.5 text-muted-foreground font-normal">
-            <span class="w-2.5 h-2.5 rounded-xs border border-teal-500 bg-teal-500/25 shrink-0"></span>
-            <span>Células</span>
+          <span class="h-2.5 w-px bg-border"></span>
+          <span class="flex items-center gap-1 text-muted-foreground font-normal">
+            <span class="w-2 h-2 rounded-xs border border-teal-500 bg-teal-500/25 shrink-0"></span>
+            <span>Células ({{ cells()!.length }})</span>
           </span>
         }
       </div>
     </div>
   }
 </div>
-

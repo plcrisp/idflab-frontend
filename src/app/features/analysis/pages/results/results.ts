@@ -27,11 +27,7 @@ import {
 import { isSubDailyResolution } from '../../../../core/utils/resolution.utils';
 import { GlobalStats } from '../../shared/models/analysis.models';
 import { ResultsResponse } from './models/results.model';
-import { HistoricalIdfResponse } from '../historical-idf/models/historical-idf.model';
-import {
-  getDistributionColor,
-  getDistributionConfig,
-} from '../distribution/constants/statistical-distribution.constants';
+import { getDistributionColor } from '../distribution/constants/statistical-distribution.constants';
 import { getDistributionFormalName } from '../historical-idf/constants/historical-idf.constants';
 
 @Component({
@@ -79,16 +75,7 @@ export class Results implements OnInit, OnDestroy {
   readonly errorMessage = signal<string | null>(null);
   readonly isDownloadingCsv = signal<boolean>(false);
 
-  readonly activeView = signal<'curves' | 'intensity' | 'variation'>('curves');
-  readonly chartScale = signal<'log' | 'linear'>('linear');
-
   private lastLoadedProjectId: string | null = null;
-
-  readonly distributionName = computed<string>(() => {
-    const data = this.resultsData();
-    if (!data?.distribution) return '';
-    return getDistributionConfig(data.distribution).name;
-  });
 
   readonly distributionFullName = computed<string>(() => {
     const data = this.resultsData();
@@ -100,54 +87,6 @@ export class Results implements OnInit, OnDestroy {
     const data = this.resultsData();
     if (!data?.distribution) return '';
     return getDistributionColor(data.distribution);
-  });
-
-  readonly historicalChartData = computed<HistoricalIdfResponse | null>(() => {
-    const d = this.resultsData();
-    if (!d) return null;
-    return {
-      project_id: d.project_id,
-      step_id: d.step_id,
-      status: d.status,
-      distribution: d.distribution,
-      return_periods: d.return_periods,
-      durations: d.durations,
-      k: d.historical_idf.k,
-      m: d.historical_idf.m,
-      n: d.historical_idf.n,
-      t0: d.historical_idf.t0,
-      r2: d.historical_idf.r2,
-      max_error: d.historical_idf.max_error,
-      quantiles_mm_h: d.historical_idf.quantiles_mm_h,
-      equation_mm_h: d.historical_idf.equation_mm_h,
-      relative_error: d.historical_idf.relative_error,
-      flags: d.historical_idf.flags,
-      dense_grid: d.historical_dense_grid,
-    };
-  });
-
-  readonly futureTableData = computed<HistoricalIdfResponse | null>(() => {
-    const d = this.resultsData();
-    if (!d) return null;
-    return {
-      project_id: d.project_id,
-      step_id: d.step_id,
-      status: d.status,
-      distribution: d.distribution,
-      return_periods: d.return_periods,
-      durations: d.durations,
-      k: d.future_idf.k,
-      m: d.future_idf.m,
-      n: d.future_idf.n,
-      t0: d.future_idf.t0,
-      r2: d.future_idf.r2,
-      max_error: d.future_idf.max_error,
-      quantiles_mm_h: d.future_idf.quantiles_mm_h,
-      equation_mm_h: d.intensity_table_mm_h ?? d.future_idf.equation_mm_h,
-      relative_error: d.future_idf.relative_error,
-      flags: d.future_idf.flags,
-      dense_grid: d.future_dense_grid,
-    };
   });
 
   constructor() {

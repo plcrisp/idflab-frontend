@@ -1,0 +1,25 @@
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+  @for (opt of methodOptions; track opt.value) {
+    <app-path
+      [selected]="selected() === opt.value"
+      [disabled]="disabled()"
+      [icon]="opt.icon"
+      [title]="opt.title"
+      [badge]="opt.badge"
+      [description]="opt.description"
+      (select)="selectMethod(opt.value)"
+    >
+      @if (appliedMethod() === opt.value) {
+        <span
+          hlmBadge
+          variant="outline"
+          class="text-xs font-medium px-2.5 py-0.5 rounded-md border flex items-center gap-1.5 bg-success/15 text-success border-success/30"
+        >
+          <span class="h-1.5 w-1.5 rounded-full bg-success"></span>
+          Executado
+        </span>
+      }
+    </app-path>
+  }
+</div>
+

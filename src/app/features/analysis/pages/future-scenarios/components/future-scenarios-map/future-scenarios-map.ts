@@ -12,7 +12,7 @@ import { CommonModule, TitleCasePipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import * as mapboxgl from 'mapbox-gl';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideMapPin, lucideScan } from '@ng-icons/lucide';
+import { lucideMapPin } from '@ng-icons/lucide';
 
 import { StationSummary } from '../../../../../../core/models/api/station.model';
 import { ThemeService } from '../../../../../../core/services/utils/theme.service';
@@ -35,7 +35,7 @@ const CELL_HALF_DEG = 0.125;
   selector: 'app-future-scenarios-map',
   standalone: true,
   imports: [CommonModule, NgIcon],
-  providers: [provideIcons({ lucideMapPin, lucideScan })],
+  providers: [provideIcons({ lucideMapPin })],
   templateUrl: './future-scenarios-map.html',
   styleUrl: './future-scenarios-map.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,7 +47,7 @@ export class FutureScenariosMap implements AfterViewInit, OnDestroy {
 
   readonly station = input<StationSummary | null>(null);
   readonly cells = input<ClimbraCell[] | null>(null);
-  readonly radiusKm = input<number>(25);
+  readonly radiusKm = input<number>(10);
 
   readonly containerId = `future-scenarios-mini-map-${Math.random().toString(36).substring(2, 9)}`;
 
@@ -116,7 +116,7 @@ export class FutureScenariosMap implements AfterViewInit, OnDestroy {
     const circleCoords = this.buildCircleCoordinates(
       st.latitude,
       st.longitude,
-      this.radiusKm() || 25,
+      this.radiusKm() || 10,
     );
 
     for (const pt of circleCoords) {
@@ -131,7 +131,7 @@ export class FutureScenariosMap implements AfterViewInit, OnDestroy {
 
     if (!bounds.isEmpty()) {
       this.map.fitBounds(bounds, {
-        padding: { top: 28, bottom: 28, left: 28, right: 28 },
+        padding: { top: 12, bottom: 12, left: 12, right: 12 },
         maxZoom: 11,
         duration,
       });
@@ -159,15 +159,8 @@ export class FutureScenariosMap implements AfterViewInit, OnDestroy {
       center: defaultCenter,
       zoom: 9,
       attributionControl: false,
-      dragPan: false,
-      dragRotate: false,
-      pitchWithRotate: false,
-      boxZoom: false,
-      keyboard: false,
+      interactive: false,
     });
-
-    this.map.touchZoomRotate.disableRotation();
-    this.map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
 
     this.map.on('load', () => {
       this.isMapReady = true;

@@ -21,6 +21,7 @@ import {
   lucideChevronDown,
   lucideChevronUp,
   lucideClock,
+  lucideCpu,
   lucideDatabase,
   lucideDownload,
   lucideDroplets,
@@ -86,7 +87,12 @@ import { HistoricalIdfEquationCard } from './pages/historical-idf/components/his
 import { HistoricalIdfIntensityTable } from './pages/historical-idf/components/historical-idf-intensity-table/historical-idf-intensity-table';
 import { FutureScenarios } from './pages/future-scenarios/future-scenarios';
 import { FutureScenariosMap } from './pages/future-scenarios/components/future-scenarios-map/future-scenarios-map';
+import { FutureSeriesChart } from './pages/future-scenarios/components/future-series-chart/future-series-chart';
+import { FutureScenariosMethodSelector } from './pages/future-scenarios/components/future-scenarios-method-selector/future-scenarios-method-selector';
+import { FutureScenariosConfigCard } from './pages/future-scenarios/components/future-scenarios-config-card/future-scenarios-config-card';
+import { FutureScenariosResultCard } from './pages/future-scenarios/components/future-scenarios-result-card/future-scenarios-result-card';
 import { Results } from './pages/results/results';
+import { ResultsCurvesCard } from './pages/results/components/results-curves-card/results-curves-card';
 
 registerLocaleData(localePt);
 
@@ -131,7 +137,12 @@ registerLocaleData(localePt);
     HistoricalIdfIntensityTable,
     FutureScenarios,
     FutureScenariosMap,
+    FutureSeriesChart,
+    FutureScenariosMethodSelector,
+    FutureScenariosConfigCard,
+    FutureScenariosResultCard,
     Results,
+    ResultsCurvesCard,
     AnnualMaxTable,
     DistributionFittingChart,
     DistributionSelectionTable,
@@ -168,7 +179,13 @@ registerLocaleData(localePt);
     HistoricalIdfEquationCard,
     HistoricalIdfIntensityTable,
     FutureScenariosMap,
+    FutureSeriesChart,
+    FutureScenariosMethodSelector,
+    FutureScenariosConfigCard,
+    FutureScenariosResultCard,
+    ResultsCurvesCard,
     NgIconsModule.withIcons({
+      lucideCpu,
       lucideDatabase,
       lucideTriangleAlert,
       lucideCalendar,

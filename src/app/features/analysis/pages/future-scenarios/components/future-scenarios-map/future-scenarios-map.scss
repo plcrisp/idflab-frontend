@@ -9,39 +9,13 @@
   height: 100%;
   position: relative;
   overflow: hidden;
-  border-radius: 0.75rem;
-
-  ::ng-deep .mapboxgl-ctrl-group {
-    background: color-mix(in srgb, var(--popover) 90%, transparent);
-    border: 1px solid var(--border);
-    backdrop-filter: blur(12px);
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-
-    button {
-      border-color: var(--border);
-
-      span {
-        filter: invert(var(--map-ctrl-invert, 0));
-      }
-
-      &:hover {
-        background-color: var(--muted);
-      }
-    }
-  }
-
-  ::ng-deep .mapboxgl-ctrl-bottom-right {
-    bottom: 0.75rem;
-    right: 0.75rem;
-  }
+  border-radius: 0.5rem;
 }
 
 ::ng-deep .main-station-marker-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   z-index: 25;
 
   .main-pin {
@@ -49,17 +23,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
+    width: 1.5rem;
+    height: 1.5rem;
     border-radius: 9999px;
     color: #ffffff;
     border: 2px solid #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-
-    &:hover {
-      transform: scale(1.15);
-    }
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
   }
 }
-

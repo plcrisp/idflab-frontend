@@ -11,6 +11,19 @@ export type ClimateModel =
   | 'ACCESS-CM2'
   | 'HadGEM3-GC31-LL';
 
+export interface ModelYearRange {
+  minYear: number;
+  maxYear: number;
+}
+
+export const CLIMATE_MODEL_YEAR_RANGES: Record<ClimateModel, ModelYearRange> = {
+  MIROC6: { minYear: 2015, maxYear: 2100 },
+  'EC-EARTH3': { minYear: 2015, maxYear: 2100 },
+  'MRI-ESM2': { minYear: 2015, maxYear: 2100 },
+  'ACCESS-CM2': { minYear: 2015, maxYear: 2100 },
+  'HadGEM3-GC31-LL': { minYear: 2015, maxYear: 2100 },
+};
+
 export type SspScenario = 'SSP245' | 'SSP585';
 
 export type FutureScenariosUiState =
