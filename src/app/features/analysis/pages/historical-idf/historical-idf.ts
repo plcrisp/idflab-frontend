@@ -49,6 +49,7 @@ export class HistoricalIdf implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly isDownloadingIdf = signal<boolean>(false);
+  readonly isAdvancing = signal<boolean>(false);
 
   private summarySub: Subscription | null = null;
   private idfSub: Subscription | null = null;
@@ -172,12 +173,10 @@ export class HistoricalIdf implements OnInit, OnDestroy {
           // Atualizar o estado global caso o furthest_step do projeto ainda não seja FUTURE_SCENARIOS
           const proj = this.project();
           if (proj && proj.furthest_step === 'HISTORICAL_IDF') {
-            this.projectState.setProject({
-              ...proj,
-              furthest_step: 'FUTURE_SCENARIOS',
-            });
+            this.projectState.updateFurthestStep('FUTURE_SCENARIOS').subscribe();
+          } else {
+            this.projectState.refreshSteps().subscribe();
           }
-          this.projectState.refreshSteps().subscribe();
         },
         error: (err) => {
           console.error('[HistoricalIdf] Erro ao carregar IDF histórica:', err);
@@ -248,7 +247,19 @@ export class HistoricalIdf implements OnInit, OnDestroy {
 
   onAdvance(): void {
     const project = this.project();
-    if (!project) return;
-    this.router.navigate(['/app/analysis', project.id, 'cenarios-futuros']);
+    if (!project || this.isAdvancing() || this.isIdfLoading() || !this.idfData()) return;
+
+    this.isAdvancing.set(true);
+    this.projectState.updateFurthestStep('FUTURE_SCENARIOS').subscribe({
+      next: () => {
+        this.isAdvancing.set(false);
+        this.router.navigate(['/app/analysis', project.id, 'cenarios-futuros']);
+      },
+      error: (err) => {
+        console.error('[HistoricalIdf] Erro ao avançar etapa:', err);
+        this.isAdvancing.set(false);
+        this.router.navigate(['/app/analysis', project.id, 'cenarios-futuros']);
+      },
+    });
   }
 }

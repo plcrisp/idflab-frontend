@@ -193,9 +193,19 @@
         }
       </button>
 
-      <button hlmBtn type="button" (click)="onAdvance()" [disabled]="isIdfLoading() || !idfData()">
-        <span>Avançar</span>
-        <ng-icon name="lucideArrowRight" class="ml-2" />
+      <button
+        hlmBtn
+        type="button"
+        (click)="onAdvance()"
+        [disabled]="isIdfLoading() || !idfData() || isAdvancing()"
+      >
+        @if (isAdvancing()) {
+          <ng-icon name="lucideLoader2" class="animate-spin mr-2 text-xs" />
+          <span>Avançando…</span>
+        } @else {
+          <span>Avançar</span>
+          <ng-icon name="lucideArrowRight" class="ml-2" />
+        }
       </button>
     </div>
   </div>

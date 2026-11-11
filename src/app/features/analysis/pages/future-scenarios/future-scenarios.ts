@@ -338,7 +338,6 @@ export class FutureScenarios implements OnInit, OnDestroy {
         if (isAfterJobSuccess && res.ui_state === 'RESULT') {
           this.isEditingParams.set(false);
           this.syncSelectorsFromState(res);
-          toast.success('Correção de viés concluída com sucesso!');
           this.projectState.updateFurthestStep('RESULTS').subscribe({
             error: () => {},
           });
