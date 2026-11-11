@@ -11,7 +11,8 @@ import {
 } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { Subscription, timer } from 'rxjs';
+import { finalize, Subscription, timer } from 'rxjs';
+import { FileDownloadService } from '../../../../core/services/utils/file-download.service';
 import { switchMap, takeWhile, tap } from 'rxjs/operators';
 import { toast } from '@spartan-ng/brain/sonner';
 
@@ -49,6 +50,7 @@ export class TemporalDisaggregation {
   private notificationsService = inject(NotificationsService);
   readonly neighborManager = inject(NeighborStationsManagerService);
   private mainLayoutService = inject(MainLayoutService);
+  private fileDownloadService = inject(FileDownloadService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
@@ -56,6 +58,7 @@ export class TemporalDisaggregation {
   readonly isJobRunning = this.projectState.isJobRunning;
   readonly hasInsufficientData = this.projectState.hasInsufficientData;
   readonly isAdvancing = signal<boolean>(false);
+  readonly isDownloadingAnnualMax = signal<boolean>(false);
 
   readonly selectedMethod = signal<DisaggregationMethod>('cetesb');
   readonly stats = signal<GlobalStats | null>(null);
@@ -619,6 +622,33 @@ export class TemporalDisaggregation {
   scrollToResultCard(): void {
     const el = document.getElementById('temporal-disaggregation-result-card');
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  onDownloadAnnualMax(): void {
+    const project = this.project();
+    if (!project || this.isDownloadingAnnualMax()) return;
+
+    this.isDownloadingAnnualMax.set(true);
+    this.disaggregationService
+      .downloadTableCsv(project.id, ';', 'mm')
+      .pipe(finalize(() => this.isDownloadingAnnualMax.set(false)))
+      .subscribe({
+        next: (response) => {
+          try {
+            this.fileDownloadService.triggerDownload(
+              response,
+              `annual_maximum_series_${project.id}_mm.csv`,
+            );
+          } catch (err) {
+            console.error('[TemporalDisaggregation] Erro ao processar download:', err);
+            toast.error('Não foi possível baixar os máximos anuais.');
+          }
+        },
+        error: (err) => {
+          console.error('[TemporalDisaggregation] Erro ao baixar máximos anuais:', err);
+          toast.error('Erro ao baixar máximos anuais. Tente novamente.');
+        },
+      });
   }
 
   onBack(): void {

@@ -76,8 +76,8 @@
     />
   }
 
-  <!-- 5. Rodapé com Ações (Voltar e Avançar) -->
-  <div class="flex w-full items-center justify-between gap-3 pt-2">
+  <!-- 5. Rodapé com Ações (Voltar, Baixar Máximos e Avançar) -->
+  <div class="flex flex-wrap w-full items-center justify-between gap-3 pt-2">
     <button
       hlmBtn
       variant="outline"
@@ -88,16 +88,35 @@
       Voltar
     </button>
 
-    <button
-      hlmBtn
-      (click)="onAdvance()"
-      [disabled]="!isCurrentMethodExecuted() || isAdvancing() || isProcessing()"
-    >
-      @if (isAdvancing()) {
-        <hlm-spinner class="mr-2" />
-      }
-      Avançar
-      <ng-icon name="lucideArrowRight" class="ml-2" />
-    </button>
+    <div class="flex items-center gap-2.5 ml-auto">
+      <button
+        hlmBtn
+        variant="outline"
+        type="button"
+        (click)="onDownloadAnnualMax()"
+        [disabled]="!isCurrentMethodExecuted() || isAdvancing() || isProcessing() || isDownloadingAnnualMax()"
+        class="cursor-pointer inline-flex items-center"
+      >
+        @if (isDownloadingAnnualMax()) {
+          <hlm-spinner class="mr-2" />
+          <span>Baixando…</span>
+        } @else {
+          <ng-icon name="lucideDownload" class="mr-2 text-xs" />
+          <span>Baixar máximos anuais</span>
+        }
+      </button>
+
+      <button
+        hlmBtn
+        (click)="onAdvance()"
+        [disabled]="!isCurrentMethodExecuted() || isAdvancing() || isProcessing()"
+      >
+        @if (isAdvancing()) {
+          <hlm-spinner class="mr-2" />
+        }
+        Avançar
+        <ng-icon name="lucideArrowRight" class="ml-2" />
+      </button>
+    </div>
   </div>
 </div>

@@ -10,25 +10,20 @@ import {
   untracked,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpResponse } from '@angular/common/http';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowDown,
   lucideArrowUp,
   lucideChevronLeft,
   lucideChevronRight,
-  lucideDownload,
   lucideRotateCw,
   lucideTriangleAlert,
 } from '@ng-icons/lucide';
-import { finalize } from 'rxjs';
-import { toast } from '@spartan-ng/brain/sonner';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 
-import { FileDownloadService } from '../../../../../core/services/utils/file-download.service';
 import { TemporalDisaggregationService } from '../../../services/temporal-disaggregation.service';
 import { TemporalDisaggregationTableResponse } from '../../../pages/temporal-disaggregation/models/temporal-disaggregation.model';
 
@@ -51,7 +46,6 @@ import { TemporalDisaggregationTableResponse } from '../../../pages/temporal-dis
       lucideChevronRight,
       lucideRotateCw,
       lucideTriangleAlert,
-      lucideDownload,
     }),
   ],
   templateUrl: './annual-max-table.html',
@@ -67,9 +61,7 @@ export class AnnualMaxTable implements OnInit {
   readonly pageSize = input<number>(10);
 
   private readonly disaggregationService = inject(TemporalDisaggregationService);
-  private readonly fileDownloadService = inject(FileDownloadService);
 
-  readonly isDownloadingTable = signal<boolean>(false);
   readonly tableData = signal<TemporalDisaggregationTableResponse | null>(null);
   readonly loadingTable = signal<boolean>(false);
   readonly errorTable = signal<string | null>(null);
@@ -151,40 +143,6 @@ export class AnnualMaxTable implements OnInit {
   formatNumber(val?: number | null): string {
     if (val == null || isNaN(val)) return '-';
     return val.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-  }
-
-  onDownloadTable(): void {
-    const projectId = this.projectId();
-    if (!projectId || this.isDownloadingTable()) return;
-
-    this.isDownloadingTable.set(true);
-
-    this.disaggregationService
-      .downloadTableCsv(projectId, ';', this.unit())
-      .pipe(finalize(() => this.isDownloadingTable.set(false)))
-      .subscribe({
-        next: (response: HttpResponse<Blob>) => {
-          try {
-            this.fileDownloadService.triggerDownload(
-              response,
-              `precipitacao_maxima_anual_${this.unit()}_${projectId}.csv`,
-            );
-          } catch (err) {
-            console.error('[AnnualMaxTable] erro ao processar arquivo baixado:', err);
-            toast.error('Não foi possível baixar a tabela. Arquivo vazio.', {
-              duration: 8000,
-              position: 'bottom-center',
-            });
-          }
-        },
-        error: (err: unknown) => {
-          console.error('[AnnualMaxTable] erro ao baixar CSV da tabela:', err);
-          toast.error('Não foi possível exportar a tabela para CSV. Tente novamente.', {
-            duration: 8000,
-            position: 'bottom-center',
-          });
-        },
-      });
   }
 }
 
