@@ -36,6 +36,10 @@ export class GapFilling {
   readonly selectedPath = signal<'fill' | 'filter'>('fill');
   readonly filterThreshold = signal<number>(90);
 
+  readonly downloadButtonLabel = computed<string>(() => {
+    return this.selectedPath() === 'filter' ? 'Baixar dados tratados' : 'Baixar dados preenchidos';
+  });
+
   readonly isFilterApplied = computed<boolean>(() => {
     if (this.isFilled()) return false;
     const f = this.state.savedFilter();

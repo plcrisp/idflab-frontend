@@ -637,7 +637,7 @@ export class TemporalDisaggregation {
           try {
             this.fileDownloadService.triggerDownload(
               response,
-              `annual_maximum_series_${project.id}_mm.csv`,
+              `annual_maximum_depth_mm_${project.id}.csv`,
             );
           } catch (err) {
             console.error('[TemporalDisaggregation] Erro ao processar download:', err);

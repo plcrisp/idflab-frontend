@@ -224,16 +224,16 @@ export class Results implements OnInit, OnDestroy {
               `idflab_complete_project_${p.id}.zip`,
             );
           } catch (err) {
-            console.error('[Results] Erro ao processar pacote completo baixado:', err);
-            toast.error('Não foi possível baixar o pacote completo. Arquivo inválido.');
+            console.error('[Results] Erro ao processar projeto completo baixado:', err);
+            toast.error('Não foi possível baixar o projeto completo. Arquivo inválido.');
           }
         },
         error: (err) => {
-          console.error('[Results] Erro ao exportar pacote completo:', err);
+          console.error('[Results] Erro ao exportar projeto completo:', err);
           const msg =
             err?.error?.detail ??
             err?.error?.message ??
-            'Não foi possível exportar o pacote completo do projeto. Tente novamente.';
+            'Não foi possível exportar o projeto completo. Tente novamente.';
           toast.error(msg);
         },
       });
