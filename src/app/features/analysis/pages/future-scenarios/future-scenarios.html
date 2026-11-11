@@ -24,7 +24,7 @@
   <app-future-scenarios-method-selector
     [(selected)]="selectedMethod"
     [appliedMethod]="appliedMethod()"
-    [disabled]="isProcessing() || isBlocked()"
+    [disabled]="isProcessing() || isBlocked() || (!showConfigFooter() && hasResult())"
   />
 
   <!-- 3. Card: Configuração da Projeção (Mapa ampliado + Controles + Card de contexto + Botão aplicar) -->
@@ -38,6 +38,7 @@
     [referenceWindow]="referenceWindowText()"
     [isProcessing]="isProcessing()"
     [isBlocked]="isBlocked()"
+    [showFooter]="showConfigFooter()"
     [canApplyBackend]="state()?.can_apply ?? true"
     [hasValidMethod]="selectedMethod() !== null"
     [(selectedModel)]="selectedModel"
@@ -81,12 +82,15 @@
       [uiState]="effectiveUiState()"
       [isProcessing]="isProcessing()"
       [isOutdated]="isOutdated()"
+      [isEditing]="isEditingParams()"
       [progressMessage]="progressMessage()"
       [progressPercentage]="progressPercentage()"
       [outdatedMessage]="outdatedMessage()"
       [selectedMethod]="selectedMethod()"
       [selectedModel]="selectedModel()"
       [selectedSspLabel]="selectedSspLabel()"
+      (editParams)="onEditParams()"
+      (cancelEdit)="onCancelEdit()"
     />
   }
 

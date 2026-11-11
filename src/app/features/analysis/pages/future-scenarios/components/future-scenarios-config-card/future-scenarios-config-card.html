@@ -70,15 +70,17 @@
         @for (model of climateModels; track model.code) {
           <div
             (click)="selectModel(model.code)"
-            class="group w-full relative rounded-xl border transition-all duration-150 p-2.5 sm:p-3 select-none flex items-center justify-between gap-3 outline-none cursor-pointer"
+            class="group w-full relative rounded-xl border transition-all duration-150 p-2.5 sm:p-3 select-none flex items-center justify-between gap-3 outline-none"
+            [class.cursor-pointer]="!isProcessing() && !isBlocked() && showFooter()"
+            [class.cursor-default]="isProcessing() || isBlocked() || !showFooter()"
             [class.border-primary]="selectedModel() === model.code"
             [class.bg-primary/5]="selectedModel() === model.code"
             [class.shadow-xs]="selectedModel() === model.code"
             [class.border-border/70]="selectedModel() !== model.code"
             [class.bg-card]="selectedModel() !== model.code"
-            [class.hover:bg-secondary/40]="selectedModel() !== model.code && !isProcessing() && !isBlocked()"
+            [class.hover:bg-secondary/40]="selectedModel() !== model.code && !isProcessing() && !isBlocked() && showFooter()"
             [class.opacity-60]="isProcessing() || isBlocked()"
-            [class.pointer-events-none]="isProcessing() || isBlocked()"
+            [class.pointer-events-none]="isProcessing() || isBlocked() || !showFooter()"
           >
             <!-- Lado Esquerdo: Rádio + Ponto Decorativo + Nome + Badge de Resolução -->
             <div class="flex items-center gap-2.5 min-w-0">
@@ -161,142 +163,144 @@
   </div>
 
   <!-- Rodapé de Ação do Card: Padrão Verificação de Consistência -->
-  <div class="border-t border-border px-4 sm:px-5 py-3 bg-muted/10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-    <!-- Esquerda: Frase de Resumo com Modelo em Negrito + Chip de Resolução -->
-    <div class="flex items-center gap-2 min-w-0 flex-wrap">
-      <span class="text-xs sm:text-sm text-muted-foreground tracking-tight">
-        Corrigir a projeção com o modelo <strong class="text-foreground font-semibold">{{ selectedModel() }}</strong>
-      </span>
-      @if (selectedModelConfig(); as cfg) {
-        <span class="text-[11px] font-medium text-muted-foreground bg-secondary/80 px-1.5 py-0.5 rounded border border-border/50 shrink-0">
-          {{ cfg.resolutionBadge }}
+  @if (showFooter()) {
+    <div class="border-t border-border px-4 sm:px-5 py-3 bg-muted/10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <!-- Esquerda: Frase de Resumo com Modelo em Negrito + Chip de Resolução -->
+      <div class="flex items-center gap-2 min-w-0 flex-wrap">
+        <span class="text-xs sm:text-sm text-muted-foreground tracking-tight">
+          Corrigir a projeção com o modelo <strong class="text-foreground font-semibold">{{ selectedModel() }}</strong>
         </span>
-      }
-    </div>
-
-    <!-- Direita: Cenário (SSP) + Período + Botão Aplicar Correção -->
-    <div class="flex flex-wrap items-center justify-end gap-3 shrink-0 ml-auto lg:ml-0">
-      <!-- Seletor de Cenário (SSP) com Botão de Info -->
-      <div class="flex items-center gap-1.5">
-        <span class="text-xs font-medium text-muted-foreground hidden sm:inline">Cenário:</span>
-        <button
-          type="button"
-          hlmBtn
-          variant="outline"
-          size="sm"
-          [disabled]="isProcessing() || isBlocked()"
-          [hlmDropdownMenuTrigger]="sspMenu"
-          class="h-8 px-3 text-xs sm:text-sm font-medium inline-flex items-center justify-between gap-1.5 cursor-pointer bg-card hover:bg-secondary/50 border-border/80 min-w-[105px]"
-        >
-          <span>{{ selectedSspLabel() }}</span>
-          <ng-icon name="lucideChevronDown" class="text-xs text-muted-foreground shrink-0" />
-        </button>
-        <ng-template #sspMenu>
-          <hlm-dropdown-menu class="w-44">
-            @for (s of sspOptions; track s.value) {
-              <button
-                hlmDropdownMenuItem
-                type="button"
-                (click)="selectSsp(s.value)"
-                class="text-xs flex items-center justify-between cursor-pointer"
-                [class.font-semibold]="selectedSsp() === s.value"
-                [class.bg-secondary/50]="selectedSsp() === s.value"
-              >
-                <span>{{ s.label }}</span>
-                @if (selectedSsp() === s.value) {
-                  <ng-icon name="lucideCheck" class="text-xs text-primary" />
-                }
-              </button>
-            }
-          </hlm-dropdown-menu>
-        </ng-template>
-
-        <!-- Botão de Info com Descrição de Uma Linha dos Cenários SSP -->
-        <button
-          type="button"
-          [hlmTooltip]="sspInfoTooltip"
-          position="top"
-          class="h-7 w-7 rounded-md inline-flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/80 focus-visible:ring-2 focus-visible:ring-primary outline-none transition-colors cursor-help"
-          aria-label="Informações dos cenários de emissões SSP"
-        >
-          <ng-icon name="lucideInfo" class="text-sm" />
-        </button>
-        <ng-template #sspInfoTooltip>
-          <div class="flex flex-col gap-2 w-68 p-1 select-none font-sans font-normal leading-normal text-xs">
-            <div class="font-semibold text-xs text-foreground border-b border-border/60 pb-1">
-              Cenários de Emissões (CMIP6)
-            </div>
-            <div class="flex flex-col gap-2 text-[11px]">
-              <div class="leading-relaxed">
-                <strong class="font-semibold text-foreground">SSP2-4.5:</strong>
-                <span class="text-muted-foreground ml-1">{{ sspScenarioInfos['SSP245'].description }}</span>
-              </div>
-              <div class="leading-relaxed">
-                <strong class="font-semibold text-foreground">SSP5-8.5:</strong>
-                <span class="text-muted-foreground ml-1">{{ sspScenarioInfos['SSP585'].description }}</span>
-              </div>
-            </div>
-          </div>
-        </ng-template>
-      </div>
-
-      <!-- Seletor de Período da Projeção -->
-      <div class="flex flex-col items-center">
-        <div
-          class="flex items-center gap-1.5"
-          [hlmTooltip]="'Disponível para ' + selectedModel() + ': ' + currentModelRange().minYear + ' - ' + currentModelRange().maxYear"
-        >
-          <span class="text-xs font-medium text-muted-foreground hidden sm:inline">Período:</span>
-          <input
-            type="number"
-            [min]="currentModelRange().minYear"
-            [max]="currentModelRange().maxYear - 1"
-            [value]="startYear()"
-            [disabled]="isProcessing() || isBlocked()"
-            (input)="onStartYearInput($event)"
-            class="w-18 h-8 px-2 text-center rounded-md border border-border/80 bg-card text-xs sm:text-sm font-medium text-foreground tabular-nums outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-          />
-          <span class="text-xs text-muted-foreground font-medium select-none">a</span>
-          <input
-            type="number"
-            [min]="currentModelRange().minYear + 1"
-            [max]="currentModelRange().maxYear"
-            [value]="endYear()"
-            [disabled]="isProcessing() || isBlocked()"
-            (input)="onEndYearInput($event)"
-            class="w-18 h-8 px-2 text-center rounded-md border border-border/80 bg-card text-xs sm:text-sm font-medium text-foreground tabular-nums outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-          />
-        </div>
-      </div>
-
-      <!-- Botão Aplicar Correção -->
-      <button
-        hlmBtn
-        type="button"
-        size="sm"
-        (click)="onApplyClick()"
-        [disabled]="!canApply()"
-      >
-        @if (isProcessing()) {
-          <ng-icon name="lucideLoader2" class="animate-spin text-xs" />
-          <span>Processando…</span>
-        } @else {
-          <span>Aplicar correção</span>
+        @if (selectedModelConfig(); as cfg) {
+          <span class="text-[11px] font-medium text-muted-foreground bg-secondary/80 px-1.5 py-0.5 rounded border border-border/50 shrink-0">
+            {{ cfg.resolutionBadge }}
+          </span>
         }
-      </button>
-    </div>
-  </div>
+      </div>
 
-  <!-- Barra de Validação / Aviso de Período (Aparece se houver erro ou aviso de < 30 anos) -->
-  @if (periodErrorMessage(); as err) {
-    <div class="px-4 sm:px-5 py-2 border-t border-destructive/20 bg-destructive/5 text-destructive text-xs flex items-center gap-1.5 font-medium">
-      <ng-icon name="lucideTriangleAlert" class="text-xs shrink-0" />
-      <span>{{ err }}</span>
+      <!-- Direita: Cenário (SSP) + Período + Botão Aplicar Correção -->
+      <div class="flex flex-wrap items-center justify-end gap-3 shrink-0 ml-auto lg:ml-0">
+        <!-- Seletor de Cenário (SSP) com Botão de Info -->
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs font-medium text-muted-foreground hidden sm:inline">Cenário:</span>
+          <button
+            type="button"
+            hlmBtn
+            variant="outline"
+            size="sm"
+            [disabled]="isProcessing() || isBlocked()"
+            [hlmDropdownMenuTrigger]="sspMenu"
+            class="h-8 px-3 text-xs sm:text-sm font-medium inline-flex items-center justify-between gap-1.5 cursor-pointer bg-card hover:bg-secondary/50 border-border/80 min-w-[105px]"
+          >
+            <span>{{ selectedSspLabel() }}</span>
+            <ng-icon name="lucideChevronDown" class="text-xs text-muted-foreground shrink-0" />
+          </button>
+          <ng-template #sspMenu>
+            <hlm-dropdown-menu class="w-44">
+              @for (s of sspOptions; track s.value) {
+                <button
+                  hlmDropdownMenuItem
+                  type="button"
+                  (click)="selectSsp(s.value)"
+                  class="text-xs flex items-center justify-between cursor-pointer"
+                  [class.font-semibold]="selectedSsp() === s.value"
+                  [class.bg-secondary/50]="selectedSsp() === s.value"
+                >
+                  <span>{{ s.label }}</span>
+                  @if (selectedSsp() === s.value) {
+                    <ng-icon name="lucideCheck" class="text-xs text-primary" />
+                  }
+                </button>
+              }
+            </hlm-dropdown-menu>
+          </ng-template>
+
+          <!-- Botão de Info com Descrição de Uma Linha dos Cenários SSP -->
+          <button
+            type="button"
+            [hlmTooltip]="sspInfoTooltip"
+            position="top"
+            class="h-7 w-7 rounded-md inline-flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/80 focus-visible:ring-2 focus-visible:ring-primary outline-none transition-colors cursor-help"
+            aria-label="Informações dos cenários de emissões SSP"
+          >
+            <ng-icon name="lucideInfo" class="text-sm" />
+          </button>
+          <ng-template #sspInfoTooltip>
+            <div class="flex flex-col gap-2 w-68 p-1 select-none font-sans font-normal leading-normal text-xs">
+              <div class="font-semibold text-xs text-foreground border-b border-border/60 pb-1">
+                Cenários de Emissões (CMIP6)
+              </div>
+              <div class="flex flex-col gap-2 text-[11px]">
+                <div class="leading-relaxed">
+                  <strong class="font-semibold text-foreground">SSP2-4.5:</strong>
+                  <span class="text-muted-foreground ml-1">{{ sspScenarioInfos['SSP245'].description }}</span>
+                </div>
+                <div class="leading-relaxed">
+                  <strong class="font-semibold text-foreground">SSP5-8.5:</strong>
+                  <span class="text-muted-foreground ml-1">{{ sspScenarioInfos['SSP585'].description }}</span>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Seletor de Período da Projeção -->
+        <div class="flex flex-col items-center">
+          <div
+            class="flex items-center gap-1.5"
+            [hlmTooltip]="'Disponível para ' + selectedModel() + ': ' + currentModelRange().minYear + ' - ' + currentModelRange().maxYear"
+          >
+            <span class="text-xs font-medium text-muted-foreground hidden sm:inline">Período:</span>
+            <input
+              type="number"
+              [min]="currentModelRange().minYear"
+              [max]="currentModelRange().maxYear - 1"
+              [value]="startYear()"
+              [disabled]="isProcessing() || isBlocked()"
+              (input)="onStartYearInput($event)"
+              class="w-18 h-8 px-2 text-center rounded-md border border-border/80 bg-card text-xs sm:text-sm font-medium text-foreground tabular-nums outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            />
+            <span class="text-xs text-muted-foreground font-medium select-none">a</span>
+            <input
+              type="number"
+              [min]="currentModelRange().minYear + 1"
+              [max]="currentModelRange().maxYear"
+              [value]="endYear()"
+              [disabled]="isProcessing() || isBlocked()"
+              (input)="onEndYearInput($event)"
+              class="w-18 h-8 px-2 text-center rounded-md border border-border/80 bg-card text-xs sm:text-sm font-medium text-foreground tabular-nums outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            />
+          </div>
+        </div>
+
+        <!-- Botão Aplicar Correção -->
+        <button
+          hlmBtn
+          type="button"
+          size="sm"
+          (click)="onApplyClick()"
+          [disabled]="!canApply()"
+        >
+          @if (isProcessing()) {
+            <ng-icon name="lucideLoader2" class="animate-spin text-xs" />
+            <span>Processando…</span>
+          } @else {
+            <span>Aplicar correção</span>
+          }
+        </button>
+      </div>
     </div>
-  } @else if (periodWarningMessage(); as warn) {
-    <div class="px-4 sm:px-5 py-2 border-t border-warning/20 bg-warning/5 text-warning/90 text-xs flex items-center gap-1.5 font-normal">
-      <ng-icon name="lucideInfo" class="text-xs text-warning shrink-0" />
-      <span>{{ warn }}</span>
-    </div>
+
+    <!-- Barra de Validação / Aviso de Período (Aparece se houver erro ou aviso de < 30 anos) -->
+    @if (periodErrorMessage(); as err) {
+      <div class="px-4 sm:px-5 py-2 border-t border-destructive/20 bg-destructive/5 text-destructive text-xs flex items-center gap-1.5 font-medium">
+        <ng-icon name="lucideTriangleAlert" class="text-xs shrink-0" />
+        <span>{{ err }}</span>
+      </div>
+    } @else if (periodWarningMessage(); as warn) {
+      <div class="px-4 sm:px-5 py-2 border-t border-warning/20 bg-warning/5 text-warning/90 text-xs flex items-center gap-1.5 font-normal">
+        <ng-icon name="lucideInfo" class="text-xs text-warning shrink-0" />
+        <span>{{ warn }}</span>
+      </div>
+    }
   }
 </div>

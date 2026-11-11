@@ -86,6 +86,7 @@ export class FutureScenarios implements OnInit, OnDestroy {
   readonly isApplying = signal<boolean>(false);
   readonly isPolling = signal<boolean>(false);
   readonly isAdvancing = signal<boolean>(false);
+  readonly isEditingParams = signal<boolean>(false);
 
   readonly polledJobProgress = signal<number | null>(null);
   readonly polledJobMessage = signal<string | null>(null);
@@ -205,6 +206,14 @@ export class FutureScenarios implements OnInit, OnDestroy {
   readonly isOutdated = computed<boolean>(() => this.effectiveUiState() === 'OUTDATED');
   readonly isError = computed<boolean>(() => this.effectiveUiState() === 'ERROR');
 
+  readonly hasResult = computed<boolean>(() => !!this.state()?.result);
+
+  readonly showConfigFooter = computed<boolean>(() => {
+    if (this.isProcessing()) return false;
+    if (!this.hasResult() || this.isError()) return true;
+    return this.isEditingParams();
+  });
+
   readonly showResultCard = computed<boolean>(() => {
     const ui = this.effectiveUiState();
     return ui === 'PROCESSING' || ui === 'RESULT' || ui === 'OUTDATED';
@@ -319,6 +328,7 @@ export class FutureScenarios implements OnInit, OnDestroy {
         }
 
         if (isAfterJobSuccess && res.ui_state === 'RESULT') {
+          this.isEditingParams.set(false);
           this.syncSelectorsFromState(res);
           toast.success('Correção de viés concluída com sucesso!');
           this.projectState.updateFurthestStep('RESULTS').subscribe({
@@ -350,6 +360,7 @@ export class FutureScenarios implements OnInit, OnDestroy {
     const method = this.selectedMethod();
     if (!project || !method) return;
 
+    this.isEditingParams.set(false);
     this.isApplying.set(true);
     this.polledJobProgress.set(5);
     this.polledJobMessage.set('Iniciando processamento de cenários futuros...');
@@ -396,6 +407,24 @@ export class FutureScenarios implements OnInit, OnDestroy {
   scrollToResultCard(): void {
     const el = document.getElementById('future-scenarios-result-card');
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  scrollToConfigCard(): void {
+    const el = document.getElementById('future-scenarios-config-card');
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  onEditParams(): void {
+    this.isEditingParams.set(true);
+    setTimeout(() => this.scrollToConfigCard(), 60);
+  }
+
+  onCancelEdit(): void {
+    const st = this.state();
+    if (st) {
+      this.syncSelectorsFromState(st);
+    }
+    this.isEditingParams.set(false);
   }
 
   ngOnDestroy(): void {

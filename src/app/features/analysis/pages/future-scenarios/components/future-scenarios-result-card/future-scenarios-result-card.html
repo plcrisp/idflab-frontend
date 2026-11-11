@@ -35,35 +35,54 @@
       }
     </div>
 
-    <!-- Selo de Status no Canto Direito -->
-    @if (isProcessing()) {
-      <span
-        hlmBadge
-        variant="outline"
-        class="text-xs font-medium px-2.5 py-0.5 rounded-md border inline-flex items-center gap-1.5 bg-primary/10 text-primary border-primary/25 shrink-0"
-      >
-        <ng-icon name="lucideLoader2" class="animate-spin text-xs text-primary" />
-        <span>Em processamento</span>
-      </span>
-    } @else if (isOutdated()) {
-      <span
-        hlmBadge
-        variant="outline"
-        class="text-xs font-medium px-2.5 py-0.5 rounded-md border inline-flex items-center gap-1.5 bg-warning/15 text-warning border-warning/30 shrink-0"
-      >
-        <span class="h-1.5 w-1.5 rounded-full bg-warning"></span>
-        <span>Desatualizado</span>
-      </span>
-    } @else {
-      <span
-        hlmBadge
-        variant="outline"
-        class="text-xs font-medium px-2.5 py-0.5 rounded-md border inline-flex items-center gap-1.5 bg-success/15 text-success border-success/30 shrink-0"
-      >
-        <span class="h-1.5 w-1.5 rounded-full bg-success"></span>
-        <span>Correção concluída</span>
-      </span>
-    }
+    <!-- Ações e Selo de Status no Canto Direito -->
+    <div class="flex items-center gap-2 shrink-0">
+      @if (isProcessing()) {
+        <span
+          hlmBadge
+          variant="outline"
+          class="text-xs font-medium px-2.5 py-0.5 rounded-md border inline-flex items-center gap-1.5 bg-primary/10 text-primary border-primary/25 shrink-0"
+        >
+          <ng-icon name="lucideLoader2" class="animate-spin text-xs text-primary" />
+          <span>Em processamento</span>
+        </span>
+      } @else if (isEditing()) {
+        @if (isOutdated()) {
+          <span
+            hlmBadge
+            variant="outline"
+            class="text-xs font-medium px-2.5 py-0.5 rounded-md border inline-flex items-center gap-1.5 bg-warning/15 text-warning border-warning/30 shrink-0"
+          >
+            <span class="h-1.5 w-1.5 rounded-full bg-warning"></span>
+            <span>Parâmetros alterados</span>
+          </span>
+        }
+        <button
+          hlmBtn
+          variant="ghost"
+          size="sm"
+          type="button"
+          (click)="cancelEdit.emit()"
+          class="cursor-pointer font-medium inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-all shrink-0"
+        >
+          <ng-icon name="lucideX" class="text-xs" />
+          <span>Cancelar</span>
+        </button>
+      } @else {
+        <!-- Modo de visualização de resultado com rodapé recolhido: Botão para liberar o rodapé -->
+        <button
+          hlmBtn
+          variant="outline"
+          size="sm"
+          type="button"
+          (click)="editParams.emit()"
+          class="cursor-pointer font-medium inline-flex items-center gap-1.5 shadow-xs transition-all shrink-0"
+        >
+          <span>Alterar parâmetros</span>
+          <ng-icon name="lucideArrowUp" class="text-xs" />
+        </button>
+      }
+    </div>
   </div>
 
   <!-- Corpo do Card -->

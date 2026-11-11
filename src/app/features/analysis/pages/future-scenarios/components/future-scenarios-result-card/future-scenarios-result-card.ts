@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
+  lucideArrowUp,
   lucideChartColumn,
   lucideDatabase,
   lucideDroplets,
@@ -10,8 +11,10 @@ import {
   lucideShieldCheck,
   lucideTrendingUp,
   lucideTriangleAlert,
+  lucideX,
 } from '@ng-icons/lucide';
 import { HlmBadge } from '@spartan-ng/helm/badge';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
 
 import {
   BiasCorrectionMethod,
@@ -32,10 +35,12 @@ import { FutureSeriesChart } from '../future-series-chart/future-series-chart';
     SharedModule,
     NgIcon,
     HlmBadge,
+    ...HlmButtonImports,
     FutureSeriesChart,
   ],
   providers: [
     provideIcons({
+      lucideArrowUp,
       lucideDatabase,
       lucideTrendingUp,
       lucideChartColumn,
@@ -44,6 +49,7 @@ import { FutureSeriesChart } from '../future-series-chart/future-series-chart';
       lucideTriangleAlert,
       lucideDroplets,
       lucideShieldCheck,
+      lucideX,
     }),
   ],
   templateUrl: './future-scenarios-result-card.html',
@@ -56,6 +62,9 @@ export class FutureScenariosResultCard {
   readonly uiState = input<FutureScenariosUiState>('INITIAL');
   readonly isProcessing = input<boolean>(false);
   readonly isOutdated = input<boolean>(false);
+  readonly isEditing = input<boolean>(false);
+  readonly editParams = output<void>();
+  readonly cancelEdit = output<void>();
   readonly progressMessage = input<string>('Processando...');
   readonly progressPercentage = input<number>(10);
   readonly outdatedMessage = input<string>(

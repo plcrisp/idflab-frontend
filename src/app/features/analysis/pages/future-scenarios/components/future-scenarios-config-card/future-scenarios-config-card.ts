@@ -89,6 +89,7 @@ export class FutureScenariosConfigCard {
   });
   readonly isProcessing = input<boolean>(false);
   readonly isBlocked = input<boolean>(false);
+  readonly showFooter = input<boolean>(true);
   readonly canApplyBackend = input<boolean>(true);
   readonly hasValidMethod = input<boolean>(true);
 
@@ -168,7 +169,7 @@ export class FutureScenariosConfigCard {
   });
 
   selectModel(m: ClimateModel): void {
-    if (this.isProcessing() || this.isBlocked()) return;
+    if (this.isProcessing() || this.isBlocked() || !this.showFooter()) return;
     this.selectedModel.set(m);
   }
 
