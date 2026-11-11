@@ -29,6 +29,7 @@ import {
   getDistributionConfig,
 } from '../distribution/constants/statistical-distribution.constants';
 import { getDistributionFormalName } from './constants/historical-idf.constants';
+import { buildAnalysisBreadcrumbs } from '../../../../core/utils/project-step.utils';
 
 @Component({
   selector: 'app-historical-idf',
@@ -112,11 +113,9 @@ export class HistoricalIdf implements OnInit, OnDestroy {
 
       const projectName = new TitleCasePipe().transform(project.name) || project.name;
 
-      this.mainLayoutService.setBreadcrumbs([
-        { label: 'Nova Análise', url: '/app/interactive-map' },
-        { label: projectName, url: `/app/project/${project.id}` },
-        { label: 'IDF Histórica', url: `/app/analysis/${project.id}/historical-idf` },
-      ]);
+      this.mainLayoutService.setBreadcrumbs(
+        buildAnalysisBreadcrumbs(project, 'IDF Histórica', `/app/analysis/${project.id}/historical-idf`),
+      );
 
       if (this.lastLoadedProjectId !== project.id) {
         this.lastLoadedProjectId = project.id;

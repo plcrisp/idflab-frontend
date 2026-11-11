@@ -9,6 +9,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
+import { buildAnalysisBreadcrumbs } from '../../../../core/utils/project-step.utils';
 import { Subscription } from 'rxjs';
 import { SkeletonLoadingCoordinator, trackWithSkeleton } from '../../../../core/utils/skeleton-loading-coordinator';
 import { TitleCasePipe } from '@angular/common';
@@ -124,11 +125,9 @@ export class Distribution implements OnInit, OnDestroy {
 
       const projectName = new TitleCasePipe().transform(project.name) || project.name;
 
-      this.mainLayoutService.setBreadcrumbs([
-        { label: 'Nova Análise', url: '/app/interactive-map' },
-        { label: projectName, url: `/app/project/${project.id}` },
-        { label: 'Distribuição Estatística', url: `/app/analysis/${project.id}/distribution` },
-      ]);
+      this.mainLayoutService.setBreadcrumbs(
+        buildAnalysisBreadcrumbs(project, 'Distribuição Estatística', `/app/analysis/${project.id}/distribution`),
+      );
 
       if (this.lastLoadedProjectId !== project.id) {
         this.lastLoadedProjectId = project.id;

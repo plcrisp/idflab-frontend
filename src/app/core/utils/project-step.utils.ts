@@ -1,4 +1,8 @@
 import { StepEnum } from '../models/api/project.model';
+import { Breadcrumb } from '../models/utils/main-layout.model';
+import { TitleCasePipe } from '@angular/common';
+
+const titleCasePipe = new TitleCasePipe();
 
 export const STEP_ORDER: readonly StepEnum[] = [
   'INITIAL_VISUALIZATION',
@@ -111,4 +115,26 @@ export function getProjectPipelineStepInfo(furthestStep?: StepEnum | null): {
     label: current.label,
     percent,
   };
+}
+
+export function buildAnalysisBreadcrumbs(
+  project: { id: string; name?: string; furthest_step?: StepEnum | null } | null | undefined,
+  currentStepLabel: string,
+  currentStepUrl: string,
+): Breadcrumb[] {
+  if (!project) return [];
+
+  const isCompleted = project.furthest_step === 'RESULTS';
+  const rootCrumb: Breadcrumb = isCompleted
+    ? { label: 'Central de projetos', url: '/app/projects' }
+    : { label: 'Nova Análise', url: '/app/interactive-map' };
+
+  const rawName = project.name || '';
+  const projectName = titleCasePipe.transform(rawName) || rawName || 'Projeto';
+
+  return [
+    rootCrumb,
+    { label: projectName, url: `/app/analysis/${project.id}` },
+    { label: currentStepLabel, url: currentStepUrl },
+  ];
 }

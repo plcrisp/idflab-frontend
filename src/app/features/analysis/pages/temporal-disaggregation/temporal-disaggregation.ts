@@ -1,4 +1,5 @@
 import { isSubDailyResolution } from '../../../../core/utils/resolution.utils';
+import { buildAnalysisBreadcrumbs } from '../../../../core/utils/project-step.utils';
 import {
   Component,
   computed,
@@ -233,11 +234,9 @@ export class TemporalDisaggregation {
 
       const projectName = new TitleCasePipe().transform(project.name) || project.name;
 
-      this.mainLayoutService.setBreadcrumbs([
-        { label: 'Nova Análise', url: '/app/interactive-map' },
-        { label: projectName, url: `/app/project/${project.id}` },
-        { label: 'Resolução Temporal', url: `/app/analysis/${project.id}/temporal-disaggregation` },
-      ]);
+      this.mainLayoutService.setBreadcrumbs(
+        buildAnalysisBreadcrumbs(project, 'Resolução Temporal', `/app/analysis/${project.id}/temporal-disaggregation`),
+      );
     });
 
     // 2. Carregamento do projeto e dados iniciais

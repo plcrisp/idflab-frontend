@@ -1,4 +1,5 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
+import { buildAnalysisBreadcrumbs } from '../../../../core/utils/project-step.utils';
 import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { switchMap } from 'rxjs';
@@ -47,11 +48,9 @@ export class ConsistencyCheck {
 
       const projectName = new TitleCasePipe().transform(project.name) || project.name;
 
-      this.mainLayoutService.setBreadcrumbs([
-        { label: 'Nova Análise', url: '/app/interactive-map' },
-        { label: projectName, url: `/app/project/${project.id}` },
-        { label: 'Verificação de Consistência', url: `/app/analysis/${project.id}/consistency-check` },
-      ]);
+      this.mainLayoutService.setBreadcrumbs(
+        buildAnalysisBreadcrumbs(project, 'Verificação de Consistência', `/app/analysis/${project.id}/consistency-check`),
+      );
     });
 
     let prevStatus = this.state.confirmationStatus();

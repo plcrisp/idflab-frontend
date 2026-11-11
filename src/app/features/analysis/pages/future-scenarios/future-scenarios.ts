@@ -25,6 +25,7 @@ import {
   trackWithSkeleton,
 } from '../../../../core/utils/skeleton-loading-coordinator';
 import { isSubDailyResolution } from '../../../../core/utils/resolution.utils';
+import { buildAnalysisBreadcrumbs } from '../../../../core/utils/project-step.utils';
 import { GlobalStats } from '../../shared/models/analysis.models';
 import {
   BiasCorrectionMethod,
@@ -266,18 +267,22 @@ export class FutureScenarios implements OnInit, OnDestroy {
     return 'Configuração alterada. Clique em "Aplicar correção" para recalcular os cenários futuros com os novos parâmetros.';
   });
 
+  readonly advanceButtonLabel = computed<string>(() => {
+    return this.project()?.furthest_step === 'RESULTS' ? 'Ver resultados' : 'Concluir análise';
+  });
+
+  readonly advanceButtonIcon = computed<string>(() => {
+    return this.project()?.furthest_step === 'RESULTS' ? 'lucideArrowRight' : 'lucideCheck';
+  });
+
   constructor() {
     effect(() => {
       const project = this.project();
       if (!project) return;
 
-      const projectName = new TitleCasePipe().transform(project.name) || project.name;
-
-      this.mainLayoutService.setBreadcrumbs([
-        { label: 'Nova Análise', url: '/app/interactive-map' },
-        { label: projectName, url: `/app/project/${project.id}` },
-        { label: 'Cenários Futuros', url: `/app/analysis/${project.id}/cenarios-futuros` },
-      ]);
+      this.mainLayoutService.setBreadcrumbs(
+        buildAnalysisBreadcrumbs(project, 'Cenários Futuros', `/app/analysis/${project.id}/cenarios-futuros`),
+      );
 
       if (this.lastLoadedProjectId !== project.id) {
         this.lastLoadedProjectId = project.id;

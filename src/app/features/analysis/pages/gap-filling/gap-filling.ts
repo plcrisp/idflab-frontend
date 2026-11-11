@@ -1,4 +1,5 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
+import { buildAnalysisBreadcrumbs } from '../../../../core/utils/project-step.utils';
 import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { switchMap } from 'rxjs';
@@ -132,11 +133,9 @@ export class GapFilling {
 
       const projectName = new TitleCasePipe().transform(project.name) || project.name;
 
-      this.mainLayoutService.setBreadcrumbs([
-        { label: 'Nova Análise', url: '/app/interactive-map' },
-        { label: projectName, url: `/app/project/${project.id}` },
-        { label: 'Tratamento de falhas', url: `/app/analysis/${project.id}/gap-filling` },
-      ]);
+      this.mainLayoutService.setBreadcrumbs(
+        buildAnalysisBreadcrumbs(project, 'Tratamento de falhas', `/app/analysis/${project.id}/gap-filling`),
+      );
     });
 
     let prevStatus = this.state.confirmationStatus();

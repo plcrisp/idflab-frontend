@@ -1,4 +1,5 @@
 import { Component, effect, inject, signal } from '@angular/core';
+import { buildAnalysisBreadcrumbs } from '../../../../core/utils/project-step.utils';
 import { Router } from '@angular/router';
 import { toast } from '@spartan-ng/brain/sonner';
 
@@ -28,11 +29,9 @@ export class InitialVisualization {
       const project = this.state.project();
       if (!project) return;
 
-      this.mainLayoutService.setBreadcrumbs([
-        { label: 'Nova Análise', url: '/app/interactive-map' },
-        { label: project.name, url: `app/project/${project.id}` },
-        { label: 'Visualização Inicial', url: `/app/analysis/${project.id}/initial-view` },
-      ]);
+      this.mainLayoutService.setBreadcrumbs(
+        buildAnalysisBreadcrumbs(project, 'Visualização Inicial', `/app/analysis/${project.id}/initial-view`),
+      );
     });
   }
 

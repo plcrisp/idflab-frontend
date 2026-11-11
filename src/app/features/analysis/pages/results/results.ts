@@ -29,6 +29,7 @@ import { GlobalStats } from '../../shared/models/analysis.models';
 import { ResultsResponse } from './models/results.model';
 import { getDistributionColor } from '../distribution/constants/statistical-distribution.constants';
 import { getDistributionFormalName } from '../historical-idf/constants/historical-idf.constants';
+import { buildAnalysisBreadcrumbs } from '../../../../core/utils/project-step.utils';
 
 @Component({
   selector: 'app-results',
@@ -94,13 +95,9 @@ export class Results implements OnInit, OnDestroy {
       const project = this.project();
       if (!project) return;
 
-      const projectName = new TitleCasePipe().transform(project.name) || project.name;
-
-      this.mainLayoutService.setBreadcrumbs([
-        { label: 'Nova Análise', url: '/app/interactive-map' },
-        { label: projectName, url: `/app/project/${project.id}` },
-        { label: 'Resultados', url: `/app/analysis/${project.id}/resultados` },
-      ]);
+      this.mainLayoutService.setBreadcrumbs(
+        buildAnalysisBreadcrumbs(project, 'Resultados', `/app/analysis/${project.id}/resultados`),
+      );
 
       if (this.lastLoadedProjectId !== project.id) {
         this.lastLoadedProjectId = project.id;

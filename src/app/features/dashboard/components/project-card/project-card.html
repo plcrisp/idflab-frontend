@@ -88,25 +88,39 @@
             <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
           </span>
         }
-        <span class="text-[13px] font-medium text-foreground truncate">
-          {{ stepInfo().label }}
-        </span>
+        @if (isCompleted()) {
+          <span class="text-[13px] font-medium text-foreground truncate">
+            Análise concluída
+          </span>
+        } @else {
+          <span class="text-[13px] font-medium text-foreground truncate">
+            {{ stepInfo().label }}
+          </span>
+        }
       </div>
 
-      <span class="text-xs text-muted-foreground shrink-0 tabular-nums ml-2">
-        {{ stepInfo().number }} de {{ stepInfo().total }}
+      <span class="text-xs text-muted-foreground shrink-0 tabular-nums ml-2 font-medium">
+        @if (isCompleted()) {
+          100%
+        } @else {
+          {{ stepInfo().number }} de {{ stepInfo().total }}
+        }
       </span>
     </div>
 
-    <!-- Barra de progresso segmentada em 9 partes -->
-    <div class="grid grid-cols-9 gap-1 w-full">
-      @for (segment of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track segment) {
-        <div
-          class="h-1 rounded-full transition-colors duration-200"
-          [ngClass]="segment <= stepInfo().number ? 'bg-primary' : 'bg-muted'"
-        ></div>
-      }
-    </div>
+    <!-- Barra de progresso: sólida contínua quando concluído, segmentada quando em andamento -->
+    @if (isCompleted()) {
+      <div class="h-1 rounded-full bg-primary w-full"></div>
+    } @else {
+      <div class="grid grid-cols-9 gap-1 w-full">
+        @for (segment of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track segment) {
+          <div
+            class="h-1 rounded-full transition-colors duration-200"
+            [ngClass]="segment <= stepInfo().number ? 'bg-primary' : 'bg-muted'"
+          ></div>
+        }
+      </div>
+    }
   </div>
 
   <!-- 4. Rodapé (sem divisor acima) -->
@@ -122,7 +136,11 @@
       size="sm"
       class="hover:text-primary gap-1 text-xs font-medium shrink-0 cursor-pointer"
     >
-      <span>Continuar</span>
+      @if (isCompleted()) {
+        <span>Ver resultados</span>
+      } @else {
+        <span>Continuar</span>
+      }
       <ng-icon name="lucideArrowRight" class="text-xs text-primary" />
     </button>
   </footer>

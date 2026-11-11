@@ -16,6 +16,10 @@ export class ProjectCard {
   rename = output<Project>();
   delete = output<Project>();
 
+  readonly isCompleted = computed(() => {
+    return this.project().furthest_step === 'RESULTS';
+  });
+
   readonly stepInfo = computed(() => {
     return getProjectPipelineStepInfo(this.project().furthest_step);
   });
