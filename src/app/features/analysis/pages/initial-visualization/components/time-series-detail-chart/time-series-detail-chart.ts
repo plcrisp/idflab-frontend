@@ -23,6 +23,7 @@ import {
   buildTooltipBase,
   calcYAxisMax,
   CHART_LEGEND_LABELS,
+  getAdaptiveStep,
   hexToRgba,
 } from '../../utils/chart-options.utils';
 import { EchartsService } from '../../../../../../core/services/utils/echarts.service';
@@ -66,6 +67,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
   seriesName = input('Precipitação diária');
   historicalMaxDate = input<string | null>(null);
   historicalMaxValue = input<number | null>(null);
+  yAxisInterval = input<number | 'auto' | null>(null);
 
   @ViewChild('chartContainer', { static: true })
   private chartContainer!: ElementRef<HTMLDivElement>;
@@ -74,6 +76,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
     detail: DetailResponse | null;
     historicalMaxDate: string | null;
     historicalMaxValue: number | null;
+    yAxisInterval: number | 'auto' | null;
   }>;
 
   private currentMaxPeriodoDate: string | null = null;
@@ -82,6 +85,7 @@ export class TimeSeriesDetailChart implements OnDestroy {
     detail: this.data(),
     historicalMaxDate: this.historicalMaxDate(),
     historicalMaxValue: this.historicalMaxValue(),
+    yAxisInterval: this.yAxisInterval(),
   }));
 
   constructor() {
@@ -362,6 +366,13 @@ export class TimeSeriesDetailChart implements OnDestroy {
     const hasHistoricalMax = histMax !== null && histMax !== undefined;
     const legendNameMax = hasHistoricalMax ? CHART_LEGEND_LABELS.maxObservado : null;
 
+    const targetMax = Math.max(maxPeriodoValue > 0 ? maxPeriodoValue : 0, histMax ?? 0);
+    const explicitInterval = this.yAxisInterval();
+    const step =
+      typeof explicitInterval === 'number'
+        ? explicitInterval
+        : getAdaptiveStep(targetMax);
+
     const series = this.buildSeries(
       data,
       maxPeriodoDate,
@@ -450,14 +461,21 @@ export class TimeSeriesDetailChart implements OnDestroy {
       },
       yAxis: {
         type: 'value',
-        interval: 50,
-        max: (extent: { min: number; max: number }) => calcYAxisMax(extent.max, histMax, 50),
+        interval: step,
+        max: (extent: { min: number; max: number }) => calcYAxisMax(extent.max, histMax, step),
         axisLine: { show: false },
         axisTick: { show: false },
         splitLine: buildSplitLineStyle(t),
         axisLabel: {
           ...buildAxisLabelBase(t),
-          formatter: `{value} ${this.unit()}`,
+          hideOverlap: true,
+          formatter: (value: number) => {
+            const valStr =
+              step < 1
+                ? value.toFixed(1).replace('.', ',')
+                : Math.round(value).toLocaleString('pt-BR');
+            return `${valStr} ${this.unit()}`;
+          },
         },
       },
       dataZoom: [

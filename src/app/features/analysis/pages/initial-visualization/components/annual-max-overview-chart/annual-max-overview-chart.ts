@@ -26,6 +26,7 @@ import {
   buildTooltipBase,
   calcYAxisMax,
   CHART_LEGEND_LABELS,
+  getAdaptiveStep,
 } from '../../utils/chart-options.utils';
 import { EchartsService } from '../../../../../../core/services/utils/echarts.service';
 
@@ -71,6 +72,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
     seriesName: string;
     referenceLineLabel: string | null;
     showMaxPoint: boolean;
+    yAxisInterval: number | 'auto' | null;
   }>;
 
   private readonly chartInput = computed(() => ({
@@ -81,6 +83,7 @@ export class AnnualMaxOverviewChart implements OnDestroy {
     seriesName: this.seriesName(),
     referenceLineLabel: this.referenceLineLabel(),
     showMaxPoint: this.showMaxPoint(),
+    yAxisInterval: this.yAxisInterval(),
   }));
 
   constructor() {
@@ -116,16 +119,6 @@ export class AnnualMaxOverviewChart implements OnDestroy {
       if (bestVal === null || val > bestVal) return item;
       return best;
     }, null);
-  }
-
-  private getAdaptiveStep(targetMax: number): number {
-    if (targetMax <= 2) return 0.5;
-    if (targetMax <= 6) return 1;
-    if (targetMax <= 14) return 2;
-    if (targetMax <= 30) return 5;
-    if (targetMax <= 60) return 10;
-    if (targetMax <= 120) return 20;
-    return 50;
   }
 
   private buildOption(
@@ -178,15 +171,12 @@ export class AnnualMaxOverviewChart implements OnDestroy {
     const globalMax = this.findGlobalMax(data);
     const globalVal = globalMax ? (globalMax.value ?? globalMax.max_value ?? null) : null;
     const histMax = historicalMaxValue ?? globalVal ?? null;
-
-    let step = 50;
+    const targetMax = Math.max(histMax ?? 0, globalVal ?? 0);
     const explicitInterval = this.yAxisInterval();
-    if (typeof explicitInterval === 'number') {
-      step = explicitInterval;
-    } else if (explicitInterval === 'auto' || this.unit() !== 'mm') {
-      const targetMax = Math.max(histMax ?? 0, globalVal ?? 0);
-      step = this.getAdaptiveStep(targetMax);
-    }
+    const step =
+      typeof explicitInterval === 'number'
+        ? explicitInterval
+        : getAdaptiveStep(targetMax);
     const annualMaxData = globalMax && globalVal !== null
       ? [
           {

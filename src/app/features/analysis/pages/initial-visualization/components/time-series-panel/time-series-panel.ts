@@ -62,14 +62,17 @@ export class TimeSeriesPanel {
 
   readonly historicalMaxValue = computed<number | null>(() => {
     const direct = this.max_value();
-    if (direct !== null && direct !== undefined) return direct;
     const summary = this.yearly_summary();
-    if (!summary || !summary.length) return null;
-    return summary.reduce<number | null>((best, item) => {
+    const summaryMax = (summary ?? []).reduce<number | null>((best, item) => {
       if (item.max_value === null) return best;
       if (best === null || item.max_value > best) return item.max_value;
       return best;
     }, null);
+
+    if (direct != null && summaryMax != null) {
+      return Math.max(direct, summaryMax);
+    }
+    return direct ?? summaryMax ?? null;
   });
 
   onYearClick(year: number): void {

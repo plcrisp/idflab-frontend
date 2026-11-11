@@ -13,17 +13,23 @@ export class InitialVisualizationService {
 
   constructor(private http: HttpClient) {}
 
-  getSummary(projectId: string): Observable<SummaryResponse> {
-    const params = new HttpParams().set('project_id', projectId);
+  getSummary(projectId: string, raw: boolean = false): Observable<SummaryResponse> {
+    let params = new HttpParams().set('project_id', projectId);
+    if (raw) {
+      params = params.set('raw', 'true');
+    }
 
     return this.http.get<SummaryResponse>(`${this.baseUrl}/summary`, { params });
   }
 
-  getDetail(projectId: string, start: string, end: string): Observable<DetailResponse> {
-    const params = new HttpParams()
+  getDetail(projectId: string, start: string, end: string, raw: boolean = false): Observable<DetailResponse> {
+    let params = new HttpParams()
       .set('project_id', projectId)
       .set('start', start)
       .set('end', end);
+    if (raw) {
+      params = params.set('raw', 'true');
+    }
 
     return this.http
       .get<DetailResponse>(`${this.baseUrl}/detail`, { params })

@@ -260,6 +260,17 @@ export function buildHistoricalMaxMarkLine(
   };
 }
 
+export function getAdaptiveStep(targetMax: number): number {
+  if (targetMax <= 2) return 0.5;
+  if (targetMax <= 6) return 1;
+  if (targetMax <= 14) return 2;
+  if (targetMax <= 30) return 5;
+  if (targetMax <= 60) return 10;
+  if (targetMax <= 120) return 20;
+  if (targetMax <= 300) return 50;
+  return 100;
+}
+
 export function calcYAxisMax(
   extentMax: number,
   historicalMax: number | null | undefined,

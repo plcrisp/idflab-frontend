@@ -93,7 +93,7 @@ export class InitialVisualizationStateService {
       this.initialSkeleton.start();
     }),
     switchMap(([project]) =>
-      this.initialVisualizationService.getSummary(project.id).pipe(
+      this.initialVisualizationService.getSummary(project.id, true).pipe(
         map((summary) => ({ projectId: project.id, summary, error: false })),
         catchError((err) => {
           console.error('[InitialVisualizationState] erro ao buscar summary:', err);
@@ -183,7 +183,7 @@ export class InitialVisualizationStateService {
 
         const isInitial = !this.hasInitialLoaded();
 
-        const req$ = this.initialVisualizationService.getDetail(project.id, start, end).pipe(
+        const req$ = this.initialVisualizationService.getDetail(project.id, start, end, true).pipe(
           map((detail) => ({ projectId: project.id, detail })),
           tap(() => {
             if (isInitial) {
