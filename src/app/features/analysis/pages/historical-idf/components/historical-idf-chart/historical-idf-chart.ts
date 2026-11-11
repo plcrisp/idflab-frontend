@@ -37,6 +37,9 @@ export class HistoricalIdfChart implements OnDestroy {
   readonly futureDenseGrid = input<DenseGrid | null>(null);
   readonly scale = input<'log' | 'linear'>('linear');
   readonly loading = input<boolean>(false);
+  readonly selectedTrs = input<number[] | null>(null);
+  readonly containerHeightClass = input<string>('h-96 sm:h-105');
+  readonly showSolidDashedHeader = input<boolean>(true);
 
   @ViewChild('chartContainer', { static: true })
   private chartContainer!: ElementRef<HTMLDivElement>;
@@ -45,6 +48,7 @@ export class HistoricalIdfChart implements OnDestroy {
     data: HistoricalIdfResponse;
     futureDenseGrid: DenseGrid | null;
     scale: 'log' | 'linear';
+    selectedTrs: number[] | null;
   }>;
 
   private readonly chartData = computed(() => {
@@ -54,6 +58,7 @@ export class HistoricalIdfChart implements OnDestroy {
       data: d,
       futureDenseGrid: this.futureDenseGrid(),
       scale: this.scale(),
+      selectedTrs: this.selectedTrs(),
     };
   });
 
@@ -78,9 +83,10 @@ export class HistoricalIdfChart implements OnDestroy {
     data: HistoricalIdfResponse;
     futureDenseGrid: DenseGrid | null;
     scale: 'log' | 'linear';
+    selectedTrs: number[] | null;
   }): EChartsOption {
     const tokens = this.echarts.getTokens();
-    const { data, futureDenseGrid, scale } = payload;
+    const { data, futureDenseGrid, scale, selectedTrs } = payload;
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
     const isLog = scale === 'log';
     const hasFuture = !!futureDenseGrid;
@@ -101,7 +107,11 @@ export class HistoricalIdfChart implements OnDestroy {
       itemStyle?: { color: string; borderColor?: string; borderWidth?: number };
     }[] = [];
 
-    for (const tr of data.return_periods) {
+    const activeReturnPeriods = selectedTrs?.length
+      ? data.return_periods.filter((tr) => selectedTrs.includes(tr))
+      : data.return_periods;
+
+    for (const tr of activeReturnPeriods) {
       const seriesName = `TR ${tr} anos`;
       const color = getHistoricalIdfTrColor(tr, isLight);
 
@@ -225,16 +235,18 @@ export class HistoricalIdfChart implements OnDestroy {
       });
     }
 
+    const showLegend = !selectedTrs?.length;
+
     return {
       grid: {
-        left: 32,
-        right: 24,
-        top: 48,
+        left: 36,
+        right: 20,
+        top: showLegend ? 50 : 38,
         bottom: 36,
         containLabel: true,
       },
       legend: {
-        show: true,
+        show: showLegend,
         top: 4,
         right: 12,
         itemGap: 14,
@@ -457,14 +469,14 @@ export class HistoricalIdfChart implements OnDestroy {
             type: 'log',
             name: 'Intensidade (mm/h)',
             nameLocation: 'end',
-            nameGap: 14,
+            nameGap: 16,
             nameTextStyle: {
               color: tokens.textMuted,
               fontFamily: tokens.fontFamily,
               fontSize: 11,
               fontWeight: 500,
               align: 'left',
-              padding: [0, 0, 6, -20],
+              padding: [0, 0, 8, 0],
             },
             axisLine: buildAxisLineStyle(tokens),
             axisLabel: {
@@ -478,14 +490,14 @@ export class HistoricalIdfChart implements OnDestroy {
             min: 0,
             name: 'Intensidade (mm/h)',
             nameLocation: 'end',
-            nameGap: 14,
+            nameGap: 16,
             nameTextStyle: {
               color: tokens.textMuted,
               fontFamily: tokens.fontFamily,
               fontSize: 11,
               fontWeight: 500,
               align: 'left',
-              padding: [0, 0, 6, -20],
+              padding: [0, 0, 8, 0],
             },
             axisLine: buildAxisLineStyle(tokens),
             axisLabel: {

@@ -8,16 +8,19 @@ import {
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
+  lucideCheck,
   lucidePercent,
   lucideTable,
   lucideTrendingDown,
 } from '@ng-icons/lucide';
 import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
+import { toast } from '@spartan-ng/brain/sonner';
 
 import { ResultsResponse } from '../../models/results.model';
 import { HistoricalIdfResponse } from '../../../historical-idf/models/historical-idf.model';
 import { HistoricalIdfChart } from '../../../historical-idf/components/historical-idf-chart/historical-idf-chart';
 import { HistoricalIdfIntensityTable } from '../../../historical-idf/components/historical-idf-intensity-table/historical-idf-intensity-table';
+import { getHistoricalIdfTrColor } from '../../../historical-idf/constants/historical-idf.constants';
 
 @Component({
   selector: 'app-results-curves-card',
@@ -34,6 +37,7 @@ import { HistoricalIdfIntensityTable } from '../../../historical-idf/components/
       lucideTrendingDown,
       lucideTable,
       lucidePercent,
+      lucideCheck,
     }),
   ],
   templateUrl: './results-curves-card.html',
@@ -47,6 +51,29 @@ export class ResultsCurvesCard {
 
   readonly activeView = signal<'curves' | 'intensity' | 'variation'>('curves');
   readonly chartScale = signal<'log' | 'linear'>('linear');
+  readonly selectedTrs = signal<number[]>([2, 25, 100]);
+
+  isSelected(tr: number): boolean {
+    return this.selectedTrs().includes(tr);
+  }
+
+  toggleTr(tr: number): void {
+    const current = this.selectedTrs();
+    if (current.includes(tr)) {
+      if (current.length === 1) {
+        toast.info('Selecione ao menos um tempo de retorno para visualização.');
+        return;
+      }
+      this.selectedTrs.set(current.filter((t) => t !== tr));
+    } else {
+      this.selectedTrs.set([...current, tr].sort((a, b) => a - b));
+    }
+  }
+
+  getTrColor(tr: number): string {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    return getHistoricalIdfTrColor(tr, isLight);
+  }
 
   readonly historicalChartData = computed<HistoricalIdfResponse | null>(() => {
     const d = this.resultsData();

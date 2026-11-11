@@ -3,22 +3,12 @@
     id="idf-curves-card"
     class="w-full min-w-0 flex flex-col rounded-xl shadow-xs border border-border bg-popover text-foreground overflow-hidden"
   >
-    <!-- Cabeçalho do Card -->
+    <!-- Cabeçalho do Card (limpo, sem repetição da configuração) -->
     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
       <div class="flex items-center gap-2 min-w-0 text-sm font-normal text-muted-foreground">
         <h3 class="font-semibold uppercase tracking-wide text-foreground shrink-0">
           Curvas IDF
         </h3>
-
-        @if (data.config_subtitle) {
-          <span class="select-none shrink-0">·</span>
-          <span
-            [hlmTooltip]="data.config_subtitle"
-            class="truncate max-w-xs sm:max-w-md lg:max-w-xl cursor-default"
-          >
-            {{ data.config_subtitle }}
-          </span>
-        }
       </div>
 
       <!-- Controles alinhados à direita -->
@@ -108,17 +98,78 @@
     <div class="p-4 sm:p-5 flex flex-col gap-3">
       @switch (activeView()) {
         @case ('curves') {
-          <app-historical-idf-chart
-            [data]="historicalChartData()"
-            [futureDenseGrid]="data.future_dense_grid"
-            [scale]="chartScale()"
-            [loading]="loading()"
-          />
+          <div class="flex flex-col lg:flex-row items-stretch gap-4 w-full">
+            <!-- Gráfico Preenchendo todo o espaço restante -->
+            <div class="flex-1 min-w-0 w-full">
+              <app-historical-idf-chart
+                class="w-full h-full block"
+                [data]="historicalChartData()"
+                [futureDenseGrid]="data.future_dense_grid"
+                [scale]="chartScale()"
+                [loading]="loading()"
+                [selectedTrs]="selectedTrs()"
+                [containerHeightClass]="'w-full h-96 sm:h-105'"
+                [showSolidDashedHeader]="false"
+              />
+            </div>
+
+            <!-- Painel Lateral de Seleção de TRs na direita -->
+            <div class="w-full lg:w-52 shrink-0 flex flex-col gap-3 p-3.5 rounded-xl border border-border/80 bg-secondary/20">
+              <div class="border-b border-border/60 pb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Tempos de Retorno
+                </span>
+              </div>
+
+              <!-- Lista de TRs -->
+              <div class="flex flex-row lg:flex-col flex-wrap gap-1.5">
+                @for (tr of data.return_periods; track tr) {
+                  <button
+                    type="button"
+                    (click)="toggleTr(tr)"
+                    class="group flex-1 sm:flex-initial flex items-center justify-between px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all cursor-pointer"
+                    [class.border-border]="isSelected(tr)"
+                    [class.bg-card]="isSelected(tr)"
+                    [class.text-foreground]="isSelected(tr)"
+                    [class.shadow-xs]="isSelected(tr)"
+                    [class.border-transparent]="!isSelected(tr)"
+                    [class.text-muted-foreground]="!isSelected(tr)"
+                    [class.hover:bg-secondary/50]="!isSelected(tr)"
+                  >
+                    <div class="flex items-center gap-2">
+                      <span
+                        class="w-2.5 h-2.5 rounded-full shrink-0 transition-opacity"
+                        [style.background-color]="getTrColor(tr)"
+                        [class.opacity-40]="!isSelected(tr)"
+                      ></span>
+                      <span>TR {{ tr }} anos</span>
+                    </div>
+                    @if (isSelected(tr)) {
+                      <ng-icon name="lucideCheck" class="text-xs text-primary" />
+                    }
+                  </button>
+                }
+              </div>
+
+              <!-- Legenda de traço -->
+              <div class="mt-auto pt-2.5 border-t border-border/60 flex flex-col gap-1.5 text-[11px] text-muted-foreground">
+                <div class="flex items-center gap-2">
+                  <span class="w-4 h-0.5 bg-foreground/80 rounded-full shrink-0"></span>
+                  <span>Sólida = histórica</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-4 border-t-2 border-dashed border-foreground/80 shrink-0"></span>
+                  <span>Tracejada = futura</span>
+                </div>
+              </div>
+            </div>
+          </div>
         }
         @case ('intensity') {
           @if (futureTableData(); as futTable) {
             <app-historical-idf-intensity-table
               [data]="futTable"
+              [historicalData]="data.historical_idf"
               [mode]="'intensity'"
               [variationPct]="data.variation_pct"
               [historicalEquationMmH]="data.historical_idf.equation_mm_h"
@@ -129,6 +180,7 @@
           @if (futureTableData(); as futTable) {
             <app-historical-idf-intensity-table
               [data]="futTable"
+              [historicalData]="data.historical_idf"
               [mode]="'variation'"
               [variationPct]="data.variation_pct"
               [historicalEquationMmH]="data.historical_idf.equation_mm_h"

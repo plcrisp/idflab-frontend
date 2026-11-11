@@ -36,14 +36,15 @@
           @let errVal = data().relative_error[tr][durIdx];
           @let qVal = data().quantiles_mm_h[tr][durIdx];
           @let varVal = variationPct()?.[tr]?.[durIdx] ?? null;
-          @let histEqVal = historicalEquationMmH()?.[tr]?.[durIdx] ?? null;
-          @let isMaxErr = mode() === 'error' && tr === data().max_error.return_period && dur.duration_minutes ===
-          data().max_error.duration_minutes;
+          @let histEqVal = historicalData()?.equation_mm_h?.[tr]?.[durIdx] ?? historicalEquationMmH()?.[tr]?.[durIdx] ?? null;
+          @let histQVal = historicalData()?.quantiles_mm_h?.[tr]?.[durIdx] ?? null;
+          @let histErrVal = historicalData()?.relative_error?.[tr]?.[durIdx] ?? null;
+          @let isMaxErr = mode() === 'error' && tr === data().max_error.return_period && dur.duration_minutes === data().max_error.duration_minutes;
           <td
             class="py-2.5 px-2.5 text-right tabular-nums text-foreground border-b border-border/60 font-medium transition-colors select-none"
             [class.ring-1]="isMaxErr" [class.ring-inset]="isMaxErr" [class.ring-primary]="isMaxErr"
             [class.border]="isMaxErr" [class.border-primary]="isMaxErr" [class.font-bold]="isMaxErr"
-            [style]="mode() === 'error' ? getCellBgStyle(errVal) : ''" [hlmTooltip]="cellTooltip" position="top">
+            [style]="mode() === 'error' ? getCellBgStyle(errVal) : mode() === 'variation' ? getCellBgStyle(varVal) : ''" [hlmTooltip]="cellTooltip" position="top">
             @if (mode() === 'intensity') {
             {{ eqVal | number:'1.1-1':'pt-BR' }}
             } @else if (mode() === 'quantiles') {
@@ -55,43 +56,82 @@
             }
 
             <ng-template #cellTooltip>
+              @if (historicalData() && variationPct()) {
+              <div class="flex flex-col gap-2 w-64 p-1 select-none font-sans font-normal leading-normal text-xs">
+                <div class="font-semibold text-xs text-foreground border-b border-border/60 pb-1">
+                  TR {{ tr }} · {{ dur.label }}
+                </div>
+                <table class="w-full text-[11px] border-collapse font-normal">
+                  <thead>
+                    <tr class="text-muted-foreground border-b border-border/40 font-normal">
+                      <th class="text-left font-normal pb-1 text-muted-foreground">Métrica</th>
+                      <th class="text-right font-normal pb-1 text-muted-foreground">Hist.</th>
+                      <th class="text-right font-normal pb-1 text-muted-foreground">Fut.</th>
+                      <th class="text-right font-normal pb-1 text-muted-foreground">Δ</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-border/30 tabular-nums font-normal">
+                    <tr class="font-normal">
+                      <td class="py-1 text-muted-foreground font-normal">Equação</td>
+                      <td class="py-1 text-right text-foreground font-normal">{{ histEqVal | number:'1.1-1':'pt-BR' }}</td>
+                      <td class="py-1 text-right text-foreground font-normal">{{ eqVal | number:'1.1-1':'pt-BR' }}</td>
+                      <td class="py-1 text-right text-foreground font-normal">{{ formatVariationPercentage(varVal) }}</td>
+                    </tr>
+                    <tr class="font-normal">
+                      <td class="py-1 text-muted-foreground font-normal">Quantil</td>
+                      <td class="py-1 text-right text-foreground font-normal">{{ histQVal != null ? (histQVal | number:'1.1-1':'pt-BR') : '—' }}</td>
+                      <td class="py-1 text-right text-foreground font-normal">{{ qVal | number:'1.1-1':'pt-BR' }}</td>
+                      <td class="py-1 text-right text-foreground font-normal">{{ formatQuantileDelta(histQVal, qVal) }}</td>
+                    </tr>
+                    <tr class="font-normal">
+                      <td class="py-1 text-muted-foreground font-normal">Erro rel.</td>
+                      <td class="py-1 text-right text-foreground font-normal">{{ formatSignedPercentage(histErrVal) }}</td>
+                      <td class="py-1 text-right text-foreground font-normal">{{ formatSignedPercentage(errVal) }}</td>
+                      <td class="py-1 text-right text-muted-foreground font-normal">—</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="text-[10px] text-muted-foreground border-t border-border/40 pt-1">
+                  Intensidades em mm/h.
+                </div>
+              </div>
+              } @else if (historicalEquationMmH() && variationPct()) {
               <div class="flex flex-col gap-1.5 w-52 p-1 select-none font-sans font-normal leading-normal text-xs">
                 <div class="font-semibold text-xs text-foreground border-b border-border/60 pb-1">
                   TR {{ tr }} · {{ dur.label }}
                 </div>
-                @if (historicalEquationMmH() && variationPct()) {
                 <div class="flex items-center justify-between gap-2 text-muted-foreground">
                   <span>IDF Histórica:</span>
-                  <strong class="font-semibold text-foreground tabular-nums">{{ histEqVal | number:'1.1-1':'pt-BR' }}
-                    mm/h</strong>
+                  <strong class="font-semibold text-foreground tabular-nums">{{ histEqVal | number:'1.1-1':'pt-BR' }} mm/h</strong>
                 </div>
                 <div class="flex items-center justify-between gap-2 text-muted-foreground">
                   <span>IDF Futura:</span>
-                  <strong class="font-semibold text-foreground tabular-nums">{{ eqVal | number:'1.1-1':'pt-BR' }}
-                    mm/h</strong>
+                  <strong class="font-semibold text-foreground tabular-nums">{{ eqVal | number:'1.1-1':'pt-BR' }} mm/h</strong>
                 </div>
                 <div class="flex items-center justify-between gap-2 text-muted-foreground">
                   <span>Variação:</span>
                   <strong class="font-semibold text-foreground tabular-nums">{{ formatVariationPercentage(varVal) }}</strong>
                 </div>
-                } @else {
+              </div>
+              } @else {
+              <div class="flex flex-col gap-1.5 w-52 p-1 select-none font-sans font-normal leading-normal text-xs">
+                <div class="font-semibold text-xs text-foreground border-b border-border/60 pb-1">
+                  TR {{ tr }} · {{ dur.label }}
+                </div>
                 <div class="flex items-center justify-between gap-2 text-muted-foreground">
                   <span>Equação:</span>
-                  <strong class="font-semibold text-foreground tabular-nums">{{ eqVal | number:'1.1-1':'pt-BR' }}
-                    mm/h</strong>
+                  <strong class="font-semibold text-foreground tabular-nums">{{ eqVal | number:'1.1-1':'pt-BR' }} mm/h</strong>
                 </div>
                 <div class="flex items-center justify-between gap-2 text-muted-foreground">
                   <span>Quantil:</span>
-                  <strong class="font-semibold text-foreground tabular-nums">{{ qVal | number:'1.1-1':'pt-BR' }}
-                    mm/h</strong>
+                  <strong class="font-semibold text-foreground tabular-nums">{{ qVal | number:'1.1-1':'pt-BR' }} mm/h</strong>
                 </div>
                 <div class="flex items-center justify-between gap-2 text-muted-foreground">
                   <span>Erro relativo:</span>
-                  <strong class="font-semibold text-foreground tabular-nums">{{ formatSignedPercentage(errVal)
-                    }}</strong>
+                  <strong class="font-semibold text-foreground tabular-nums">{{ formatSignedPercentage(errVal) }}</strong>
                 </div>
-                }
               </div>
+              }
             </ng-template>
           </td>
           }
@@ -108,10 +148,32 @@
   </div>
   }
 
-  <!-- Rodapé Visão Variação (%): nota abaixo conforme spec -->
+  <!-- Rodapé Visão Variação (%): significado da célula à esquerda e legenda de classes por magnitude à direita -->
   @if (mode() === 'variation') {
-  <div class="flex items-center text-xs text-muted-foreground pt-1">
-    <span>Variação da intensidade em relação à IDF histórica.</span>
+  <div class="flex flex-wrap items-center justify-between gap-3 pt-1 text-xs text-muted-foreground">
+    <span>Variação da intensidade: (i_futura − i_histórica) / i_histórica × 100, em %.</span>
+    <div class="flex items-center gap-3 ml-auto">
+      <div class="flex items-center gap-1.5">
+        <span class="h-3 w-5 rounded-xs inline-block"
+          style="background-color: color-mix(in srgb, var(--primary) 8%, var(--card)); border: 1px solid var(--border);"></span>
+        <span class="text-[11px] tabular-nums">até {{ heatmapCutoffs().c1 }}%</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="h-3 w-5 rounded-xs inline-block"
+          style="background-color: color-mix(in srgb, var(--primary) 18%, var(--card)); border: 1px solid var(--border);"></span>
+        <span class="text-[11px] tabular-nums">{{ heatmapCutoffs().c1 }} - {{ heatmapCutoffs().c2 }}%</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="h-3 w-5 rounded-xs inline-block"
+          style="background-color: color-mix(in srgb, var(--primary) 30%, var(--card)); border: 1px solid var(--border);"></span>
+        <span class="text-[11px] tabular-nums">{{ heatmapCutoffs().c2 }} - {{ heatmapCutoffs().c3 }}%</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="h-3 w-5 rounded-xs inline-block"
+          style="background-color: color-mix(in srgb, var(--primary) 44%, var(--card)); border: 1px solid var(--border);"></span>
+        <span class="text-[11px] tabular-nums">≥ {{ heatmapCutoffs().c3 }}%</span>
+      </div>
+    </div>
   </div>
   }
 
