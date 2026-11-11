@@ -122,7 +122,7 @@ export class NotificationsService {
 
     const action = notification.project_id
       ? {
-          label: 'Abrir análise',
+          label: 'Ver análise →',
           onClick: () => this.router.navigateByUrl(`/app/analysis/${notification.project_id}`),
         }
       : undefined;

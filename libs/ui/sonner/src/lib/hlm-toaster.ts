@@ -98,6 +98,12 @@ export class HlmToaster {
 
       description: 'group-[.toast]:text-muted-foreground group-[.toast]:text-sm',
 
+      actionButton:
+        'group-[.toast]:!bg-white/10 group-[.toast]:hover:!bg-white/20 group-[.toast]:!text-white group-[.toast]:border group-[.toast]:border-white/20 group-[.toast]:rounded-md group-[.toast]:px-2.5 group-[.toast]:h-7 group-[.toast]:text-xs group-[.toast]:font-medium group-[.toast]:transition-all group-[.toast]:cursor-pointer group-[.toast]:shadow-none',
+
+      cancelButton:
+        'group-[.toast]:!bg-transparent group-[.toast]:!text-white/70 group-[.toast]:border group-[.toast]:border-white/15 group-[.toast]:rounded-md group-[.toast]:px-2.5 group-[.toast]:h-7 group-[.toast]:text-xs group-[.toast]:font-medium',
+
       error:
         'group-[.toaster]:bg-destructive/15 group-[.toaster]:text-destructive group-[.toaster]:border-destructive',
 
@@ -118,6 +124,7 @@ export class HlmToaster {
       '--normal-text': '#ffffff',
       '--normal-border': '#1e2a3f',
       '--border-radius': 'var(--radius)',
+      '--width': '460px',
     },
     { alias: 'style' },
   );

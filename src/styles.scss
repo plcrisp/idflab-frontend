@@ -423,3 +423,51 @@ hlm-skeleton {
     color: var(--climbra) !important;
   }
 }
+
+// Sonner Toast: largura mais confortável e botões de ação limpos e integrados
+[data-sonner-toaster] {
+  --width: 460px !important;
+  max-width: min(460px, calc(100vw - 32px)) !important;
+}
+
+[data-sonner-toast] {
+  [data-button] {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    border-radius: 6px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    height: 28px !important;
+    padding: 0 10px !important;
+    white-space: nowrap !important;
+    transition: all 0.15s ease-in-out !important;
+    cursor: pointer !important;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.22) !important;
+      border-color: rgba(255, 255, 255, 0.4) !important;
+      color: #ffffff !important;
+    }
+
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+
+  [data-cancel] {
+    background-color: transparent !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 6px !important;
+    font-size: 12px !important;
+    height: 28px !important;
+    padding: 0 10px !important;
+    transition: all 0.15s ease-in-out !important;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+      color: #ffffff !important;
+    }
+  }
+}
