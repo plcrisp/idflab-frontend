@@ -78,18 +78,37 @@
   }
 
   <!-- Rodapé com Ações -->
-  <div class="flex w-full items-center justify-between gap-3">
+  <div class="flex flex-wrap w-full items-center justify-between gap-3 pt-2">
     <button hlmBtn variant="outline" (click)="onBack()" [disabled]="isAdvanceDisabled() || isAdvancing()">
       <ng-icon name="lucideArrowLeft" class="mr-2" />
       Voltar
     </button>
 
-    <button hlmBtn (click)="onAdvance()" [disabled]="isAdvanceDisabled() || isAdvancing()">
-      @if (isAdvancing()) {
-      <hlm-spinner class="mr-2" />
-      }
-      {{ advanceButtonText() }}
-      <ng-icon name="lucideArrowRight" class="ml-2" />
-    </button>
+    <div class="flex items-center gap-2.5 ml-auto">
+      <button
+        hlmBtn
+        variant="outline"
+        type="button"
+        (click)="onDownloadFilledSeries()"
+        [disabled]="state.isFilling() || state.isLoading() || isDownloadingFilledSeries()"
+        class="cursor-pointer inline-flex items-center"
+      >
+        @if (isDownloadingFilledSeries()) {
+          <hlm-spinner class="mr-2" />
+          <span>Baixando…</span>
+        } @else {
+          <ng-icon name="lucideDownload" class="mr-2 text-xs" />
+          <span>Baixar dados preenchidos</span>
+        }
+      </button>
+
+      <button hlmBtn (click)="onAdvance()" [disabled]="isAdvanceDisabled() || isAdvancing()">
+        @if (isAdvancing()) {
+          <hlm-spinner class="mr-2" />
+        }
+        {{ advanceButtonText() }}
+        <ng-icon name="lucideArrowRight" class="ml-2" />
+      </button>
+    </div>
   </div>
 </div>

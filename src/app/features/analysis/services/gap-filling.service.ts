@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable, of, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { GapFillingPreMetricsResponse } from '../pages/gap-filling/models/gap-filling-pre-metrics.model';
@@ -101,4 +101,17 @@ export class GapFillingService {
   invalidateStationCache(projectId: string, neighborStationId: string): void {
     this.metricsCache.delete(`${projectId}_${neighborStationId}`);
   }
+
+  downloadFilledSeries(
+    projectId: string,
+    delimiter: ';' | ',' = ';',
+  ): Observable<HttpResponse<Blob>> {
+    const params = new HttpParams().set('delimiter', delimiter);
+    return this.http.get<Blob>(`${this.baseUrl}/${projectId}/download`, {
+      params,
+      responseType: 'blob' as 'json',
+      observe: 'response',
+    });
+  }
 }
+

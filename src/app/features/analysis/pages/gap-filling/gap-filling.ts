@@ -2,7 +2,8 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { buildAnalysisBreadcrumbs } from '../../../../core/utils/project-step.utils';
 import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { switchMap } from 'rxjs';
+import { finalize, switchMap } from 'rxjs';
+import { FileDownloadService } from '../../../../core/services/utils/file-download.service';
 
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
 import { ProjectStateService } from '../../services/project-state.service';
@@ -24,10 +25,12 @@ export class GapFilling {
   private mainLayoutService = inject(MainLayoutService);
   private projectState = inject(ProjectStateService);
   private gapFillingService = inject(GapFillingService);
+  private fileDownloadService = inject(FileDownloadService);
   private router = inject(Router);
 
   readonly state = inject(GapFillingStateService);
   readonly isAdvancing = signal<boolean>(false);
+  readonly isDownloadingFilledSeries = signal<boolean>(false);
   readonly yearFilterState = signal<YearFilterState | null>(null);
 
   readonly selectedPath = signal<'fill' | 'filter'>('fill');
@@ -217,6 +220,33 @@ export class GapFilling {
   onYearFilterStateChange(state: YearFilterState): void {
     this.yearFilterState.set(state);
     this.filterThreshold.set(state.threshold);
+  }
+
+  onDownloadFilledSeries(): void {
+    const project = this.state.project();
+    if (!project || this.isDownloadingFilledSeries()) return;
+
+    this.isDownloadingFilledSeries.set(true);
+    this.gapFillingService
+      .downloadFilledSeries(project.id, ';')
+      .pipe(finalize(() => this.isDownloadingFilledSeries.set(false)))
+      .subscribe({
+        next: (response) => {
+          try {
+            this.fileDownloadService.triggerDownload(
+              response,
+              `filled_precipitation_${project.id}.csv`,
+            );
+          } catch (err) {
+            console.error('[GapFilling] Erro ao processar download:', err);
+            toast.error('Não foi possível baixar os dados preenchidos.');
+          }
+        },
+        error: (err) => {
+          console.error('[GapFilling] Erro ao baixar dados preenchidos:', err);
+          toast.error('Erro ao baixar dados preenchidos. Tente novamente.');
+        },
+      });
   }
 
   onAdvance(): void {
