@@ -82,6 +82,11 @@ export class FutureScenariosConfigCard {
   readonly inheritedDistribution = input<string>('—');
   readonly inheritedDisaggregation = input<string>('—');
   readonly referenceWindow = input<string>('1980 - 2013');
+  readonly formattedReferenceWindow = computed<string>(() => {
+    const raw = this.referenceWindow();
+    if (!raw) return '1980 - 2013';
+    return raw.replace(/\s*[–—\-]\s*/g, ' - ');
+  });
   readonly isProcessing = input<boolean>(false);
   readonly isBlocked = input<boolean>(false);
   readonly canApplyBackend = input<boolean>(true);

@@ -22,6 +22,16 @@ import {
   calcYAxisMax,
 } from '../../../initial-visualization/utils/chart-options.utils';
 
+function buildDashedLineLegendIcon(color: string): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="10" viewBox="0 0 16 10"><line x1="0" y1="5" x2="16" y2="5" stroke="${color}" stroke-width="2" stroke-dasharray="3,2"/></svg>`;
+  return `image://data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+function buildLineWithDotLegendIcon(color: string, surfaceColor: string = '#ffffff'): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="10" viewBox="0 0 16 10"><line x1="0" y1="5" x2="16" y2="5" stroke="${color}" stroke-width="2"/><circle cx="8" cy="5" r="2.5" fill="${color}" stroke="${surfaceColor}" stroke-width="1"/></svg>`;
+  return `image://data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
 @Component({
   selector: 'app-future-series-chart',
   standalone: true,
@@ -36,6 +46,7 @@ export class FutureSeriesChart implements OnDestroy {
   readonly data = input<FutureAnnualMaximumItem[] | null>(null);
   readonly observedReferenceMean = input<number | null>(null);
   readonly unit = input<string>('mm');
+  readonly modelColor = input<string>('#3b82f6');
 
   @ViewChild('chartContainer', { static: true })
   private chartContainer!: ElementRef<HTMLDivElement>;
@@ -43,19 +54,21 @@ export class FutureSeriesChart implements OnDestroy {
   private readonly echarts = inject(EchartsService) as EchartsService<{
     items: FutureAnnualMaximumItem[];
     observedReferenceMean: number | null;
+    modelColor: string;
   }>;
 
   private readonly chartInput = computed(() => ({
     items: this.data() ?? [],
     observedReferenceMean: this.observedReferenceMean(),
+    modelColor: this.modelColor(),
   }));
 
   constructor() {
     this.echarts.setup({
       container: () => this.chartContainer.nativeElement,
       data: this.chartInput,
-      buildOption: ({ items, observedReferenceMean }) =>
-        this.buildOption(items, observedReferenceMean),
+      buildOption: ({ items, observedReferenceMean, modelColor }) =>
+        this.buildOption(items, observedReferenceMean, modelColor),
     });
   }
 
@@ -66,8 +79,10 @@ export class FutureSeriesChart implements OnDestroy {
   private buildOption(
     items: FutureAnnualMaximumItem[],
     observedMean: number | null,
+    modelColor: string = '#3b82f6',
   ): EChartsOption {
     const tokens = this.echarts.getTokens();
+    const activeModelColor = modelColor || '#3b82f6';
 
     if (!items || items.length === 0) {
       return {
@@ -78,6 +93,10 @@ export class FutureSeriesChart implements OnDestroy {
       };
     }
 
+    const count = items.length;
+    const targetLabels = 8;
+    const labelStep = count <= targetLabels ? 1 : Math.ceil(count / targetLabels);
+
     const allValues: number[] = [];
     for (const item of items) {
       if (item.corrected_mm != null) allValues.push(item.corrected_mm);
@@ -87,29 +106,38 @@ export class FutureSeriesChart implements OnDestroy {
       allValues.push(observedMean);
     }
     const maxTarget = allValues.length > 0 ? Math.max(...allValues) : 50;
-    const yAxisMax = calcYAxisMax(maxTarget, null, 25);
+    const step = maxTarget <= 60 ? 10 : maxTarget <= 120 ? 20 : 50;
+    const yAxisMax = calcYAxisMax(maxTarget, null, step);
 
     const markLineData =
       observedMean != null && observedMean > 0
         ? {
             silent: true,
             symbol: ['none', 'none'] as [string, string],
-            lineStyle: {
-              color: tokens.historicalMax,
-              type: 'dashed' as const,
-              width: 1.5,
-            },
-            data: [{ yAxis: observedMean, name: 'Média observada (referência)' }],
-            label: { show: false },
+            data: [
+              {
+                name: 'Média observada (referência)',
+                yAxis: observedMean,
+                lineStyle: {
+                  color: tokens.historicalMax,
+                  type: 'dashed' as const,
+                  width: 1.5,
+                  opacity: 0.95,
+                },
+                label: { show: false },
+              },
+            ],
           }
         : undefined;
 
     return {
+      useUTC: true,
+      textStyle: { fontFamily: tokens.fontFamily },
       grid: {
         left: 16,
         right: 16,
         top: 36,
-        bottom: 28,
+        bottom: 16,
         containLabel: true,
       },
       legend: {
@@ -117,30 +145,27 @@ export class FutureSeriesChart implements OnDestroy {
         top: 0,
         right: 16,
         itemGap: 16,
-        itemWidth: 14,
+        itemWidth: 16,
         itemHeight: 10,
         selectedMode: false,
         data: [
           {
             name: 'Máxima diária anual (corrigido)',
             icon: 'roundRect',
-            itemStyle: { color: tokens.chartBarOverview },
+            itemStyle: { color: tokens.primaryDark },
           },
           {
             name: 'Modelo bruto',
-            icon: 'circle',
-            itemStyle: {
-              color: tokens.surface,
-              borderColor: tokens.secondary,
-              borderWidth: 2,
-            },
+            icon: buildLineWithDotLegendIcon(activeModelColor, tokens.surface),
           },
-          {
-            name: 'Média observada (referência)',
-            icon: 'line',
-            itemStyle: { color: tokens.historicalMax },
-            lineStyle: { type: 'dashed' as const, width: 2 },
-          },
+          ...(observedMean != null && observedMean > 0
+            ? [
+                {
+                  name: 'Média observada (referência)',
+                  icon: buildDashedLineLegendIcon(tokens.historicalMax),
+                },
+              ]
+            : []),
         ],
         textStyle: {
           color: tokens.textMuted,
@@ -216,24 +241,28 @@ export class FutureSeriesChart implements OnDestroy {
       },
       xAxis: {
         type: 'category',
-        data: items.map((d) => d.year),
+        data: items.map((d) => d.year.toString()),
         axisLine: buildAxisLineStyle(tokens),
         axisTick: { show: false },
         axisLabel: {
           ...buildAxisLabelBase(tokens),
-          interval: 'auto',
+          margin: 12,
           hideOverlap: true,
+          interval: (index: number) => index === 0 || index % labelStep === 0,
         },
+        splitLine: { show: false },
       },
       yAxis: {
         type: 'value',
         min: 0,
+        interval: step,
         max: yAxisMax,
         axisLine: { show: false },
         axisTick: { show: false },
         axisLabel: {
           ...buildAxisLabelBase(tokens),
-          formatter: '{value} mm',
+          hideOverlap: true,
+          formatter: (value: number) => `${Math.round(value).toLocaleString('pt-BR')} mm`,
         },
         splitLine: buildSplitLineStyle(tokens),
       },
@@ -243,39 +272,52 @@ export class FutureSeriesChart implements OnDestroy {
           type: 'bar',
           data: items.map((d) => d.corrected_mm),
           barMaxWidth: 16,
+          barCategoryGap: '20%',
           itemStyle: {
-            color: tokens.chartBarOverview,
+            color: tokens.primaryDark,
             borderRadius: [3, 3, 0, 0],
+          },
+          emphasis: {
+            itemStyle: { color: tokens.primaryMid },
           },
           markLine: markLineData,
           z: 2,
         },
         {
           name: 'Modelo bruto',
-          type: 'scatter',
+          type: 'line',
           data: items.map((d) => d.raw_mm),
+          smooth: 0.15,
           symbol: 'circle',
-          symbolSize: 8,
+          symbolSize: 5,
           itemStyle: {
-            color: tokens.surface,
-            borderColor: tokens.secondary,
-            borderWidth: 2,
+            color: activeModelColor,
+            borderColor: tokens.surface,
+            borderWidth: 1,
+          },
+          lineStyle: {
+            color: activeModelColor,
+            width: 2,
           },
           z: 10,
         },
-        {
-          name: 'Média observada (referência)',
-          type: 'line',
-          data: [],
-          lineStyle: {
-            color: tokens.historicalMax,
-            type: 'dashed' as const,
-            width: 1.5,
-          },
-          itemStyle: {
-            color: tokens.historicalMax,
-          },
-        },
+        ...(observedMean != null && observedMean > 0
+          ? [
+              {
+                name: 'Média dos máximos da série observada (referência)',
+                type: 'line' as const,
+                data: [],
+                lineStyle: {
+                  color: tokens.historicalMax,
+                  type: 'dashed' as const,
+                  width: 1.5,
+                },
+                itemStyle: {
+                  color: tokens.historicalMax,
+                },
+              },
+            ]
+          : []),
       ],
     };
   }

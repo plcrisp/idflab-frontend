@@ -219,33 +219,19 @@ export class Stepper {
     if (stepEnum === 'FUTURE_SCENARIOS') {
       const resultsStep = steps.find((s) => s.step === 'RESULTS');
       const resultsData = (resultsStep?.result as Record<string, unknown> | undefined) ?? {};
-      const configSubtitle =
-        (resultsData['config_subtitle'] as string | undefined) ??
-        (result['config_subtitle'] as string | undefined) ??
-        null;
 
       const applied =
         (result['applied_params'] as Record<string, unknown> | undefined) ??
         (resultsData['applied_params'] as Record<string, unknown> | undefined) ??
         params;
-      const model = applied['model'] ? String(applied['model']) : null;
-      const sspRaw = applied['ssp'] ? String(applied['ssp']) : null;
-      const ssp =
-        sspRaw === 'SSP245'
-          ? 'SSP2-4.5'
-          : sspRaw === 'SSP585'
-            ? 'SSP5-8.5'
-            : sspRaw;
-      const periodRaw = applied['period'] ? String(applied['period']) : null;
-      const period = periodRaw ? periodRaw.replace('-', '–') : null;
-      const method = applied['method'] ? String(applied['method']) : null;
+      const model = applied['model']
+        ? String(applied['model'])
+        : (result['model'] as string | undefined) ?? null;
 
-      const parts = [model, ssp, period, method].filter(Boolean);
-      const shortText = parts.length > 0 ? parts.join(' · ') : configSubtitle;
-      if (!shortText) return null;
+      if (!model) return null;
       return {
-        text: shortText,
-        tooltip: configSubtitle || shortText,
+        text: model,
+        tooltip: model,
       };
     }
 

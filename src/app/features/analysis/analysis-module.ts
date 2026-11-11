@@ -26,6 +26,7 @@ import {
   lucideDownload,
   lucideDroplets,
   lucideFilter,
+  lucideGlobe,
   lucideInfo,
   lucideLoader2,
   lucideMap,
@@ -216,6 +217,7 @@ registerLocaleData(localePt);
       lucideDroplets,
       lucideTable,
       lucideTrendingDown,
+      lucideGlobe
     }),
     ...HlmDropdownMenuImports,
     ...HlmBadgeImports,

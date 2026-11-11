@@ -11,7 +11,7 @@ export const FUTURE_SCENARIOS_STEP_HELP: HelpStepContent = {
     'As curvas convencionais assumem que o clima é estacionário. Incorporar projeções climáticas (CMIP6/[[CLIMBra]]) evita que obras projetadas hoje fiquem subdimensionadas e vulneráveis diante do aumento de extremos pluviométricos até 2100.',
   howItWorks: [
     'Etapa em desenvolvimento ativo: integrará em breve a base de dados do projeto [[CLIMBra]] (modelos climáticos do CMIP6/IPCC regionalizados pelo INPE).',
-    'Permitirá selecionar horizontes temporais futuros (2030–2060 e 2070–2100) sob trajetórias socioeconômicas [[SSP]] intermediárias (SSP2-4.5) e severas (SSP5-8.5).',
+    'Permitirá selecionar horizontes temporais futuros (2030 - 2060 e 2070 - 2100) sob trajetórias socioeconômicas [[SSP]] intermediárias (SSP2-4.5) e severas (SSP5-8.5).',
     'Utilizará métodos de correção de viés estatístico (como Quantile Mapping) para harmonizar as saídas dos modelos climáticos com a série histórica local.',
     'Derivará fatores de escala para recalcular os 4 parâmetros da [[Equação IDF]], contemplando a não-estacionariedade do clima nas curvas de projeto.',
   ],

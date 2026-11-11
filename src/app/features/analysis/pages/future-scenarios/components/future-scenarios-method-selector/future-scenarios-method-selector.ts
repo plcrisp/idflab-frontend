@@ -15,7 +15,6 @@ import { Path } from '../../../../shared/components/path/path';
 export interface BiasMethodOption {
   value: BiasCorrectionMethod;
   title: string;
-  badge: string;
   description: string;
   icon: string;
 }
@@ -47,26 +46,23 @@ export class FutureScenariosMethodSelector {
   readonly methodOptions: readonly BiasMethodOption[] = [
     {
       value: 'EQM',
-      title: 'EQM',
-      badge: 'Recomendado',
+      title: 'Equidistant Quantile Mapping (EQM)',
       description:
-        'Preserva o sinal de mudança climática ao ajustar os quantis empíricos do modelo aos dados observados.',
+        'Preserva o sinal de mudança climática em cada quantil.',
       icon: 'lucideTrendingUp',
     },
     {
       value: 'QM',
-      title: 'QM',
-      badge: 'Clássico',
+      title: 'Quantil Mapping (QM)',
       description:
-        'Ajusta diretamente a distribuição acumulada do modelo futuro à distribuição observada na referência.',
+        'Alinha a distribuição do modelo à observada.',
       icon: 'lucideChartColumn',
     },
     {
       value: 'DBC',
-      title: 'DBC',
-      badge: 'Rápido',
+      title: 'Daily Bias Correction (DBC)',
       description:
-        'Corrige percentil a percentil com menor custo computacional, mantendo a consistência dos extremos.',
+        'Corrige percentil a percentil, com menor custo operacional.',
       icon: 'lucidePercent',
     },
   ];

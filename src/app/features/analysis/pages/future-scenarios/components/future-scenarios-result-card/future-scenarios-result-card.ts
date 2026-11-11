@@ -2,11 +2,11 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  lucideCalendar,
-  lucideCpu,
+  lucideChartColumn,
   lucideDatabase,
   lucideDroplets,
   lucideLoader2,
+  lucidePercent,
   lucideShieldCheck,
   lucideTrendingUp,
   lucideTriangleAlert,
@@ -15,6 +15,7 @@ import { HlmBadge } from '@spartan-ng/helm/badge';
 
 import {
   BiasCorrectionMethod,
+  CLIMATE_MODEL_CONFIGS,
   ClimateModel,
   FutureScenariosResult,
   FutureScenariosUiState,
@@ -36,9 +37,9 @@ import { FutureSeriesChart } from '../future-series-chart/future-series-chart';
   providers: [
     provideIcons({
       lucideDatabase,
-      lucideCpu,
       lucideTrendingUp,
-      lucideCalendar,
+      lucideChartColumn,
+      lucidePercent,
       lucideLoader2,
       lucideTriangleAlert,
       lucideDroplets,
@@ -58,7 +59,7 @@ export class FutureScenariosResultCard {
   readonly progressMessage = input<string>('Processando...');
   readonly progressPercentage = input<number>(10);
   readonly outdatedMessage = input<string>(
-    'Configuração alterada. Clique em "Aplicar correção" para recalcular.',
+    'Configuração alterada. Clique em "Aplicar correção" para recalcular os cenários futuros com os novos parâmetros.',
   );
 
   readonly selectedMethod = input<BiasCorrectionMethod | null>('EQM');
@@ -69,8 +70,20 @@ export class FutureScenariosResultCard {
     return this.result()?.applied_params?.model ?? this.selectedModel();
   });
 
+  readonly modelColor = computed<string>(() => {
+    const m = this.resultModel() as ClimateModel;
+    return CLIMATE_MODEL_CONFIGS[m]?.color ?? '#3b82f6';
+  });
+
   readonly resultMethod = computed<string>(() => {
     return this.result()?.applied_params?.method ?? this.selectedMethod() ?? 'EQM';
+  });
+
+  readonly methodIcon = computed<string>(() => {
+    const method = this.resultMethod();
+    if (method === 'QM') return 'lucideChartColumn';
+    if (method === 'DBC') return 'lucidePercent';
+    return 'lucideTrendingUp';
   });
 
   readonly resultSspLabel = computed<string>(() => {
@@ -89,12 +102,6 @@ export class FutureScenariosResultCard {
       return ap.period.replace('-', ' - ');
     }
     return '';
-  });
-
-  readonly futureSeriesSubtitle = computed<string>(() => {
-    const fs = this.result()?.future_series;
-    if (!fs) return '';
-    return `Média da janela corrigida: ${this.formatMm(fs.corrected_mean_mm)} mm`;
   });
 
   formatMm(value: number | null | undefined): string {
@@ -120,6 +127,10 @@ export class FutureScenariosResultCard {
     const abs = Math.abs(value);
     if (abs <= 5) return 'success';
     if (abs <= 15) return 'warning';
+    return 'default';
+  }
+
+  getRawDeltaBadgeVariant(): StatCardSemanticVariant {
     return 'default';
   }
 }

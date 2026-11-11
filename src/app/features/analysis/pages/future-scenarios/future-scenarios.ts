@@ -156,7 +156,15 @@ export class FutureScenarios implements OnInit, OnDestroy {
   });
 
   readonly referenceWindowText = computed<string>(() => {
-    return this.state()?.result?.effective_reference_window?.label ?? '1980 - 2013';
+    const raw = this.state()?.result?.effective_reference_window?.label;
+    if (raw) {
+      return raw.replace(/\s*[–—\-]\s*/g, ' - ');
+    }
+    const ef = this.state()?.result?.effective_reference_window;
+    if (ef?.start_year && ef?.end_year) {
+      return `${ef.start_year} - ${ef.end_year}`;
+    }
+    return '1980 - 2013';
   });
 
   readonly isSelectionOutdated = computed<boolean>(() => {
