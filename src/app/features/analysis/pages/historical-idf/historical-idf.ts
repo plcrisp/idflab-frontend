@@ -11,9 +11,11 @@ import {
 } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
+import { toast } from '@spartan-ng/brain/sonner';
 
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
+import { FileDownloadService } from '../../../../core/services/utils/file-download.service';
 import { ProjectStateService } from '../../services/project-state.service';
 import { InitialVisualizationService } from '../../services/initial-visualization.service';
 import { HistoricalIdfService } from '../../services/historical-idf.service';
@@ -43,7 +45,10 @@ export class HistoricalIdf implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly initialVisualizationService = inject(InitialVisualizationService);
   private readonly historicalIdfService = inject(HistoricalIdfService);
+  private readonly fileDownloadService = inject(FileDownloadService);
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly isDownloadingIdf = signal<boolean>(false);
 
   private summarySub: Subscription | null = null;
   private idfSub: Subscription | null = null;
@@ -206,6 +211,33 @@ export class HistoricalIdf implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.summarySub?.unsubscribe();
     this.idfSub?.unsubscribe();
+  }
+
+  onDownloadHistoricalIdf(): void {
+    const p = this.project();
+    if (!p || this.isDownloadingIdf()) return;
+
+    this.isDownloadingIdf.set(true);
+    this.historicalIdfService
+      .downloadHistoricalIdf(p.id, ';')
+      .pipe(finalize(() => this.isDownloadingIdf.set(false)))
+      .subscribe({
+        next: (response) => {
+          try {
+            this.fileDownloadService.triggerDownload(
+              response,
+              `historical_idf_${p.id}.zip`,
+            );
+          } catch (err) {
+            console.error('[HistoricalIdf] Erro ao processar download:', err);
+            toast.error('Não foi possível baixar a IDF histórica.');
+          }
+        },
+        error: (err) => {
+          console.error('[HistoricalIdf] Erro ao baixar IDF histórica:', err);
+          toast.error('Erro ao baixar IDF histórica. Tente novamente.');
+        },
+      });
   }
 
   onBack(): void {

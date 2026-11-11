@@ -175,9 +175,28 @@
       Voltar
     </button>
 
-    <button hlmBtn type="button" (click)="onAdvance()" [disabled]="isIdfLoading() || !idfData()">
-      <span>Avançar</span>
-      <ng-icon name="lucideArrowRight" class="ml-2" />
-    </button>
+    <div class="flex items-center gap-2.5 ml-auto">
+      <button
+        hlmBtn
+        variant="outline"
+        type="button"
+        (click)="onDownloadHistoricalIdf()"
+        [disabled]="isIdfLoading() || !idfData() || isDownloadingIdf()"
+        class="cursor-pointer inline-flex items-center"
+      >
+        @if (isDownloadingIdf()) {
+          <hlm-spinner class="mr-2" />
+          <span>Baixando…</span>
+        } @else {
+          <ng-icon name="lucideDownload" class="mr-2 text-xs" />
+          <span>Baixar IDF histórica</span>
+        }
+      </button>
+
+      <button hlmBtn type="button" (click)="onAdvance()" [disabled]="isIdfLoading() || !idfData()">
+        <span>Avançar</span>
+        <ng-icon name="lucideArrowRight" class="ml-2" />
+      </button>
+    </div>
   </div>
 </div>
