@@ -6,7 +6,8 @@ export type HelpStepId =
   | 'temporal-resolution'
   | 'statistical-distribution'
   | 'historical-idf'
-  | 'future-scenarios';
+  | 'future-scenarios'
+  | 'results';
 
 export const HELP_STEP_ORDER: readonly HelpStepId[] = [
   'map',
@@ -17,6 +18,7 @@ export const HELP_STEP_ORDER: readonly HelpStepId[] = [
   'statistical-distribution',
   'historical-idf',
   'future-scenarios',
+  'results',
 ] as const;
 
 export type HelpFigureKey = HelpStepId;

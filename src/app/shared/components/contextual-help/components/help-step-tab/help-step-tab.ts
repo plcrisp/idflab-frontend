@@ -92,6 +92,8 @@ export class HelpStepTab {
     return idx >= 0 ? String(idx + 1).padStart(2, '0') : '';
   });
 
+  readonly totalSteps = computed(() => HELP_STEP_ORDER.length);
+
   readonly hasInterpretItems = computed(() => {
     const i = this.step().interpret;
     return !!(i && (i.good || i.warning || i.problem));

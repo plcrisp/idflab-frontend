@@ -14,7 +14,7 @@ import { lucideArrowLeft, lucideArrowRight, lucideX } from '@ng-icons/lucide';
 import { BrnSheetImports } from '@spartan-ng/brain/sheet';
 import { HlmSheetImports } from '@spartan-ng/helm/sheet';
 import { HlmButton } from '@spartan-ng/helm/button';
-import { HelpStepId } from '../../../core/models/contextual-help.model';
+import { HELP_STEP_ORDER, HelpStepId } from '../../../core/models/contextual-help.model';
 import { ContextualHelpService, HelpTab } from '../../../core/services/state/contextual-help.service';
 import { HelpStepTab } from './components/help-step-tab/help-step-tab';
 import { HelpOverviewTab } from './components/help-overview-tab/help-overview-tab';
@@ -44,7 +44,8 @@ export class ContextualHelpSheet {
   readonly viewingStepIndex = this.helpService.viewingStepIndex;
   readonly viewingStepContent = this.helpService.viewingStepContent;
 
-  readonly stepIndices = [0, 1, 2, 3, 4, 5, 6, 7];
+  readonly totalSteps = HELP_STEP_ORDER.length;
+  readonly stepIndices = Array.from({ length: HELP_STEP_ORDER.length }, (_, i) => i);
 
   @ViewChild('scrollContainer') private scrollContainer?: ElementRef<HTMLDivElement>;
 

@@ -18,7 +18,7 @@
           @if (activeTab() === 'overview') {
             Visão geral do fluxo
           } @else {
-            Etapa {{ viewingStepIndex() + 1 }} de 8 · {{ viewingStepContent().title }}
+            Etapa {{ viewingStepIndex() + 1 }} de {{ totalSteps }} · {{ viewingStepContent().title }}
           }
         </p>
       </div>
@@ -111,8 +111,8 @@
           role="progressbar"
           [attr.aria-valuenow]="viewingStepIndex() + 1"
           aria-valuemin="1"
-          aria-valuemax="8"
-          [attr.aria-label]="'Etapa ' + (viewingStepIndex() + 1) + ' de 8'"
+          [attr.aria-valuemax]="totalSteps"
+          [attr.aria-label]="'Etapa ' + (viewingStepIndex() + 1) + ' de ' + totalSteps"
         >
           @for (s of stepIndices; track s) {
             <span

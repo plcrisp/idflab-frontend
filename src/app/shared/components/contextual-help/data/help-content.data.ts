@@ -12,6 +12,7 @@ import { TEMPORAL_RESOLUTION_STEP_HELP } from './steps/05-temporal-resolution.da
 import { STATISTICAL_DISTRIBUTION_STEP_HELP } from './steps/06-statistical-distribution.data';
 import { HISTORICAL_IDF_STEP_HELP } from './steps/07-historical-idf.data';
 import { FUTURE_SCENARIOS_STEP_HELP } from './steps/08-future-scenarios.data';
+import { RESULTS_STEP_HELP } from './steps/09-results.data';
 
 export { GLOBAL_GLOSSARY } from './glossary.data';
 
@@ -44,4 +45,5 @@ export const HELP_CONTENT_DATA: Record<HelpStepId, HelpStepContent> = {
   'statistical-distribution': mergeWithGlobalGlossary(STATISTICAL_DISTRIBUTION_STEP_HELP),
   'historical-idf': mergeWithGlobalGlossary(HISTORICAL_IDF_STEP_HELP),
   'future-scenarios': mergeWithGlobalGlossary(FUTURE_SCENARIOS_STEP_HELP),
+  results: mergeWithGlobalGlossary(RESULTS_STEP_HELP),
 };

@@ -6,22 +6,22 @@ export const FUTURE_SCENARIOS_STEP_HELP: HelpStepContent = {
   icon: 'lucideSparkles',
   figure: 'future-scenarios',
   summary:
-    'Projete alterações nas curvas IDF até 2100 considerando projeções climáticas e modelos de circulação global sob diferentes cenários de emissão.',
+    'Calibre projeções climáticas do [[CLIMBra]] com a série da sua estação e corrija os vieses dos modelos para horizontes até 2100.',
   whyItMatters:
-    'As curvas convencionais assumem que o clima é estacionário. Incorporar projeções climáticas (CMIP6/[[CLIMBra]]) evita que obras projetadas hoje fiquem subdimensionadas e vulneráveis diante do aumento de extremos pluviométricos até 2100.',
+    'A engenharia tradicional assume que as chuvas históricas se repetirão no futuro (hipótese de clima estacionário). Em tempos de mudanças climáticas, projetar galerias, barragens e canais apenas pelo histórico pode levar ao subdimensionamento das estruturas e a falhas hidráulicas prematuras.',
   howItWorks: [
-    'Etapa em desenvolvimento ativo: integrará em breve a base de dados do projeto [[CLIMBra]] (modelos climáticos do CMIP6/IPCC regionalizados pelo INPE).',
-    'Permitirá selecionar horizontes temporais futuros (2030 - 2060 e 2070 - 2100) sob trajetórias socioeconômicas [[SSP]] intermediárias (SSP2-4.5) e severas (SSP5-8.5).',
-    'Utilizará métodos de correção de viés estatístico (como Quantile Mapping) para harmonizar as saídas dos modelos climáticos com a série histórica local.',
-    'Derivará fatores de escala para recalcular os 4 parâmetros da [[Equação IDF]], contemplando a não-estacionariedade do clima nas curvas de projeto.',
+    'Escolha o método de correção de viés. Selecione entre [[EQM]], [[QM]] ou [[DBC]]. Eles ajustam a distribuição teórica simulada aos dados reais da estação.',
+    'Defina o modelo e o cenário de emissão. Escolha o modelo global do CMIP6 e o cenário socioeconômico ([[SSP2-4.5]] ou [[SSP5-8.5]]).',
+    'Ajuste o horizonte temporal. Defina o ano de início e o ano de fim de sua projeção.',
+    'Avalie as células e a janela de calibração. O sistema localiza as células do [[CLIMBra]] em um raio de 25 km e pareia os dados com o histórico observado na janela de referência (1980-2013).',
+    'Confira a remoção de viés nos cards. Verifique a convergência entre a média observada e a média do modelo corrigido.',
   ],
   interpret: {
-    good: 'Variação climática projetada inferior a 5% na intensidade de precipitação para o [[tempo de retorno]] e horizonte da obra.',
+    good: 'Modelo corrigido com desvio médio inferior a 5% em relação ao observado histórico na janela de referência.',
     warning:
-      'Incremento projetado entre 10% e 25% nas chuvas extremas ([[TR]] ≥ 25 anos), demandando coeficientes de segurança na drenagem.',
+      'Diferença substancial (> 25%) entre o modelo bruto e a estação na janela de referência. O método de correção atuará com maior intensidade para harmonizar os quantis.',
     problem:
-      'Acréscimos projetados superiores a 30% no cenário SSP5-8.5, sinalizando severa vulnerabilidade caso a obra seja dimensionada apenas pelo histórico estacionário.',
+      'Estação sem sobreposição temporal mínima de 10 anos na janela 1980-2013 (típico de estações CEMADEN recentes) ou coordenadas fora da cobertura da malha do CLIMBra.',
   },
-  references: [],
 };
-
+  

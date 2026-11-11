@@ -82,13 +82,13 @@ export function resolveHelpStep(url: string | null | undefined): HelpStepId | nu
   }
 
   // 7. Future scenarios
-  if (
-    cleanUrl.includes('cenarios-futuros') ||
-    cleanUrl.includes('future-scenarios') ||
-    cleanUrl.includes('resultados') ||
-    cleanUrl.includes('results')
-  ) {
+  if (cleanUrl.includes('cenarios-futuros') || cleanUrl.includes('future-scenarios')) {
     return 'future-scenarios';
+  }
+
+  // 8. Results
+  if (cleanUrl.includes('resultados') || cleanUrl.includes('results')) {
+    return 'results';
   }
 
   // 8. Initial visualization (also default page for /analysis/:projectId)

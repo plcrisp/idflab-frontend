@@ -11,6 +11,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideActivity,
   lucideCheck,
+  lucideCheckCircle2,
   lucideChevronDown,
   lucideChevronRight,
   lucideCircleHelp,
@@ -59,6 +60,7 @@ const STEPPER_ITEMS: OverviewStepItem[] = [
   { id: 'statistical-distribution', stepNumber: '06', title: 'Distribuição estatística', description: 'Ajuste probabilístico aos máximos anuais', icon: 'lucideTrendingUp' },
   { id: 'historical-idf', stepNumber: '07', title: 'IDF histórica', description: 'Parâmetros calibrados e curvas ajustadas', icon: 'lucideDroplets' },
   { id: 'future-scenarios', stepNumber: '08', title: 'Cenários futuros', description: 'Projeções climáticas até 2100 (CLIMBra)', icon: 'lucideSparkles' },
+  { id: 'results', stepNumber: '09', title: 'Resultados', description: 'Curvas comparativas, intensidades e variação percentual', icon: 'lucideCheckCircle2' },
 ];
 
 const PLATFORM_DIFFERENTIATORS: PlatformDifferentiator[] = [
@@ -102,6 +104,7 @@ const PLATFORM_DIFFERENTIATORS: PlatformDifferentiator[] = [
     provideIcons({
       lucideActivity,
       lucideCheck,
+      lucideCheckCircle2,
       lucideChevronDown,
       lucideChevronRight,
       lucideCircleHelp,
