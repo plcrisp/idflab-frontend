@@ -107,17 +107,36 @@
       Voltar
     </button>
 
-    <button
-      hlmBtn
-      type="button"
-      (click)="onAdvance()"
-      [disabled]="!canAdvance()"
-    >
+    <div class="flex items-center gap-2.5 ml-auto">
+      <button
+        hlmBtn
+        variant="outline"
+        type="button"
+        (click)="onDownloadFutureMax()"
+        [disabled]="!hasResult() || isProcessing() || isDownloadingFutureMax()"
+        class="cursor-pointer inline-flex items-center"
+      >
+        @if (isDownloadingFutureMax()) {
+          <hlm-spinner class="mr-2" />
+          <span>Baixando…</span>
+        } @else {
+          <ng-icon name="lucideDownload" class="mr-2 text-xs" />
+          <span>Baixar máximos futuros</span>
+        }
+      </button>
+
+      <button
+        hlmBtn
+        type="button"
+        (click)="onAdvance()"
+        [disabled]="!canAdvance()"
+      >
       @if (isAdvancing()) {
         <ng-icon name="lucideLoader2" class="animate-spin mr-2" />
       }
       <span>{{ advanceButtonLabel() }}</span>
       <ng-icon [name]="advanceButtonIcon()" class="ml-2 text-xs" />
     </button>
+    </div>
   </div>
 </div>

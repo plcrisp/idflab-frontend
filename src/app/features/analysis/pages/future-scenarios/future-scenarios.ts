@@ -11,7 +11,8 @@ import {
 } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { Subscription, switchMap, takeUntil, takeWhile, tap, timer } from 'rxjs';
+import { finalize, Subscription, switchMap, takeUntil, takeWhile, tap, timer } from 'rxjs';
+import { FileDownloadService } from '../../../../core/services/utils/file-download.service';
 import { toast } from '@spartan-ng/brain/sonner';
 
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
@@ -57,6 +58,7 @@ export class FutureScenarios implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly initialVisualizationService = inject(InitialVisualizationService);
   private readonly futureScenariosService = inject(FutureScenariosService);
+  private readonly fileDownloadService = inject(FileDownloadService);
   private readonly jobsService = inject(JobsService);
   private readonly notificationsService = inject(NotificationsService);
   private readonly destroyRef = inject(DestroyRef);
@@ -87,6 +89,7 @@ export class FutureScenarios implements OnInit, OnDestroy {
   readonly isApplying = signal<boolean>(false);
   readonly isPolling = signal<boolean>(false);
   readonly isAdvancing = signal<boolean>(false);
+  readonly isDownloadingFutureMax = signal<boolean>(false);
   readonly isEditingParams = signal<boolean>(false);
 
   readonly polledJobProgress = signal<number | null>(null);
@@ -437,6 +440,33 @@ export class FutureScenarios implements OnInit, OnDestroy {
     this.stateSub?.unsubscribe();
     this.applySub?.unsubscribe();
     this.stopJobPolling();
+  }
+
+  onDownloadFutureMax(): void {
+    const project = this.project();
+    if (!project || this.isDownloadingFutureMax()) return;
+
+    this.isDownloadingFutureMax.set(true);
+    this.futureScenariosService
+      .downloadFutureAnnualMax(project.id, ';')
+      .pipe(finalize(() => this.isDownloadingFutureMax.set(false)))
+      .subscribe({
+        next: (response) => {
+          try {
+            this.fileDownloadService.triggerDownload(
+              response,
+              `future_annual_maximums_${project.id}.csv`,
+            );
+          } catch (err) {
+            console.error('[FutureScenarios] Erro ao processar download:', err);
+            toast.error('Não foi possível baixar os máximos futuros.');
+          }
+        },
+        error: (err) => {
+          console.error('[FutureScenarios] Erro ao baixar máximos futuros:', err);
+          toast.error('Erro ao baixar máximos futuros. Tente novamente.');
+        },
+      });
   }
 
   onBack(): void {
