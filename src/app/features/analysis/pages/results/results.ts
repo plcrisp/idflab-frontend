@@ -74,7 +74,9 @@ export class Results implements OnInit, OnDestroy {
   readonly stats = signal<GlobalStats | null>(null);
   readonly resultsData = signal<ResultsResponse | null>(null);
   readonly errorMessage = signal<string | null>(null);
-  readonly isDownloadingCsv = signal<boolean>(false);
+  readonly isDownloadingResultsZip = signal<boolean>(false);
+  readonly isDownloadingFullBundle = signal<boolean>(false);
+  readonly isDownloadingCsv = this.isDownloadingResultsZip;
 
   private lastLoadedProjectId: string | null = null;
 
@@ -173,36 +175,72 @@ export class Results implements OnInit, OnDestroy {
     }
   }
 
-  onDownloadCsv(): void {
+  onDownloadResultsZip(): void {
     const p = this.project();
-    if (!p || this.isDownloadingCsv()) return;
+    if (!p || this.isDownloadingResultsZip()) return;
 
-    this.isDownloadingCsv.set(true);
+    this.isDownloadingResultsZip.set(true);
 
     this.resultsService
-      .downloadCsv(p.id, ';')
-      .pipe(finalize(() => this.isDownloadingCsv.set(false)))
+      .downloadResultsZip(p.id, ';')
+      .pipe(finalize(() => this.isDownloadingResultsZip.set(false)))
       .subscribe({
         next: (response: HttpResponse<Blob>) => {
           try {
             this.fileDownloadService.triggerDownload(
               response,
-              `idflab_resultados_${p.id}.csv`,
+              `idf_results_${p.id}.zip`,
             );
           } catch (err) {
-            console.error('[Results] Erro ao processar arquivo CSV baixado:', err);
-            toast.error('Não foi possível baixar o CSV. Arquivo inválido.');
+            console.error('[Results] Erro ao processar arquivo ZIP baixado:', err);
+            toast.error('Não foi possível baixar o ZIP de resultados. Arquivo inválido.');
           }
         },
         error: (err) => {
-          console.error('[Results] Erro ao exportar CSV dos resultados:', err);
+          console.error('[Results] Erro ao exportar ZIP dos resultados:', err);
           const msg =
             err?.error?.detail ??
             err?.error?.message ??
-            'Não foi possível exportar o CSV de resultados. Tente novamente.';
+            'Não foi possível exportar os resultados. Tente novamente.';
           toast.error(msg);
         },
       });
+  }
+
+  onDownloadFullBundleZip(): void {
+    const p = this.project();
+    if (!p || this.isDownloadingFullBundle()) return;
+
+    this.isDownloadingFullBundle.set(true);
+
+    this.resultsService
+      .downloadFullBundle(p.id, ';')
+      .pipe(finalize(() => this.isDownloadingFullBundle.set(false)))
+      .subscribe({
+        next: (response: HttpResponse<Blob>) => {
+          try {
+            this.fileDownloadService.triggerDownload(
+              response,
+              `idflab_complete_project_${p.id}.zip`,
+            );
+          } catch (err) {
+            console.error('[Results] Erro ao processar pacote completo baixado:', err);
+            toast.error('Não foi possível baixar o pacote completo. Arquivo inválido.');
+          }
+        },
+        error: (err) => {
+          console.error('[Results] Erro ao exportar pacote completo:', err);
+          const msg =
+            err?.error?.detail ??
+            err?.error?.message ??
+            'Não foi possível exportar o pacote completo do projeto. Tente novamente.';
+          toast.error(msg);
+        },
+      });
+  }
+
+  onDownloadCsv(): void {
+    this.onDownloadResultsZip();
   }
 
   ngOnDestroy(): void {

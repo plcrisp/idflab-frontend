@@ -13,17 +13,38 @@ export class ResultsService {
     return this.http.get<ResultsResponse>(`${this.baseUrl}/${projectId}`);
   }
 
-  downloadCsv(
+  downloadResultsZip(
     projectId: string,
     delimiter: ';' | ',' = ';',
   ): Observable<HttpResponse<Blob>> {
     const params = new HttpParams().set('delimiter', delimiter);
 
-    return this.http.get<Blob>(`${this.baseUrl}/${projectId}/csv`, {
+    return this.http.get<Blob>(`${this.baseUrl}/${projectId}/download`, {
       params,
       responseType: 'blob' as 'json',
       observe: 'response',
     });
   }
+
+  downloadFullBundle(
+    projectId: string,
+    delimiter: ';' | ',' = ';',
+  ): Observable<HttpResponse<Blob>> {
+    const params = new HttpParams().set('delimiter', delimiter);
+
+    return this.http.get<Blob>(`${this.baseUrl}/${projectId}/export/full-bundle`, {
+      params,
+      responseType: 'blob' as 'json',
+      observe: 'response',
+    });
+  }
+
+  downloadCsv(
+    projectId: string,
+    delimiter: ';' | ',' = ';',
+  ): Observable<HttpResponse<Blob>> {
+    return this.downloadResultsZip(projectId, delimiter);
+  }
 }
+
 
