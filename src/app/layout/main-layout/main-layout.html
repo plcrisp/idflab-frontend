@@ -4,7 +4,7 @@
   <div class="flex-1 min-w-0 flex flex-col transition-all duration-300 ease-out">
     <app-navbar [breadcrumbs]="breadcrumbs()"></app-navbar>
 
-    <main class="flex-1 min-w-0 w-full bg-background transition-colors duration-300 ease-out">
+    <main class="flex-1 min-w-0 w-full bg-background transition-colors duration-300 ease-out flex flex-col [&>router-outlet]:hidden">
       <router-outlet></router-outlet>
     </main>
   </div>

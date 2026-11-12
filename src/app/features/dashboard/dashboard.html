@@ -1,6 +1,7 @@
-<div class="flex flex-col w-full min-w-0 gap-4 bg-background transition-colors duration-300 ease-out p-6">
+<div class="flex flex-col w-full min-w-0 gap-4 bg-background transition-colors duration-300 ease-out p-6 flex-1 min-h-0">
   <!-- Barra de Busca, Ações e Abas de Filtro -->
   <app-projects-toolbar
+    class="shrink-0"
     [searchQuery]="searchQuery()"
     (searchQueryChange)="onSearchQueryChange($event)"
     [statusFilter]="statusFilter()"
@@ -13,7 +14,7 @@
   @if (loading()) {
     <!-- Skeletons dos Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+      @for (i of [1, 2, 3]; track i) {
         <div class="rounded-xl border border-border bg-popover p-5 space-y-4 shadow-xs">
           <div class="flex items-center justify-between">
             <div hlmSkeleton class="h-5 w-3/4 rounded-md"></div>
@@ -127,7 +128,7 @@
     </div>
 
     <!-- Mapa de contexto geográfico: ESTAÇÕES ANALISADAS -->
-    <app-projects-map [projects]="filteredProjects()" />
+    <app-projects-map class="flex-1 min-h-0 flex flex-col" [projects]="filteredProjects()" />
   }
 
   <!-- 4. Modais de Ação -->
