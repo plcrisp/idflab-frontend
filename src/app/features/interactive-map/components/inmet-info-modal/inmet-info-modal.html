@@ -1,0 +1,55 @@
+<div class="modal-overlay" (click)="closeModal()" role="dialog" aria-modal="true" aria-labelledby="inmet-modal-title">
+  <div class="modal-container max-w-sm" (click)="stopPropagation($event)">
+    <div class="modal-header">
+      <div class="header-titles">
+        <h2 id="inmet-modal-title" class="text-sm font-semibold text-foreground">
+          Estação sem dados do INMET
+        </h2>
+        <p class="text-xs text-muted-foreground">
+          Coleta sob demanda temporariamente indisponível.
+        </p>
+      </div>
+
+      <button type="button" (click)="closeModal()" class="close-btn" aria-label="Fechar">
+        <ng-icon name="lucideX" class="w-4 h-4" />
+      </button>
+    </div>
+
+    <div class="modal-body text-xs space-y-3">
+      <p class="text-muted-foreground leading-relaxed">
+        Devido à perda da chave da API do INMET, apenas as estações abaixo foram inseridas manualmente para testes:
+      </p>
+
+      <div class="space-y-1.5">
+        @for (item of availableStations; track item.id) {
+          <button
+            type="button"
+            (click)="chooseStation(item.id)"
+            class="w-full flex items-center justify-between p-2 rounded-lg border border-border bg-card/60 hover:bg-secondary/70 transition-colors text-left text-xs cursor-pointer group"
+          >
+            <div class="flex items-center gap-2 truncate">
+              <span class="font-mono text-[11px] font-semibold text-primary shrink-0">{{ item.code }}</span>
+              <span class="text-foreground truncate font-medium">{{ item.name }}</span>
+            </div>
+            <span class="text-[10px] text-muted-foreground shrink-0 ml-2 group-hover:text-foreground">
+              {{ item.type }}
+            </span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button
+        type="button"
+        (click)="closeModal()"
+        hlmBtn
+        variant="default"
+        size="sm"
+        class="text-xs cursor-pointer h-8"
+      >
+        Entendi
+      </button>
+    </div>
+  </div>
+</div>

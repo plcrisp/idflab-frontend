@@ -13,6 +13,7 @@ import { NotificationsService } from '../../../../core/services/api/notification
 import { ProjectCreateRequest } from '../../../../core/models/api/project.model';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmSidebarService } from '@spartan-ng/helm/sidebar';
+import { hasInmetData } from '../../constants/inmet-stations.constants';
 
 @Component({
   selector: 'app-select-station',
@@ -28,6 +29,7 @@ export class SelectStation implements OnInit {
   private fb = inject(FormBuilder);
 
   @Output() open = new EventEmitter<void>();
+  @Output() openInmetModal = new EventEmitter<void>();
 
   station = this.mapService.selectedStation;
   stations = this.mapService.selectedCityStations;
@@ -92,7 +94,6 @@ export class SelectStation implements OnInit {
     return s?.operation_start_date ? s.operation_start_date : '1900-01-01';
   }
 
-  // Validador de grupo: garante que startDate <= endDate
   private dateRangeValidator(group: AbstractControl): ValidationErrors | null {
     const start = group.get('startDate')?.value;
     const end = group.get('endDate')?.value;
@@ -125,6 +126,12 @@ export class SelectStation implements OnInit {
     const station = this.station();
     if (!station) return;
 
+    // Ao disparar: se for estação do INMET sem dados no banco, exibe o modal
+    if (station.source === 'INMET' && !hasInmetData(station)) {
+      this.openInmetModal.emit();
+      return;
+    }
+
     const { startDate, endDate } = this.form.value;
 
     this.isSubmitting = true;
@@ -147,10 +154,20 @@ export class SelectStation implements OnInit {
         this.notificationsState.refetch();
 
         if (response.status === 'processing') {
-          toast.info(`Os dados para o projeto ${project_name} estão sendo requisitados.`, {
-            duration: 8000,
-            position: 'bottom-center',
-          });
+          if (station.source === 'CEMADEN') {
+            toast.info(
+              `Solicitação agendada para ${project_name}. Por ser CEMADEN, pode demorar alguns minutos.`,
+              {
+                duration: 8000,
+                position: 'bottom-center',
+              },
+            );
+          } else {
+            toast.info(`Os dados para o projeto ${project_name} estão sendo requisitados.`, {
+              duration: 8000,
+              position: 'bottom-center',
+            });
+          }
         }
       },
       error: (err) => {

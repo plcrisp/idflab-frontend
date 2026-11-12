@@ -111,6 +111,14 @@
       </div>
     </div>
 
+    <!-- Aviso conciso para CEMADEN -->
+    @if (station.source === 'CEMADEN') {
+      <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-secondary/80 border border-border text-[11px] text-muted-foreground">
+        <ng-icon name="lucideClock" class="w-3.5 h-3.5 shrink-0" />
+        <span>Estação sob agendamento (o recebimento dos dados costuma demorar).</span>
+      </div>
+    }
+
     <!-- Seção de Análise e Datas -->
     <div class="flex flex-col gap-3 pt-1" [formGroup]="form">
       <h4 class="text-xs font-semibold uppercase tracking-wider text-foreground">

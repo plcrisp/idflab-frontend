@@ -31,6 +31,7 @@ import { StationList } from './components/station-list/station-list';
 import { SelectStation } from './components/select-station/select-station';
 import { StationSearch } from './components/station-search/station-search';
 import { StationModal } from './components/station-modal/station-modal';
+import { InmetInfoModal } from './components/inmet-info-modal/inmet-info-modal';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmInputImports } from '@spartan-ng/helm/input';
@@ -47,6 +48,7 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
     SelectStation,
     StationSearch,
     StationModal,
+    InmetInfoModal,
   ],
   imports: [
     CommonModule,

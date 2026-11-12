@@ -18,8 +18,22 @@ export class MapFloatingPanel {
   readonly states = BRAZIL_STATES;
 
   showStationTypeModal: boolean = false;
+  showInmetModal: boolean = false;
 
-  toggleModal() {
+  toggleModal(): void {
     this.showStationTypeModal = !this.showStationTypeModal;
+  }
+
+  openInmetModal(): void {
+    this.showInmetModal = true;
+  }
+
+  closeInmetModal(): void {
+    this.showInmetModal = false;
+  }
+
+  onSelectAvailableInmetStation(stationId: string): void {
+    this.showInmetModal = false;
+    this.mapService.selectStation(stationId);
   }
 }

@@ -97,7 +97,7 @@
       </div>
     </div>
   } @else if (station()) {
-    <app-select-station (open)="toggleModal()" />
+    <app-select-station (open)="toggleModal()" (openInmetModal)="openInmetModal()" />
   } @else if (stations().length > 0) {
     <app-station-list />
   } @else {
@@ -107,4 +107,11 @@
 
 @if (showStationTypeModal) {
   <app-station-modal (close)="toggleModal()" />
+}
+
+@if (showInmetModal) {
+  <app-inmet-info-modal
+    (close)="closeInmetModal()"
+    (selectStation)="onSelectAvailableInmetStation($event)"
+  />
 }
