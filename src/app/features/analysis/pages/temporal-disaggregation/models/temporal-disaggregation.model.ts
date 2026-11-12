@@ -58,6 +58,7 @@ export interface DecayCurvePoint {
   max_depth_mm: number;
   mean_depth_mm: number;
   origin?: 'aggregation' | 'disaggregation';
+  year?: number;
 }
 
 export interface TemporalDisaggregationDecayCurveResponse {

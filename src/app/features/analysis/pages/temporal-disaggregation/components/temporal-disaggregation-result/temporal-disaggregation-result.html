@@ -141,10 +141,13 @@
       </div>
 
       <!-- Rodapé do Gráfico -->
-      @if (!errorCurve() && decayCurve(); as curve) {
-      <div class="flex items-center justify-end mt-2 pt-2 border-t border-border/40 text-xs text-muted-foreground">
-        <span class="tabular-nums">
-          Pico histórico em <strong>{{ curve.max_year }}</strong> ({{ formatNumber(curve.max_daily_mm) }} mm diários).
+      @if (!errorCurve() && decayCurve()) {
+      <div class="flex flex-wrap items-center justify-between gap-2 mt-2 pt-2 border-t border-border/40 text-xs text-muted-foreground">
+        <span>
+          A curva de <strong>máximo histórico</strong> representa a envoltória das máximas observadas para cada duração ao longo da série histórica.
+        </span>
+        <span class="text-muted-foreground/80">
+          Passe o cursor sobre os pontos para conferir o ano de cada evento.
         </span>
       </div>
       }
@@ -156,7 +159,6 @@
         [projectId]="projectId()"
         [unit]="'mm'"
         [footerText]="footerText()"
-        [maxHistoricalYear]="maxHistoricalYear()"
         [isHybrid]="isHybrid()"
       />
     </div>

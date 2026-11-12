@@ -164,8 +164,6 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
     return total > 0 ? Math.ceil(total / this.pageSize) : 1;
   });
 
-  readonly maxHistoricalYear = computed<number | null>(() => this.decayCurve()?.max_year ?? null);
-
   constructor() {
     this.echarts.setup({
       container: () => this.chartContainer?.nativeElement,
@@ -369,6 +367,8 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
             maximumFractionDigits: 2,
           });
 
+          const maxYearLabel = pt.year ? ` (${pt.year})` : '';
+
           return `
             <div style="font-family: ${tokens.fontFamily}; font-size: 12px; line-height: 1.5; min-width: 190px;">
               <div style="font-weight: 600; color: ${tokens.text}; margin-bottom: 6px; border-bottom: 1px solid ${tokens.border}; padding-bottom: 4px;">
@@ -376,7 +376,7 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
               </div>
               <div style="margin-bottom: 6px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px;">
-                  <span style="color: ${tokens.historicalMax}; font-weight: 500;">Máximo histórico (${data.max_year}):</span>
+                  <span style="color: ${tokens.historicalMax}; font-weight: 500;">Máximo histórico${maxYearLabel}:</span>
                   <strong style="color: ${tokens.text}; font-variant-numeric: tabular-nums;">${maxIntFmt} mm/h</strong>
                 </div>
                 <div style="font-size: 11px; color: ${tokens.textMuted}; text-align: right;">
@@ -411,7 +411,7 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
         },
         data: [
           {
-            name: `Máximo histórico (${data.max_year})`,
+            name: 'Máximo histórico',
             icon: 'roundRect',
             itemStyle: { color: tokens.historicalMax },
           },
@@ -478,7 +478,7 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
       },
       series: [
         {
-          name: `Máximo histórico (${data.max_year})`,
+          name: 'Máximo histórico',
           type: 'line',
           data: maxSeriesData,
           smooth: 0.25,
