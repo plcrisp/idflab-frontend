@@ -175,7 +175,15 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
       const pid = this.projectId();
       const executing = this.isExecuting();
 
-      if (!pid || executing) {
+      if (!pid) {
+        return;
+      }
+
+      if (executing) {
+        untracked(() => {
+          this.decayCurve.set(null);
+          this.tableData.set(null);
+        });
         return;
       }
 

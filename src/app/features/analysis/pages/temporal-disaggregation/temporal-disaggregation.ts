@@ -225,7 +225,7 @@ export class TemporalDisaggregation {
     });
 
     this.neighborManager.setOnConfirmed((neighbor, jobId) => {
-      if (!jobId && !this.isExecutingBl() && !this.isBartlettExecuted()) {
+      if (!jobId && !this.isExecutingBl()) {
         this.executeBartlettLewisJob(neighbor.id);
       }
     });
@@ -526,6 +526,9 @@ export class TemporalDisaggregation {
     if (!project) return;
 
     this.isExecutingBl.set(true);
+    this.isBartlettExecuted.set(false);
+    this.calibratedParams.set(null);
+    this.calibrationMetadata.set(null);
     this.isBlError.set(false);
     this.blJob.set(null);
     this.blSub?.unsubscribe();
