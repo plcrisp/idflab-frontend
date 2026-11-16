@@ -464,6 +464,7 @@ export class GapFillingStateService {
     this.fillSub = this.gapFillingService.fillGaps(project.id, neighbor.id).subscribe({
       next: (res) => {
         const jobId = res.job_id ?? res.jobId;
+        this.notificationsService.refetch();
         this.startJobPolling(project.id, jobId!);
       },
       error: (err) => {

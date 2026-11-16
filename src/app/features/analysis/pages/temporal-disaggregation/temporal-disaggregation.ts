@@ -537,6 +537,7 @@ export class TemporalDisaggregation {
       .executeBartlettLewis(project.id, { calibration_station_id: stationId })
       .subscribe({
         next: (res) => {
+          this.notificationsService.refetch();
           this.startBlJobPolling(project.id, res.job_id);
           setTimeout(() => this.scrollToResultCard(), 100);
         },
