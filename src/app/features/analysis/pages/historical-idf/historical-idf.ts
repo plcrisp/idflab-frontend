@@ -225,7 +225,7 @@ export class HistoricalIdf implements OnInit, OnDestroy {
           try {
             this.fileDownloadService.triggerDownload(
               response,
-              `04-idf-historica_${p.id}.zip`,
+              `06-idf-historica_${p.id}.zip`,
             );
           } catch (err) {
             console.error('[HistoricalIdf] Erro ao processar download:', err);

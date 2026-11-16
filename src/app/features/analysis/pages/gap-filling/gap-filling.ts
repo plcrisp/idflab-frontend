@@ -239,7 +239,7 @@ export class GapFilling {
           try {
             this.fileDownloadService.triggerDownload(
               response,
-              `02-tratamento_${project.id}.csv`,
+              `03-tratamento_${project.id}.csv`,
             );
           } catch (err) {
             console.error('[GapFilling] Erro ao processar download:', err);

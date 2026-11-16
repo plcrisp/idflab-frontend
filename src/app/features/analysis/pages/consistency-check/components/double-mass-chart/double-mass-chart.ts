@@ -5,6 +5,7 @@ import {
   inject,
   input,
   OnDestroy,
+  output,
   ViewChild,
 } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
@@ -45,6 +46,9 @@ export class DoubleMassChart implements OnDestroy {
   principalStationName = input<string>('Principal');
   neighborStationName = input<string>('Vizinha');
   loading = input<boolean>(false);
+  showExport = input<boolean>(false);
+  isExporting = input<boolean>(false);
+  exportClick = output<void>();
 
   @ViewChild('chartContainer', { static: true })
   private chartContainer!: ElementRef<HTMLDivElement>;

@@ -15,6 +15,9 @@
           [principalStationName]="principalStationName() | titlecase"
           [neighborStationName]="neighborStationName() | titlecase"
           [loading]="isLoading()"
+          [showExport]="Boolean(analysis()?.double_mass?.points?.length)"
+          [isExporting]="isDownloading()"
+          (exportClick)="onDownloadDoubleMass()"
         />
       </div>
 

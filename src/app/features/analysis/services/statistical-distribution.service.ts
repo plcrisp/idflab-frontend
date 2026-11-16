@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
@@ -48,6 +48,18 @@ export class StatisticalDistributionService {
       `${this.baseUrl}/${projectId}/selection`,
       payload,
     );
+  }
+
+  downloadDistributionZip(
+    projectId: string,
+    delimiter: ';' | ',' = ';',
+  ): Observable<HttpResponse<Blob>> {
+    const params = new HttpParams().set('delimiter', delimiter);
+    return this.http.get<Blob>(`${this.baseUrl}/${projectId}/download`, {
+      params,
+      observe: 'response',
+      responseType: 'blob' as 'json',
+    });
   }
 }
 

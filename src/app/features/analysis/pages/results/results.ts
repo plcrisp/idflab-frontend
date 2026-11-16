@@ -189,7 +189,7 @@ export class Results implements OnInit, OnDestroy {
           try {
             this.fileDownloadService.triggerDownload(
               response,
-              `06-resultados_${p.id}.zip`,
+              `08-resultados_${p.id}.zip`,
             );
           } catch (err) {
             console.error('[Results] Erro ao processar arquivo ZIP baixado:', err);

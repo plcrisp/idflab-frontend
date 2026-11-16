@@ -10,7 +10,7 @@ import {
   untracked,
 } from '@angular/core';
 import { buildAnalysisBreadcrumbs } from '../../../../core/utils/project-step.utils';
-import { Subscription } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { SkeletonLoadingCoordinator, trackWithSkeleton } from '../../../../core/utils/skeleton-loading-coordinator';
 import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
@@ -19,6 +19,8 @@ import { toast } from '@spartan-ng/brain/sonner';
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
 import { ProjectStateService } from '../../services/project-state.service';
 import { StatisticalDistributionService } from '../../services/statistical-distribution.service';
+import { TemporalDisaggregationService } from '../../services/temporal-disaggregation.service';
+import { FileDownloadService } from '../../../../core/services/utils/file-download.service';
 import { InitialVisualizationService } from '../../services/initial-visualization.service';
 import { isSubDailyResolution } from '../../../../core/utils/resolution.utils';
 import { GlobalStats } from '../../shared/models/analysis.models';
@@ -43,6 +45,8 @@ export class Distribution implements OnInit, OnDestroy {
   private readonly projectState = inject(ProjectStateService);
   private readonly router = inject(Router);
   private readonly distributionService = inject(StatisticalDistributionService);
+  private readonly temporalDisaggregationService = inject(TemporalDisaggregationService);
+  private readonly fileDownloadService = inject(FileDownloadService);
   private readonly initialVisualizationService = inject(InitialVisualizationService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -79,6 +83,8 @@ export class Distribution implements OnInit, OnDestroy {
   readonly isLoadingDurationDetail = signal<boolean>(false);
   readonly isSavingSelection = signal<boolean>(false);
   readonly isAdvancing = signal<boolean>(false);
+  readonly isDownloadingAnnualMax = signal<boolean>(false);
+  readonly isDownloadingDistribution = signal<boolean>(false);
 
   private readonly durationCache = new Map<number, DurationDetailResponse>();
   private lastLoadedProjectId: string | null = null;
@@ -321,6 +327,54 @@ export class Distribution implements OnInit, OnDestroy {
     const project = this.project();
     if (!project || this.isAdvancing()) return;
     this.router.navigate(['/app/analysis', project.id, 'temporal-disaggregation']);
+  }
+
+  onDownloadAnnualMaxCsv(): void {
+    const p = this.project();
+    if (!p || this.isDownloadingAnnualMax()) return;
+
+    this.isDownloadingAnnualMax.set(true);
+    this.temporalDisaggregationService
+      .downloadTableCsv(p.id, ';', 'mm_h')
+      .pipe(finalize(() => this.isDownloadingAnnualMax.set(false)))
+      .subscribe({
+        next: (response) => {
+          try {
+            this.fileDownloadService.triggerDownload(response, `04-desagregacao_intensidade-mm-h_${p.id}.csv`);
+          } catch (err) {
+            console.error('[Distribution] Erro ao processar CSV de intensidades máximas:', err);
+            toast.error('Não foi possível baixar a tabela de intensidades máximas.');
+          }
+        },
+        error: (err) => {
+          console.error('[Distribution] Erro ao exportar intensidades máximas:', err);
+          toast.error('Não foi possível exportar a tabela de intensidades máximas.');
+        },
+      });
+  }
+
+  onDownloadDistributionZip(): void {
+    const p = this.project();
+    if (!p || this.isDownloadingDistribution()) return;
+
+    this.isDownloadingDistribution.set(true);
+    this.distributionService
+      .downloadDistributionZip(p.id, ';')
+      .pipe(finalize(() => this.isDownloadingDistribution.set(false)))
+      .subscribe({
+        next: (response) => {
+          try {
+            this.fileDownloadService.triggerDownload(response, `05-distribuicao_${p.id}.zip`);
+          } catch (err) {
+            console.error('[Distribution] Erro ao processar ZIP das distribuições:', err);
+            toast.error('Não foi possível baixar o ajuste das distribuições.');
+          }
+        },
+        error: (err) => {
+          console.error('[Distribution] Erro ao exportar ajuste das distribuições:', err);
+          toast.error('Não foi possível exportar o ajuste das distribuições.');
+        },
+      });
   }
 
   onAdvance(): void {
