@@ -56,16 +56,35 @@
       Voltar
     </button>
 
-    <button
-      hlmBtn
-      (click)="onAdvance()"
-      [disabled]="isAdvanceDisabled() || isAdvancing()"
-    >
-      @if (isAdvancing()) {
-        <hlm-spinner class="mr-2" />
-      }
-      {{ advanceButtonText() }}
-      <ng-icon name="lucideArrowRight" class="ml-2" />
-    </button>
+    <div class="flex items-center gap-2.5 ml-auto">
+      <button
+        hlmBtn
+        variant="outline"
+        type="button"
+        (click)="onDownloadConsistencyCsv()"
+        [disabled]="!hasAnalyzedStation() || isAdvanceDisabled() || isDownloadingConsistency()"
+        class="cursor-pointer inline-flex items-center"
+      >
+        @if (isDownloadingConsistency()) {
+          <hlm-spinner class="mr-2" />
+          <span>Baixando…</span>
+        } @else {
+          <ng-icon name="lucideDownload" class="mr-2 text-xs" />
+          <span>Baixar dupla massa</span>
+        }
+      </button>
+
+      <button
+        hlmBtn
+        (click)="onAdvance()"
+        [disabled]="isAdvanceDisabled() || isAdvancing()"
+      >
+        @if (isAdvancing()) {
+          <hlm-spinner class="mr-2" />
+        }
+        {{ advanceButtonText() }}
+        <ng-icon name="lucideArrowRight" class="ml-2" />
+      </button>
+    </div>
   </div>
 </div>
