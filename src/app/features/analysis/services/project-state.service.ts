@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { catchError, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { ProjectsService } from '../../../core/services/api/projects.service';
 import { Project, StepEnum } from '../../../core/models/api/project.model';
 import { ProjectStepsService } from '../../../core/services/api/project-steps.service';
@@ -131,36 +131,7 @@ export class ProjectStateService {
     const id = projectId || this._project()?.id;
     if (!id) return of([]);
     return this.projectStepsService.getStepsByProject(id).pipe(
-      tap((steps) => {
-        this._projectSteps.update((current) => {
-          const incoming = steps || [];
-          const updated = incoming.map((inc) => {
-            const curr = current.find((c) => c.step === inc.step);
-            if (
-              curr?.params &&
-              !inc.params?.['selected_distribution'] &&
-              curr.params?.['selected_distribution']
-            ) {
-              return {
-                ...inc,
-                params: {
-                  ...inc.params,
-                  selected_distribution: curr.params['selected_distribution'],
-                },
-              };
-            }
-            return inc;
-          });
-
-          for (const c of current) {
-            if (!updated.some((u) => u.step === c.step)) {
-              updated.push(c);
-            }
-          }
-
-          return updated;
-        });
-      }),
+      tap((steps) => this._projectSteps.set(steps || [])),
       catchError((err) => {
         console.error('Erro ao carregar etapas do projeto:', err);
         return of(this._projectSteps());
@@ -169,7 +140,19 @@ export class ProjectStateService {
   }
 
   refreshSteps(): Observable<ProjectStepResponse[]> {
-    return this.loadSteps();
+    const id = this._project()?.id;
+    if (!id) return of([]);
+
+    return forkJoin([
+      this.projectsService.getProjectById(id, true).pipe(
+        tap((project) => this.setProject(project)),
+        catchError((err) => {
+          console.error('Erro ao recarregar projeto:', err);
+          return of(this._project());
+        }),
+      ),
+      this.loadSteps(id),
+    ]).pipe(map(([, steps]) => steps));
   }
 
   updateStepSelection(step: StepEnum, selectedDistribution: string): void {

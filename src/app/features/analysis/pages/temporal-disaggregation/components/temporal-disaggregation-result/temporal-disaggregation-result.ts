@@ -327,7 +327,7 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
           try {
             this.fileDownloadService.triggerDownload(
               response,
-              `desagregacao_temporal_${projectId}.csv`,
+              `03-desagregacao_${projectId}.csv`,
             );
           } catch (err) {
             console.error('[TemporalDisaggregationResult] erro ao processar arquivo baixado:', err);

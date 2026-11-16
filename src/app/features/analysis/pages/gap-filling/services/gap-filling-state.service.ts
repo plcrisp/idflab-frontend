@@ -528,14 +528,14 @@ export class GapFillingStateService {
         this.lastLoadedProjectId = null;
         this.loadSummary(projectId);
         this.notificationsService.refetch();
-        this.projectState.refreshSteps();
+        this.projectState.refreshSteps().subscribe();
       },
       error: () => {
         this.isFilling.set(false);
         this.lastLoadedProjectId = null;
         this.loadSummary(projectId);
         this.notificationsService.refetch();
-        this.projectState.refreshSteps();
+        this.projectState.refreshSteps().subscribe();
       },
     });
   }

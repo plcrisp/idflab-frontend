@@ -340,7 +340,7 @@ export class InitialVisualizationStateService {
       .subscribe({
         next: (response: HttpResponse<Blob>) => {
           try {
-            this.fileDownloadService.triggerDownload(response, `precipitacao_${project.id}.csv`);
+            this.fileDownloadService.triggerDownload(response, `01-dados-brutos_${project.id}.csv`);
           } catch (err) {
             console.error('[InitialVisualizationState] erro ao processar arquivo baixado:', err);
             toast.error('Não foi possível baixar a série bruta. Arquivo vazio.', {

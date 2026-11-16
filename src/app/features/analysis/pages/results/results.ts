@@ -189,7 +189,7 @@ export class Results implements OnInit, OnDestroy {
           try {
             this.fileDownloadService.triggerDownload(
               response,
-              `idf_results_${p.id}.zip`,
+              `06-resultados_${p.id}.zip`,
             );
           } catch (err) {
             console.error('[Results] Erro ao processar arquivo ZIP baixado:', err);
@@ -221,7 +221,7 @@ export class Results implements OnInit, OnDestroy {
           try {
             this.fileDownloadService.triggerDownload(
               response,
-              `idflab_complete_project_${p.id}.zip`,
+              `projeto-completo_${p.id}.zip`,
             );
           } catch (err) {
             console.error('[Results] Erro ao processar projeto completo baixado:', err);

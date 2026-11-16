@@ -454,7 +454,7 @@ export class FutureScenarios implements OnInit, OnDestroy {
           try {
             this.fileDownloadService.triggerDownload(
               response,
-              `future_annual_maximums_${project.id}.csv`,
+              `05-cenarios-futuros_${project.id}.csv`,
             );
           } catch (err) {
             console.error('[FutureScenarios] Erro ao processar download:', err);
@@ -514,7 +514,7 @@ export class FutureScenarios implements OnInit, OnDestroy {
           if (isJobSuccess(job)) {
             this.stopJobPolling();
             this.notificationsService.refetch();
-            this.projectState.refreshSteps();
+            this.projectState.refreshSteps().subscribe();
             this.loadState(projectId, false, true);
           } else if (isJobFailed(job)) {
             this.stopJobPolling();
