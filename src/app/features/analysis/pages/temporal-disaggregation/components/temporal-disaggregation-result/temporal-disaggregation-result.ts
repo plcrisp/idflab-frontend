@@ -118,6 +118,42 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
     return (this.method() || '').toLowerCase().includes('bartlett');
   });
 
+  readonly progressTitle = computed<string>(() => {
+    if (this.isBartlettLewis()) {
+      const station = this.calibrationStation();
+      if (station?.name) {
+        const formattedName = new TitleCasePipe().transform(station.name);
+        return `Desagregação Hyetos-Minute Bartlett-Lewis com ${formattedName}`;
+      }
+      return 'Desagregação Temporal (Hyetos-Minute Bartlett-Lewis)';
+    }
+    if (this.isSubHourly()) {
+      return 'Agregação Direta Observada';
+    }
+    if (this.isHybrid()) {
+      return 'Processamento Híbrido (Fatores CETESB)';
+    }
+    return 'Desagregação Temporal (Fatores CETESB)';
+  });
+
+  readonly progressSource = computed<string | null>(() => {
+    if (!this.isBartlettLewis()) return null;
+    return this.calibrationStation()?.source ?? 'CEMADEN';
+  });
+
+  readonly progressDescription = computed<string>(() => {
+    if (this.isBartlettLewis()) {
+      return 'Calibração dos 5 parâmetros estocásticos e desagregação temporal para as 12 durações.';
+    }
+    if (this.isSubHourly()) {
+      return 'Consolidação das máximas anuais por agregação direta por janela móvel sobre registros de 10 minutos.';
+    }
+    if (this.isHybrid()) {
+      return 'Agregação direta para durações ≥ 1 h e aplicação dos fatores CETESB para durações sub-horárias.';
+    }
+    return 'Aplicação dos fatores de desagregação CETESB para as 12 durações.';
+  });
+
   readonly blParamsList = [
     { key: 'lambda', letter: 'λ', unit: 'h⁻¹', desc: 'Frequência de tempestades' },
     { key: 'beta', letter: 'β', unit: 'h⁻¹', desc: 'Término de células' },

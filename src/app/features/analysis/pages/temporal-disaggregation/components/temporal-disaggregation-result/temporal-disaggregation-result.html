@@ -68,9 +68,9 @@
   @if (isExecuting()) {
   <div class="analysis-loading-wrapper p-4 sm:p-5 w-full flex flex-col">
     <app-job-progress-card variant="full"
-      [customTitle]="calibrationStation()?.name ? ('Desagregação Hyetos-Minute Bartlett-Lewis com ' + (calibrationStation()!.name | titlecase)) : 'Desagregação Temporal (Hyetos-Minute Bartlett-Lewis)'"
-      [customSource]="calibrationStation()?.source ?? 'CEMADEN'"
-      [customDescription]="'Calibração dos 5 parâmetros estocásticos e desagregação temporal para as 12 durações.'"
+      [customTitle]="progressTitle()"
+      [customSource]="progressSource()"
+      [customDescription]="progressDescription()"
       [customMessage]="job()?.details?.message ?? customMessage() ?? 'Processando tarefa de desagregação...'"
       [customProgress]="job()?.progress ?? customProgress() ?? 10"
       class="block [&>div]:border-none [&>div]:shadow-none [&>div]:bg-transparent" />

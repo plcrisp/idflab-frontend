@@ -58,6 +58,7 @@ export interface GapFillingVisualizationResponse {
 export interface GapFillingFilterParams {
   threshold: number; // 0 a 100
   manualOverrides?: Record<string, 'include' | 'exclude'>; // chave = ano (string)
+  manual_overrides?: Record<string, 'include' | 'exclude'>;
   source?: 'original' | 'filled';
 }
 

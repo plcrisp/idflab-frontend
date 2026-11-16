@@ -69,9 +69,14 @@ export class GapFillingService {
     projectId: string,
     params: GapFillingFilterParams,
   ): Observable<GapFillingFilterPreviewResponse> {
+    const overrides = params.manualOverrides ?? params.manual_overrides ?? {};
     return this.http.post<GapFillingFilterPreviewResponse>(
       `${this.baseUrl}/${projectId}/filter/preview`,
-      params,
+      {
+        ...params,
+        manualOverrides: overrides,
+        manual_overrides: overrides,
+      },
     );
   }
 
@@ -79,9 +84,14 @@ export class GapFillingService {
     projectId: string,
     params: GapFillingFilterParams,
   ): Observable<GapFillingFilterConfirmResponse> {
+    const overrides = params.manualOverrides ?? params.manual_overrides ?? {};
     return this.http.post<GapFillingFilterConfirmResponse>(
       `${this.baseUrl}/${projectId}/filter`,
-      params,
+      {
+        ...params,
+        manualOverrides: overrides,
+        manual_overrides: overrides,
+      },
     );
   }
 
