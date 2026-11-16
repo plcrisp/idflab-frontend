@@ -121,14 +121,18 @@ export class EchartsService<T = unknown> {
     renderer?: 'canvas' | 'svg';
   }): void {
     effect(() => {
+      const el = config.container();
       const data = config.data();
       themeTick();
-      if (!data) return;
+
+      // Se o container foi destruído/recriado (ex.: @if), descarta a instância órfã
+      if (this.chart && this.chart.getDom() !== el) {
+        this.destroy();
+      }
+
+      if (!el || !data) return;
 
       if (!this.chart) {
-        const el = config.container();
-        if (!el) return;
-
         this.chart = echarts.init(el, undefined, {
           renderer: config.renderer ?? 'svg',
         });

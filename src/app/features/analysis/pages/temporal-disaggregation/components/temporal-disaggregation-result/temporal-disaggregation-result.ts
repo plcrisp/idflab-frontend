@@ -11,7 +11,7 @@ import {
   OnInit,
   signal,
   untracked,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { HttpResponse } from '@angular/common/http';
@@ -136,8 +136,7 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
     return value.toFixed(4).replace('.', ',');
   }
 
-  @ViewChild('chartContainer', { static: false })
-  private chartContainer?: ElementRef<HTMLDivElement>;
+  private readonly chartContainer = viewChild<ElementRef<HTMLDivElement>>('chartContainer');
 
   private readonly disaggregationService = inject(TemporalDisaggregationService);
   private readonly fileDownloadService = inject(FileDownloadService);
@@ -166,7 +165,7 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
 
   constructor() {
     this.echarts.setup({
-      container: () => this.chartContainer?.nativeElement,
+      container: () => this.chartContainer()?.nativeElement,
       data: computed(() => (this.loadingCurve() || this.isExecuting() ? null : this.decayCurve())),
       buildOption: (data) => this.buildChartOption(data),
     });
