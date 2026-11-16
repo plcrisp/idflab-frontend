@@ -11,8 +11,22 @@ import {
 } from '../../../core/utils/notification-render.util';
 import { JobsService } from '../../../core/services/api/jobs.service';
 import { ProjectStepsService } from '../../../core/services/api/project-steps.service';
-import { Job } from '../../../core/models/api/job.model';
+import { Job, TaskType } from '../../../core/models/api/job.model';
 import { CdkMenuTrigger } from '@angular/cdk/menu';
+
+const TASK_STEP_ROUTE_MAP: Record<TaskType, string | null> = {
+  DOWNLOAD_STATION_DATA: 'initial-view',
+  DOWNLOAD_NEIGHBOR_STATION_DATA: null,
+  QUALITY_ANALYSIS: 'consistency-check',
+  GAP_FILLING: 'gap-filling',
+  TEMPORAL_DISAGGREGATION: 'temporal-disaggregation',
+  STATISTICAL_DISTRIBUTION: 'distribution',
+  GENERATE_IDF: 'historical-idf',
+  DOWNLOAD_CLIMBRA: 'cenarios-futuros',
+  BIAS_CORRECTION: 'cenarios-futuros',
+  FUTURE_SCENARIOS: 'cenarios-futuros',
+  GENERATE_REPORT: 'resultados',
+};
 
 interface NotificationViewModel {
   notif: Notification;
@@ -93,16 +107,21 @@ export class NotificationsBell {
     });
   }
 
+  private navigateToTaskStep(projectId: string, taskType: TaskType, jobId: string | null): void {
+    if (taskType === 'DOWNLOAD_NEIGHBOR_STATION_DATA') {
+      this.navigateForNeighborJob(projectId, jobId);
+      return;
+    }
+
+    const stepPath = TASK_STEP_ROUTE_MAP[taskType];
+    const targetUrl = stepPath ? `/app/analysis/${projectId}/${stepPath}` : `/app/analysis/${projectId}`;
+    this.router.navigateByUrl(targetUrl);
+  }
+
   openJob(job: ActiveJobItem): void {
     if (!job.project_id) return;
     this.menuTrigger.close();
-    if (job.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA') {
-      this.navigateForNeighborJob(job.project_id, job.job_id);
-    } else if (job.task_type === 'GAP_FILLING') {
-      this.router.navigateByUrl(`/app/analysis/${job.project_id}/gap-filling`);
-    } else {
-      this.router.navigateByUrl(`/app/analysis/${job.project_id}`);
-    }
+    this.navigateToTaskStep(job.project_id, job.task_type, job.job_id);
   }
 
   openNotification(notif: Notification): void {
@@ -110,63 +129,47 @@ export class NotificationsBell {
     if (!notif.read) {
       this.markAsRead(notif.id);
     }
+
     if (notif.type === 'TIMEOUT') {
       this.retryTimeoutNotif(notif.job_id);
-      if (notif.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA' && notif.project_id) {
-        this.navigateForNeighborJob(notif.project_id, notif.job_id);
-      } else if (notif.task_type === 'GAP_FILLING' && notif.project_id) {
-        this.router.navigateByUrl(`/app/analysis/${notif.project_id}/gap-filling`);
-      }
-    } else {
-      this.openProject(notif);
-    }
-  }
-
-  private openProject(notif: Notification): void {
-    if (notif.type === 'SUCCESS') {
       if (notif.project_id) {
-        if (notif.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA') {
-          this.navigateForNeighborJob(notif.project_id, notif.job_id);
-        } else if (notif.task_type === 'GAP_FILLING') {
-          this.router.navigateByUrl(`/app/analysis/${notif.project_id}/gap-filling`);
-        } else {
-          this.router.navigateByUrl(`/app/analysis/${notif.project_id}`);
-        }
+        this.navigateToTaskStep(notif.project_id, notif.task_type, notif.job_id);
+      } else if (notif.task_type === 'DOWNLOAD_STATION_DATA') {
+        this.navigateToFailedStationMap(notif);
       }
       return;
     }
 
     if (notif.type === 'FAILED') {
-      if (notif.task_type === 'DOWNLOAD_NEIGHBOR_STATION_DATA') {
-        if (notif.project_id) {
-          this.navigateForNeighborJob(notif.project_id, notif.job_id);
-        }
+      if (notif.task_type === 'DOWNLOAD_STATION_DATA' || !notif.project_id) {
+        this.navigateToFailedStationMap(notif);
         return;
       }
+      this.navigateToTaskStep(notif.project_id, notif.task_type, notif.job_id);
+      return;
+    }
 
-      if (notif.task_type === 'GAP_FILLING') {
-        if (notif.project_id) {
-          this.router.navigateByUrl(`/app/analysis/${notif.project_id}/gap-filling`);
-        }
-        return;
-      }
+    if (notif.project_id) {
+      this.navigateToTaskStep(notif.project_id, notif.task_type, notif.job_id);
+    }
+  }
 
-      const detailsStationId = (notif.details as any)?.station_id;
+  private navigateToFailedStationMap(notif: Notification): void {
+    const detailsStationId = (notif.details as { station_id?: string })?.station_id;
 
-      if (notif.project_id) {
-        this.projectsService.getProjectById(notif.project_id).subscribe({
-          next: (project: Project) => {
-            const stationId = project.station_id || project.station?.id || detailsStationId;
-            this.navigateToMapWithStation(stationId);
-          },
-          error: (err) => {
-            console.error('Erro ao buscar projeto para navegação:', err);
-            this.navigateToMapWithStation(detailsStationId);
-          },
-        });
-      } else {
-        this.navigateToMapWithStation(detailsStationId);
-      }
+    if (notif.project_id) {
+      this.projectsService.getProjectById(notif.project_id).subscribe({
+        next: (project: Project) => {
+          const stationId = project.station_id || project.station?.id || detailsStationId;
+          this.navigateToMapWithStation(stationId);
+        },
+        error: (err) => {
+          console.error('Erro ao buscar projeto para navegação:', err);
+          this.navigateToMapWithStation(detailsStationId);
+        },
+      });
+    } else {
+      this.navigateToMapWithStation(detailsStationId);
     }
   }
 
