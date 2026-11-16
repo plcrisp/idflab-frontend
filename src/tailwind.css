@@ -4,6 +4,8 @@
 @theme {
   --color-success: var(--success);
   --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-icon: var(--warning-icon);
 }
 
 @layer theme, base, components, utilities;

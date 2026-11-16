@@ -102,9 +102,9 @@
     <!-- Aviso de Estado Desatualizado (OUTDATED) -->
     @if (isOutdated()) {
       <div
-        class="mx-4 mt-4 p-3 rounded-lg border border-warning/30 bg-warning/10 text-warning text-xs flex items-center gap-2 font-medium"
+        class="mx-4 mt-4 p-3 rounded-lg border border-warning/30 bg-warning/10 text-warning-foreground text-xs flex items-center gap-2 font-medium"
       >
-        <ng-icon name="lucideTriangleAlert" class="shrink-0 text-sm" />
+        <ng-icon name="lucideTriangleAlert" class="shrink-0 text-sm text-warning-icon" />
         <span>{{ outdatedMessage() }}</span>
       </div>
     }

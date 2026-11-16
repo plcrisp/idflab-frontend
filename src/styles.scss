@@ -111,6 +111,8 @@ body {
 
     --destructive: #ef4444;
     --destructive-foreground: #ffffff;
+    --warning-foreground: #78350f;
+    --warning-icon: #d97706;
 
     --border: var(--neutral-200);
     --input: var(--neutral-200);
@@ -160,6 +162,8 @@ body {
 
     --destructive: #ef4444;
     --destructive-foreground: var(--neutral-50);
+    --warning-foreground: #fde68a;
+    --warning-icon: #fbbf24;
 
     --border: var(--neutral-800);
     --input: var(--neutral-800);

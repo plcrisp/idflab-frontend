@@ -84,11 +84,15 @@
       <div class="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg border text-xs transition-colors"
         [ngClass]="{
                 'border-destructive/30 bg-destructive/10 text-destructive': warn.severity === 'destructive',
-                'border-warning/30 bg-warning/10 text-warning-foreground dark:text-warning': warn.severity === 'warning',
+                'border-warning/30 bg-warning/10 text-warning-foreground': warn.severity === 'warning',
                 'border-border/80 bg-secondary/60 text-foreground': warn.severity === 'info'
               }">
         <div class="flex items-center gap-2.5 min-w-0">
-          <ng-icon [name]="warn.icon" class="text-sm shrink-0" />
+          <ng-icon
+            [name]="warn.icon"
+            class="text-sm shrink-0"
+            [class.text-warning-icon]="warn.severity === 'warning'"
+          />
           <span class="leading-relaxed">{{ warn.message }}</span>
         </div>
 
