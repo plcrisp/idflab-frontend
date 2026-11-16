@@ -601,7 +601,6 @@ export class TemporalDisaggregation {
     this.blJob.set(null);
     this.isBartlettExecuted.set(true);
     this.executedMethod.set('BARTLETT_LEWIS');
-    toast.success('Desagregação Hyetos-Minute Bartlett-Lewis concluída com sucesso!');
     this.notificationsService.refetch();
     const stationId = this.project()?.station?.id ?? this.project()?.station_id;
     this.checkExistingStep(projectId, stationId);
@@ -615,11 +614,6 @@ export class TemporalDisaggregation {
     this.isExecutingBl.set(false);
     this.isBlError.set(true);
     this.blJob.set(null);
-    const msg =
-      job?.details?.error_log ??
-      job?.details?.message ??
-      'Falha na desagregação temporal Hyetos-Minute Bartlett-Lewis.';
-    toast.error(msg);
     this.notificationsService.refetch();
   }
 

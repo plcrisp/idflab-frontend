@@ -120,12 +120,17 @@ export class NotificationsService {
     const { title, message } = renderNotification(notification);
     const toastContent = `${message}`;
 
-    const action = notification.project_id
-      ? {
-          label: 'Ver análise →',
-          onClick: () => this.router.navigateByUrl(`/app/analysis/${notification.project_id}`),
-        }
-      : undefined;
+    const isAlreadyInProject =
+      !!notification.project_id &&
+      this.router.url.startsWith(`/app/analysis/${notification.project_id}`);
+
+    const action =
+      notification.project_id && !isAlreadyInProject
+        ? {
+            label: 'Ver análise →',
+            onClick: () => this.router.navigateByUrl(`/app/analysis/${notification.project_id}`),
+          }
+        : undefined;
 
     if (notification.type === 'SUCCESS') {
       toast.success(toastContent, {

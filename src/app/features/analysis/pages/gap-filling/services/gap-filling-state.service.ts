@@ -564,6 +564,6 @@ export class GapFillingStateService {
       (job.details as any)?.error_log ??
       'Falha no processamento do preenchimento de falhas';
     this.fillError.set(msg);
-    toast.error(msg);
+    this.notificationsService.refetch();
   }
 }

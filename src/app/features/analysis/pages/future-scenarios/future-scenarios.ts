@@ -544,11 +544,6 @@ export class FutureScenarios implements OnInit, OnDestroy {
           } else if (isFailed) {
             this.stopJobPolling();
             this.notificationsService.refetch();
-            const errorMsg =
-              job.details?.error_log ||
-              job.details?.message ||
-              'Falha ao processar a correção de viés.';
-            toast.error(errorMsg);
             this.loadState(projectId, false, false);
           }
         },
