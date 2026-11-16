@@ -54,6 +54,8 @@
     [totalYears]="state.stats()?.total_years ?? null"
     [historicalMaxValue]="state.stats()?.max_value ?? null"
     [historicalMaxDate]="state.stats()?.max_value_date ?? null"
+    [startDate]="state.project()?.start_date ?? null"
+    [endDate]="state.project()?.end_date ?? null"
     [disabled]="state.isSelectionLocked() || state.isFilling()"
     (recalculate)="onFillGaps()" />
   }

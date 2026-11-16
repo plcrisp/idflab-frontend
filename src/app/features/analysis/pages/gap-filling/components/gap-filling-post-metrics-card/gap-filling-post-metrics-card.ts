@@ -93,6 +93,8 @@ export class GapFillingPostMetricsCard {
   readonly totalYears = input<number | null>(null);
   readonly historicalMaxValue = input<number | null>(null);
   readonly historicalMaxDate = input<string | null>(null);
+  readonly startDate = input<string | null>(null);
+  readonly endDate = input<string | null>(null);
   readonly disabled = input<boolean>(false);
 
   readonly recalculate = output<void>();
@@ -186,6 +188,13 @@ export class GapFillingPostMetricsCard {
   );
 
   readonly minDate = computed<Date | undefined>(() => {
+    const startStr = this.startDate();
+    if (startStr) {
+      const parts = startStr.slice(0, 10).split('-').map(Number);
+      if (parts.length === 3 && parts.every((n) => !Number.isNaN(n))) {
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+      }
+    }
     const yearly = this.visualization()?.yearly_corrections;
     if (!yearly || !yearly.length) return undefined;
     const minYear = Math.min(...yearly.map((y) => y.year));
@@ -193,6 +202,13 @@ export class GapFillingPostMetricsCard {
   });
 
   readonly maxDate = computed<Date | undefined>(() => {
+    const endStr = this.endDate();
+    if (endStr) {
+      const parts = endStr.slice(0, 10).split('-').map(Number);
+      if (parts.length === 3 && parts.every((n) => !Number.isNaN(n))) {
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+      }
+    }
     const yearly = this.visualization()?.yearly_corrections;
     if (!yearly || !yearly.length) return undefined;
     const maxYear = Math.max(...yearly.map((y) => y.year));
@@ -233,8 +249,8 @@ export class GapFillingPostMetricsCard {
 
     if (start.getTime() > end.getTime()) {
       const temp = start;
-      end = start;
-      start = temp;
+      start = end;
+      end = temp;
     }
 
     const MAX_SPAN_MS = 365 * 24 * 60 * 60 * 1000;

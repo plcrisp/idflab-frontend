@@ -81,12 +81,12 @@ export class TimeSeriesPanel {
 
   firstYear = computed(() => {
     const summary = this.yearly_summary();
-    return summary.length > 0 ? summary[0].year : null;
+    return summary.length > 0 ? Math.min(...summary.map((s) => s.year)) : null;
   });
 
   lastYear = computed(() => {
     const summary = this.yearly_summary();
-    return summary.length > 0 ? summary[summary.length - 1].year : null;
+    return summary.length > 0 ? Math.max(...summary.map((s) => s.year)) : null;
   });
 
   minDate = computed<Date | undefined>(() => {
