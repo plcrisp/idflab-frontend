@@ -79,18 +79,34 @@
       }
       } @else {
       @for (cell of preview()?.years ?? []; track cell.year) {
-      <div class="relative group hover:z-50 focus-within:z-50">
-        <button type="button" (click)="toggleYearAction(cell)"
-          class="w-3.5 h-5 rounded-sm transition-opacity duration-150 hover:opacity-80 cursor-pointer block border-none p-0 focus:outline-hidden"
-          [ngClass]="[
-            cellColor(cell.completeness),
-            cell.final_action === 'exclude' ? '!opacity-25' : 'opacity-100',
-            cell.is_suspicious_max ? 'ring-2 ring-warning ring-offset-1 ring-offset-popover' : ''
-          ]"></button>
+      <button
+        type="button"
+        cdkOverlayOrigin
+        #cellOrigin="cdkOverlayOrigin"
+        (click)="toggleYearAction(cell)"
+        (mouseenter)="openCellTooltip(cell, cellOrigin)"
+        (mouseleave)="closeCellTooltip(cell)"
+        (focus)="openCellTooltip(cell, cellOrigin)"
+        (blur)="closeCellTooltip(cell)"
+        class="w-3.5 h-5 rounded-sm transition-opacity duration-150 hover:opacity-80 cursor-pointer block border-none p-0 focus:outline-hidden"
+        [ngClass]="[
+          cellColor(cell.completeness),
+          cell.final_action === 'exclude' ? '!opacity-25' : 'opacity-100',
+          cell.is_suspicious_max ? 'ring-2 ring-warning ring-offset-1 ring-offset-popover' : ''
+        ]"></button>
+      }
 
-        <!-- Tooltip Rico / Popover Contextual com Z-Index Alto -->
+      @if (activeTooltipOrigin(); as origin) {
+      <ng-template
+        cdkConnectedOverlay
+        [cdkConnectedOverlayOrigin]="origin"
+        [cdkConnectedOverlayOpen]="!!activeTooltipCell()"
+        [cdkConnectedOverlayPositions]="tooltipPositions"
+        [cdkConnectedOverlayPush]="true"
+        [cdkConnectedOverlayViewportMargin]="8">
+        @if (activeTooltipCell(); as cell) {
         <div
-          class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 rounded-lg bg-popover border border-border px-3.5 py-2.5 invisible opacity-0 scale-95 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-hover:scale-100 group-focus-within:visible group-focus-within:opacity-100 group-focus-within:scale-100 z-50 shadow-md text-left"
+          class="pointer-events-none rounded-lg bg-popover border border-border px-3.5 py-2.5 shadow-md text-left"
           [class.w-72]="cell.is_suspicious_max"
           [class.whitespace-normal]="cell.is_suspicious_max"
           [class.whitespace-nowrap]="!cell.is_suspicious_max">
@@ -123,7 +139,8 @@
           }
           }
         </div>
-      </div>
+        }
+      </ng-template>
       }
       }
     </div>

@@ -38,4 +38,12 @@ export class DataAvailabilityRibbon {
       failure: 'bg-(--destructive)',
     }[status];
   }
+
+  cellTooltip(cell: YearCell): string {
+    const pct = cell.completeness.toLocaleString('pt-BR', {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    });
+    return `${cell.year} · ${pct}% completo`;
+  }
 }

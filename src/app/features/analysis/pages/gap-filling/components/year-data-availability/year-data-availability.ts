@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition } from '@angular/cdk/overlay';
 import { catchError, debounceTime, of, Subject, Subscription, switchMap } from 'rxjs';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideInfo, lucideRotateCcw, lucideTriangleAlert } from '@ng-icons/lucide';
@@ -39,6 +40,8 @@ export interface YearFilterState {
   standalone: true,
   imports: [
     CommonModule,
+    CdkOverlayOrigin,
+    CdkConnectedOverlay,
     NgIcon,
     ...HlmBadgeImports,
     ...HlmButtonImports,
@@ -72,6 +75,17 @@ export class YearDataAvailability implements OnInit {
   readonly preview = signal<GapFillingFilterPreviewResponse | null>(null);
   readonly isLoading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
+  readonly activeTooltipCell = signal<GapFillingFilterYearItem | null>(null);
+  readonly activeTooltipOrigin = signal<CdkOverlayOrigin | null>(null);
+
+  readonly tooltipPositions: ConnectedPosition[] = [
+    { originX: 'center', originY: 'top', overlayX: 'center', overlayY: 'bottom', offsetY: -8 },
+    { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -8 },
+    { originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom', offsetY: -8 },
+    { originX: 'center', originY: 'bottom', overlayX: 'center', overlayY: 'top', offsetY: 8 },
+    { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 8 },
+    { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 8 },
+  ];
 
   readonly placeholderCells = Array.from({ length: 35 }, (_, i) => i);
 
@@ -220,6 +234,17 @@ export class YearDataAvailability implements OnInit {
       return `${parts[2]}/${parts[1]}/${parts[0]}`;
     }
     return dateStr;
+  }
+
+  openCellTooltip(cell: GapFillingFilterYearItem, origin: CdkOverlayOrigin): void {
+    this.activeTooltipOrigin.set(origin);
+    this.activeTooltipCell.set(cell);
+  }
+
+  closeCellTooltip(cell: GapFillingFilterYearItem): void {
+    if (this.activeTooltipCell()?.year === cell.year) {
+      this.activeTooltipCell.set(null);
+    }
   }
 
   private emitState(): void {
