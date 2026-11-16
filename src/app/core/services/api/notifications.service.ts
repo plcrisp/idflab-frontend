@@ -88,11 +88,16 @@ export class NotificationsService {
   private startPolling(): void {
     this.pollingSub?.unsubscribe();
 
-    this.pollingSub = poll(
-      () => this.getPanel(),
-      POLL_INTERVAL_MS,
-      (result) => result.active_jobs.length > 0,
-    ).subscribe((result) => this.handleNewData(result));
+    this.pollingSub = poll(() => this.getPanel(), {
+      intervalMs: POLL_INTERVAL_MS,
+      backoffFactor: 1.25,
+      maxIntervalMs: 15000,
+      jitterRatio: 0.1,
+      pauseWhenHidden: true,
+      maxRetries: 2,
+      propagateError: false,
+      shouldContinue: (result) => result.active_jobs.length > 0,
+    }).subscribe((result) => this.handleNewData(result));
   }
 
   private stopPolling(): void {

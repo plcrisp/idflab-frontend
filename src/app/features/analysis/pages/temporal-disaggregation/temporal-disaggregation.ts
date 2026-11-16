@@ -11,9 +11,8 @@ import {
 } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { finalize, Subscription, timer } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { FileDownloadService } from '../../../../core/services/utils/file-download.service';
-import { switchMap, takeWhile, tap } from 'rxjs/operators';
 import { toast } from '@spartan-ng/brain/sonner';
 
 import { ProjectStateService } from '../../services/project-state.service';
@@ -22,7 +21,7 @@ import { NotificationsService } from '../../../../core/services/api/notification
 import { ProjectStepsService } from '../../../../core/services/api/project-steps.service';
 import { StationService } from '../../../../core/services/api/stations.service';
 import { TemporalDisaggregationService } from '../../services/temporal-disaggregation.service';
-import { JobsService } from '../../../../core/services/api/jobs.service';
+import { isJobFailed, isJobSuccess, JobsService } from '../../../../core/services/api/jobs.service';
 import { NeighborStationsManagerService } from '../../shared/services/neighbor-stations-manager.service';
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
 import { SkeletonLoadingCoordinator, trackWithSkeleton } from '../../../../core/utils/skeleton-loading-coordinator';
@@ -562,32 +561,16 @@ export class TemporalDisaggregation {
     this.isBlError.set(false);
     this.blSub?.unsubscribe();
 
-    this.blSub = timer(0, 2000)
-      .pipe(
-        switchMap(() => this.jobsService.getJob(jobId)),
-        tap((job) => this.blJob.set(job)),
-        takeWhile((job) => {
-          const status = (job.status || '').toUpperCase();
-          const isDone =
-            status === 'SUCCESS' ||
-            status === 'COMPLETED' ||
-            status === 'FAILED' ||
-            status === 'FAILURE' ||
-            status === 'ERROR' ||
-            (job.progress ?? 0) >= 100;
-          return !isDone;
-        }, true),
-      )
-      .subscribe({
-        next: (job) => {
-          const status = (job.status || '').toUpperCase();
-          if (status === 'SUCCESS' || status === 'COMPLETED' || (job.progress ?? 0) >= 100) {
-            this.handleBlSuccess(projectId);
-          } else if (status === 'FAILED' || status === 'FAILURE' || status === 'ERROR') {
-            this.handleBlFailure(job);
-          }
-        },
-        error: (err) => {
+    this.blSub = this.jobsService.watchJob(jobId).subscribe({
+      next: (job) => {
+        this.blJob.set(job);
+        if (isJobSuccess(job)) {
+          this.handleBlSuccess(projectId);
+        } else if (isJobFailed(job)) {
+          this.handleBlFailure(job);
+        }
+      },
+      error: (err) => {
           this.isExecutingBl.set(false);
           const msg =
             err?.error?.message ?? 'Erro ao acompanhar processamento da desagregação Hyetos-Minute Bartlett-Lewis.';

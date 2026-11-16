@@ -281,7 +281,26 @@ export class TimeSeriesDetailChart implements OnDestroy {
     ];
 
     if (hasFilledData) {
-      series.push(buildFilledDataLegendSeries(t, CHART_LEGEND_LABELS.dadoPreenchido));
+      if (isHighVolume) {
+        const filledPoints = points
+          .filter((p: DetailPoint) => !p.is_failure && p.is_filled === true && p.value !== null)
+          .map((p: DetailPoint) => ({
+            value: [new Date(p.date).getTime(), p.value],
+            isFilled: true,
+            isPico: p.date === maxPeriodoDate,
+          }));
+
+        series.push({
+          name: CHART_LEGEND_LABELS.dadoPreenchido,
+          type: 'scatter',
+          data: filledPoints,
+          symbolSize: 5,
+          itemStyle: { color: t.chartBarFilled },
+          z: 3,
+        });
+      } else {
+        series.push(buildFilledDataLegendSeries(t, CHART_LEGEND_LABELS.dadoPreenchido));
+      }
     }
 
     if (hasHistoricalMax) {

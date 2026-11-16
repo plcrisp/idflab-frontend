@@ -9,13 +9,12 @@ import {
   Signal,
   untracked,
 } from '@angular/core';
-import { Subscription, timer } from 'rxjs';
-import { switchMap, tap, takeWhile } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 import { ProjectStateService } from '../../../services/project-state.service';
 import { InitialVisualizationService } from '../../../services/initial-visualization.service';
 import { ProjectStepsService } from '../../../../../core/services/api/project-steps.service';
-import { JobsService } from '../../../../../core/services/api/jobs.service';
+import { isJobFailed, isJobSuccess, JobsService } from '../../../../../core/services/api/jobs.service';
 import { NotificationsService } from '../../../../../core/services/api/notifications.service';
 import { GapFillingService } from '../../../services/gap-filling.service';
 import { NeighborStationsManagerService } from '../../../shared/services/neighbor-stations-manager.service';
@@ -484,32 +483,16 @@ export class GapFillingStateService {
     }
     this.fillSub?.unsubscribe();
 
-    this.fillSub = timer(0, 2000)
-      .pipe(
-        switchMap(() => this.jobsService.getJob(jobId)),
-        tap((job) => this.fillingJob.set(job)),
-        takeWhile((job) => {
-          const status = (job.status || '').toUpperCase();
-          const isDone =
-            status === 'SUCCESS' ||
-            status === 'COMPLETED' ||
-            status === 'FAILED' ||
-            status === 'FAILURE' ||
-            status === 'ERROR' ||
-            (job.progress ?? 0) >= 100;
-          return !isDone;
-        }, true),
-      )
-      .subscribe({
-        next: (job) => {
-          const status = (job.status || '').toUpperCase();
-          if (status === 'SUCCESS' || status === 'COMPLETED' || (job.progress ?? 0) >= 100) {
-            this.handleJobSuccess(projectId);
-          } else if (status === 'FAILED' || status === 'FAILURE' || status === 'ERROR') {
-            this.handleJobFailure(job);
-          }
-        },
-        error: (err) => {
+    this.fillSub = this.jobsService.watchJob(jobId).subscribe({
+      next: (job) => {
+        this.fillingJob.set(job);
+        if (isJobSuccess(job)) {
+          this.handleJobSuccess(projectId);
+        } else if (isJobFailed(job)) {
+          this.handleJobFailure(job);
+        }
+      },
+      error: (err) => {
           this.isFilling.set(false);
           const msg = err?.error?.message ?? 'Erro ao acompanhar processamento do preenchimento';
           this.fillError.set(msg);

@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { finalize, Subscription, switchMap, takeUntil, takeWhile, tap, timer } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { FileDownloadService } from '../../../../core/services/utils/file-download.service';
 import { toast } from '@spartan-ng/brain/sonner';
 
@@ -19,7 +19,7 @@ import { MainLayoutService } from '../../../../core/services/state/main-layout.s
 import { ProjectStateService } from '../../services/project-state.service';
 import { InitialVisualizationService } from '../../services/initial-visualization.service';
 import { FutureScenariosService } from '../../services/future-scenarios.service';
-import { JobsService } from '../../../../core/services/api/jobs.service';
+import { isJobFailed, isJobSuccess, JobsService } from '../../../../core/services/api/jobs.service';
 import { NotificationsService } from '../../../../core/services/api/notifications.service';
 import {
   SkeletonLoadingCoordinator,
@@ -500,48 +500,23 @@ export class FutureScenarios implements OnInit, OnDestroy {
     this.stopJobPolling();
     this.isPolling.set(true);
 
-    this.pollSub = timer(0, 2000)
-      .pipe(
-        takeUntil(timer(180_000)),
-        switchMap(() => this.jobsService.getJob(jobId)),
-        tap((job) => {
+    this.pollSub = this.jobsService
+      .watchJob(jobId, { maxDurationMs: 180_000 })
+      .subscribe({
+        next: (job) => {
           if (job.progress != null) {
             this.polledJobProgress.set(job.progress);
           }
           if (job.details?.message) {
             this.polledJobMessage.set(job.details.message);
           }
-        }),
-        takeWhile((job) => {
-          const status = (job.status || '').toUpperCase();
-          const isDone =
-            status === 'SUCCESS' ||
-            status === 'COMPLETED' ||
-            status === 'FAILED' ||
-            status === 'FAILURE' ||
-            status === 'ERROR' ||
-            (job.progress ?? 0) >= 100;
-          return !isDone;
-        }, true),
-      )
-      .subscribe({
-        next: (job) => {
-          const status = (job.status || '').toUpperCase();
-          const isSuccess =
-            status === 'SUCCESS' ||
-            status === 'COMPLETED' ||
-            (job.progress ?? 0) >= 100;
-          const isFailed =
-            status === 'FAILED' ||
-            status === 'FAILURE' ||
-            status === 'ERROR';
 
-          if (isSuccess) {
+          if (isJobSuccess(job)) {
             this.stopJobPolling();
             this.notificationsService.refetch();
             this.projectState.refreshSteps();
             this.loadState(projectId, false, true);
-          } else if (isFailed) {
+          } else if (isJobFailed(job)) {
             this.stopJobPolling();
             this.notificationsService.refetch();
             this.loadState(projectId, false, false);
