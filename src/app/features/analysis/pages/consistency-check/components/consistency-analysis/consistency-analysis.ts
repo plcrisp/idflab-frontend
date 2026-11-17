@@ -8,11 +8,9 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { finalize, Subscription } from 'rxjs';
-import { toast } from '@spartan-ng/brain/sonner';
+import { Subscription } from 'rxjs';
 import { ConsistencyCheckService } from '../../../../services/consistency-check.service';
 import { ProjectStateService } from '../../../../services/project-state.service';
-import { FileDownloadService } from '../../../../../../core/services/utils/file-download.service';
 import { NeighborStation } from '../../../../../../core/models/api/station.model';
 import { ConsistencyCheckResponse } from '../../models/consistency-check.model';
 import { StatCardFooter, StatCardSemanticVariant } from '../../../../shared/models/analysis.models';
@@ -26,7 +24,6 @@ import { StatCardFooter, StatCardSemanticVariant } from '../../../../shared/mode
 export class ConsistencyAnalysis {
   private consistencyCheckService = inject(ConsistencyCheckService);
   private projectState = inject(ProjectStateService);
-  private fileDownloadService = inject(FileDownloadService);
   private destroyRef = inject(DestroyRef);
 
   projectId = input<string | null>(null);
@@ -34,7 +31,6 @@ export class ConsistencyAnalysis {
 
   readonly analysis = signal<ConsistencyCheckResponse | null>(null);
   readonly isLoading = signal<boolean>(false);
-  readonly isDownloading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
 
   private analysisSub: Subscription | null = null;
@@ -214,31 +210,6 @@ export class ConsistencyAnalysis {
           console.error('[ConsistencyAnalysis] Erro ao carregar dados da consistência:', err);
           this.error.set('Não foi possível obter os dados de consistência da estação selecionada.');
           this.isLoading.set(false);
-        },
-      });
-  }
-
-  onDownloadDoubleMass(): void {
-    const pid = this.projectId();
-    const neighborId = this.neighborStation()?.id;
-    if (!pid || !neighborId || this.isDownloading()) return;
-
-    this.isDownloading.set(true);
-    this.consistencyCheckService
-      .downloadConsistencyCsv(pid, neighborId, ';')
-      .pipe(finalize(() => this.isDownloading.set(false)))
-      .subscribe({
-        next: (response) => {
-          try {
-            this.fileDownloadService.triggerDownload(response, `02-consistencia_${pid}.csv`);
-          } catch (err) {
-            console.error('[ConsistencyAnalysis] Erro ao processar download:', err);
-            toast.error('Não foi possível baixar a curva de dupla massa.');
-          }
-        },
-        error: (err) => {
-          console.error('[ConsistencyAnalysis] Erro ao baixar dupla massa:', err);
-          toast.error('Não foi possível exportar a curva de dupla massa.');
         },
       });
   }

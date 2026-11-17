@@ -71,7 +71,7 @@ export class HistoricalIdfEquationCard {
   readonly periodLabel = computed<string>(() => {
     const p = this.appliedParams()?.period;
     if (!p) return '';
-    return p.replace('-', '–');
+    return p.replace(/\s*[-–]\s*/, ' - ');
   });
 
   formatDeltaPct(base: number | null | undefined, target: number | null | undefined): string {

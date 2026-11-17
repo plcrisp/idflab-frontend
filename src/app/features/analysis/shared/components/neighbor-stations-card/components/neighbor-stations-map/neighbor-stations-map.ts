@@ -13,6 +13,7 @@ import {
 import { TitleCasePipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import * as mapboxgl from 'mapbox-gl';
+import { buildVisualCoordinatesMap } from '../../../../../../../core/utils/map-coordinates.utils';
 import { NeighborStation, StationSummary } from '../../../../../../../core/models/api/station.model';
 import { ThemeService } from '../../../../../../../core/services/utils/theme.service';
 import { environment } from '../../../../../../../../environments/environment';
@@ -155,9 +156,37 @@ export class NeighborStationsMap implements AfterViewInit, OnChanges, OnDestroy 
 
     this.clearAllMarkers();
 
+    const coordItems: { key: string; lat: number; lng: number }[] = [];
+    if (this.mainStation?.latitude && this.mainStation?.longitude) {
+      coordItems.push({
+        key: `main:${this.mainStation.id}`,
+        lat: this.mainStation.latitude,
+        lng: this.mainStation.longitude,
+      });
+    }
+    for (const neighbor of this.neighbors) {
+      if (!neighbor.latitude || !neighbor.longitude) continue;
+      coordItems.push({
+        key: `neighbor:${neighbor.id}`,
+        lat: neighbor.latitude,
+        lng: neighbor.longitude,
+      });
+    }
+
+    const visualCoords = buildVisualCoordinatesMap(
+      coordItems,
+      (item) => item.key,
+      (item) => item.lat,
+      (item) => item.lng,
+    );
+
     // 1. Renderiza o Marcador da Estação Principal (Referência)
     if (this.mainStation?.latitude && this.mainStation?.longitude) {
-      this.mainMarker = this.createMainStationMarker(this.mainStation);
+      const [lng, lat] = visualCoords.get(`main:${this.mainStation.id}`) ?? [
+        this.mainStation.longitude,
+        this.mainStation.latitude,
+      ];
+      this.mainMarker = this.createMainStationMarker(this.mainStation, lng, lat);
       this.mainMarker.addTo(this.map);
     }
 
@@ -166,7 +195,11 @@ export class NeighborStationsMap implements AfterViewInit, OnChanges, OnDestroy 
       if (!neighbor.latitude || !neighbor.longitude) continue;
 
       const isSelected = this.selectedNeighbor?.id === neighbor.id;
-      const markerEntry = this.createNeighborMarker(neighbor, isSelected);
+      const [lng, lat] = visualCoords.get(`neighbor:${neighbor.id}`) ?? [
+        neighbor.longitude,
+        neighbor.latitude,
+      ];
+      const markerEntry = this.createNeighborMarker(neighbor, isSelected, lng, lat);
       markerEntry.marker.addTo(this.map);
       this.neighborMarkers.set(neighbor.id, markerEntry);
     }
@@ -191,7 +224,7 @@ export class NeighborStationsMap implements AfterViewInit, OnChanges, OnDestroy 
     return MAP_COLORS.inmet;
   }
 
-  private createMainStationMarker(station: StationSummary): mapboxgl.Marker {
+  private createMainStationMarker(station: StationSummary, lng: number, lat: number): mapboxgl.Marker {
     const el = document.createElement('div');
     el.className = 'main-station-marker-container';
     const sourceColor = this.getMainStationColor();
@@ -218,7 +251,7 @@ export class NeighborStationsMap implements AfterViewInit, OnChanges, OnDestroy 
 
     el.addEventListener('mouseenter', () => {
       this.hoverPopup
-        .setLngLat([station.longitude, station.latitude])
+        .setLngLat([lng, lat])
         .setHTML(html)
         .addTo(this.map!);
     });
@@ -227,13 +260,10 @@ export class NeighborStationsMap implements AfterViewInit, OnChanges, OnDestroy 
       this.hoverPopup.remove();
     });
 
-    return new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat([
-      station.longitude,
-      station.latitude,
-    ]);
+    return new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat([lng, lat]);
   }
 
-  private createNeighborMarker(neighbor: NeighborStation, isSelected: boolean): MarkerEntry {
+  private createNeighborMarker(neighbor: NeighborStation, isSelected: boolean, lng: number, lat: number): MarkerEntry {
     const el = document.createElement('div');
     el.className = `neighbor-marker-container ${isSelected ? 'is-selected' : ''}`;
     el.id = `mini-map-marker-${neighbor.id}`;
@@ -263,7 +293,7 @@ export class NeighborStationsMap implements AfterViewInit, OnChanges, OnDestroy 
 
     el.addEventListener('mouseenter', () => {
       this.hoverPopup
-        .setLngLat([neighbor.longitude, neighbor.latitude])
+        .setLngLat([lng, lat])
         .setHTML(html)
         .addTo(this.map!);
     });
@@ -272,10 +302,7 @@ export class NeighborStationsMap implements AfterViewInit, OnChanges, OnDestroy 
       this.hoverPopup.remove();
     });
 
-    const marker = new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat([
-      neighbor.longitude,
-      neighbor.latitude,
-    ]);
+    const marker = new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat([lng, lat]);
 
     return { marker, element: el, neighbor };
   }

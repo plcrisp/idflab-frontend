@@ -1,6 +1,6 @@
 <div class="w-full min-w-0 flex flex-col justify-between">
   <!-- Cabeçalho Discreto do Gráfico -->
-  <div class="flex items-center justify-between h-7 mb-2 gap-2">
+  <div class="flex items-center justify-between h-7 mb-2">
     <div class="flex items-center gap-2 min-w-0">
       <h4 class="text-sm font-medium text-foreground shrink-0">
         Curva de dupla massa
@@ -9,26 +9,6 @@
         · Y: {{ principalStationName() | titlecase }}
       </span>
     </div>
-
-    @if (showExport()) {
-      <button
-        hlmBtn
-        variant="outline"
-        size="sm"
-        type="button"
-        (click)="exportClick.emit()"
-        [disabled]="isExporting() || loading()"
-        class="h-7 px-2.5 text-xs font-medium inline-flex items-center gap-1.5 cursor-pointer shrink-0"
-        title="Exportar pontos da curva de dupla massa (CSV)"
-      >
-        @if (isExporting()) {
-          <hlm-spinner class="text-xs" />
-        } @else {
-          <ng-icon name="lucideDownload" class="text-xs" />
-        }
-        <span>Exportar CSV</span>
-      </button>
-    }
   </div>
 
   <!-- Área do Gráfico ou Skeleton de Carregamento -->

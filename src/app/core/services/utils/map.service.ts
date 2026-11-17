@@ -5,6 +5,7 @@ import { ThemeService } from './theme.service';
 import { toast } from '@spartan-ng/brain/sonner';
 import { environment } from '../../../../environments/environment';
 import { Marker, Station, StationBBoxRequest } from '../../models/api/station.model';
+import { buildVisualCoordinatesMap } from '../../utils/map-coordinates.utils';
 import { StationService } from '../api/stations.service';
 import { StationAnalyticsService } from './station-analytics.service';
 import { BRAZIL_STATES } from '../../../shared/utils/brazil-states.constants';
@@ -259,53 +260,17 @@ export class MapService implements OnDestroy {
     });
   }
 
-  /**
-   * Calcula coordenadas visuais com pequeno deslocamento circular apenas quando
-   * duas ou mais estações compartilham praticamente o mesmo ponto (~10 m),
-   * evitando sobreposição no mapa sem alterar as coordenadas reais em allMarkers.
-   */
-  private buildVisualCoordinatesMap(markers: Marker[]): Map<string, [number, number]> {
-    const buckets = new Map<string, Marker[]>();
-    for (const marker of markers) {
-      const key = `${marker.latitude.toFixed(4)}:${marker.longitude.toFixed(4)}`;
-      const list = buckets.get(key);
-      if (list) {
-        list.push(marker);
-      } else {
-        buckets.set(key, [marker]);
-      }
-    }
-
-    const coordsMap = new Map<string, [number, number]>();
-    const VISUAL_OFFSET_DEG = 0.00045;
-
-    for (const group of buckets.values()) {
-      if (group.length === 1) {
-        const m = group[0];
-        coordsMap.set(m.id, [m.longitude, m.latitude]);
-        continue;
-      }
-
-      const sorted = [...group].sort((a, b) => a.id.localeCompare(b.id));
-      const angleStep = (2 * Math.PI) / sorted.length;
-
-      sorted.forEach((m, index) => {
-        const angle = index * angleStep;
-        const lng = m.longitude + VISUAL_OFFSET_DEG * Math.cos(angle);
-        const lat = m.latitude + VISUAL_OFFSET_DEG * Math.sin(angle);
-        coordsMap.set(m.id, [lng, lat]);
-      });
-    }
-
-    return coordsMap;
-  }
-
   private async buildClusterLayers(markers: Marker[]): Promise<void> {
     if (!this.map) return;
 
     this.removeClusterLayers();
 
-    const visualCoords = this.buildVisualCoordinatesMap(markers);
+    const visualCoords = buildVisualCoordinatesMap(
+      markers,
+      (m) => m.id,
+      (m) => m.latitude,
+      (m) => m.longitude,
+    );
 
     const geojson: GeoJSON.FeatureCollection = {
       type: 'FeatureCollection',

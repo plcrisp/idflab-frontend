@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import * as mapboxgl from 'mapbox-gl';
+import { buildVisualCoordinatesMap } from '../../../../core/utils/map-coordinates.utils';
 import { Project } from '../../../../core/models/api/project.model';
 import { ThemeService } from '../../../../core/services/utils/theme.service';
 import { environment } from '../../../../../environments/environment';
@@ -145,8 +146,16 @@ export class ProjectsMap implements AfterViewInit, OnDestroy {
     this.clearMarkers();
 
     const items = this.mappedProjects();
+    const visualCoords = buildVisualCoordinatesMap(
+      items,
+      (item) => item.project.id,
+      (item) => item.coords.lat,
+      (item) => item.coords.lon,
+    );
+
     for (const item of items) {
-      const marker = this.createMarker(item.project, item.coords.lon, item.coords.lat);
+      const [lng, lat] = visualCoords.get(item.project.id) ?? [item.coords.lon, item.coords.lat];
+      const marker = this.createMarker(item.project, lng, lat);
       marker.addTo(this.map);
       this.markers.push(marker);
     }
