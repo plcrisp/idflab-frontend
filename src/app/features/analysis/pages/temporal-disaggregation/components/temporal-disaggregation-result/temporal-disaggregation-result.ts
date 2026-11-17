@@ -232,9 +232,7 @@ export class TemporalDisaggregationResult implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    if (!this.isExecuting()) {
-      this.loadDecayCurve();
-    }
+    // O carregamento inicial é disparado reativamente pelo effect() no construtor.
   }
 
   ngOnDestroy(): void {

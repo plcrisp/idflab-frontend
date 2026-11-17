@@ -394,7 +394,6 @@ export class Distribution implements OnInit, OnDestroy {
       error: (err) => {
         this.isAdvancing.set(false);
         console.error('[Distribution] Erro ao avançar etapa:', err);
-        this.router.navigate(['/app/analysis', project.id, 'historical-idf']);
       },
     });
   }

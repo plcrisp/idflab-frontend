@@ -486,7 +486,6 @@ export class FutureScenarios implements OnInit, OnDestroy {
       },
       error: () => {
         this.isAdvancing.set(false);
-        this.router.navigate(['/app/analysis', project.id, 'resultados']);
       },
     });
   }

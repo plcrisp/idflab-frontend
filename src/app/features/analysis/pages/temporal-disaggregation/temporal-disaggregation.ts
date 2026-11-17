@@ -651,7 +651,6 @@ export class TemporalDisaggregation {
       error: (err) => {
         this.isAdvancing.set(false);
         console.error('Erro ao avançar para distribuição:', err);
-        this.router.navigate(['/app/analysis', project.id, 'distribution']);
       },
     });
   }

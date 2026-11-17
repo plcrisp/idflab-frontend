@@ -141,7 +141,6 @@ export class ConsistencyCheck {
         error: (err) => {
           console.error('Erro ao atualizar etapa do projeto:', err);
           this.isAdvancing.set(false);
-          this.router.navigate(['/app/analysis', project.id, 'gap-filling']);
         },
       });
   }

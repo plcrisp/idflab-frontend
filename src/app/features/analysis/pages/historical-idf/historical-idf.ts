@@ -258,7 +258,6 @@ export class HistoricalIdf implements OnInit, OnDestroy {
       error: (err) => {
         console.error('[HistoricalIdf] Erro ao avançar etapa:', err);
         this.isAdvancing.set(false);
-        this.router.navigate(['/app/analysis', project.id, 'cenarios-futuros']);
       },
     });
   }
