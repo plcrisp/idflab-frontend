@@ -8,6 +8,10 @@ export interface InmetStationSummary {
 export const INMET_AVAILABLE_STATIONS: InmetStationSummary[] = [
   { id: 'bac388d3-deba-4682-81e7-07d03faa020d', code: '83781', name: 'São Paulo (Mir. de Santana)', type: 'Convencional' },
   { id: '5e1a5c68-031b-4584-84b2-0fb9b3b1f300', code: '83726', name: 'São Carlos (Convencional)', type: 'Convencional' },
+  { id: '63735eaf-3864-4822-b841-9908f6a08b77', code: '83587', name: 'Belo Horizonte (Convencional)', type: 'Convencional' },
+  { id: 'e5f38404-5da3-4edc-9e90-1f58a308c121', code: '83590', name: 'Itabira (Convencional)', type: 'Convencional' },
+  { id: '9b326c35-3484-400b-afc1-24219e193ad5', code: '83743', name: 'Rio de Janeiro (Convencional)', type: 'Convencional' },
+  { id: '8a8a815d-2f33-45ee-b925-0912f859655e', code: '83784', name: 'Taubaté (Convencional)', type: 'Convencional' },
   { id: '5d674c28-10a3-4298-bef6-872d8a637b13', code: 'A701', name: 'São Paulo (Mirante)', type: 'Automática' },
   { id: '150df017-34fb-4e9c-bf6c-0c64475c3e77', code: 'A711', name: 'São Carlos', type: 'Automática' },
   { id: 'e30e1c61-9a37-4955-aa2a-c96e73e78d37', code: 'A728', name: 'Taubaté', type: 'Automática' },
