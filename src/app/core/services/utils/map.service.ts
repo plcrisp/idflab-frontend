@@ -297,6 +297,7 @@ export class MapService implements OnDestroy {
     this.map.addLayer(CLUSTER_COUNT_LAYER as any);
 
     await this.registerStatusIcons();
+    if (!this.map) return;
 
     this.map.addLayer(UNCLUSTERED_POINT_LAYER as any);
 
@@ -307,15 +308,19 @@ export class MapService implements OnDestroy {
     if (!this.map) return;
 
     const loads = Object.entries(MAP_ICONS).map(([name, svg]) => {
-      if (this.map!.hasImage(name)) return Promise.resolve();
+      if (!this.map || this.map.hasImage(name)) return Promise.resolve();
 
       return new Promise<void>((resolve) => {
         const img = new Image(24, 24);
 
         img.onload = () => {
-          this.map!.addImage(name, img);
+          if (this.map && !this.map.hasImage(name)) {
+            this.map.addImage(name, img);
+          }
           resolve();
         };
+
+        img.onerror = () => resolve();
 
         img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
       });
@@ -329,7 +334,9 @@ export class MapService implements OnDestroy {
 
     // Zoom in
     this.map.on('click', 'clusters', (e) => {
-      const features = this.map!.queryRenderedFeatures(e.point, { layers: ['clusters'] });
+      if (!this.map) return;
+      const features = this.map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
+      if (!features.length) return;
       const clusterId = features[0].properties?.['cluster_id'];
 
       (this.map!.getSource(CLUSTER_SOURCE) as mapboxgl.GeoJSONSource).getClusterExpansionZoom(

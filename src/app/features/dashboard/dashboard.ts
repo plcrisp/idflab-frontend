@@ -87,7 +87,7 @@ export class Dashboard implements OnInit {
 
   readonly paginatedProjects = computed<Project[]>(() => {
     const list = this.filteredProjects();
-    const page = this.currentPage();
+    const page = Math.min(this.currentPage(), this.totalPages());
     const start = (page - 1) * this.pageSize;
     return list.slice(start, start + this.pageSize);
   });
@@ -95,7 +95,7 @@ export class Dashboard implements OnInit {
   readonly paginationText = computed<string>(() => {
     const total = this.totalFiltered();
     if (total === 0) return '';
-    const page = this.currentPage();
+    const page = Math.min(this.currentPage(), this.totalPages());
     const start = (page - 1) * this.pageSize + 1;
     const end = Math.min(page * this.pageSize, total);
     return `${start}-${end} de ${total}`;

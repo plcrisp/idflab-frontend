@@ -10,9 +10,15 @@ export class MainLayoutService {
 
   breadcrumbs = signal<Breadcrumb[]>([]);
 
-  isSidebarCollapsed = signal<boolean>(
-    JSON.parse(localStorage.getItem(this.SIDEBAR_STATE) || 'false'),
-  );
+  isSidebarCollapsed = signal<boolean>(this.readInitialSidebarState());
+
+  private readInitialSidebarState(): boolean {
+    try {
+      return JSON.parse(localStorage.getItem(this.SIDEBAR_STATE) || 'false') === true;
+    } catch {
+      return false;
+    }
+  }
 
   setBreadcrumbs(crumbs: Breadcrumb[]) {
     this.breadcrumbs.set(crumbs);

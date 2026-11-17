@@ -37,7 +37,7 @@ export class StationService {
   }
 
   getStationById(stationId: string): Observable<Station> {
-    return this.http.get<Station>(`${environment.apiUrl}/stations/${stationId}`);
+    return this.http.get<Station>(`${this.baseUrl}/${stationId}`);
   }
 
   searchStations(state: string, search: string): Observable<Station[]> {

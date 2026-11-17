@@ -10,6 +10,7 @@ import { MainLayoutService } from '../../../../core/services/state/main-layout.s
 import { MapService } from '../../../../core/services/utils/map.service';
 import { Marker, Station } from '../../../../core/models/api/station.model';
 import { HlmSidebarService } from '@spartan-ng/helm/sidebar';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-interactive-map',
@@ -22,6 +23,7 @@ export class InteractiveMap implements OnInit, AfterViewInit, OnDestroy {
   private sidebarService = inject(HlmSidebarService);
   private mapService = inject(MapService);
   private cdr = inject(ChangeDetectorRef);
+  private mapReadySub?: Subscription;
 
   isLoadingMap: boolean = true;
 
@@ -38,7 +40,7 @@ export class InteractiveMap implements OnInit, AfterViewInit, OnDestroy {
 
     this.mapService.init('map');
 
-    this.mapService.mapReady$.subscribe((ready) => {
+    this.mapReadySub = this.mapService.mapReady$.subscribe((ready) => {
       if (!ready) return;
 
       setTimeout(() => {
@@ -54,6 +56,7 @@ export class InteractiveMap implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.mapReadySub?.unsubscribe();
     this.mapService.destroy();
   }
 }
