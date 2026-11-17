@@ -45,7 +45,7 @@ h1 {
     width: 100%;
     padding: 0.875rem 1rem;
     color: var(--foreground);
-    background-color: var(--surface);
+    background-color: var(--card);
     border: 1px solid var(--border);
     border-radius: 10px;
     outline: none;
@@ -60,13 +60,13 @@ h1 {
     }
 
     &.invalid {
-      border-color: var(--error);
+      border-color: var(--destructive);
     }
   }
 
   .error-text {
     margin-top: 0.625rem;
-    color: var(--error);
+    color: var(--destructive);
     font-size: 0.8125rem;
     font-weight: 400;
   }
@@ -119,14 +119,14 @@ button {
 
 .btn-primary {
   background: var(--primary);
-  color: var(--color-neutral-50);
+  color: var(--primary-foreground, var(--neutral-50));
   border: none;
   transition: all 0.4s ease;
 
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   &:hover:not(:disabled) {
-    background-color: mix(in srgb, var(--primary) 85%, #000);
+    background-color: color-mix(in srgb, var(--primary) 85%, #000);
     transform: translateY(-1px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
   }

@@ -189,12 +189,13 @@ export class FutureSeriesChart implements OnDestroy {
           const item = items.find((d) => d.year === Number(yearStr));
           if (!item) return '';
 
+          const unitLabel = this.unit() || 'mm';
           const rawVal = item.raw_mm;
           const corrVal = item.corrected_mm;
           const diff = corrVal - rawVal;
           const diffSign = diff > 0 ? '+' : '';
-          const pct = rawVal > 0 ? (diff / rawVal) * 100 : 0;
-          const pctSign = pct > 0 ? '+' : '';
+          const pct = rawVal > 0 ? (diff / rawVal) * 100 : null;
+          const pctSign = pct !== null && pct > 0 ? '+' : '';
 
           const rawFmt = rawVal.toLocaleString('pt-BR', {
             minimumFractionDigits: 1,
@@ -211,12 +212,14 @@ export class FutureSeriesChart implements OnDestroy {
               maximumFractionDigits: 1,
             });
           const pctFmt =
-            pctSign +
-            pct.toLocaleString('pt-BR', {
-              minimumFractionDigits: 1,
-              maximumFractionDigits: 1,
-            }) +
-            '%';
+            pct === null
+              ? '—'
+              : pctSign +
+                pct.toLocaleString('pt-BR', {
+                  minimumFractionDigits: 1,
+                  maximumFractionDigits: 1,
+                }) +
+                '%';
 
           return `
             <div style="font-size: 12px; font-family: ${tokens.fontFamily}; min-width: 175px;">
@@ -225,15 +228,15 @@ export class FutureSeriesChart implements OnDestroy {
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 12px;">
                 <span style="color: ${tokens.textMuted};">Corrigido:</span>
-                <span style="font-weight: 600; color: ${tokens.text}; font-variant-numeric: tabular-nums;">${corrFmt} mm</span>
+                <span style="font-weight: 600; color: ${tokens.text}; font-variant-numeric: tabular-nums;">${corrFmt} ${unitLabel}</span>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 12px;">
                 <span style="color: ${tokens.textMuted};">Modelo bruto:</span>
-                <span style="font-weight: 600; color: ${tokens.text}; font-variant-numeric: tabular-nums;">${rawFmt} mm</span>
+                <span style="font-weight: 600; color: ${tokens.text}; font-variant-numeric: tabular-nums;">${rawFmt} ${unitLabel}</span>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; padding-top: 4px; border-top: 1px dashed ${tokens.border}; gap: 12px;">
                 <span style="color: ${tokens.textMuted};">Diferença:</span>
-                <span style="font-weight: 600; color: ${diff >= 0 ? tokens.primary : tokens.error}; font-variant-numeric: tabular-nums;">${diffFmt} mm (${pctFmt})</span>
+                <span style="font-weight: 600; color: ${diff >= 0 ? tokens.primary : tokens.error}; font-variant-numeric: tabular-nums;">${diffFmt} ${unitLabel} (${pctFmt})</span>
               </div>
             </div>
           `;
@@ -262,7 +265,7 @@ export class FutureSeriesChart implements OnDestroy {
         axisLabel: {
           ...buildAxisLabelBase(tokens),
           hideOverlap: true,
-          formatter: (value: number) => `${Math.round(value).toLocaleString('pt-BR')} mm`,
+          formatter: (value: number) => `${Math.round(value).toLocaleString('pt-BR')} ${this.unit() || 'mm'}`,
         },
         splitLine: buildSplitLineStyle(tokens),
       },
@@ -304,7 +307,7 @@ export class FutureSeriesChart implements OnDestroy {
         ...(observedMean != null && observedMean > 0
           ? [
               {
-                name: 'Média dos máximos da série observada (referência)',
+                name: 'Média observada (referência)',
                 type: 'line' as const,
                 data: [],
                 lineStyle: {
