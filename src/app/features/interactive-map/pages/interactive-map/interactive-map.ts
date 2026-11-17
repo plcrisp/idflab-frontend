@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { MainLayoutService } from '../../../../core/services/state/main-layout.service';
 import { MapService } from '../../../../core/services/utils/map.service';
-import { Marker, Station } from '../../../../core/models/api/station.model';
 import { HlmSidebarService } from '@spartan-ng/helm/sidebar';
 import { Subscription } from 'rxjs';
 

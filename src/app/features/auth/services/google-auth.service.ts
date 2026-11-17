@@ -55,7 +55,6 @@ export class GoogleAuthService {
         } else {
           this.tokenService.saveTokens(response.access_token, response.refresh_token);
           this.auth.navigateAfterLogin(route);
-          console.log('Login com Google realizado com sucesso!');
         }
       },
       error: (err) => console.error('Erro no login com Google', err),

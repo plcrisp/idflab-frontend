@@ -1,5 +1,5 @@
 import { CommonModule, TitleCasePipe } from '@angular/common';
-import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterLink, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ThemeToggle } from './components/theme-toggle/theme-toggle';
@@ -145,7 +145,6 @@ import { ContextualHelpSheet } from './components/contextual-help/contextual-hel
     ...HlmSpinnerImports,
     ...HlmTooltipImports,
   ],
-  providers: [provideBrowserGlobalErrorListeners()],
   bootstrap: [],
 })
 export class SharedModule {}

@@ -15,8 +15,6 @@ import {
   getRouteForStep,
   getStepForRoute,
   isStepBeyond,
-  STEP_ORDER,
-  STEP_ROUTE_MAP,
 } from '../../utils/project-step.utils';
 
 @Injectable({

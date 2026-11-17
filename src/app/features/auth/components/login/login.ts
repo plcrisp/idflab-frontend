@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, NgZone, OnInit } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { GoogleAuthService } from '../../services/google-auth.service';
@@ -9,7 +9,6 @@ import { ActivatedRoute } from '@angular/router';
   standalone: false,
   templateUrl: './login.html',
   styleUrl: './login.scss',
-  providers: [GoogleAuthService],
 })
 export class Login implements OnInit {
   loginForm: FormGroup;
@@ -49,8 +48,7 @@ export class Login implements OnInit {
     const returnUrl = this.route.snapshot.queryParams['returnUrl'];
 
     this.auth.login(email, password, returnUrl).subscribe({
-      next: (response) => {
-        console.log('Login realizado com sucesso!', response);
+      next: () => {
         this.isLoading = false;
       },
       error: (error) => {
@@ -63,7 +61,6 @@ export class Login implements OnInit {
           if (email) {
             this.auth.resendEmailVerification(email).subscribe({
               next: () => {
-                console.log('E-mail de verificação reenviado.');
                 this.isLoading = false;
                 this.cdr.detectChanges();
               },

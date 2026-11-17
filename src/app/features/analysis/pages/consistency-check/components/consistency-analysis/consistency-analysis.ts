@@ -190,21 +190,6 @@ export class ConsistencyAnalysis {
         next: (response) => {
           this.analysis.set(response);
           this.isLoading.set(false);
-
-          console.group(
-            '📊 [ConsistencyAnalysis] Dados da consistência recebidos da rota /consistency-check',
-          );
-          console.log('Resposta completa:', response);
-          console.log('📈 Dupla Massa (Double Mass):', response.double_mass);
-          console.log('🎯 Correlação de Pearson (Pearson):', response.pearson);
-          console.log('🛡️ Cobertura Preenchível (Coverage):', response.coverage);
-          console.log(
-            '📅 Período & Sobreposição:',
-            response.period,
-            `| Resolução: ${response.resolution}`,
-            `| Sobreposição: ${response.overlap_days} dias`,
-          );
-          console.groupEnd();
         },
         error: (err) => {
           console.error('[ConsistencyAnalysis] Erro ao carregar dados da consistência:', err);

@@ -20,7 +20,6 @@ export const ANALYSIS_ROUTES: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        canActivate: [projectAccessGuard],
         component: InitialVisualization,
       },
       {
