@@ -391,7 +391,7 @@ export class HistoricalIdfChart implements OnDestroy {
             rowsHtml += `
               <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 3px;">
                 <span style="display: inline-flex; align-items: center; gap: 6px;">
-                  <span style="width: 8px; height: 8px; border-radius: 2px; background-color: ${p.color}; shrink-0;"></span>
+                  <span style="width: 8px; height: 8px; border-radius: 2px; background-color: ${p.color}; flex-shrink: 0;"></span>
                   <span style="color: ${tokens.text}; font-weight: 500;">${p.seriesName}:</span>
                 </span>
                 <strong style="color: ${tokens.text}; font-variant-numeric: tabular-nums;">${valFmt} mm/h</strong>

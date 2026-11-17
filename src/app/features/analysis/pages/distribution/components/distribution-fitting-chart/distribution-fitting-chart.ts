@@ -220,8 +220,9 @@ export class DistributionFittingChart implements OnDestroy {
               height,
             },
             style: {
-              fill: 'rgba(73, 98, 139, 0.22)',
-              stroke: 'rgba(73, 98, 139, 0.65)',
+              fill: tokens.primaryLight,
+              opacity: 0.35,
+              stroke: tokens.primary,
               lineWidth: 1,
             },
           };

@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { environment } from '../../../../environments/environment';
 import { TokenService } from '../../../core/services/utils/token.service';
 import { Router } from '@angular/router';
+import { toast } from '@spartan-ng/brain/sonner';
 
 declare const google: any;
 
@@ -57,7 +58,12 @@ export class GoogleAuthService {
           this.auth.navigateAfterLogin(route);
         }
       },
-      error: (err) => console.error('Erro no login com Google', err),
+      error: (err) => {
+        console.error('Erro no login com Google', err);
+        toast.error(
+          err?.error?.detail || err?.error?.message || 'Erro ao realizar login com o Google. Tente novamente.',
+        );
+      },
     });
   }
 }

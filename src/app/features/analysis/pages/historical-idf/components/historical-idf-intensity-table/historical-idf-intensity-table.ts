@@ -72,8 +72,10 @@ export class HistoricalIdfIntensityTable {
       const v = this.variationPct();
       if (v) {
         for (const row of Object.values(v)) {
-          if (Array.isArray(row) && row.length > 0) {
-            vals.push(Math.abs(row[0]));
+          if (Array.isArray(row)) {
+            for (const val of row) {
+              vals.push(Math.abs(val));
+            }
           }
         }
       }

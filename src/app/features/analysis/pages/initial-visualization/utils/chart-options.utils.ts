@@ -18,7 +18,7 @@ export const CHART_COLORS = {
 } as const;
 
 export function buildMaxPeriodoLegendIcon(tokens: ChartTokens): string {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14"><rect x="1" y="4.5" width="12" height="9.5" rx="1.5" fill="${tokens.primaryDark}"/><circle cx="7" cy="4" r="3" fill="${tokens.primaryDark}" stroke="#ffffff" stroke-width="1.2"/></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14"><rect x="1" y="4.5" width="12" height="9.5" rx="1.5" fill="${tokens.primaryDark}"/><circle cx="7" cy="4" r="3" fill="${tokens.primaryDark}" stroke="${tokens.surface}" stroke-width="1.2"/></svg>`;
   return `image://data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
@@ -205,7 +205,7 @@ export function buildPeriodMaxMarkPointItem(
     symbolSize: 7,
     itemStyle: {
       color: tokens.primaryDark,
-      borderColor: '#ffffff',
+      borderColor: tokens.surface,
       borderWidth: 1.5,
     },
   };
