@@ -121,6 +121,7 @@ export class Register implements OnInit {
         email: history.state.email,
         user_type: this.registerForm.value.user_type,
         institution: this.registerForm.value.institution,
+        google_register_token: history.state.googleRegisterToken ?? '',
       };
 
       this.auth.registerWithGoogle(payloadGoogle).subscribe({

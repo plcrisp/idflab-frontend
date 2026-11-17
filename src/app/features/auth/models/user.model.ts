@@ -57,4 +57,5 @@ export interface GoogleRegisterRequest {
   name: string;
   user_type: UserType;
   institution?: string | null;
+  google_register_token: string;
 }

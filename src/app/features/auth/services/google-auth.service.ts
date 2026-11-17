@@ -27,6 +27,8 @@ export class GoogleAuthService {
   }
 
   openPopup(route?: string): void {
+    if (typeof google === 'undefined' || !google?.accounts?.oauth2) return;
+
     google.accounts.oauth2
       .initTokenClient({
         client_id: environment.googleClientId,
@@ -43,7 +45,12 @@ export class GoogleAuthService {
       next: (response) => {
         if (response.needs_registration) {
           this.router.navigate(['/auth/register'], {
-            state: { isGoogleAuth: true, email: response.email, name: response.name },
+            state: {
+              isGoogleAuth: true,
+              email: response.email,
+              name: response.name,
+              googleRegisterToken: response.google_register_token,
+            },
           });
         } else {
           this.tokenService.saveTokens(response.access_token, response.refresh_token);

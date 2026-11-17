@@ -116,6 +116,7 @@ export class AuthService {
     const body = refreshToken ? { refresh_token: refreshToken } : {};
 
     return this.http.post(`${this.baseUrl}/logout`, body).pipe(
+      catchError(() => of(null)),
       tap(() => {
         this.tokenService.clearTokens();
         this.router.navigate(['/auth/login']);
