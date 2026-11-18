@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { ProjectStateService } from '../services/project-state.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { map } from 'rxjs';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { filter, map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AnalysisStep, HeaderData } from '../shared/models/analysis.models';
 import { NotificationsService } from '../../../core/services/api/notifications.service';
@@ -64,11 +64,27 @@ export class AnalysisLayout implements OnInit, AfterViewInit {
         this.projectState.loadProject(projectId);
         this.notificationsService.refetch();
       });
+
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        this.scrollToTop();
+      });
   }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.sidebarService.setOpen(false);
     }, 300);
+  }
+
+  private scrollToTop(): void {
+    const options: ScrollToOptions = { top: 0, left: 0, behavior: 'smooth' };
+    window.scrollTo?.(options);
+    document.documentElement?.scrollTo?.(options);
+    document.body?.scrollTo?.(options);
   }
 }
