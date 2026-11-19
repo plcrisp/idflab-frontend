@@ -45,6 +45,8 @@
         [customDescription]="'Busca e processamento dos dados da estação em andamento.'"
         [customMessage]="!job() ? (progress()?.message ?? null) : null"
         [customProgress]="!job() ? (progress()?.percentage ?? null) : null"
+        [showCancel]="true"
+        (cancel)="cancelLoading.emit()"
         class="block [&>div]:border-none [&>div]:shadow-none [&>div]:bg-transparent" />
     </div>
     } @else if (loading()) {

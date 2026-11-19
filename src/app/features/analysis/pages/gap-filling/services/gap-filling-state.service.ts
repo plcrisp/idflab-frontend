@@ -135,6 +135,13 @@ export class GapFillingStateService {
       }
     });
 
+    this.neighborManager.setOnCancelled((previousActive) => {
+      const p = this.project();
+      if (p) {
+        this.saveStep(p.id, previousActive?.id ?? null, null);
+      }
+    });
+
     // Reage a mudanças no projeto
     effect(() => {
       const project = this.project();
@@ -432,7 +439,11 @@ export class GapFillingStateService {
     this.neighborManager.lockSelection(locked);
   }
 
-  saveStep(projectId: string, stationId: string, jobId: string | null): void {
+  cancelNeighborLoading(): void {
+    this.neighborManager.cancelLoading();
+  }
+
+  saveStep(projectId: string, stationId: string | null, jobId: string | null): void {
     const request: ProjectStepSaveRequest<GapFillingStepParams> = {
       step: 'GAP_FILLING',
       status: 'PENDING',

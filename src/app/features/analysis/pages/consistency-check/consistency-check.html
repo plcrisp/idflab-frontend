@@ -41,6 +41,7 @@
       [progress]="state.neighborProgress()"
       [isSelectionLocked]="state.isSelectionLocked()"
       (changeStation)="onScrollToNeighborCard()"
+      (cancelLoading)="state.cancelNeighborLoading()"
     />
   }
 

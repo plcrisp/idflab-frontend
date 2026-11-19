@@ -4,8 +4,8 @@
     [isHourly]="state.isHourly()" />
 
   <!-- 2. Seletor de Caminho do Tratamento de Falhas -->
-  <app-gap-filling-path-selector [(selected)]="selectedPath" [fillStatus]="fillStatus()" [filterApplied]="isFilterApplied()"
-    [filterThreshold]="filterThreshold()" [disabled]="isPathSelectorDisabled()" />
+  <app-gap-filling-path-selector [(selected)]="selectedPath" [fillStatus]="fillStatus()"
+    [filterApplied]="isFilterApplied()" [filterThreshold]="filterThreshold()" [disabled]="isPathSelectorDisabled()" />
 
   <!-- 3. Painel do Caminho Selecionado -->
   @if (selectedPath() === 'fill') {
@@ -24,58 +24,37 @@
 
   <!-- Card Independente: Métricas de Pré-Preenchimento -->
   @if (shouldShowMetricsCard()) {
-  <app-gap-filling-pre-metrics-card id="gap-filling-pre-metrics-card"
-    [activeStation]="state.activeNeighborStation()"
-    [selectedStation]="state.selectedNeighbor()"
-    [status]="state.confirmationStatus()"
-    [job]="state.neighborJob()"
-    [progress]="state.neighborProgress()"
-    [metrics]="state.preMetrics()"
-    [warnings]="state.preMetricsWarnings()"
-    [loading]="state.isLoadingPreMetrics()"
-    [error]="state.preMetricsError()"
-    [disabled]="state.isSelectionLocked() || state.isFilling()"
-    [isFilling]="state.isFilling()"
-    [isFilled]="isFilled()"
-    (changeStation)="onScrollToNeighborCard()"
-    (retry)="state.loadPreMetrics(true)"
-    (fillGaps)="onFillGaps()"
-    (skipStep)="onSkipStep()" />
+  <app-gap-filling-pre-metrics-card id="gap-filling-pre-metrics-card" [activeStation]="state.activeNeighborStation()"
+    [selectedStation]="state.selectedNeighbor()" [status]="state.confirmationStatus()" [job]="state.neighborJob()"
+    [progress]="state.neighborProgress()" [metrics]="state.preMetrics()" [warnings]="state.preMetricsWarnings()"
+    [loading]="state.isLoadingPreMetrics()" [error]="state.preMetricsError()"
+    [disabled]="state.isSelectionLocked() || state.isFilling()" [isFilling]="state.isFilling()" [isFilled]="isFilled()"
+    (changeStation)="onScrollToNeighborCard()" (cancelLoading)="state.cancelNeighborLoading()"
+    (retry)="state.loadPreMetrics(true)" (fillGaps)="onFillGaps()" (skipStep)="onSkipStep()" />
   }
 
   <!-- Card Independente: Métricas de Pós-Preenchimento -->
   @if (shouldShowPostMetrics()) {
-  <app-gap-filling-post-metrics-card id="gap-filling-post-metrics-card"
-    [projectId]="state.project()?.id ?? null"
-    [isFilling]="state.isFilling()"
-    [job]="state.fillingJob()"
-    [metrics]="state.postMetrics()"
+  <app-gap-filling-post-metrics-card id="gap-filling-post-metrics-card" [projectId]="state.project()?.id ?? null"
+    [isFilling]="state.isFilling()" [job]="state.fillingJob()" [metrics]="state.postMetrics()"
     [station]="state.activeNeighborStation() ?? state.selectedNeighbor()"
-    [totalYears]="state.stats()?.total_years ?? null"
-    [historicalMaxValue]="state.stats()?.max_value ?? null"
-    [historicalMaxDate]="state.stats()?.max_value_date ?? null"
-    [startDate]="state.project()?.start_date ?? null"
-    [endDate]="state.project()?.end_date ?? null"
-    [disabled]="state.isSelectionLocked() || state.isFilling()"
+    [totalYears]="state.stats()?.total_years ?? null" [historicalMaxValue]="state.stats()?.max_value ?? null"
+    [historicalMaxDate]="state.stats()?.max_value_date ?? null" [startDate]="state.project()?.start_date ?? null"
+    [endDate]="state.project()?.end_date ?? null" [disabled]="state.isSelectionLocked() || state.isFilling()"
     (recalculate)="onFillGaps()" />
   }
 
   <!-- Fim do Caminho A: Disponibilidade de Dados por Ano -->
   @if (isFilled()) {
-  <app-year-data-availability
-    [projectId]="state.project()?.id ?? null"
-    [source]="'filled'"
+  <app-year-data-availability [projectId]="state.project()?.id ?? null" [source]="'filled'"
     [initialThreshold]="state.savedFilter()?.source === 'filled' ? (state.savedFilter()?.threshold ?? null) : null"
     [initialManualOverrides]="state.savedFilter()?.source === 'filled' ? savedManualOverrides() : null"
     (stateChange)="onYearFilterStateChange($event)" />
   }
   } @else {
   <!-- Caminho B: Desconsiderar Anos Incompletos -->
-  <app-year-data-availability
-    [projectId]="state.project()?.id ?? null"
-    [source]="'original'"
-    [initialThreshold]="state.savedFilter()?.threshold ?? null"
-    [initialManualOverrides]="savedManualOverrides()"
+  <app-year-data-availability [projectId]="state.project()?.id ?? null" [source]="'original'"
+    [initialThreshold]="state.savedFilter()?.threshold ?? null" [initialManualOverrides]="savedManualOverrides()"
     (stateChange)="onYearFilterStateChange($event)" />
   }
 
@@ -87,26 +66,21 @@
     </button>
 
     <div class="flex items-center gap-2.5 ml-auto">
-      <button
-        hlmBtn
-        variant="outline"
-        type="button"
-        (click)="onDownloadFilledSeries()"
+      <button hlmBtn variant="outline" type="button" (click)="onDownloadFilledSeries()"
         [disabled]="state.isFilling() || state.isLoading() || isDownloadingFilledSeries()"
-        class="cursor-pointer inline-flex items-center"
-      >
+        class="cursor-pointer inline-flex items-center">
         @if (isDownloadingFilledSeries()) {
-          <hlm-spinner class="mr-2" />
-          <span>Baixando…</span>
+        <hlm-spinner class="mr-2" />
+        <span>Baixando…</span>
         } @else {
-          <ng-icon name="lucideDownload" class="mr-2 text-xs" />
-          <span>{{ downloadButtonLabel() }}</span>
+        <ng-icon name="lucideDownload" class="mr-2 text-xs" />
+        <span>{{ downloadButtonLabel() }}</span>
         }
       </button>
 
       <button hlmBtn (click)="onAdvance()" [disabled]="isAdvanceDisabled() || isAdvancing()">
         @if (isAdvancing()) {
-          <hlm-spinner class="mr-2" />
+        <hlm-spinner class="mr-2" />
         }
         {{ advanceButtonText() }}
         <ng-icon name="lucideArrowRight" class="ml-2" />

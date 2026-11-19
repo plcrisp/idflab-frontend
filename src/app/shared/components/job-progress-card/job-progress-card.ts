@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { ActiveJobItem } from '../../../core/models/api/notification.model';
 
 @Component({
@@ -17,6 +17,10 @@ export class JobProgressCard {
   customMessage = input<string | null>(null);
   customProgress = input<number | null>(null);
   extraWarning = input<string | null>(null);
+  showCancel = input<boolean>(false);
+  cancelLabel = input<string>('Cancelar espera e escolher outra estação');
+
+  cancel = output<void>();
 
   displayTitle = computed(() => {
     return this.customTitle() ?? this.job()?.project_name ?? '';

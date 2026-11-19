@@ -96,6 +96,22 @@
           Uma notificação avisará você assim que a busca for concluída.
         </span>
       </div>
+
+      @if (showCancel()) {
+        <div class="flex justify-center pt-2">
+          <button
+            hlmBtn
+            variant="outline"
+            size="sm"
+            type="button"
+            (click)="cancel.emit()"
+            class="cursor-pointer font-medium inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-all"
+          >
+            <ng-icon name="lucideCircleX" class="text-xs" />
+            <span>{{ cancelLabel() }}</span>
+          </button>
+        </div>
+      }
     </div>
   </div>
 }

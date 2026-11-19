@@ -89,6 +89,13 @@ export class ConsistencyCheckStateService {
       }
     });
 
+    this.neighborManager.setOnCancelled((previousActive) => {
+      const p = this.project();
+      if (p) {
+        this.saveStep(p.id, previousActive?.id ?? null, null);
+      }
+    });
+
     // Reage a mudanças no projeto
     effect(() => {
       const project = this.project();
@@ -202,7 +209,11 @@ export class ConsistencyCheckStateService {
     this.neighborManager.lockSelection(locked);
   }
 
-  private saveStep(projectId: string, stationId: string, jobId: string | null): void {
+  cancelNeighborLoading(): void {
+    this.neighborManager.cancelLoading();
+  }
+
+  private saveStep(projectId: string, stationId: string | null, jobId: string | null): void {
     const currentSaved = this.savedStep();
     const request: ProjectStepSaveRequest<ConsistencyStepParams> = {
       step: 'CONSISTENCY',
@@ -212,7 +223,7 @@ export class ConsistencyCheckStateService {
         excluded_years: currentSaved?.params?.excluded_years ?? [],
       },
       result: currentSaved?.result ?? undefined,
-      job_id: jobId ? jobId : undefined,
+      job_id: jobId,
     };
 
     this.projectStepsService.saveProjectStep(projectId, request).subscribe({

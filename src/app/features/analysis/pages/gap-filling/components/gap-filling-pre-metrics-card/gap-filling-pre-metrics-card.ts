@@ -98,6 +98,7 @@ export class GapFillingPreMetricsCard {
   readonly isFilled = input<boolean>(false);
 
   readonly changeStation = output<void>();
+  readonly cancelLoading = output<void>();
   readonly retry = output<void>();
   readonly fillGaps = output<void>();
   readonly skipStep = output<void>();

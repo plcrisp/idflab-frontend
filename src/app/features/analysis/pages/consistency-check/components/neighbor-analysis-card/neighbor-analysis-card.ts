@@ -40,6 +40,7 @@ export class NeighborAnalysisCard {
   isSelectionLocked = input<boolean>(false);
 
   changeStation = output<void>();
+  cancelLoading = output<void>();
 
   // Sinais de requisição da consistência (Dupla Massa)
   readonly analysis = signal<ConsistencyCheckResponse | null>(null);

@@ -38,7 +38,9 @@ export class NeighborStationsManagerService {
 
   private hasSeenActiveJob = false;
   private neighborsSub: Subscription | null = null;
+  private ensureSub: Subscription | null = null;
   private onConfirmedCallback?: (neighbor: NeighborStation, jobId: string | null) => void;
+  private onCancelledCallback?: (previousActive: NeighborStation | null) => void;
   private pendingStationId: string | null = null;
   private pendingJobId: string | null = null;
   private pendingProjectId: string | null = null;
@@ -57,6 +59,7 @@ export class NeighborStationsManagerService {
   constructor() {
     this.destroyRef.onDestroy(() => {
       this.neighborsSub?.unsubscribe();
+      this.ensureSub?.unsubscribe();
       this.projectState.setNeighborJobId(null);
     });
 
@@ -94,6 +97,10 @@ export class NeighborStationsManagerService {
 
   setOnConfirmed(callback: (neighbor: NeighborStation, jobId: string | null) => void): void {
     this.onConfirmedCallback = callback;
+  }
+
+  setOnCancelled(callback: (previousActive: NeighborStation | null) => void): void {
+    this.onCancelledCallback = callback;
   }
 
   loadNeighbors(
@@ -158,7 +165,8 @@ export class NeighborStationsManagerService {
 
     const payload = buildEnsureStationDataPayload(neighbor, projectId);
 
-    this.stationService.ensureStationData(stationId, payload).subscribe({
+    this.ensureSub?.unsubscribe();
+    this.ensureSub = this.stationService.ensureStationData(stationId, payload).subscribe({
       next: (response) => {
         if (response.status === 'ready') {
           this.activeNeighborStation.set(neighbor);
@@ -289,9 +297,9 @@ export class NeighborStationsManagerService {
     projectId?: string,
   ): void {
     this.selectedNeighbor.set(neighbor);
-    this.activeNeighborStation.set(neighbor);
 
     if (savedJobId) {
+      this.activeNeighborStation.set(null);
       this.neighborJobId.set(savedJobId);
       this.projectState.setNeighborJobId(savedJobId);
       this.confirmationStatus.set('loading');
@@ -307,10 +315,40 @@ export class NeighborStationsManagerService {
 
       this.notificationsService.refetch();
     } else {
+      this.activeNeighborStation.set(neighbor);
       this.confirmationStatus.set('ready');
       this.isLoadingNeighborData.set(false);
       this.isSelectionLocked.set(false);
     }
+  }
+
+  cancelLoading(): void {
+    if (this.confirmationStatus() !== 'loading') return;
+
+    this.ensureSub?.unsubscribe();
+    this.ensureSub = null;
+
+    const previousActive = this.activeNeighborStation();
+    this.neighborJobId.set(null);
+    this.neighborProgress.set(null);
+    this.hasSeenActiveJob = false;
+    this.isLoadingNeighborData.set(false);
+    this.isSelectionLocked.set(false);
+    this.projectState.setNeighborJobId(null);
+
+    if (previousActive) {
+      this.selectedNeighbor.set(previousActive);
+      this.confirmationStatus.set('ready');
+    } else {
+      this.confirmationStatus.set('idle');
+    }
+
+    this.onCancelledCallback?.(previousActive);
+
+    toast.info(
+      'Seleção liberada. Você já pode escolher outra estação — a coleta anterior continuará em segundo plano.',
+      { duration: 5000, position: 'bottom-center' },
+    );
   }
 
   private onJobSuccess(): void {
@@ -340,6 +378,8 @@ export class NeighborStationsManagerService {
 
   reset(): void {
     this.neighborsSub?.unsubscribe();
+    this.ensureSub?.unsubscribe();
+    this.ensureSub = null;
     this.neighbors.set([]);
     this.selectedNeighbor.set(null);
     this.activeNeighborStation.set(null);
