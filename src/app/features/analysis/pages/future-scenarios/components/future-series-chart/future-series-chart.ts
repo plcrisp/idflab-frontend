@@ -44,7 +44,7 @@ function buildLineWithDotLegendIcon(color: string, surfaceColor: string = '#ffff
 })
 export class FutureSeriesChart implements OnDestroy {
   readonly data = input<FutureAnnualMaximumItem[] | null>(null);
-  readonly observedReferenceMean = input<number | null>(null);
+  readonly historicalMax = input<number | null>(null);
   readonly unit = input<string>('mm');
   readonly modelColor = input<string>('#3b82f6');
 
@@ -53,13 +53,13 @@ export class FutureSeriesChart implements OnDestroy {
 
   private readonly echarts = inject(EchartsService) as EchartsService<{
     items: FutureAnnualMaximumItem[];
-    observedReferenceMean: number | null;
+    historicalMax: number | null;
     modelColor: string;
   }>;
 
   private readonly chartInput = computed(() => ({
     items: this.data() ?? [],
-    observedReferenceMean: this.observedReferenceMean(),
+    historicalMax: this.historicalMax(),
     modelColor: this.modelColor(),
   }));
 
@@ -67,8 +67,8 @@ export class FutureSeriesChart implements OnDestroy {
     this.echarts.setup({
       container: () => this.chartContainer.nativeElement,
       data: this.chartInput,
-      buildOption: ({ items, observedReferenceMean, modelColor }) =>
-        this.buildOption(items, observedReferenceMean, modelColor),
+      buildOption: ({ items, historicalMax, modelColor }) =>
+        this.buildOption(items, historicalMax, modelColor),
     });
   }
 
@@ -78,7 +78,7 @@ export class FutureSeriesChart implements OnDestroy {
 
   private buildOption(
     items: FutureAnnualMaximumItem[],
-    observedMean: number | null,
+    historicalMax: number | null,
     modelColor: string = '#3b82f6',
   ): EChartsOption {
     const tokens = this.echarts.getTokens();
@@ -102,22 +102,22 @@ export class FutureSeriesChart implements OnDestroy {
       if (item.corrected_mm != null) allValues.push(item.corrected_mm);
       if (item.raw_mm != null) allValues.push(item.raw_mm);
     }
-    if (observedMean != null && observedMean > 0) {
-      allValues.push(observedMean);
+    if (historicalMax != null && historicalMax > 0) {
+      allValues.push(historicalMax);
     }
     const maxTarget = allValues.length > 0 ? Math.max(...allValues) : 50;
     const step = maxTarget <= 60 ? 10 : maxTarget <= 120 ? 20 : 50;
     const yAxisMax = calcYAxisMax(maxTarget, null, step);
 
     const markLineData =
-      observedMean != null && observedMean > 0
+      historicalMax != null && historicalMax > 0
         ? {
             silent: true,
             symbol: ['none', 'none'] as [string, string],
             data: [
               {
-                name: 'Média observada (referência)',
-                yAxis: observedMean,
+                name: 'Máximo histórico',
+                yAxis: historicalMax,
                 lineStyle: {
                   color: tokens.historicalMax,
                   type: 'dashed' as const,
@@ -158,10 +158,10 @@ export class FutureSeriesChart implements OnDestroy {
             name: 'Modelo bruto',
             icon: buildLineWithDotLegendIcon(activeModelColor, tokens.surface),
           },
-          ...(observedMean != null && observedMean > 0
+          ...(historicalMax != null && historicalMax > 0
             ? [
                 {
-                  name: 'Média observada (referência)',
+                  name: 'Máximo histórico',
                   icon: buildDashedLineLegendIcon(tokens.historicalMax),
                 },
               ]
@@ -304,10 +304,10 @@ export class FutureSeriesChart implements OnDestroy {
           },
           z: 10,
         },
-        ...(observedMean != null && observedMean > 0
+        ...(historicalMax != null && historicalMax > 0
           ? [
               {
-                name: 'Média observada (referência)',
+                name: 'Máximo histórico',
                 type: 'line' as const,
                 data: [],
                 lineStyle: {

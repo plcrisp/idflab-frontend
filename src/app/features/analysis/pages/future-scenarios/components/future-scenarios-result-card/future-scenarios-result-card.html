@@ -179,7 +179,7 @@
 
         <app-future-series-chart
           [data]="r.future_series.annual_maximums"
-          [observedReferenceMean]="r.future_series.observed_reference_mean_mm"
+          [historicalMax]="r.future_series.observed_historical_max_mm ?? null"
           [modelColor]="modelColor()"
         />
       </div>

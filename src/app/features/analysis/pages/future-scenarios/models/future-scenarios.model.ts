@@ -235,6 +235,7 @@ export interface FutureSeries {
   raw_mean_mm: number;
   corrected_mean_mm: number;
   observed_reference_mean_mm: number;
+  observed_historical_max_mm?: number | null;
   annual_maximums: FutureAnnualMaximumItem[];
 }
 
